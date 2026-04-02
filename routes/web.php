@@ -1,7 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\SekolahController;
+use App\Http\Controllers\GuruController;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::resource('sekolah', SekolahController::class);
+Route::resource('guru', GuruController::class);
