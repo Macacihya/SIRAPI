@@ -1,311 +1,211 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Login - SIRAPI</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
     <style>
-        * { box-sizing: border-box; }
-        body { font-family: 'Inter', system-ui, -apple-system, sans-serif; margin: 0; }
-
-        .input-field {
-            width: 100%;
-            padding: 12px 16px;
-            border-radius: 12px;
-            border: 1.5px solid #e2e8f0;
-            background: white;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-            font-size: 14px;
-            color: #1e293b;
-            outline: none;
-            transition: border-color .2s, box-shadow .2s;
-        }
-        .input-field:focus { border-color: #1a3a6b; box-shadow: 0 0 0 3px rgba(26,58,107,0.1); }
-        .input-field::placeholder { color: #94a3b8; }
-
-        .btn-primary {
-            width: 100%;
-            padding: 14px;
-            border-radius: 12px;
-            background: linear-gradient(135deg, #1a3a6b 0%, #1e4d9b 100%);
-            color: white;
-            font-size: 14px;
-            font-weight: 600;
-            border: none;
-            cursor: pointer;
-            box-shadow: 0 4px 14px rgba(26,58,107,0.35);
-            transition: transform .2s, box-shadow .2s;
-        }
-        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(26,58,107,0.4); }
-        .btn-primary:active { transform: translateY(0); }
-        .btn-primary:disabled { background: #475569; box-shadow: none; cursor: not-allowed; transform: none; }
-
-        .role-btn {
-            padding: 10px 8px;
-            border-radius: 8px;
-            font-size: 13px;
-            font-weight: 500;
-            border: 1px solid #e2e8f0;
-            background: white;
-            color: #64748b;
-            cursor: pointer;
-            transition: all .2s;
-            text-align: center;
-        }
-        .role-btn.active {
-            background: #1a3a6b;
-            color: white;
-            border-color: #1a3a6b;
-            box-shadow: 0 2px 8px rgba(26,58,107,0.3);
+        :root {
+            --page-bg: #f4f7fb;
+            --panel-bg: #eff4fb;
+            --text-main: #0f172a;
+            --text-soft: #475569;
+            --text-muted: #64748b;
+            --field-bg: #eef2f7;
+            --field-border: #d9e2ec;
+            --line-soft: rgba(15, 23, 42, 0.06);
+            --brand-1: #1a3a6b;
+            --brand-2: #1e4d9b;
+            --brand-3: #0f2347;
         }
 
-        .eye-btn {
+        body { font-family: 'Inter', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .brand-diamond::before {
+            content: "";
             position: absolute;
-            right: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            cursor: pointer;
-            color: #94a3b8;
-            padding: 4px;
-            display: flex;
-            align-items: center;
+            inset: 0;
+            border: 1px solid var(--line-soft);
+            transform: rotate(45deg);
+            border-radius: 6px;
         }
-
-        .left-panel {
-            background: linear-gradient(145deg, #1a3a6b 0%, #0f2347 40%, #0a1a38 100%);
+        .ghost-block {
+            position: absolute;
+            border-radius: 18px;
+            background: rgba(26, 58, 107, 0.055);
         }
-
-        .spinner {
-            width: 16px; height: 16px;
-            border: 2px solid rgba(255,255,255,0.3);
-            border-top-color: white;
-            border-radius: 50%;
-            animation: spin .7s linear infinite;
-            display: inline-block;
-            vertical-align: middle;
-            margin-right: 6px;
-        }
-        @keyframes spin { to { transform: rotate(360deg); } }
-
-        .alert-error {
-            background: #fef2f2;
-            border: 1px solid #fecaca;
-            border-radius: 10px;
-            padding: 12px 16px;
-            color: #dc2626;
-            font-size: 14px;
-            margin-bottom: 20px;
-        }
-
-        .alert-success {
-            background: #eff6ff;
-            border: 1px solid #bfdbfe;
-            border-radius: 10px;
-            padding: 12px 16px;
-            color: #1d4ed8;
-            font-size: 14px;
-            margin-bottom: 20px;
-        }
-
-        .field-error {
-            margin-top: 6px;
-            font-size: 12px;
-            color: #dc2626;
-        }
-
-        .auth-card {
-            width: 100%;
-            max-width: 440px;
-            padding: 28px 24px;
-            border: 1px solid #dbe4f0;
-            border-radius: 24px;
-            background: rgba(255,255,255,0.95);
-            box-shadow: 0 18px 44px rgba(15,23,42,0.08);
-        }
-
-        @media (max-width: 1023px) {
-            .auth-card {
-                padding: 24px 20px;
-                box-shadow: 0 16px 40px rgba(15,23,42,0.08);
-            }
-        }
+        select { background-image: none !important; }
     </style>
 </head>
-<body class="min-h-screen flex">
+<body class="min-h-screen bg-[var(--page-bg)] text-[var(--text-main)]">
+<div class="mx-auto flex min-h-screen max-w-[1500px] flex-col justify-center px-4 py-4 sm:px-6 sm:py-6 lg:px-10 lg:py-10">
+    <main class="mx-auto w-full max-w-[1260px] overflow-hidden rounded-[18px] bg-white shadow-[0_24px_60px_rgba(15,23,42,0.14)]">
+        <div class="grid min-h-[760px] lg:grid-cols-[1.08fr_0.92fr]">
+            <section class="relative overflow-hidden bg-[var(--panel-bg)] px-6 py-8 sm:px-8 sm:py-10 md:px-12 md:py-12 lg:px-16 lg:py-14">
+                <div class="relative z-10">
+                    <div class="relative mb-8 h-12 w-12 sm:mb-10 sm:h-14 sm:w-14 md:h-16 md:w-16 brand-diamond"></div>
 
-    <!-- Left Panel - Branding -->
-    <div class="left-panel hidden lg:flex flex-col justify-between p-12 relative overflow-hidden" style="width:42%">
-        <div style="position:absolute;inset:0;background-image:radial-gradient(circle at 20% 20%,rgba(59,130,246,.15) 0%,transparent 50%),radial-gradient(circle at 80% 80%,rgba(99,102,241,.1) 0%,transparent 50%)"></div>
-        <div style="position:absolute;top:0;right:0;width:288px;height:288px;border-radius:50%;background:#60a5fa;opacity:.05;transform:translate(30%,-30%)"></div>
-        <div style="position:absolute;bottom:0;left:0;width:384px;height:384px;border-radius:50%;background:#818cf8;opacity:.05;transform:translate(-30%,30%)"></div>
-        
-        <!-- Logo -->
-        <div style="position:relative;z-index:10;display:flex;align-items:center;gap:12px">
-            <div style="width:48px;height:48px;border-radius:12px;background:rgba(96,165,250,.2);border:1px solid rgba(96,165,250,.3);display:flex;align-items:center;justify-content:center">
-                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#93c5fd" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
-            </div>
-            <div>
-                <p style="color:white;font-weight:700;font-size:20px;line-height:1.2;letter-spacing:.03em">SIRAPI</p>
-                <p style="color:#93c5fd;font-size:11px;letter-spacing:.05em">SISTEM RAPOR PINTAR</p>
-            </div>
-        </div>
-
-        <!-- Center -->
-        <div style="position:relative;z-index:10;max-width:320px;margin-top:40px">
-            <h1 style="color:white;font-weight:700;font-size:38px;line-height:1.2;margin-bottom:16px">
-                Kelola Rapor<br><span style="color:#60a5fa">Lebih Cerdas</span>
-            </h1>
-            <p style="color:#94a3b8;line-height:1.7;font-size:15px;margin-bottom:32px">
-                Platform digital terpadu untuk mengelola nilai, absensi, dan laporan akademik siswa secara efisien dan akurat.
-            </p>
-            <div style="display:flex;flex-direction:column;gap:14px">
-                @foreach([
-                    'Pengolahan nilai rapor otomatis & akurat',
-                    'Cetak rapor digital dengan satu klik',
-                    'Multi-role: Admin, Guru & Wali Kelas',
-                ] as $fitur)
-                <div style="display:flex;align-items:center;gap:12px">
-                    <div style="width:32px;height:32px;border-radius:8px;background:rgba(96,165,250,.15);display:flex;align-items:center;justify-content:center;flex-shrink:0">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                    </div>
-                    <span style="color:#cbd5e1;font-size:14px">{{ $fitur }}</span>
-                </div>
-                @endforeach
-            </div>
-        </div>
-
-        <div style="position:relative;z-index:10">
-            <p style="color:#475569;font-size:12px">&copy; {{ date('Y') }} SIRAPI &middot; Sistem Rapor Pintar</p>
-        </div>
-    </div>
-
-    <!-- Right Panel - Login Form -->
-    <div class="flex-1 flex items-center justify-center p-8" style="background:#f8fafc">
-        <div class="auth-card">
-
-            <!-- Header -->
-            <div style="margin-bottom:28px">
-                <h2 style="font-size:28px;font-weight:700;color:#0f172a;margin-bottom:6px">Selamat Datang</h2>
-                <p style="color:#64748b;font-size:14px">Masuk ke akun Anda untuk melanjutkan</p>
-            </div>
-
-            @if(session('status'))
-            <div class="alert-success">{{ session('status') }}</div>
-            @endif
-
-            <!-- Errors -->
-            @if($errors->any())
-            <div class="alert-error">{{ $errors->first() }}</div>
-            @endif
-            @if(session('error'))
-            <div class="alert-error">{{ session('error') }}</div>
-            @endif
-
-            <!-- Role Selector -->
-            <div style="margin-bottom:22px">
-                <p style="font-size:14px;font-weight:500;color:#4b5563;margin-bottom:10px">Masuk sebagai:</p>
-                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
-                    <button type="button" class="role-btn active" onclick="setRole(this,'admin')" id="role-admin">Admin</button>
-                    <button type="button" class="role-btn" onclick="setRole(this,'guru')" id="role-guru">Guru</button>
-                    <button type="button" class="role-btn" onclick="setRole(this,'walikelas')" id="role-walikelas">Wali Kelas</button>
-                </div>
-            </div>
-
-            <!-- Form -->
-            <form method="POST" action="{{ route('login.post') }}" id="loginForm">
-                @csrf
-                <input type="hidden" name="role" id="roleInput" value="admin">
-
-                <div style="display:flex;flex-direction:column;gap:18px">
-                    <!-- Username -->
-                    <div>
-                        <label id="usernameLabel" style="display:block;font-size:14px;font-weight:500;color:#374151;margin-bottom:6px">Username</label>
-                        <input type="text" name="username" id="usernameField" class="input-field"
-                            placeholder="Masukkan username"
-                            value="{{ old('username') }}" required autocomplete="username">
-                        @error('username')
-                        <p class="field-error">{{ $message }}</p>
-                        @enderror
+                    <div class="mb-10 sm:mb-12 md:mb-14">
+                        <h1 class="text-[28px] font-black uppercase tracking-[-0.05em] text-[var(--brand-1)] sm:text-[34px] md:text-[42px] lg:text-[58px] lg:leading-[0.92]">
+                            SIRAPI
+                        </h1>
+                        <p class="mt-2 text-[10px] font-semibold uppercase tracking-[0.22em] text-[var(--text-muted)] sm:text-[11px] md:text-[13px] md:tracking-[0.24em]">
+                            Sistem Rapor Pintar
+                        </p>
                     </div>
 
-                    <!-- Password -->
-                    <div>
-                        <label style="display:block;font-size:14px;font-weight:500;color:#374151;margin-bottom:6px">Kata Sandi</label>
-                        <div style="position:relative">
-                            <input type="password" name="password" id="passwordField" class="input-field"
-                                style="padding-right:48px"
-                                placeholder="Masukkan kata sandi" required autocomplete="current-password">
-                            <button type="button" class="eye-btn" onclick="togglePassword()">
-                                <svg id="eyeIcon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/>
-                                </svg>
-                            </button>
+                    <div class="max-w-[460px]">
+                        <h2 class="text-[36px] font-black leading-[1.02] tracking-[-0.055em] text-[var(--brand-3)] sm:text-[44px] md:text-[52px] lg:text-[64px]">
+                            Manajemen<br>
+                            Rapor dengan<br>
+                            Presisi.
+                        </h2>
+                        <p class="mt-6 max-w-[420px] text-[15px] leading-[1.75] text-[var(--text-soft)] sm:mt-8 sm:text-[16px] md:mt-10 md:text-[18px]">
+                            Platform terintegrasi untuk pengelolaan nilai, kehadiran, dan pelaporan hasil belajar siswa secara efisien dan transparan.
+                        </p>
+
+                        <div class="mt-10 flex items-center gap-4 sm:mt-12 md:mt-14 md:gap-5">
+                            <div class="relative h-14 w-14 flex-none rounded-[12px] bg-white/60 sm:h-16 sm:w-16 brand-diamond"></div>
+                            <div class="min-w-0">
+                                <p class="text-[18px] font-bold tracking-[-0.04em] text-[var(--brand-3)] sm:text-[20px] md:text-[24px]">sekolah dasar terpadu</p>
+                                <p class="mt-1 text-[14px] text-[var(--text-soft)] sm:text-[15px] md:text-[17px]">Tahun Ajaran 2026/2027</p>
+                            </div>
                         </div>
-                        @error('password')
-                        <p class="field-error">{{ $message }}</p>
-                        @enderror
                     </div>
-
-                    <!-- Remember + Forgot -->
-                    <div style="display:flex;align-items:center;justify-content:space-between">
-                        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:14px;color:#4b5563">
-                            <input type="checkbox" name="remember" style="width:15px;height:15px;accent-color:#1a3a6b;cursor:pointer">
-                            Ingat saya
-                        </label>
-                        <a href="{{ route('password.request') }}"
-                            style="font-size:14px;font-weight:500;color:#1a3a6b;text-decoration:none"
-                            onmouseover="this.style.color='#1e4d9b'" onmouseout="this.style.color='#1a3a6b'">
-                            Lupa kata sandi?
-                        </a>
-                    </div>
-
-                    <!-- Submit -->
-                    <button type="submit" class="btn-primary" id="submitBtn">Masuk</button>
                 </div>
-            </form>
 
-            <p style="text-align:center;font-size:12px;color:#94a3b8;margin-top:20px">
-                SIRAPI &middot; Sistem Rapor Pintar &middot; {{ date('Y') }}
-            </p>
+                <div class="ghost-block bottom-[110px] right-[-80px] hidden h-[220px] w-[360px] md:block lg:bottom-[150px] lg:right-[-40px] lg:h-[230px] lg:w-[420px]"></div>
+                <div class="ghost-block bottom-0 left-[48%] hidden h-[220px] w-[36px] rounded-b-none rounded-t-[20px] md:block lg:left-[45%] lg:h-[250px] lg:w-[42px]"></div>
+                <div class="ghost-block bottom-[214px] left-[54%] hidden h-[36px] w-[320px] rounded-l-[20px] rounded-r-none md:block lg:bottom-[245px] lg:h-[42px] lg:w-[390px]"></div>
+            </section>
+
+            <section class="flex items-start justify-center px-6 py-8 sm:px-8 sm:py-10 md:px-12 md:py-12 lg:px-16 lg:py-14">
+                <div class="w-full max-w-[520px] pt-0 sm:pt-2 md:pt-6 lg:pt-10">
+                    <div class="mb-8 inline-flex items-center rounded-[4px] bg-[rgba(26,58,107,0.08)] px-3 py-2 text-[11px] font-bold uppercase tracking-[0.16em] text-[var(--brand-1)] sm:mb-10 sm:px-4 sm:text-[13px]">
+                        Akses Sistem
+                    </div>
+
+                    <h3 class="text-[34px] font-extrabold tracking-[-0.05em] text-[var(--brand-3)] sm:text-[42px] md:text-[50px] lg:text-[58px]">Selamat Datang</h3>
+                    <p class="mt-3 max-w-[470px] text-[15px] leading-[1.65] text-[var(--text-soft)] sm:mt-4 sm:text-[16px] md:text-[18px]">
+                        Silakan masukkan kredensial Anda untuk melanjutkan ke dashboard.
+                    </p>
+
+                    @if ($errors->any())
+                        <div class="mt-6 rounded-[8px] border border-red-200 bg-red-50 px-4 py-3 text-[14px] text-red-700 sm:mt-8">
+                            {{ $errors->first() }}
+                        </div>
+                    @endif
+
+                    @if (session('status'))
+                        <div class="mt-6 rounded-[8px] border border-blue-200 bg-blue-50 px-4 py-3 text-[14px] text-blue-700 sm:mt-8">
+                            {{ session('status') }}
+                        </div>
+                    @endif
+
+                    <form action="{{ route('login.post') }}" class="mt-8 space-y-6 sm:mt-10 sm:space-y-7 md:space-y-8" id="loginForm" method="POST">
+                        @csrf
+
+                        <div>
+                            <label class="mb-2 block text-[12px] font-extrabold uppercase tracking-[0.08em] text-[var(--brand-1)] sm:mb-3 sm:text-[14px]" for="role">Peran Pengguna</label>
+                            <div class="relative">
+                                <select
+                                    class="h-[58px] w-full appearance-none rounded-[8px] border border-[var(--field-border)] bg-[var(--field-bg)] px-4 pr-12 text-[15px] text-[var(--text-main)] focus:border-[var(--brand-2)] focus:ring-4 focus:ring-[rgba(30,77,155,0.12)] sm:h-[62px] sm:px-5 sm:pr-14 sm:text-[17px] md:h-[68px] md:text-[18px]"
+                                    id="role"
+                                    name="role"
+                                    required
+                                >
+                                    <option value="" disabled {{ old('role') ? '' : 'selected' }}>Pilih Peran Anda</option>
+                                    <option value="admin" {{ old('role') === 'admin' ? 'selected' : '' }}>Admin</option>
+                                    <option value="guru" {{ old('role') === 'guru' ? 'selected' : '' }}>Guru</option>
+                                    <option value="walikelas" {{ old('role') === 'walikelas' ? 'selected' : '' }}>Wali Kelas</option>
+                                </select>
+                                <span class="material-symbols-outlined pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-[22px] text-[var(--text-muted)] sm:text-[24px]">keyboard_arrow_down</span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="mb-2 block text-[12px] font-extrabold uppercase tracking-[0.08em] text-[var(--brand-1)] sm:mb-3 sm:text-[14px]" for="username">Username / NIP</label>
+                            <div class="relative">
+                                <span class="material-symbols-outlined pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[20px] text-[var(--text-muted)] sm:text-[22px]">person</span>
+                                <input
+                                    autocomplete="username"
+                                    class="h-[58px] w-full rounded-[8px] border border-[var(--field-border)] bg-[var(--field-bg)] pl-12 pr-4 text-[15px] text-[var(--text-main)] placeholder:text-[#8f9bab] focus:border-[var(--brand-2)] focus:ring-4 focus:ring-[rgba(30,77,155,0.12)] sm:h-[62px] sm:pl-14 sm:pr-5 sm:text-[17px] md:h-[68px] md:text-[18px]"
+                                    id="username"
+                                    name="username"
+                                    placeholder="Masukkan ID Pegawai"
+                                    required
+                                    type="text"
+                                    value="{{ old('username') }}"
+                                >
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="mb-2 flex items-center justify-between gap-4 sm:mb-3">
+                                <label class="block text-[12px] font-extrabold uppercase tracking-[0.08em] text-[var(--brand-1)] sm:text-[14px]" for="password">Kata Sandi</label>
+                                <a class="text-[11px] font-extrabold uppercase tracking-[0.01em] text-[var(--brand-2)] hover:opacity-75 sm:text-[12px]" href="{{ route('password.request') }}">
+                                    Lupa Sandi?
+                                </a>
+                            </div>
+                            <div class="relative">
+                                <span class="material-symbols-outlined pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[20px] text-[var(--text-muted)] sm:text-[22px]">lock</span>
+                                <input
+                                    autocomplete="current-password"
+                                    class="h-[58px] w-full rounded-[8px] border border-[var(--field-border)] bg-[var(--field-bg)] pl-12 pr-14 text-[15px] text-[var(--text-main)] placeholder:text-[#8f9bab] focus:border-[var(--brand-2)] focus:ring-4 focus:ring-[rgba(30,77,155,0.12)] sm:h-[62px] sm:pl-14 sm:pr-16 sm:text-[17px] md:h-[68px] md:text-[18px]"
+                                    id="password"
+                                    name="password"
+                                    placeholder="........"
+                                    required
+                                    type="password"
+                                >
+                                <button class="absolute right-4 top-1/2 -translate-y-1/2 text-[var(--text-muted)] hover:text-[var(--brand-1)]" id="togglePassword" type="button">
+                                    <span class="material-symbols-outlined text-[20px] sm:text-[22px]">visibility</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <label class="flex items-center gap-3 text-[14px] text-[var(--text-soft)] sm:text-[15px]" for="remember">
+                            <input class="h-[18px] w-[18px] rounded-[4px] border-[var(--field-border)] text-[var(--brand-1)] focus:ring-[rgba(30,77,155,0.15)]" id="remember" name="remember" type="checkbox">
+                            Tetap masuk selama 30 hari
+                        </label>
+
+                        <button class="flex h-[58px] w-full items-center justify-center gap-3 rounded-[8px] bg-gradient-to-r from-[var(--brand-1)] to-[var(--brand-2)] text-[18px] font-extrabold uppercase tracking-[-0.04em] text-white shadow-[0_14px_26px_rgba(26,58,107,0.22)] transition hover:translate-y-[-1px] hover:opacity-95 disabled:translate-y-0 disabled:opacity-70 sm:h-[64px] sm:text-[22px] md:h-[74px] md:text-[30px]" id="submitBtn" type="submit">
+                            <span>Masuk</span>
+                            <span class="material-symbols-outlined text-[22px] sm:text-[24px] md:text-[30px]">arrow_right_alt</span>
+                        </button>
+                    </form>
+                </div>
+            </section>
         </div>
-    </div>
+    </main>
 
-    <script>
-        const roleConfig = {
-            admin:     { label: 'Username',       placeholder: 'Masukkan username' },
-            guru:      { label: 'NIP / Username', placeholder: 'Masukkan NIP atau username' },
-            walikelas: { label: 'NIP / Username', placeholder: 'Masukkan NIP atau username' },
-        };
+    <footer class="px-2 pt-6 text-center text-[13px] text-[var(--text-muted)] sm:pt-8 sm:text-[14px] md:pt-10 md:text-[15px]">
+        Butuh bantuan teknis?
+        <a class="text-[var(--brand-2)] underline underline-offset-2 transition hover:opacity-75" href="#">Hubungi Admin Sekolah</a>
+    </footer>
+</div>
 
-        function setRole(btn, role) {
-            document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            document.getElementById('roleInput').value = role;
-            const cfg = roleConfig[role];
-            document.getElementById('usernameLabel').textContent = cfg.label;
-            document.getElementById('usernameField').placeholder = cfg.placeholder;
-            document.getElementById('usernameField').value = '';
-        }
+<script>
+    const passwordField = document.getElementById('password');
+    const togglePasswordButton = document.getElementById('togglePassword');
+    const submitButton = document.getElementById('submitBtn');
+    const loginForm = document.getElementById('loginForm');
 
-        function togglePassword() {
-            const f = document.getElementById('passwordField');
-            const icon = document.getElementById('eyeIcon');
-            const hide = f.type === 'password';
-            f.type = hide ? 'text' : 'password';
-            icon.innerHTML = hide
-                ? '<path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" x2="22" y1="2" y2="22"/>'
-                : '<path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/>';
-        }
+    togglePasswordButton.addEventListener('click', function () {
+        const hidden = passwordField.type === 'password';
+        passwordField.type = hidden ? 'text' : 'password';
+        this.querySelector('span').textContent = hidden ? 'visibility_off' : 'visibility';
+    });
 
-        document.getElementById('loginForm').addEventListener('submit', function() {
-            const btn = document.getElementById('submitBtn');
-            btn.disabled = true;
-            btn.innerHTML = '<span class="spinner"></span> Memproses...';
-        });
-    </script>
+    loginForm.addEventListener('submit', function () {
+        submitButton.disabled = true;
+    });
+</script>
 </body>
 </html>
