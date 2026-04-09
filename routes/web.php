@@ -10,8 +10,8 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [AuthController::class, 'showLoginForm'])->name('login');
 
 Route::middleware('guest')->group(function () {
+    Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
     Route::post('/login', [AuthController::class, 'login'])->name('login.post');
-
     Route::get('/forgot-password', [PasswordController::class, 'showForgotForm'])->name('password.request');
     Route::post('/forgot-password', [PasswordController::class, 'sendResetLink'])->name('password.email');
 
