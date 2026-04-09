@@ -8,8 +8,16 @@ class DashboardController extends Controller
 {
     public function index()
     {
+        $user = request()->user();
+
+        if ($user?->role === 'walikelas') {
+            return view('walikelas.dashboard-walikelas', [
+                'user' => $user,
+            ]);
+        }
+
         return view('dashboard', [
-            'user' => request()->user(),
+            'user' => $user,
         ]);
     }
 }
