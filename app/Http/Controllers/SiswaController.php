@@ -9,22 +9,20 @@ class SiswaController extends Controller
 {
     public function getData()
     {
-        // Logika untuk mendapatkan array data
-        $dataBarang = [
-            ['id' => 1, 'nama' => 'Beras Pandan Wangi', 'harga' => 15000],
-            ['id' => 2, 'nama' => 'Tepung Terigu', 'harga' => 20000],
-            ['id' => 3, 'nama' => 'Baygon Cair', 'harga' => 13500],
-            ['id' => 4, 'nama' => 'Penyedap Royco', 'harga' => 3200],
-            ['id' => 5, 'nama' => 'Minyak Goreng', 'harga' => 14000],
+        $dataSiswa = [
+            ['id' => 1, 'nama' => 'Ahmad Fauzi',   'nis' => '2024001', 'kelas' => 'X IPA 1'],
+            ['id' => 2, 'nama' => 'Budi Santoso',  'nis' => '2024002', 'kelas' => 'X IPA 2'],
+            ['id' => 3, 'nama' => 'Citra Dewi',    'nis' => '2024003', 'kelas' => 'XI IPS 1'],
+            ['id' => 4, 'nama' => 'Dani Pratama',  'nis' => '2024004', 'kelas' => 'XI IPS 2'],
+            ['id' => 5, 'nama' => 'Eka Rahmawati', 'nis' => '2024005', 'kelas' => 'XII IPA 1'],
         ];
 
-        return $dataBarang;
+        return $dataSiswa;
     }
 
     public function tampilkan()
     {
         $data = $this->getData();
-        return view('list_barang', compact('data'));
+        return view('siswa', compact('data'));
     }
 }
-
