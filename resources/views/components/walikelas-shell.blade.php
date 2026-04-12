@@ -23,37 +23,37 @@
         [
             'key' => 'profil-kelas',
             'label' => 'Profil Kelas',
-            'href' => '#',
+            'href' => route('walikelas.profil-kelas'),
             'icon' => 'home',
         ],
         [
             'key' => 'jadwal-kelas',
             'label' => 'Jadwal Kelas',
-            'href' => '#',
+            'href' => route('walikelas.jadwal-kelas'),
             'icon' => 'calendar',
         ],
         [
             'key' => 'data-siswa',
             'label' => 'Data Siswa Kelas',
-            'href' => '#',
+            'href' => route('walikelas.data-siswa'),
             'icon' => 'users',
         ],
         [
             'key' => 'kehadiran',
             'label' => 'Kehadiran Siswa',
-            'href' => '#',
+            'href' => route('walikelas.kehadiran'),
             'icon' => 'check-square',
         ],
         [
             'key' => 'penilaian',
             'label' => 'Penilaian Kelas',
-            'href' => '#',
+            'href' => route('walikelas.penilaian'),
             'icon' => 'star',
         ],
         [
             'key' => 'rapor',
             'label' => 'Rapor Siswa',
-            'href' => '#',
+            'href' => route('walikelas.rapor'),
             'icon' => 'file-text',
         ],
     ];
@@ -67,25 +67,49 @@
     <title>{{ $title }} - SIRAPI</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/alpinejs" defer></script>
     <style>
         body { font-family: 'Inter', sans-serif; }
+        .sidebar-scrollbar::-webkit-scrollbar { width: 4px; }
+        .sidebar-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .sidebar-scrollbar::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 10px; }
     </style>
 </head>
-<body class="min-h-screen bg-[#f5f5f3] text-[#171717]">
-<div class="min-h-screen lg:flex">
-    <aside class="border-b border-black/5 bg-[#efefed] lg:sticky lg:top-0 lg:flex lg:h-screen lg:w-[240px] lg:flex-col lg:border-b-0 lg:border-r">
-        <div class="flex flex-1 flex-col">
-            <div class="border-b border-black/5 px-5 py-6">
-                <h1 class="text-[27px] font-black uppercase tracking-[-0.06em] text-[#1f1f1f]">SIRAPI</h1>
-                <p class="mt-1 text-[10px] font-medium uppercase tracking-[0.22em] text-[#9a9a9a]">Sistem Rapor Pintar</p>
-            </div>
+<body class="min-h-screen bg-[#f0f4f8] text-[#1e293b]" x-data="{ sidebarOpen: false, logoutModalOpen: false }">
 
-            <nav class="grid grid-cols-2 gap-2 px-3 py-4 sm:grid-cols-3 lg:flex lg:flex-1 lg:flex-col lg:gap-1 lg:px-4 lg:py-6">
+    {{-- ─── BACKDROP (Mobile/Tablet only) ─────────────────────── --}}
+    <div
+        x-show="sidebarOpen"
+        x-transition:enter="transition ease-out duration-300"
+        x-transition:enter-start="opacity-0"
+        x-transition:enter-end="opacity-100"
+        x-transition:leave="transition ease-in duration-200"
+        x-transition:leave-start="opacity-100"
+        x-transition:leave-end="opacity-0"
+        @click="sidebarOpen = false"
+        class="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm lg:hidden"
+        style="display: none;"
+    ></div>
+
+    {{-- ─── SIDEBAR ───────────────────────────────────────────── --}}
+    <aside
+        class="fixed inset-y-0 left-0 z-50 flex w-[240px] flex-col border-r border-[#e2e8f0] bg-white/95 backdrop-blur shadow-xl transition-transform duration-300 ease-in-out lg:translate-x-0 lg:shadow-none"
+        :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'"
+    >
+        {{-- Brand --}}
+        <div class="flex min-h-[64px] flex-col justify-center border-b border-[#e2e8f0] px-5">
+            <h1 class="text-[20px] font-black uppercase tracking-[-0.06em] text-[#0f172a]">SIRAPI</h1>
+            <p class="text-[9px] font-bold uppercase tracking-[0.2em] text-[#3b82f6]">Sistem Rapor Pintar</p>
+        </div>
+
+        {{-- Navigation (scrollable) --}}
+        <nav class="flex-1 overflow-y-auto px-3 py-4 sidebar-scrollbar">
+            <div class="flex flex-col gap-1">
                 @foreach ($menus as $menu)
                     @php $isActive = $active === $menu['key']; @endphp
                     <a
                         href="{{ $menu['href'] }}"
-                        class="{{ $isActive ? 'bg-black/8 text-[#171717] shadow-[inset_-4px_0_0_0_#171717]' : 'text-[#707070] hover:bg-black/5 hover:text-[#171717]' }} flex min-h-[50px] items-center gap-3 rounded-[8px] px-3 py-3 text-[14px] font-medium transition"
+                        class="{{ $isActive ? 'bg-[#eff6ff] text-[#1d4ed8] shadow-[inset_-4px_0_0_0_#3b82f6]' : 'text-[#64748b] hover:bg-[#f1f5f9] hover:text-[#0f172a]' }} flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] font-medium transition"
                     >
                         @if ($menu['icon'] === 'dashboard')
                             <svg class="h-4 w-4 flex-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -129,63 +153,105 @@
                         <span class="leading-tight">{{ $menu['label'] }}</span>
                     </a>
                 @endforeach
-            </nav>
-        </div>
+            </div>
+        </nav>
 
-        <div class="border-t border-black/5 bg-[#e5e5e3] px-4 py-4">
-            <div class="mb-3 flex items-center gap-3">
-                <div class="flex h-10 w-10 flex-none items-center justify-center rounded-[10px] bg-[#cfd4db] text-[12px] font-bold text-[#1a3a6b]">
+        {{-- User Profile (pinned to bottom) --}}
+        <div class="shrink-0 border-t border-[#e2e8f0] bg-[#f8fafc] px-4 py-3">
+            <a href="{{ route('walikelas.profil') }}" class="mb-2.5 flex items-center gap-3 rounded-lg p-1 -m-1 transition hover:bg-[#f1f5f9]">
+                <div class="flex h-9 w-9 flex-none items-center justify-center rounded-lg bg-[#1e40af] text-[11px] font-bold text-white">
                     {{ $initials }}
                 </div>
                 <div class="min-w-0">
-                    <p class="truncate text-[13px] font-bold text-[#1d1d1d]">{{ $user->name }}</p>
-                    <p class="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#7a7a7a]">Wali Kelas</p>
+                    <p class="truncate text-[12px] font-bold text-[#0f172a]">{{ $user->name }}</p>
+                    <p class="text-[9px] font-semibold uppercase tracking-[0.12em] text-[#64748b]">Wali Kelas</p>
                 </div>
-            </div>
-            <form action="{{ route('logout') }}" method="POST">
-                @csrf
-                <button class="flex h-[38px] w-full items-center justify-center rounded-[4px] bg-black text-[12px] font-bold uppercase tracking-[0.12em] text-white transition hover:opacity-90" type="submit">
-                    Keluar
-                </button>
-            </form>
+            </a>
+            <button @click="logoutModalOpen = true" class="flex h-[34px] w-full items-center justify-center rounded bg-[#1d4ed8] text-[11px] font-bold uppercase tracking-wider text-white transition hover:bg-[#2563eb]" type="button">
+                Keluar
+            </button>
         </div>
     </aside>
 
-    <div class="min-w-0 flex-1">
-        <header class="border-b border-black/5 bg-white px-5 py-4 sm:px-6 lg:px-10">
-            <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                <div>
-                    <h2 class="text-[24px] font-extrabold tracking-[-0.04em] text-[#1f1f1f]">{{ $title }}</h2>
+    {{-- ─── MAIN WRAPPER ──────────────────────────────────────── --}}
+    <div class="flex min-h-screen flex-col lg:ml-[240px]">
+
+        {{-- ─── HEADER ────────────────────────────────────────── --}}
+        <header
+            class="fixed top-0 right-0 left-0 z-30 flex h-[64px] items-center border-b border-[#e2e8f0] bg-white/95 px-4 backdrop-blur shadow-sm sm:px-6 lg:left-[240px] lg:px-8"
+        >
+            {{-- Left: Hamburger + Title --}}
+            <div class="flex items-center gap-3 min-w-0 flex-1">
+                <button
+                    @click="sidebarOpen = !sidebarOpen"
+                    class="flex h-9 w-9 flex-none items-center justify-center rounded-lg border border-[#cbd5e1] text-[#475569] transition hover:bg-[#f1f5f9] hover:text-[#0f172a] lg:hidden"
+                    aria-label="Toggle Sidebar"
+                >
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path x-show="!sidebarOpen" d="M4 6h16M4 12h16M4 18h16" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                        <path x-show="sidebarOpen" d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" style="display: none;"></path>
+                    </svg>
+                </button>
+                <div class="min-w-0">
+                    <h2 class="truncate text-[16px] font-extrabold tracking-tight text-[#0f172a] sm:text-[20px] lg:text-[24px]">{{ $title }}</h2>
                     @if ($subtitle)
-                        <p class="mt-1 text-[13px] text-[#7c7c7c]">{{ $subtitle }}</p>
+                        <p class="hidden text-[11px] text-[#64748b] sm:block">{{ $subtitle }}</p>
                     @endif
                 </div>
+            </div>
 
-                <div class="flex items-center justify-between gap-4 sm:justify-end">
-                    <button aria-label="Notifikasi" class="flex h-10 w-10 items-center justify-center rounded-full border border-black/8 text-[#3a3a3a] transition hover:bg-black/5" type="button">
-                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path d="M15 17h5l-1.4-1.4a2 2 0 0 1-.6-1.42V11a6 6 0 1 0-12 0v3.18a2 2 0 0 1-.59 1.41L4 17h5" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
-                            <path d="M9 17a3 3 0 0 0 6 0" stroke-linecap="round" stroke-width="2"></path>
-                        </svg>
-                    </button>
+            {{-- Right: Notification + User --}}
+            <div class="flex items-center gap-2 sm:gap-3">
+                <button aria-label="Notifikasi" class="flex h-9 w-9 items-center justify-center rounded-full border border-[#cbd5e1] text-[#475569] transition hover:bg-[#f1f5f9]" type="button">
+                    <svg class="h-[18px] w-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path d="M15 17h5l-1.4-1.4a2 2 0 0 1-.6-1.42V11a6 6 0 1 0-12 0v3.18a2 2 0 0 1-.59 1.41L4 17h5" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                        <path d="M9 17a3 3 0 0 0 6 0" stroke-linecap="round" stroke-width="2"></path>
+                    </svg>
+                </button>
 
-                    <div class="flex items-center gap-3">
-                        <div class="text-right">
-                            <p class="text-[14px] font-bold text-[#2a2a2a]">{{ $user->name }}</p>
-                            <p class="text-[11px] text-[#8a8a8a]">ID. {{ strtoupper($user->username ?? 'WALIKELAS') }}</p>
-                        </div>
-                        <div class="flex h-10 w-10 items-center justify-center overflow-hidden rounded-[10px] bg-[#d8dde5] text-[12px] font-bold text-[#1a3a6b]">
-                            {{ $initials }}
-                        </div>
+                {{-- User info (hidden on very small screens) --}}
+                <a href="{{ route('walikelas.profil') }}" class="hidden items-center gap-2.5 sm:flex rounded-lg p-1.5 -m-1.5 transition hover:bg-[#f1f5f9]">
+                    <div class="text-right">
+                        <p class="text-[13px] font-bold text-[#1e293b]">{{ $user->name }}</p>
+                        <p class="text-[10px] text-[#64748b]">ID. {{ strtoupper($user->username ?? 'WALIKELAS') }}</p>
                     </div>
-                </div>
+                    <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-[#1e40af] text-[11px] font-bold text-white">
+                        {{ $initials }}
+                    </div>
+                </a>
+
+                {{-- Avatar only (visible on small screens) --}}
+                <a href="{{ route('walikelas.profil') }}" class="flex h-9 w-9 items-center justify-center rounded-lg bg-[#1e40af] text-[11px] font-bold text-white sm:hidden">
+                    {{ $initials }}
+                </a>
             </div>
         </header>
 
-        <main class="px-4 py-4 sm:px-6 sm:py-6 lg:px-10 lg:py-8">
+        {{-- ─── MAIN CONTENT ──────────────────────────────────── --}}
+        <main class="flex-1 px-4 pt-[80px] pb-6 sm:px-6 sm:pt-[88px] lg:px-10 lg:pt-[96px]">
             {{ $slot }}
         </main>
     </div>
-</div>
+
+    {{-- ─── LOGOUT MODAL ────────────────────────────────────────── --}}
+    <div x-show="logoutModalOpen" class="fixed inset-0 z-[100] flex items-center justify-center bg-[#0f172a]/60 backdrop-blur-sm" style="display: none;" x-transition @click.self="logoutModalOpen = false">
+        <div class="flex w-[90%] max-w-sm flex-col rounded-2xl bg-white shadow-2xl">
+            <div class="p-6 text-center">
+                <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#fef2f2] text-[#dc2626] mb-4 ring-4 ring-[#fee2e2]">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                </div>
+                <h3 class="text-[18px] font-black text-[#0f172a]">Konfirmasi Keluar</h3>
+                <p class="mt-2 text-[13px] leading-[1.8] text-[#64748b]">Apakah Anda yakin ingin keluar dari sesi panel Wali Kelas ini?</p>
+            </div>
+            <div class="flex gap-3 bg-[#f8fafc] px-6 py-4 rounded-b-2xl border-t border-[#e2e8f0]">
+                <button @click="logoutModalOpen = false" class="flex-1 rounded-lg border border-[#e2e8f0] bg-white px-4 py-2.5 text-[12px] font-bold text-[#475569] transition hover:bg-[#f1f5f9]">Batal</button>
+                <form action="{{ route('logout') }}" method="POST" class="flex-1">
+                    @csrf
+                    <button type="submit" class="w-full rounded-lg bg-[#dc2626] px-4 py-2.5 text-[12px] font-bold text-white transition hover:bg-[#b91c1c]">Ya, Keluar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
 </body>
 </html>

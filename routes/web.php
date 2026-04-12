@@ -35,4 +35,16 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('sekolah', SekolahController::class);
     Route::resource('guru', GuruController::class);
-Route::get('/siswa/tampilkan', [SiswaController::class, 'tampilkan'])->name('siswa.tampilkan');});
+    Route::get('/siswa/tampilkan', [SiswaController::class, 'tampilkan'])->name('siswa.tampilkan');
+
+    // ─── Walikelas Pages ─────────────────────────────────
+    Route::prefix('walikelas')->name('walikelas.')->group(function () {
+        Route::view('/profil-kelas', 'walikelas.profil-kelas')->name('profil-kelas');
+        Route::view('/jadwal-kelas', 'walikelas.jadwal-kelas')->name('jadwal-kelas');
+        Route::view('/data-siswa', 'walikelas.data-siswa')->name('data-siswa');
+        Route::view('/kehadiran', 'walikelas.kehadiran')->name('kehadiran');
+        Route::view('/penilaian', 'walikelas.penilaian')->name('penilaian');
+        Route::view('/rapor', 'walikelas.rapor')->name('rapor');
+        Route::view('/profil', 'walikelas.profil-user')->name('profil');
+    });
+});
