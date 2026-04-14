@@ -10,6 +10,10 @@ class DashboardController extends Controller
     {
         $user = request()->user();
 
+        if ($user?->role === 'admin' || $user?->role === 'admin_tu') {
+            return redirect()->route('admin.dashboard');
+        }
+
         if ($user?->role === 'walikelas') {
             return view('walikelas.dashboard-walikelas', [
                 'user' => $user,

@@ -1,0 +1,145 @@
+<x-admin-shell
+    :user="auth()->user()"
+    active="dashboard"
+    title="Dashboard"
+    subtitle="Selamat datang di Panel Admin TU"
+>
+    <div class="space-y-6">
+
+        {{-- ─── TOP: Heading + Tahun Ajaran ─────────────────── --}}
+        <div class="grid gap-6 xl:grid-cols-[minmax(0,1fr)_300px]">
+            <div>
+                <h1 class="text-[32px] font-black tracking-[-0.04em] text-[#0f172a] lg:text-[40px]">Ringkasan Administrasi</h1>
+                <p class="mt-3 max-w-[560px] text-[14px] leading-[1.8] text-[#475569]">
+                    Pantau seluruh operasional administratif sekolah dalam satu tampilan pusat. Data disinkronkan secara real-time dari setiap departemen.
+                </p>
+            </div>
+            <div class="rounded-[14px] border border-[#e2e8f0] bg-white p-6">
+                <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-[#64748b]">Tahun Ajaran Aktif</p>
+                <p class="mt-2 text-[28px] font-black tracking-[-0.04em] text-[#0f172a]">2023/2024 Ganjil</p>
+                <span class="mt-2 inline-flex rounded-[4px] bg-[#f1f5f9] px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-[0.08em] text-[#64748b]">Status: Aktif & Berjalan</span>
+            </div>
+        </div>
+
+        {{-- ─── STAT CARDS + ABSENSI ────────────────────────── --}}
+        <div class="grid gap-4 lg:grid-cols-[1fr_1fr_1fr_280px]">
+            {{-- Siswa Aktif --}}
+            <div class="rounded-[14px] border border-[#e2e8f0] bg-white p-6">
+                <div class="mb-4 flex h-10 w-10 items-center justify-center rounded-[8px] bg-[#f1f5f9] text-[#64748b]">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2" stroke-linecap="round" stroke-width="2"></path><circle cx="9.5" cy="7" r="3" stroke-width="2"></circle><path d="M20 21v-2a4 4 0 0 0-3-3.87" stroke-linecap="round" stroke-width="2"></path><path d="M16 4.13a3 3 0 0 1 0 5.74" stroke-linecap="round" stroke-width="2"></path></svg>
+                </div>
+                <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-[#64748b]">Siswa Aktif</p>
+                <p class="mt-2 text-[48px] font-black leading-none tracking-[-0.06em] text-[#0f172a]">1,248</p>
+            </div>
+
+            {{-- Guru (Blue bg) --}}
+            <div class="rounded-[14px] bg-[#1d4ed8] p-6 text-white">
+                <div class="mb-4 flex h-10 w-10 items-center justify-center rounded-[8px] bg-white/20">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                </div>
+                <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-white/70">Guru</p>
+                <p class="mt-2 text-[48px] font-black leading-none tracking-[-0.06em]">94</p>
+            </div>
+
+            {{-- Ruang Kelas --}}
+            <div class="rounded-[14px] border border-[#e2e8f0] bg-white p-6">
+                <div class="mb-4 flex h-10 w-10 items-center justify-center rounded-[8px] bg-[#f1f5f9] text-[#64748b]">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11M8 14v3M12 14v3M16 14v3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                </div>
+                <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-[#64748b]">Ruang Kelas</p>
+                <p class="mt-2 text-[48px] font-black leading-none tracking-[-0.06em] text-[#0f172a]">36</p>
+            </div>
+
+            {{-- Absensi Hari Ini --}}
+            <div class="rounded-[14px] border border-[#e2e8f0] bg-white p-6">
+                <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-[#64748b]">Absensi Hari Ini</p>
+                <p class="mt-2 text-[48px] font-black leading-none tracking-[-0.06em] text-[#0f172a]">98.2%</p>
+                <div class="mt-4 flex items-end gap-[3px]">
+                    @foreach ([65, 80, 55, 90, 75, 95, 85] as $h)
+                        <div class="flex-1 rounded-sm bg-[#1d4ed8]" style="height: {{ $h * 0.4 }}px; opacity: {{ 0.4 + ($h / 100) * 0.6 }}"></div>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+
+        {{-- ─── AKTIVITAS + STATUS DEPARTEMEN ───────────────── --}}
+        <div class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_300px]">
+
+            {{-- Aktivitas Sistem Terkini --}}
+            <div class="rounded-[14px] border border-[#e2e8f0] bg-white p-6">
+                <div class="flex items-start justify-between">
+                    <div>
+                        <h3 class="text-[20px] font-black tracking-[-0.04em] text-[#0f172a]">Aktivitas Sistem Terkini</h3>
+                        <p class="mt-1 text-[13px] text-[#64748b]">Log transaksi data administrasi terbaru</p>
+                    </div>
+                    <button class="text-[11px] font-bold uppercase tracking-[0.12em] text-[#1d4ed8] hover:text-[#1e40af]">Lihat Semua</button>
+                </div>
+
+                <div class="mt-6 space-y-0 divide-y divide-[#f1f5f9]">
+                    @foreach ([
+                        ['icon' => 'user-plus', 'title' => 'Pendaftaran Siswa Baru', 'desc' => 'Admin TU-02 telah menambahkan 5 berkas siswa baru ke Database Siswa.', 'time' => '10 Menit Lalu'],
+                        ['icon' => 'calendar', 'title' => 'Update Jadwal Akademik', 'desc' => 'Perubahan jadwal mata pelajaran Matematika Kelas XI-A oleh Kurikulum.', 'time' => '2 Jam Lalu'],
+                        ['icon' => 'check', 'title' => 'Validasi Nilai Akhir Semester', 'desc' => 'Sistem otomatis memproses laporan penilaian untuk 12 kelas di jenjang Kelas X.', 'time' => 'Dibuat Kemarin'],
+                    ] as $log)
+                        <div class="flex items-start gap-4 py-4">
+                            <div class="flex h-10 w-10 flex-none items-center justify-center rounded-[8px] bg-[#eff6ff] text-[#1d4ed8]">
+                                @if ($log['icon'] === 'user-plus')
+                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" stroke-width="2" stroke-linecap="round"></path><circle cx="8.5" cy="7" r="4" stroke-width="2"></circle><path d="M20 8v6m3-3h-6" stroke-width="2" stroke-linecap="round"></path></svg>
+                                @elseif ($log['icon'] === 'calendar')
+                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" stroke-width="2"></rect><path d="M16 2v4M8 2v4M3 10h18" stroke-width="2" stroke-linecap="round"></path></svg>
+                                @else
+                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" stroke-width="2"></rect><path d="m9 12 2 2 4-4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+                                @endif
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center justify-between gap-2">
+                                    <p class="text-[14px] font-bold text-[#0f172a]">{{ $log['title'] }}</p>
+                                    <span class="flex-none text-[10px] font-bold uppercase tracking-[0.08em] text-[#94a3b8]">{{ $log['time'] }}</span>
+                                </div>
+                                <p class="mt-1 text-[13px] leading-[1.6] text-[#64748b]">{{ $log['desc'] }}</p>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+
+            {{-- Right Column --}}
+            <div class="space-y-4">
+                {{-- Status Departemen --}}
+                <div class="rounded-[14px] border border-[#e2e8f0] bg-white p-6">
+                    <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-[#64748b]">Status Departemen</p>
+                    <div class="mt-5 space-y-4">
+                        @foreach ([
+                            ['name' => 'Kepegawaian (FR-03)', 'value' => 90, 'label' => '90% Lengkap'],
+                            ['name' => 'Kesiswaan (FR-10)', 'value' => 75, 'label' => '75% Terverifikasi'],
+                            ['name' => 'Sarana Prasarana', 'value' => 62, 'label' => '62% Terdata'],
+                        ] as $dept)
+                            <div>
+                                <div class="flex items-center justify-between text-[12px]">
+                                    <span class="font-semibold text-[#334155]">{{ $dept['name'] }}</span>
+                                    <span class="font-bold text-[#64748b]">{{ $dept['label'] }}</span>
+                                </div>
+                                <div class="mt-2 h-[6px] overflow-hidden rounded-full bg-[#e2e8f0]">
+                                    <div class="h-full rounded-full bg-[#1d4ed8]" style="width: {{ $dept['value'] }}%"></div>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+
+                {{-- Butuh Bantuan Teknis --}}
+                <div class="rounded-[14px] border border-[#e2e8f0] bg-white p-6 text-center">
+                    <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[#eff6ff] text-[#1d4ed8]">
+                        <svg class="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-width="2"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" stroke-width="2" stroke-linecap="round"></path><path d="M12 17h.01" stroke-width="2" stroke-linecap="round"></path></svg>
+                    </div>
+                    <h4 class="mt-3 text-[15px] font-bold text-[#0f172a]">Butuh Bantuan Teknis?</h4>
+                    <p class="mt-1 text-[12px] leading-[1.7] text-[#64748b]">Hubungi departemen IT untuk masalah akses aplikasi SIRAPI.</p>
+                    <button class="mt-4 flex h-[40px] w-full items-center justify-center rounded-[4px] bg-[#0f172a] text-[11px] font-bold uppercase tracking-[0.12em] text-white transition hover:bg-[#1e293b]">
+                        Support Center
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</x-admin-shell>
