@@ -6,6 +6,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\SekolahController;
 use App\Http\Controllers\GuruController;
 use App\Http\Controllers\SiswaController;
+use App\Http\Controllers\ProductController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [AuthController::class, 'showLoginForm'])->name('login');
@@ -17,6 +18,8 @@ Route::view('/about', 'about');
 Route::view('/contact', 'contact');
 Route::view('/features', 'features');
 Route::view('/services', 'services');
+
+Route::get('/products', [ProductController::class, 'index']);
 
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
