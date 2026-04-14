@@ -41,7 +41,6 @@ Route::middleware('auth')->group(function () {
     Route::prefix('walikelas')->name('walikelas.')->group(function () {
         Route::view('/profil-kelas', 'walikelas.profil-kelas')->name('profil-kelas');
         Route::view('/jadwal-kelas', 'walikelas.jadwal-kelas')->name('jadwal-kelas');
-        Route::view('/data-siswa', 'walikelas.data-siswa')->name('data-siswa');
         Route::view('/kehadiran', 'walikelas.kehadiran')->name('kehadiran');
         Route::view('/penilaian', 'walikelas.penilaian')->name('penilaian');
         Route::view('/rapor', 'walikelas.rapor')->name('rapor');

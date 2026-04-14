@@ -16,29 +16,45 @@
                     <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                     Export PDF
                 </button>
-                <button class="flex items-center gap-2 rounded-lg bg-[#0f172a] px-4 py-2.5 text-[11px] font-extrabold uppercase tracking-wider text-white transition hover:bg-[#1e293b]">
-                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 5v14m-7-7h14" stroke-width="2" stroke-linecap="round"/></svg>
-                    Input Nilai Baru
-                </button>
             </div>
         </div>
 
         {{-- Stat Cards --}}
         <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <div class="rounded-xl bg-white p-5 ring-1 ring-[#e2e8f0]">
-                <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-[#64748b]">Total Siswa</p>
+                <div class="flex items-center justify-between">
+                    <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-[#64748b]">Total Siswa</p>
+                    <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-[#eff6ff] text-[#1d4ed8]">
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17 20h5v-2a4 4 0 00-5-3.87M9 20H4v-2a4 4 0 015-3.87m6-4a4 4 0 11-8 0 4 4 0 018 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </div>
+                </div>
                 <p class="mt-2"><span class="text-[36px] font-black leading-none text-[#0f172a]">32</span> <span class="text-[13px] text-[#64748b]">Peserta</span></p>
             </div>
             <div class="rounded-xl bg-white p-5 ring-1 ring-[#e2e8f0]">
-                <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-[#64748b]">Rata-rata Kelas</p>
+                <div class="flex items-center justify-between">
+                    <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-[#64748b]">Rata-rata Kelas</p>
+                    <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-[#eff6ff] text-[#3b82f6]">
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="m3 17 6-6 4 4 7-8" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></svg>
+                    </div>
+                </div>
                 <p class="mt-2"><span class="text-[36px] font-black leading-none text-[#0f172a]">84.5</span> <span class="text-[13px] text-[#64748b]">Poin</span></p>
             </div>
             <div class="rounded-xl bg-white p-5 ring-1 ring-[#3b82f6]/30">
-                <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-[#64748b]">Ketuntasan</p>
+                <div class="flex items-center justify-between">
+                    <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-[#64748b]">Ketuntasan</p>
+                    <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-[#f0fdf4] text-[#16a34a]">
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </div>
+                </div>
                 <p class="mt-2"><span class="text-[36px] font-black leading-none text-[#0f172a]">92%</span> <span class="text-[13px] text-[#64748b]">Tuntas</span></p>
             </div>
             <div class="rounded-xl bg-white p-5 ring-1 ring-[#e2e8f0]">
-                <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-[#64748b]">Update Terakhir</p>
+                <div class="flex items-center justify-between">
+                    <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-[#64748b]">Update Terakhir</p>
+                    <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-[#eff6ff] text-[#60a5fa]">
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2" stroke-width="2"/><path d="M16 3v4M8 3v4M3 10h18" stroke-linecap="round" stroke-width="2"/></svg>
+                    </div>
+                </div>
                 <p class="mt-2 text-[24px] font-black leading-tight text-[#0f172a]">12 Okt 2023</p>
             </div>
         </div>

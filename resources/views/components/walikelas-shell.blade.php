@@ -32,12 +32,7 @@
             'href' => route('walikelas.jadwal-kelas'),
             'icon' => 'calendar',
         ],
-        [
-            'key' => 'data-siswa',
-            'label' => 'Data Siswa Kelas',
-            'href' => route('walikelas.data-siswa'),
-            'icon' => 'users',
-        ],
+
         [
             'key' => 'kehadiran',
             'label' => 'Kehadiran Siswa',

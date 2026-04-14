@@ -5,22 +5,30 @@
     subtitle="Selamat datang di Panel Wali Kelas"
 >
     <div class="space-y-6">
-        <div class="grid gap-4 xl:grid-cols-[minmax(0,1fr)_280px]">
+        <div>
             <div class="space-y-4">
                 <div class="grid gap-4 md:grid-cols-3">
                     <section class="rounded-[12px] bg-white px-5 py-5 shadow-[0_1px_0_rgba(0,0,0,0.05)] ring-1 ring-[#e2e8f0]">
-                        <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-[#64748b]">Total Siswa</p>
-                        <div class="mt-3 flex items-end justify-between gap-3">
-                            <div class="flex items-end gap-2">
-                                <span class="text-[56px] font-black leading-none tracking-[-0.06em] text-[#0f172a]">36</span>
-                                <span class="pb-2 text-[15px] font-semibold text-[#64748b]">Peserta Didik</span>
+                        <div class="flex items-center justify-between">
+                            <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-[#64748b]">Total Siswa</p>
+                            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-[#eff6ff] text-[#1d4ed8]">
+                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17 20h5v-2a4 4 0 00-5-3.87M9 20H4v-2a4 4 0 015-3.87m6-4a4 4 0 11-8 0 4 4 0 018 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                             </div>
+                        </div>
+                        <div class="mt-3 flex items-end gap-2">
+                            <span class="text-[56px] font-black leading-none tracking-[-0.06em] text-[#0f172a]">36</span>
+                            <span class="pb-2 text-[15px] font-semibold text-[#64748b]">Peserta Didik</span>
                         </div>
                         <div class="mt-5 h-[4px] rounded-full bg-[#1d4ed8]"></div>
                     </section>
 
                     <section class="rounded-[12px] bg-white px-5 py-5 shadow-[0_1px_0_rgba(0,0,0,0.05)] ring-1 ring-[#e2e8f0]">
-                        <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-[#64748b]">Kehadiran Hari Ini</p>
+                        <div class="flex items-center justify-between">
+                            <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-[#64748b]">Kehadiran Hari Ini</p>
+                            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-[#eff6ff] text-[#3b82f6]">
+                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" stroke-width="2"/><path d="m9 12 2 2 4-4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></svg>
+                            </div>
+                        </div>
                         <div class="mt-3 flex items-end justify-between gap-3">
                             <div class="flex items-end gap-2">
                                 <span class="text-[56px] font-black leading-none tracking-[-0.06em] text-[#0f172a]">95%</span>
@@ -33,12 +41,15 @@
                     </section>
 
                     <section class="rounded-[12px] bg-white px-5 py-5 shadow-[0_1px_0_rgba(0,0,0,0.05)] ring-1 ring-[#e2e8f0]">
-                        <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-[#64748b]">Rata-rata Nilai Kelas</p>
-                        <div class="mt-3 flex items-end justify-between gap-3">
-                            <div class="flex items-end gap-2">
-                                <span class="text-[56px] font-black leading-none tracking-[-0.06em] text-[#0f172a]">82.5</span>
-                                <span class="pb-2 text-[15px] font-semibold text-[#64748b]">Semester Ini</span>
+                        <div class="flex items-center justify-between">
+                            <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-[#64748b]">Rata-rata Nilai Kelas</p>
+                            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-[#eff6ff] text-[#60a5fa]">
+                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="m12 3 2.5 5.09 5.6.82-4.05 3.95.96 5.57L12 15.77l-5.01 2.66.96-5.57L3.9 8.91l5.6-.82L12 3Z" stroke-linejoin="round" stroke-width="2"/></svg>
                             </div>
+                        </div>
+                        <div class="mt-3 flex items-end gap-2">
+                            <span class="text-[56px] font-black leading-none tracking-[-0.06em] text-[#0f172a]">82.5</span>
+                            <span class="pb-2 text-[15px] font-semibold text-[#64748b]">Semester Ini</span>
                         </div>
                         <div class="mt-5 h-[4px] rounded-full bg-[#60a5fa]"></div>
                     </section>
@@ -126,58 +137,6 @@
                 </div>
             </div>
         </div>
-
-        <div class="grid gap-4 lg:grid-cols-[280px_minmax(0,1fr)_280px]">
-            <section class="rounded-[14px] bg-[#0f172a] px-6 py-6 text-white">
-                <p class="text-[11px] font-bold uppercase tracking-[0.3em] text-[#60a5fa]">Kalender Akademik</p>
-                <div class="mt-8 space-y-6">
-                    @foreach ([
-                        ['day' => '20', 'month' => 'OKT', 'event' => 'Batas Input Nilai UTS'],
-                        ['day' => '25', 'month' => 'OKT', 'event' => 'Rapat Koordinasi Guru'],
-                        ['day' => '10', 'month' => 'NOV', 'event' => 'Hari Pahlawan (Libur)'],
-                    ] as $event)
-                        <div class="flex gap-4">
-                            <div class="w-[48px] flex-none text-center">
-                                <div class="text-[36px] font-black leading-none tracking-[-0.06em]">{{ $event['day'] }}</div>
-                                <div class="mt-1 text-[10px] font-bold uppercase tracking-[0.2em] text-[#60a5fa]">{{ $event['month'] }}</div>
-                            </div>
-                            <p class="max-w-[150px] self-center text-[14px] font-medium leading-5 text-white/90">{{ $event['event'] }}</p>
-                        </div>
-                    @endforeach
-                </div>
-            </section>
-
-            <section class="rounded-[14px] bg-[#f1f5f9] p-5 ring-1 ring-[#e2e8f0]">
-                <div class="flex h-full flex-col">
-                    <div class="mb-4 h-[190px] rounded-[22px] bg-[#dbeafe] relative overflow-hidden">
-                        <div class="absolute inset-0 flex items-center justify-center">
-                            <div class="h-[1px] w-full rotate-[11deg] bg-[#3b82f6]/20"></div>
-                        </div>
-                        <div class="absolute inset-0 flex items-center justify-center">
-                            <div class="h-[1px] w-full -rotate-[11deg] bg-[#3b82f6]/20"></div>
-                        </div>
-                    </div>
-                    <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-[#64748b]">Panduan Pengisian</p>
-                    <h3 class="mt-2 text-[24px] font-extrabold tracking-[-0.04em] text-[#0f172a]">Modul Rapor K-Merdeka</h3>
-                </div>
-            </section>
-
-            <section class="rounded-[14px] bg-[#f1f5f9] p-6 ring-1 ring-[#e2e8f0]">
-                <div class="flex h-full flex-col justify-between">
-                    <div class="flex h-12 w-12 items-center justify-center rounded-[10px] bg-[#dbeafe] text-[#1d4ed8]">
-                        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path d="M12 3v12m0 0 4-4m-4 4-4-4M5 21h14" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
-                        </svg>
-                    </div>
-
-                    <div class="mt-6">
-                        <h3 class="text-[24px] font-extrabold tracking-[-0.04em] text-[#0f172a]">Template Legger</h3>
-                        <p class="mt-3 max-w-[200px] text-[14px] leading-6 text-[#475569]">
-                            Unduh format Excel untuk rekapitulasi nilai manual.
-                        </p>
-                    </div>
-                </div>
-            </section>
-        </div>
     </div>
+
 </x-walikelas-shell>
