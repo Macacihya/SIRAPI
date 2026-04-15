@@ -13,6 +13,7 @@ Route::get('/', [AuthController::class, 'showLoginForm'])->name('login');
 
 // Mockup routes (tanpa controller)
 Route::view('/rian', 'rian');
+Route::view('/fariz', 'fariz');
 Route::view('/home', 'home');
 Route::view('/about', 'about');
 Route::view('/contact', 'contact');
