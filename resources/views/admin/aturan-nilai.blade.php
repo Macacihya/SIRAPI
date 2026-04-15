@@ -1,140 +1,144 @@
-<x-admin-shell
-    :user="auth()->user()"
-    active="aturan-nilai"
-    title="Aturan Penilaian"
-    subtitle="Konfigurasi bobot dan aturan nilai"
->
-    <div class="space-y-6">
+<x-admin-shell :user="auth()->user()" active="aturan-nilai" title="Aturan Nilai" subtitle="Konfigurasi sistem penilaian akademik">
+<div x-data="{
+    showHapus: false,
+    showRiwayat: false,
+    hapusTarget: null,
+    pembulatan: 'Terdekat',
+    komponen: [
+        { id: 1, nama: 'Tugas Harian', bobot: 20, kode: 'TH' },
+        { id: 2, nama: 'Ulangan Harian (UH)', bobot: 25, kode: 'UH' },
+        { id: 3, nama: 'Penilaian Tengah Semester', bobot: 25, kode: 'PTS' },
+        { id: 4, nama: 'Penilaian Akhir Semester', bobot: 30, kode: 'PAS' },
+    ],
+    get totalBobot() { return this.komponen.reduce((s, k) => s + Number(k.bobot), 0); },
+    get isValid() { return this.totalBobot === 100; },
+    get previewNilai() {
+        let sample = {TH: 85, UH: 78, PTS: 80, PAS: 90};
+        let raw = this.komponen.reduce((s, k) => s + (sample[k.kode]||80) * (Number(k.bobot)/100), 0);
+        if (this.pembulatan === 'Ke Atas') return Math.ceil(raw);
+        if (this.pembulatan === 'Ke Bawah') return Math.floor(raw);
+        return Math.round(raw);
+    },
+    addKomponen() { this.komponen.push({id:Date.now(), nama:'Komponen Baru', bobot:0, kode:'KB'}); },
+    confirmHapus(k) { this.hapusTarget = k; this.showHapus = true; },
+    doHapus() { this.komponen = this.komponen.filter(k => k.id !== this.hapusTarget.id); this.showHapus = false; $dispatch('toast',{message:'Komponen berhasil dihapus',type:'error'}); },
+}" class="space-y-6">
 
-        {{-- ─── TOP: KONFIGURASI + PREVIEW ──────────────────── --}}
-        <div class="grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
+    {{-- HEADING --}}
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div><h1 class="text-[32px] font-black tracking-[-0.04em] text-[#0f172a]">Aturan Nilai</h1><p class="mt-2 max-w-[480px] text-[14px] leading-[1.8] text-[#475569]">Konfigurasi bobot penilaian, aturan pembulatan, dan KKM untuk setiap mata pelajaran.</p></div>
+        <button @click="$dispatch('toast',{message:'Konfigurasi bobot berhasil disimpan!',type:'success'})" :disabled="!isValid" class="flex h-[44px] items-center gap-2 rounded-[8px] px-5 text-[13px] font-bold text-white transition" :class="isValid ? 'bg-[#1d4ed8] hover:bg-[#1e40af]' : 'bg-[#94a3b8] cursor-not-allowed'">
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+            Simpan Konfigurasi
+        </button>
+    </div>
 
-            {{-- Konfigurasi Bobot Nilai --}}
+    <div class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
+        {{-- LEFT: Komponen Bobot --}}
+        <div class="space-y-6">
+            <div class="rounded-[14px] border border-[#e2e8f0] bg-white overflow-hidden">
+                <div class="flex items-center justify-between border-b border-[#e2e8f0] px-6 py-4">
+                    <h3 class="text-[16px] font-bold text-[#0f172a]">Komponen Penilaian & Bobot</h3>
+                    <button @click="addKomponen()" class="flex h-[34px] items-center gap-1.5 rounded-[6px] bg-[#1d4ed8] px-3 text-[11px] font-bold text-white hover:bg-[#1e40af]"><svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4" stroke-width="2" stroke-linecap="round"></path></svg>Tambah</button>
+                </div>
+                <table class="w-full text-[13px]">
+                    <thead><tr class="bg-[#f8fafc]"><th class="px-6 py-3 text-left text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Komponen</th><th class="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b] w-[120px]">Bobot (%)</th><th class="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Bar</th><th class="px-4 py-3 w-12"></th></tr></thead>
+                    <tbody>
+                        <template x-for="k in komponen" :key="k.id">
+                            <tr class="border-t border-[#f1f5f9]">
+                                <td class="px-6 py-3"><input x-model="k.nama" class="w-full bg-transparent text-[14px] font-bold text-[#0f172a] outline-none border-b border-transparent focus:border-[#3b82f6] pb-0.5"></td>
+                                <td class="px-4 py-3"><input x-model.number="k.bobot" type="number" min="0" max="100" class="h-[36px] w-[80px] rounded-[6px] border border-[#e2e8f0] bg-[#f8fafc] px-3 text-center text-[14px] font-bold outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20"></td>
+                                <td class="px-4 py-3"><div class="h-[6px] w-full overflow-hidden rounded-full bg-[#e2e8f0]"><div class="h-full rounded-full transition-all duration-300" :class="totalBobot > 100 ? 'bg-[#dc2626]' : 'bg-[#1d4ed8]'" :style="'width:'+Math.min(k.bobot,100)+'%'"></div></div></td>
+                                <td class="px-4 py-3"><button @click="confirmHapus(k)" class="rounded-lg p-1.5 text-[#94a3b8] transition hover:bg-[#fef2f2] hover:text-[#dc2626]"><svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></button></td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+                <div class="flex items-center justify-between border-t border-[#e2e8f0] px-6 py-3">
+                    <span class="text-[12px] font-bold text-[#64748b]">Total Bobot</span>
+                    <span class="text-[20px] font-black" :class="isValid ? 'text-[#059669]' : 'text-[#dc2626]'" x-text="totalBobot + '%'"></span>
+                </div>
+                <div x-show="!isValid" class="bg-[#fef2f2] border-t border-[#fecaca] px-6 py-2.5">
+                    <p class="text-[12px] font-bold text-[#dc2626]" x-text="totalBobot > 100 ? 'Total bobot melebihi 100%! Kurangi bobot.' : 'Total bobot kurang dari 100%! Tambahkan bobot.'"></p>
+                </div>
+            </div>
+
+            {{-- PEMBULATAN --}}
             <div class="rounded-[14px] border border-[#e2e8f0] bg-white p-6">
-                <h2 class="text-[22px] font-black tracking-[-0.04em] text-[#0f172a]">Konfigurasi Bobot Nilai</h2>
-                <p class="mt-2 max-w-[480px] text-[14px] leading-[1.8] text-[#475569]">
-                    Tentukan persentase untuk setiap komponen nilai akademik. Pastikan total akumulasi tepat mencapai 100% untuk validasi sistem.
-                </p>
-
-                {{-- Header --}}
-                <div class="mt-6 grid grid-cols-[1fr_120px_48px] gap-3 px-1">
-                    <p class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Komponen Nilai</p>
-                    <p class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Bobot (%)</p>
-                    <p></p>
-                </div>
-
-                {{-- Rows --}}
-                <div class="mt-3 space-y-3">
-                    @foreach ([
-                        ['name' => 'Tugas & Kuis', 'value' => 20],
-                        ['name' => 'Ujian Tengah Semester (UTS)', 'value' => 30],
-                        ['name' => 'Ujian Akhir Semester (UAS)', 'value' => 40],
-                        ['name' => 'Kehadiran', 'value' => 10],
-                    ] as $komponen)
-                        <div class="grid grid-cols-[1fr_120px_48px] items-center gap-3">
-                            <input class="h-[44px] rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] font-medium text-[#0f172a] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20" value="{{ $komponen['name'] }}" type="text">
-                            <input class="h-[44px] rounded-[8px] border border-[#e2e8f0] bg-white px-4 text-center text-[18px] font-black text-[#0f172a] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20" value="{{ $komponen['value'] }}" type="number">
-                            <button class="flex h-[44px] w-[44px] items-center justify-center rounded-[8px] border border-[#e2e8f0] text-[#94a3b8] transition hover:bg-[#fef2f2] hover:text-[#dc2626] hover:border-[#fecaca]">
-                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-                            </button>
-                        </div>
-                    @endforeach
-                </div>
-
-                {{-- Add component --}}
-                <button class="mt-4 flex items-center gap-2 text-[13px] font-bold text-[#64748b] transition hover:text-[#1d4ed8]">
-                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-width="2"></circle><path d="M12 8v8m-4-4h8" stroke-width="2" stroke-linecap="round"></path></svg>
-                    Tambah Komponen Baru
-                </button>
-
-                {{-- Validation + Save --}}
-                <div class="mt-6 flex items-center justify-between border-t border-[#f1f5f9] pt-5">
-                    <div class="flex items-center gap-2">
-                        <svg class="h-5 w-5 text-[#059669]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-                        <span class="text-[13px] font-bold text-[#059669]">Total Akumulasi: 100% (Valid)</span>
-                    </div>
-                    <button class="flex h-[42px] items-center gap-2 rounded-[8px] bg-[#0f172a] px-6 text-[13px] font-bold text-white transition hover:bg-[#1e293b]">Simpan Konfigurasi</button>
+                <h3 class="text-[16px] font-bold text-[#0f172a]">Aturan Pembulatan</h3>
+                <div class="mt-4 flex flex-wrap gap-3">
+                    <template x-for="opt in ['Terdekat', 'Ke Atas', 'Ke Bawah']">
+                        <label class="flex cursor-pointer items-center gap-2 rounded-[8px] border px-4 py-2.5 text-[13px] font-semibold transition" :class="pembulatan === opt ? 'bg-[#0f172a] text-white border-[#0f172a]' : 'border-[#e2e8f0] text-[#475569] hover:bg-[#f1f5f9]'">
+                            <input type="radio" :value="opt" x-model="pembulatan" class="hidden"><span x-text="opt"></span>
+                        </label>
+                    </template>
                 </div>
             </div>
 
-            {{-- Right Column --}}
-            <div class="space-y-4">
-                {{-- Preview Kalkulasi --}}
-                <div class="rounded-[14px] bg-[#0f172a] p-6 text-white">
-                    <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-[#60a5fa]">Preview Kalkulasi</p>
-                    <h3 class="mt-2 text-[20px] font-black tracking-[-0.04em]">Simulasi Nilai Akhir</h3>
-                    <div class="mt-5 space-y-2.5">
-                        @foreach ([
-                            ['label' => 'Tugas (20%)', 'calc' => '65 × 0.2 = 17'],
-                            ['label' => 'UTS (30%)', 'calc' => '78 × 0.3 = 23.4'],
-                            ['label' => 'UAS (40%)', 'calc' => '80 × 0.4 = 32'],
-                            ['label' => 'Hadir (10%)', 'calc' => '100 × 0.1 = 10'],
-                        ] as $row)
-                            <div class="flex items-center justify-between text-[13px]">
-                                <span class="text-white/60">{{ $row['label'] }}</span>
-                                <span class="font-mono font-bold">{{ $row['calc'] }}</span>
-                            </div>
-                        @endforeach
-                    </div>
-                    <div class="mt-5 border-t border-white/20 pt-4 text-center">
-                        <p class="text-[12px] font-bold uppercase tracking-[0.12em] text-[#60a5fa]">Predikat B+</p>
-                        <p class="mt-1 text-[48px] font-black leading-none tracking-[-0.06em]">82.4</p>
-                    </div>
-                </div>
-
-                {{-- Log Perubahan --}}
-                <div class="rounded-[14px] border border-[#e2e8f0] bg-white p-5">
-                    <p class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Log Perubahan Terakhir</p>
-                    <div class="mt-4 space-y-4">
-                        <div class="rounded-[8px] bg-[#f8fafc] p-3">
-                            <p class="text-[12px] font-bold text-[#0f172a]">Bobot UAS diubah</p>
-                            <p class="mt-0.5 text-[11px] text-[#64748b]">Oleh: Admin Utama • 2 Jam lalu</p>
-                            <p class="mt-0.5 text-[11px] text-[#64748b]">35% → 40%</p>
-                        </div>
-                        <div class="rounded-[8px] bg-[#f8fafc] p-3">
-                            <p class="text-[12px] font-bold text-[#0f172a]">Komponen Kehadiran ditambahkan</p>
-                            <p class="mt-0.5 text-[11px] text-[#64748b]">Oleh: Wakasek Kurikulum • Kemarin</p>
-                        </div>
-                    </div>
-                    <button class="mt-4 flex h-[36px] w-full items-center justify-center rounded-[6px] border border-[#e2e8f0] bg-white text-[11px] font-bold uppercase tracking-[0.08em] text-[#475569] transition hover:bg-[#f1f5f9]">Lihat Riwayat Lengkap</button>
-                </div>
-
-                {{-- Blueprint placeholder --}}
-                <div class="flex h-[120px] items-center justify-center rounded-[14px] bg-[#f1f5f9] border border-[#e2e8f0]">
-                    <p class="text-[11px] font-bold uppercase tracking-[0.12em] text-[#94a3b8]">BLUEPRINT FR-13-B</p>
-                </div>
-            </div>
-        </div>
-
-        {{-- ─── BOTTOM: KKM + PEMBULATAN ────────────────────── --}}
-        <div class="grid gap-4 sm:grid-cols-2">
             {{-- KKM --}}
             <div class="rounded-[14px] border border-[#e2e8f0] bg-white p-6">
-                <h3 class="text-[11px] font-bold uppercase tracking-[0.18em] text-[#64748b]">Nilai Ambang Batas (KKM)</h3>
-                <div class="mt-3 flex items-end gap-2">
-                    <span class="text-[48px] font-black leading-none tracking-[-0.06em] text-[#0f172a]">75</span>
-                    <span class="pb-1 text-[14px] font-medium text-[#64748b]">Skala 100</span>
-                </div>
-                <p class="mt-4 text-[13px] leading-[1.8] text-[#475569]">
-                    Siswa dengan nilai akhir di bawah ambang batas akan secara otomatis masuk ke daftar program remedi.
-                </p>
-            </div>
-
-            {{-- Pembulatan --}}
-            <div class="rounded-[14px] border border-[#e2e8f0] bg-white p-6">
-                <h3 class="text-[11px] font-bold uppercase tracking-[0.18em] text-[#64748b]">Pembulatan Nilai</h3>
-                <div class="mt-4 space-y-3">
-                    <label class="flex items-center gap-3 cursor-pointer">
-                        <input type="radio" name="pembulatan" checked class="h-4 w-4 accent-[#0f172a]">
-                        <span class="text-[14px] font-medium text-[#0f172a]">Terdekat (0.5)</span>
-                    </label>
-                    <label class="flex items-center gap-3 cursor-pointer">
-                        <input type="radio" name="pembulatan" class="h-4 w-4 accent-[#0f172a]">
-                        <span class="text-[14px] font-medium text-[#64748b]">Ke Atas (Ceiling)</span>
-                    </label>
+                <h3 class="text-[16px] font-bold text-[#0f172a]">Kriteria Ketuntasan Minimal (KKM)</h3>
+                <div class="mt-4 grid gap-4 sm:grid-cols-3">
+                    <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">KKM Pengetahuan</label><input class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] font-bold text-[#0f172a] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20" value="75"></div>
+                    <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">KKM Keterampilan</label><input class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] font-bold text-[#0f172a] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20" value="75"></div>
+                    <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Predikat Minimum</label><input class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] font-bold text-[#0f172a] outline-none" value="C" readonly></div>
                 </div>
             </div>
         </div>
 
+        {{-- RIGHT: Preview + Riwayat --}}
+        <div class="space-y-4">
+            <div class="rounded-[14px] border border-[#e2e8f0] bg-white p-6">
+                <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-[#64748b]">Preview Nilai Akhir</p>
+                <p class="mt-3 text-center text-[64px] font-black tracking-[-0.06em]" :class="previewNilai >= 75 ? 'text-[#059669]' : 'text-[#dc2626]'" x-text="previewNilai"></p>
+                <p class="text-center text-[12px] font-semibold text-[#64748b]">Pembulatan: <span class="text-[#0f172a]" x-text="pembulatan"></span></p>
+                <div class="mt-4 space-y-2">
+                    <template x-for="k in komponen" :key="k.id">
+                        <div class="flex items-center justify-between text-[12px]"><span class="text-[#64748b]" x-text="k.nama"></span><span class="font-bold text-[#0f172a]" x-text="k.bobot + '%'"></span></div>
+                    </template>
+                </div>
+                <div class="mt-4 flex items-center justify-center gap-2">
+                    <span class="inline-flex rounded-md border px-2.5 py-1 text-[11px] font-bold" :class="previewNilai >= 75 ? 'border-[#a7f3d0] bg-[#ecfdf5] text-[#059669]' : 'border-[#fecaca] bg-[#fef2f2] text-[#dc2626]'" x-text="previewNilai >= 75 ? 'TUNTAS' : 'BELUM TUNTAS'"></span>
+                </div>
+            </div>
+            <div class="rounded-[14px] border border-[#e2e8f0] bg-white p-6">
+                <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-[#64748b]">Riwayat Perubahan</p>
+                <div class="mt-4 space-y-3 divide-y divide-[#f1f5f9]">
+                    @foreach ([['date'=>'12 Jan 2024','desc'=>'Bobot PAS diubah 35% → 30%','by'=>'Admin TU'],['date'=>'05 Des 2023','desc'=>'Tambah komponen Tugas Harian','by'=>'Admin TU']] as $r)
+                        <div class="pt-3 first:pt-0"><p class="text-[12px] font-bold text-[#0f172a]">{{ $r['desc'] }}</p><p class="mt-0.5 text-[10px] text-[#94a3b8]">{{ $r['date'] }} · {{ $r['by'] }}</p></div>
+                    @endforeach
+                </div>
+                <button @click="showRiwayat = true" class="mt-4 text-[11px] font-bold uppercase tracking-[0.08em] text-[#1d4ed8] hover:text-[#1e40af]">Lihat Riwayat Lengkap</button>
+            </div>
+        </div>
     </div>
+
+    {{-- ═══ MODAL: Hapus Komponen ═══ --}}
+    <div x-show="showHapus" class="fixed inset-0 z-[100] flex items-center justify-center bg-[#0f172a]/60 backdrop-blur-sm" style="display:none" x-transition @click.self="showHapus = false">
+        <div class="w-[90%] max-w-sm rounded-2xl bg-white shadow-2xl" @click.stop>
+            <div class="p-6 text-center">
+                <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#fef2f2] text-[#dc2626] ring-4 ring-[#fee2e2]"><svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></div>
+                <h3 class="mt-4 text-[18px] font-black text-[#0f172a]">Hapus Komponen?</h3>
+                <p class="mt-2 text-[13px] text-[#64748b]">Komponen "<strong x-text="hapusTarget?.nama"></strong>" akan dihapus.</p>
+            </div>
+            <div class="flex gap-3 border-t border-[#e2e8f0] bg-[#f8fafc] px-6 py-4 rounded-b-2xl">
+                <button @click="showHapus = false" class="flex-1 rounded-lg border border-[#e2e8f0] bg-white py-2.5 text-[12px] font-bold text-[#475569]">Batal</button>
+                <button @click="doHapus()" class="flex-1 rounded-lg bg-[#dc2626] py-2.5 text-[12px] font-bold text-white">Ya, Hapus</button>
+            </div>
+        </div>
+    </div>
+
+    {{-- ═══ MODAL: Riwayat Lengkap ═══ --}}
+    <div x-show="showRiwayat" class="fixed inset-0 z-[100] flex items-center justify-center bg-[#0f172a]/60 backdrop-blur-sm" style="display:none" x-transition @click.self="showRiwayat = false">
+        <div class="w-[90%] max-w-lg rounded-2xl bg-white shadow-2xl max-h-[80vh] flex flex-col" @click.stop>
+            <div class="flex items-center justify-between border-b border-[#e2e8f0] px-6 py-4"><h3 class="text-[18px] font-black text-[#0f172a]">Riwayat Perubahan Lengkap</h3><button @click="showRiwayat = false" class="flex h-8 w-8 items-center justify-center rounded-lg text-[#94a3b8] hover:bg-[#f1f5f9]"><svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-width="2" stroke-linecap="round"></path></svg></button></div>
+            <div class="flex-1 overflow-y-auto px-6 py-4 divide-y divide-[#f1f5f9]">
+                @foreach ([['date'=>'12 Jan 2024','desc'=>'Bobot PAS diubah 35% → 30%','by'=>'Admin TU'],['date'=>'05 Des 2023','desc'=>'Tambah komponen Tugas Harian (20%)','by'=>'Admin TU'],['date'=>'10 Nov 2023','desc'=>'KKM diubah 70 → 75','by'=>'Kepsek'],['date'=>'01 Sep 2023','desc'=>'Pembulatan diubah ke Terdekat','by'=>'Admin TU'],['date'=>'15 Jul 2023','desc'=>'Konfigurasi awal semester ganjil','by'=>'System']] as $r)
+                    <div class="py-3"><p class="text-[13px] font-bold text-[#0f172a]">{{ $r['desc'] }}</p><p class="mt-0.5 text-[11px] text-[#94a3b8]">{{ $r['date'] }} · {{ $r['by'] }}</p></div>
+                @endforeach
+            </div>
+        </div>
+    </div>
+
+</div>
 </x-admin-shell>

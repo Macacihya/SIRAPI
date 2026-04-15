@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [AuthController::class, 'showLoginForm'])->name('login');
 
 // Mockup routes (tanpa controller)
+Route::view('/didit', 'didit');
 Route::view('/rian', 'rian');
 Route::view('/home', 'home');
 Route::view('/about', 'about');
