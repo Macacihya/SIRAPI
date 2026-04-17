@@ -39,6 +39,16 @@ Route::middleware('auth')->group(function () {
     // ⚠️ tampilkan HARUS sebelum resource
     Route::get('/guru/tampilkan', [GuruController::class, 'tampilkan'])->name('guru.tampilkan');
 
+    // ─── Guru Mata Pelajaran Pages ─────────────────────────────────
+    Route::prefix('guru')->name('guru.')->group(function () {
+        Route::view('/dashboard', 'guru.dashboard')->name('dashboard');
+        Route::view('/jadwal-mengajar', 'guru.jadwal-mengajar')->name('jadwal-mengajar');
+        Route::view('/data-siswa', 'guru.data-siswa')->name('data-siswa');
+        Route::view('/penilaian', 'guru.penilaian')->name('penilaian');
+        Route::view('/capaian-kompetensi', 'guru.capaian-kompetensi')->name('capaian-kompetensi');
+        Route::view('/profil', 'guru.profil')->name('profil');
+    });
+
     Route::resource('sekolah', SekolahController::class);
     Route::resource('guru', GuruController::class);
     Route::get('/siswa/tampilkan', [SiswaController::class, 'tampilkan'])->name('siswa.tampilkan');

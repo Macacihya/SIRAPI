@@ -1,4 +1,4 @@
-<x-admin-shell :user="auth()->user()" active="profil" title="Profil Saya" subtitle="Informasi akun dan biodata">
+<x-admin-shell :user="auth()->user()" active="profil" title="Profil Pengguna" subtitle="Informasi akun dan biodata">
 @php
     $user = auth()->user();
 @endphp
@@ -82,17 +82,7 @@
         </div>
     </div>
 
-    {{-- STATUS CARDS --}}
-    <div class="grid gap-4 sm:grid-cols-2">
-        <div @click="$dispatch('toast',{message:'Detail sertifikasi: No. 2206/CERT/2019',type:'info'})" class="flex items-center justify-between rounded-[14px] border border-[#e2e8f0] bg-white p-5 cursor-pointer transition hover:shadow-md">
-            <div class="flex items-center gap-4"><div class="flex h-10 w-10 items-center justify-center rounded-full bg-[#eff6ff] text-[#1d4ed8]"><svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></div><div><p class="text-[14px] font-bold text-[#0f172a]">Sertifikasi Pendidik</p><p class="mt-0.5 text-[12px] text-[#64748b]">Sertifikat No. 2206/CERT/2019 · <span class="text-[#059669] font-semibold">Aktif</span></p></div></div>
-            <svg class="h-4 w-4 text-[#94a3b8]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-        </div>
-        <div @click="$dispatch('toast',{message:'Sinkronisasi data berhasil!',type:'success'})" class="flex items-center justify-between rounded-[14px] border border-[#e2e8f0] bg-white p-5 cursor-pointer transition hover:shadow-md">
-            <div class="flex items-center gap-4"><div class="flex h-10 w-10 items-center justify-center rounded-full bg-[#eff6ff] text-[#1d4ed8]"><svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4" stroke-width="2"></path></svg></div><div><p class="text-[14px] font-bold text-[#0f172a]">Verifikasi Data Pokok</p><p class="mt-0.5 text-[12px] text-[#64748b]">Sinkronisasi Terakhir: 12 Jan 2024</p></div></div>
-            <svg class="h-4 w-4 text-[#94a3b8]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-        </div>
-    </div>
+
 
     <p class="text-center text-[11px] font-semibold tracking-[0.1em] text-[#94a3b8]">SIRAPI &copy; 2024 &bull; SISTEM RAPOR PINTAR</p>
 

@@ -20,6 +20,10 @@ class DashboardController extends Controller
             ]);
         }
 
+        if ($user?->role === 'guru') {
+            return redirect()->route('guru.dashboard');
+        }
+
         return view('dashboard', [
             'user' => $user,
         ]);

@@ -97,7 +97,7 @@
         <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div>
                 <h1 class="text-[28px] font-black tracking-[-0.04em] text-[#0f172a] sm:text-[36px]">Penilaian Kelas</h1>
-                <p class="mt-1 text-[14px] text-[#475569]">Rekapitulasi capaian akademik siswa Kelas XII-MIPA 1 untuk Semester Ganjil 2026/2027.</p>
+                <p class="mt-1 text-[14px] text-[#475569]">Rekapitulasi capaian akademik siswa Kelas VI-A untuk Semester Ganjil 2026/2027.</p>
             </div>
             <div class="flex items-center gap-2 no-print">
                 <button @click="window.print()" class="flex items-center gap-2 rounded-lg border border-[#e2e8f0] bg-white px-4 py-2.5 text-[11px] font-extrabold uppercase tracking-wider text-[#475569] transition hover:bg-[#f1f5f9]">

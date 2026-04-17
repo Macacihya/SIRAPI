@@ -156,7 +156,7 @@
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = 'daftar-siswa-XII-IPA-1.csv';
+            a.download = 'daftar-siswa-VI-A.csv';
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
@@ -165,9 +165,9 @@
     }">
         {{-- Class Title --}}
         <div>
-            <h1 class="text-[28px] font-black tracking-[-0.04em] text-[#0f172a] sm:text-[36px]">XII IPA 1</h1>
+            <h1 class="text-[28px] font-black tracking-[-0.04em] text-[#0f172a] sm:text-[36px]">VI-A</h1>
             <p class="mt-3 max-w-[600px] text-[14px] leading-[1.8] text-[#475569] sm:text-[16px]">
-                Profil lengkap Kelas XII IPA 1 untuk tahun ajaran 2026/2027. Informasi mencakup detail struktural, data akademik, dan daftar siswa.
+                Profil lengkap Kelas VI-A untuk tahun ajaran 2026/2027. Informasi mencakup detail struktural, data akademik, dan daftar siswa.
             </p>
         </div>
 
@@ -237,7 +237,7 @@
             <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                 <div>
                     <h2 class="text-[22px] font-black tracking-[-0.03em] text-[#0f172a] sm:text-[28px]">Daftar Siswa</h2>
-                    <p class="mt-1 text-[13px] text-[#64748b]">Data lengkap siswa Kelas XII IPA 1</p>
+                    <p class="mt-1 text-[13px] text-[#64748b]">Data lengkap siswa Kelas VI-A</p>
                 </div>
             </div>
 
@@ -245,7 +245,7 @@
             <div class="no-print flex flex-col gap-3 sm:flex-row sm:items-center">
                 <div class="relative flex-1">
                     <svg class="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#94a3b8]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8" stroke-width="2"/><path d="m21 21-4.35-4.35" stroke-width="2" stroke-linecap="round"/></svg>
-                    <input type="text" x-model="searchQuery" @input="currentPage = 1" placeholder="Cari berdasarkan Nama atau NISN..." class="h-11 w-full rounded-lg border border-[#e2e8f0] bg-white pl-11 pr-4 text-[13px] outline-none transition focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20">
+                    <input type="text" x-model="searchQuery" @input="currentPage = 1" placeholder="Cari berdasarkan Nama atau NIS/NISN..." class="h-11 w-full rounded-lg border border-[#e2e8f0] bg-white pl-11 pr-4 text-[13px] outline-none transition focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20">
                 </div>
 
                 {{-- Filter Dropdown --}}

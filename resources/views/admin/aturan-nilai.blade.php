@@ -6,8 +6,8 @@
     pembulatan: 'Terdekat',
     komponen: [
         { id: 2, nama: 'Ulangan Harian (UH)', bobot: 25, kode: 'UH' },
-        { id: 3, nama: 'Penilaian Tengah Semester', bobot: 25, kode: 'PTS' },
-        { id: 4, nama: 'Penilaian Akhir Semester', bobot: 30, kode: 'PAS' },
+        { id: 3, nama: 'Ujian Tengah Semester', bobot: 35, kode: 'UTS' },
+        { id: 4, nama: 'Ujian Akhir Semester', bobot: 40, kode: 'UAS' },
     ],
     get totalBobot() { return this.komponen.reduce((s, k) => s + Number(k.bobot), 0); },
     get isValid() { return this.totalBobot === 100; },

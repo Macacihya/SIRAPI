@@ -39,7 +39,7 @@
             <div>
                 <h1 class="text-[28px] font-black tracking-[-0.04em] text-[#0f172a] sm:text-[36px]">Jadwal Pelajaran Kelas</h1>
                 <div class="mt-2 flex flex-wrap gap-2">
-                    <span class="rounded-full border border-[#e2e8f0] px-3 py-1 text-[11px] font-bold text-[#475569]">XII IPA 1</span>
+                    <span class="rounded-full border border-[#e2e8f0] px-3 py-1 text-[11px] font-bold text-[#475569]">VI-A</span>
                     <span class="rounded-full border border-[#e2e8f0] px-3 py-1 text-[11px] font-bold text-[#475569]">T.A 2026/2027</span>
                 </div>
             </div>

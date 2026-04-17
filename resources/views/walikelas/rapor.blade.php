@@ -86,7 +86,7 @@
             <!-- Header Sidebar -->
             <div class="p-4 border-b border-[#e2e8f0] bg-[#f8fafc]">
                 <h2 class="text-[15px] font-bold text-[#0f172a]">Daftar Siswa</h2>
-                <p class="text-[12px] text-[#64748b]">Kelas XII IPA 1 (Total: <span x-text="filteredStudents.length"></span> Siswa)</p>
+                <p class="text-[12px] text-[#64748b]">Kelas VI-A (Total: <span x-text="filteredStudents.length"></span> Siswa)</p>
                 
                 <div class="mt-3 relative">
                     <svg class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#94a3b8]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -140,7 +140,7 @@
                 <div class="flex items-start justify-between mb-8">
                     <div>
                         <h1 class="text-[24px] font-black tracking-[-0.03em] text-[#0f172a]" x-text="'Input Rapor: ' + selectedStudent.name"></h1>
-                        <p class="text-[13px] text-[#64748b] mt-1" x-text="'NIS: ' + selectedStudent.nis + ' | Kelas: XII IPA 1'"></p>
+                        <p class="text-[13px] text-[#64748b] mt-1" x-text="'NIS: ' + selectedStudent.nis + ' | Kelas: VI-A'"></p>
                     </div>
                 </div>
 

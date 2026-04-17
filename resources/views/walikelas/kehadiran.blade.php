@@ -75,7 +75,8 @@
                 <div>
                     <p class="text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b]">Pilih Tanggal</p>
                     <div class="mt-1 flex items-center gap-2">
-                        <input type="date" max="{{ date('Y-m-d') }}" x-model="selectedDate" class="h-10 rounded-lg border border-[#e2e8f0] bg-white px-3 text-[13px] font-semibold text-[#0f172a] outline-none transition focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20">
+                        {{-- Batas minimum otomatis disesuaikan awal semester yang sedang aktif (Ganjil: Juli, Genap: Januari) --}}
+                        <input type="date" min="{{ date('n') >= 7 ? date('Y').'-07-01' : date('Y').'-01-01' }}" max="{{ date('Y-m-d') }}" x-model="selectedDate" class="h-10 rounded-lg border border-[#e2e8f0] bg-white px-3 text-[13px] font-semibold text-[#0f172a] outline-none transition focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20">
                     </div>
                 </div>
                 <button @click="saveModalOpen = true" class="mt-5 rounded-lg bg-[#1d4ed8] px-5 py-2.5 text-[12px] font-bold text-white transition hover:bg-[#2563eb]">Simpan Kehadiran</button>
@@ -128,9 +129,6 @@
                                 </template>
                             </tbody>
                         </table>
-                    </div>
-                    <div class="border-t border-[#e2e8f0] px-5 py-3">
-                        <p class="text-[12px] text-[#94a3b8]">Tanggal: <span class="font-semibold text-[#475569]" x-text="formattedDate"></span></p>
                     </div>
                 </div>
 

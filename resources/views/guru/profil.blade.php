@@ -1,8 +1,8 @@
-<x-walikelas-shell
+<x-guru-shell
     :user="auth()->user()"
     active="profil"
     title="Profil Pengguna"
-    subtitle="Panel Wali Kelas"
+    subtitle="Panel Guru Mata Pelajaran"
 >
     @php
         $user = auth()->user();
@@ -15,9 +15,9 @@
         toastMessage: '',
         
         userProfile: {
-            name: '{{ $user->name ?? 'Heryanto Pratama, S.Pd.' }}',
-            email: 'heryanto.p@sekolah.sch.id',
-            phone: '+62 812-3456-7890'
+            name: '{{ $user->name ?? 'Drs. M. Taufik' }}',
+            email: 'taufik.indo@sekolah.sch.id',
+            phone: '+62 812-9876-5432'
         },
         
         formProfile: { name: '', email: '', phone: '' },
@@ -50,7 +50,7 @@
 
         handleFileUpload(e) {
             if(e.target.files.length > 0) {
-                this.showToast('Foto profil berhasil diunggah (Dummy)');
+                this.showToast('Foto profil berhasil diunggah');
             }
         },
 
@@ -72,21 +72,21 @@
             <div class="space-y-4">
                 {{-- Photo + Name --}}
                 <div class="rounded-xl bg-white p-6 text-center ring-1 ring-[#e2e8f0]">
-                    <div class="relative mx-auto h-32 w-32 rounded-2xl bg-[#f1f5f9] flex items-center justify-center overflow-hidden">
-                        <svg class="h-16 w-16 text-[#94a3b8]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    <div class="relative mx-auto h-32 w-32 rounded-2xl bg-[#eff6ff] flex items-center justify-center overflow-hidden">
+                        <svg class="h-16 w-16 text-[#1d4ed8]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
                         
                         <!-- Tombol Ubah Foto -->
-                        <button @click="triggerUpload()" class="absolute bottom-2 right-2 flex h-7 w-7 items-center justify-center rounded-full bg-[#0f172a] text-white shadow-lg hover:bg-[#1e293b] transition">
+                        <button @click="triggerUpload()" class="absolute bottom-2 right-2 flex h-7 w-7 items-center justify-center rounded-full bg-[#1d4ed8] text-white shadow-lg hover:bg-[#1e40af] transition">
                             <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" stroke-width="2"/><circle cx="12" cy="13" r="3" stroke-width="2"/></svg>
                         </button>
                         <input type="file" x-ref="fileInput" class="hidden" accept="image/*" @change="handleFileUpload">
                     </div>
                     <h2 class="mt-4 text-[20px] font-black text-[#0f172a]" x-text="userProfile.name"></h2>
-                    <p class="mt-0.5 text-[13px] text-[#64748b]">Wali Kelas VI-A</p>
+                    <p class="mt-0.5 text-[13px] text-[#64748b]">Guru Mapel Bahasa Indonesia</p>
 
-                    <button @click="openEditProfile()" class="mt-5 flex w-full items-center justify-center gap-2 rounded-lg bg-[#0f172a] py-2.5 text-[12px] font-bold text-white transition hover:bg-[#1e293b]">
+                    <button @click="openEditProfile()" class="mt-5 flex w-full items-center justify-center gap-2 rounded-lg bg-[#1d4ed8] py-2.5 text-[12px] font-bold text-white transition hover:bg-[#1e40af]">
                         <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                        Ubah Profil
+                        Update Biodata
                     </button>
                     <button @click="passwordModal = true" class="mt-2 flex w-full items-center justify-center gap-2 rounded-lg border border-[#e2e8f0] bg-white py-2.5 text-[12px] font-bold text-[#475569] transition hover:bg-[#f1f5f9]">
                         <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -96,19 +96,19 @@
 
                 {{-- Info Akun --}}
                 <div class="rounded-xl bg-white p-5 ring-1 ring-[#e2e8f0]">
-                    <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-[#64748b]">Informasi Akun</p>
+                    <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-[#64748b]">Status Kinerja</p>
                     <div class="mt-4 space-y-3">
                         <div class="flex items-center justify-between">
-                            <span class="text-[13px] text-[#475569]">Status Akun</span>
-                            <span class="rounded px-2 py-0.5 text-[10px] font-extrabold uppercase bg-[#f0fdf4] text-[#16a34a]">Aktif</span>
+                            <span class="text-[13px] text-[#475569]">Jam Mengajar</span>
+                            <span class="text-[13px] font-bold text-[#0f172a]">24 Jam / Minggu</span>
                         </div>
                         <div class="flex items-center justify-between">
-                            <span class="text-[13px] text-[#475569]">Tahun Ajaran</span>
-                            <span class="text-[13px] font-bold text-[#0f172a]">2026/2027 Genap</span>
+                            <span class="text-[13px] text-[#475569]">Kelas Diampu</span>
+                            <span class="text-[13px] font-bold text-[#0f172a]">6 Kelas</span>
                         </div>
                         <div class="flex items-center justify-between">
-                            <span class="text-[13px] text-[#475569]">Login Terakhir</span>
-                            <span class="text-[13px] font-bold text-[#0f172a]">Hari ini, 08:24</span>
+                            <span class="text-[13px] text-[#475569]">Kehadiran Bulan Ini</span>
+                            <span class="rounded px-2 py-0.5 text-[10px] font-extrabold uppercase bg-[#f0fdf4] text-[#16a34a]">100%</span>
                         </div>
                     </div>
                 </div>
@@ -120,32 +120,32 @@
                 <div class="rounded-xl bg-white p-6 ring-1 ring-[#e2e8f0]">
                     <div class="flex items-center gap-2">
                         <svg class="h-5 w-5 text-[#1d4ed8]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                        <h3 class="text-[18px] font-black text-[#0f172a]">Biodata Lengkap</h3>
+                        <h3 class="text-[18px] font-black text-[#0f172a]">Informasi Guru</h3>
                     </div>
                     <div class="mt-5 grid gap-5 sm:grid-cols-2">
                         <div>
-                            <p class="text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b]">Nama Lengkap</p>
+                            <p class="text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b]">Nama Lengkap / Gelar</p>
                             <p class="mt-1 text-[14px] font-semibold text-[#0f172a]" x-text="userProfile.name"></p>
                         </div>
                         <div>
-                            <p class="text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b]">NIP / ID Guru</p>
-                            <p class="mt-1 text-[14px] font-semibold text-[#0f172a]">19880412 201503 1 002</p>
+                            <p class="text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b]">NIP / NUPTK</p>
+                            <p class="mt-1 text-[14px] font-semibold text-[#0f172a]">19780512 200501 1 004</p>
                         </div>
                         <div>
-                            <p class="text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b]">Jabatan</p>
-                            <p class="mt-1 text-[14px] font-semibold text-[#0f172a]">Wali Kelas</p>
+                            <p class="text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b]">Jabatan Kategori</p>
+                            <p class="mt-1 text-[14px] font-semibold text-[#0f172a]">Guru Ahli Madya</p>
                         </div>
                         <div>
-                            <p class="text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b]">Email Instansi</p>
+                            <p class="text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b]">Unit Kerja Utama</p>
+                            <p class="mt-1 text-[14px] font-semibold text-[#0f172a]">SD Negeri 01 Indonesia</p>
+                        </div>
+                        <div>
+                            <p class="text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b]">Email Kontak</p>
                             <p class="mt-1 text-[14px] font-semibold text-[#0f172a]" x-text="userProfile.email"></p>
                         </div>
                         <div>
                             <p class="text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b]">Nomor Telepon</p>
                             <p class="mt-1 text-[14px] font-semibold text-[#0f172a]" x-text="userProfile.phone"></p>
-                        </div>
-                        <div>
-                            <p class="text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b]">Unit Kerja</p>
-                            <p class="mt-1 text-[14px] font-semibold text-[#0f172a]">SD Negeri 01 Indonesia</p>
                         </div>
                     </div>
                 </div>
@@ -154,13 +154,13 @@
                 <div class="rounded-xl bg-white p-6 ring-1 ring-[#e2e8f0]">
                     <div class="flex items-center gap-2">
                         <svg class="h-5 w-5 text-[#1d4ed8]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                        <h3 class="text-[18px] font-black text-[#0f172a]">Riwayat Peran & Penugasan</h3>
+                        <h3 class="text-[18px] font-black text-[#0f172a]">Riwayat Mengajar & Lintas Kelas</h3>
                     </div>
                     <div class="mt-6 space-y-6">
                         @foreach ([
-                            ['year' => '2023 - SEKARANG', 'role' => 'Wali Kelas VI-A', 'desc' => 'Bertanggung jawab penuh atas administrasi, bimbingan akademik, dan pelaporan nilai rapor siswa kelas VI-A.', 'active' => true],
-                            ['year' => '2021 - 2023', 'role' => 'Guru Mata Pelajaran Fisika', 'desc' => 'Pengampu utama mata pelajaran Fisika untuk seluruh jenjang kelas XI dan XII.', 'active' => false],
-                            ['year' => '2015 - 2021', 'role' => 'Staf Kurikulum Bidang Akademik', 'desc' => 'Membantu perencanaan jadwal belajar mengajar dan koordinasi sistem penilaian sekolah.', 'active' => false],
+                            ['year' => 'TA 2026/2027', 'role' => 'Bahasa Indonesia (I, II, III, IV, V, VI)', 'desc' => 'Mengampu mata pelajaran Bahasa Indonesia untuk kelas atas maupun bawah sebagai implementasi Kurikulum Merdeka secara menyeluruh.', 'active' => true],
+                            ['year' => 'TA 2025/2026', 'role' => 'Bahasa Indonesia & Muatan Lokal', 'desc' => 'Menjadi guru inti dalam penyusunan RPP Bahasa Indonesia tingkat kota dan pengampu Muatan Lokal Kesenian.', 'active' => false],
+                            ['year' => 'TA 2020 - 2024', 'role' => 'Guru Kelas VI', 'desc' => 'Pernah menjabat sebagai Wali Kelas VI dan guru kelas borongan sebelum sistem Subject Teacher (Guru Mapel) diterapkan optimal.', 'active' => false],
                         ] as $r)
                             <div class="flex gap-4">
                                 <div class="flex flex-col items-center">
@@ -183,7 +183,7 @@
 
         {{-- Footer --}}
         <div class="border-t border-[#e2e8f0] pt-6 text-center">
-            <p class="text-[11px] font-semibold uppercase tracking-[0.15em] text-[#94a3b8]">SIRAPI © 2024 • Sistem Rapor Pintar</p>
+            <p class="text-[11px] font-semibold uppercase tracking-[0.15em] text-[#94a3b8]">SIRAPI © 2026 • Sistem Rapor Pintar</p>
         </div>
 
         <!-- ======================= -->
@@ -195,8 +195,8 @@
             <div @click.outside="editProfileModal = false" class="bg-white rounded-2xl w-[450px] shadow-xl overflow-hidden">
                 <div class="flex items-center justify-between px-6 py-4 border-b border-[#e2e8f0] bg-[#f8fafc]">
                     <div>
-                        <h3 class="text-[16px] font-black text-[#0f172a]">Ubah Profil</h3>
-                        <p class="text-[12px] text-[#64748b]">Perbarui data diri pokok Anda.</p>
+                        <h3 class="text-[16px] font-black text-[#0f172a]">Ubah Biodata</h3>
+                        <p class="text-[12px] text-[#64748b]">Perbarui data kontak Anda.</p>
                     </div>
                     <button @click="editProfileModal = false" class="text-[#94a3b8] hover:text-[#0f172a] transition">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
@@ -208,17 +208,17 @@
                         <input type="text" x-model="formProfile.name" class="w-full h-11 rounded-lg border border-[#e2e8f0] px-3 font-semibold text-[13px] text-[#0f172a] focus:ring-2 focus:ring-[#3b82f6]/20 outline-none transition">
                     </div>
                     <div>
-                        <label class="block text-[11px] font-bold uppercase tracking-[0.15em] text-[#64748b] mb-1">Email Instansi</label>
+                        <label class="block text-[11px] font-bold uppercase tracking-[0.15em] text-[#64748b] mb-1">Email Sekolah</label>
                         <input type="email" x-model="formProfile.email" class="w-full h-11 rounded-lg border border-[#e2e8f0] px-3 font-semibold text-[13px] text-[#0f172a] focus:ring-2 focus:ring-[#3b82f6]/20 outline-none transition">
                     </div>
                     <div>
-                        <label class="block text-[11px] font-bold uppercase tracking-[0.15em] text-[#64748b] mb-1">Nomor Telepon</label>
+                        <label class="block text-[11px] font-bold uppercase tracking-[0.15em] text-[#64748b] mb-1">Nomor WhatsApp/Telepon</label>
                         <input type="text" x-model="formProfile.phone" class="w-full h-11 rounded-lg border border-[#e2e8f0] px-3 font-semibold text-[13px] text-[#0f172a] focus:ring-2 focus:ring-[#3b82f6]/20 outline-none transition">
                     </div>
                 </div>
                 <div class="px-6 py-4 bg-[#f8fafc] border-t border-[#e2e8f0] flex justify-end gap-3">
                     <button @click="editProfileModal = false" class="px-4 py-2 rounded-lg text-[13px] font-bold text-[#64748b] hover:bg-[#f1f5f9] transition">Batal</button>
-                    <button @click="saveProfile()" class="px-4 py-2 rounded-lg bg-[#0f172a] text-[13px] font-bold text-white hover:bg-[#1e293b] transition">Simpan Perubahan</button>
+                    <button @click="saveProfile()" class="px-4 py-2 rounded-lg bg-[#1d4ed8] text-[13px] font-bold text-white hover:bg-[#1e40af] transition">Simpan</button>
                 </div>
             </div>
         </div>
@@ -228,8 +228,8 @@
             <div @click.outside="passwordModal = false" class="bg-white rounded-2xl w-[400px] shadow-xl overflow-hidden">
                 <div class="flex items-center justify-between px-6 py-4 border-b border-[#e2e8f0] bg-[#f8fafc]">
                     <div>
-                        <h3 class="text-[16px] font-black text-[#0f172a]">Ubah Kata Sandi</h3>
-                        <p class="text-[12px] text-[#64748b]">Gunakan kombinasi sandi yang kuat.</p>
+                        <h3 class="text-[16px] font-black text-[#0f172a]">Keamanan Sandi</h3>
+                        <p class="text-[12px] text-[#64748b]">Jaga keamanan akun Anda.</p>
                     </div>
                     <button @click="passwordModal = false" class="text-[#94a3b8] hover:text-[#0f172a] transition">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
@@ -245,16 +245,16 @@
                         <input type="password" x-model="formPassword.new" class="w-full h-11 rounded-lg border border-[#e2e8f0] px-3 text-[13px] text-[#0f172a] focus:ring-2 focus:ring-[#3b82f6]/20 outline-none transition">
                     </div>
                     <div>
-                        <label class="block text-[11px] font-bold uppercase tracking-[0.15em] text-[#64748b] mb-1">Konfirmasi Sandi Baru</label>
+                        <label class="block text-[11px] font-bold uppercase tracking-[0.15em] text-[#64748b] mb-1">Ulangi Sandi Baru</label>
                         <input type="password" x-model="formPassword.confirm" class="w-full h-11 rounded-lg border border-[#e2e8f0] px-3 text-[13px] text-[#0f172a] focus:ring-2 focus:ring-[#3b82f6]/20 outline-none transition">
                     </div>
                 </div>
                 <div class="px-6 py-4 bg-[#f8fafc] border-t border-[#e2e8f0] flex justify-end gap-3">
                     <button @click="passwordModal = false" class="px-4 py-2 rounded-lg text-[13px] font-bold text-[#64748b] hover:bg-[#f1f5f9] transition">Batal</button>
-                    <button @click="savePassword()" class="px-4 py-2 rounded-lg bg-[#1d4ed8] text-[13px] font-bold text-white hover:bg-[#2563eb] transition">Ubah Kata Sandi</button>
+                    <button @click="savePassword()" class="px-4 py-2 rounded-lg bg-[#1d4ed8] text-[13px] font-bold text-white hover:bg-[#1e40af] transition">Ganti Sandi</button>
                 </div>
             </div>
         </div>
 
     </div>
-</x-walikelas-shell>
+</x-guru-shell>

@@ -18,7 +18,16 @@ class GuruController extends Controller
             (object)['nama' => 'Rudi Hermawan',   'nip' => '199105052014011005', 'mata_pelajaran' => 'PJOK',         'sekolah' => (object)['nama_sekolah' => 'SD Negeri 3 Jakarta']],
         ]);
 
-        return view('guru.index', compact('gurus'));
+        return view('admin.guru-tendik', compact('gurus'));
+    }
+
+    public function tampilkan()
+    {
+        $gurus = collect([
+            (object)['nama' => 'Budi Santoso',    'nip' => '198501012010011001', 'mata_pelajaran' => 'Matematika',   'sekolah' => (object)['nama_sekolah' => 'SD Negeri 1 Jakarta']],
+            (object)['nama' => 'Siti Rahayu',     'nip' => '198702022011012002', 'mata_pelajaran' => 'Bahasa Indonesia', 'sekolah' => (object)['nama_sekolah' => 'SD Negeri 1 Jakarta']],
+        ]);
+        return view('admin.guru-tendik', compact('gurus'));
     }
 
     public function create()
