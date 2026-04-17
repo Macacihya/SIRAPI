@@ -45,11 +45,13 @@ Route::middleware('auth')->group(function () {
 
     // ─── Walikelas Pages ─────────────────────────────────
     Route::prefix('walikelas')->name('walikelas.')->group(function () {
+        Route::view('/dashboard', 'walikelas.dashboard-walikelas')->name('dashboard');
         Route::view('/profil-kelas', 'walikelas.profil-kelas')->name('profil-kelas');
         Route::view('/jadwal-kelas', 'walikelas.jadwal-kelas')->name('jadwal-kelas');
         Route::view('/kehadiran', 'walikelas.kehadiran')->name('kehadiran');
         Route::view('/penilaian', 'walikelas.penilaian')->name('penilaian');
         Route::view('/rapor', 'walikelas.rapor')->name('rapor');
+        Route::view('/rapor/lihat', 'walikelas.lihat-rapor')->name('rapor.lihat');
         Route::view('/profil', 'walikelas.profil-user')->name('profil');
     });
 

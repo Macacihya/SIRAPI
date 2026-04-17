@@ -8,7 +8,65 @@
         $user = auth()->user();
     @endphp
 
-    <div class="space-y-8">
+    <div x-data="{
+        editProfileModal: false,
+        passwordModal: false,
+        toastVisible: false,
+        toastMessage: '',
+        
+        userProfile: {
+            name: '{{ $user->name ?? 'Heryanto Pratama, S.Pd.' }}',
+            email: 'heryanto.p@sekolah.sch.id',
+            phone: '+62 812-3456-7890'
+        },
+        
+        formProfile: { name: '', email: '', phone: '' },
+        formPassword: { old: '', new: '', confirm: '' },
+
+        openEditProfile() {
+            this.formProfile = { ...this.userProfile };
+            this.editProfileModal = true;
+        },
+
+        saveProfile() {
+            this.userProfile = { ...this.formProfile };
+            this.editProfileModal = false;
+            this.showToast('Profil berhasil diperbarui!');
+        },
+
+        savePassword() {
+            if(this.formPassword.new !== this.formPassword.confirm) {
+                alert('Konfirmasi kata sandi baru tidak cocok!');
+                return;
+            }
+            this.passwordModal = false;
+            this.formPassword = { old: '', new: '', confirm: '' };
+            this.showToast('Kata sandi berhasil diubah!');
+        },
+
+        triggerUpload() {
+            this.$refs.fileInput.click();
+        },
+
+        handleFileUpload(e) {
+            if(e.target.files.length > 0) {
+                this.showToast('Foto profil berhasil diunggah (Dummy)');
+            }
+        },
+
+        showToast(msg) {
+            this.toastMessage = msg;
+            this.toastVisible = true;
+            setTimeout(() => { this.toastVisible = false }, 3000);
+        }
+    }" class="space-y-8 relative">
+
+        <!-- Notifikasi Sukses -->
+        <div x-show="toastVisible" style="display: none;" class="fixed bottom-6 right-6 z-[200] flex items-center gap-3 rounded-xl bg-[#0f172a] px-5 py-3.5 text-white shadow-2xl" x-transition>
+            <svg class="h-5 w-5 text-[#22c55e]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+            <span class="text-[13px] font-bold" x-text="toastMessage"></span>
+        </div>
+
         <div class="grid gap-6 lg:grid-cols-[320px_1fr]">
             {{-- Left: Profile Card --}}
             <div class="space-y-4">
@@ -16,18 +74,21 @@
                 <div class="rounded-xl bg-white p-6 text-center ring-1 ring-[#e2e8f0]">
                     <div class="relative mx-auto h-32 w-32 rounded-2xl bg-[#f1f5f9] flex items-center justify-center overflow-hidden">
                         <svg class="h-16 w-16 text-[#94a3b8]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                        <button class="absolute bottom-2 right-2 flex h-7 w-7 items-center justify-center rounded-full bg-[#0f172a] text-white shadow-lg">
+                        
+                        <!-- Tombol Ubah Foto -->
+                        <button @click="triggerUpload()" class="absolute bottom-2 right-2 flex h-7 w-7 items-center justify-center rounded-full bg-[#0f172a] text-white shadow-lg hover:bg-[#1e293b] transition">
                             <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" stroke-width="2"/><circle cx="12" cy="13" r="3" stroke-width="2"/></svg>
                         </button>
+                        <input type="file" x-ref="fileInput" class="hidden" accept="image/*" @change="handleFileUpload">
                     </div>
-                    <h2 class="mt-4 text-[20px] font-black text-[#0f172a]">{{ $user->name ?? 'Heryanto Pratama, S.Pd.' }}</h2>
+                    <h2 class="mt-4 text-[20px] font-black text-[#0f172a]" x-text="userProfile.name"></h2>
                     <p class="mt-0.5 text-[13px] text-[#64748b]">Wali Kelas XII IPA 1</p>
 
-                    <button class="mt-5 flex w-full items-center justify-center gap-2 rounded-lg bg-[#0f172a] py-2.5 text-[12px] font-bold text-white transition hover:bg-[#1e293b]">
+                    <button @click="openEditProfile()" class="mt-5 flex w-full items-center justify-center gap-2 rounded-lg bg-[#0f172a] py-2.5 text-[12px] font-bold text-white transition hover:bg-[#1e293b]">
                         <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                         Ubah Profil
                     </button>
-                    <button class="mt-2 flex w-full items-center justify-center gap-2 rounded-lg border border-[#e2e8f0] bg-white py-2.5 text-[12px] font-bold text-[#475569] transition hover:bg-[#f1f5f9]">
+                    <button @click="passwordModal = true" class="mt-2 flex w-full items-center justify-center gap-2 rounded-lg border border-[#e2e8f0] bg-white py-2.5 text-[12px] font-bold text-[#475569] transition hover:bg-[#f1f5f9]">
                         <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                         Ubah Kata Sandi
                     </button>
@@ -43,7 +104,7 @@
                         </div>
                         <div class="flex items-center justify-between">
                             <span class="text-[13px] text-[#475569]">Tahun Ajaran</span>
-                            <span class="text-[13px] font-bold text-[#0f172a]">2023/2024 Genap</span>
+                            <span class="text-[13px] font-bold text-[#0f172a]">2026/2027 Genap</span>
                         </div>
                         <div class="flex items-center justify-between">
                             <span class="text-[13px] text-[#475569]">Login Terakhir</span>
@@ -62,19 +123,30 @@
                         <h3 class="text-[18px] font-black text-[#0f172a]">Biodata Lengkap</h3>
                     </div>
                     <div class="mt-5 grid gap-5 sm:grid-cols-2">
-                        @foreach ([
-                            ['label' => 'Nama Lengkap', 'value' => $user->name ?? 'Heryanto Pratama, S.Pd.'],
-                            ['label' => 'NIP / ID Guru', 'value' => '19880412 201503 1 002'],
-                            ['label' => 'Jabatan', 'value' => 'Wali Kelas'],
-                            ['label' => 'Email Instansi', 'value' => 'heryanto.p@sekolah.sch.id'],
-                            ['label' => 'Nomor Telepon', 'value' => '+62 812-3456-7890'],
-                            ['label' => 'Unit Kerja', 'value' => 'SMK Negeri 7 Batak'],
-                        ] as $bio)
-                            <div>
-                                <p class="text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b]">{{ $bio['label'] }}</p>
-                                <p class="mt-1 text-[14px] font-semibold text-[#0f172a]">{{ $bio['value'] }}</p>
-                            </div>
-                        @endforeach
+                        <div>
+                            <p class="text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b]">Nama Lengkap</p>
+                            <p class="mt-1 text-[14px] font-semibold text-[#0f172a]" x-text="userProfile.name"></p>
+                        </div>
+                        <div>
+                            <p class="text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b]">NIP / ID Guru</p>
+                            <p class="mt-1 text-[14px] font-semibold text-[#0f172a]">19880412 201503 1 002</p>
+                        </div>
+                        <div>
+                            <p class="text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b]">Jabatan</p>
+                            <p class="mt-1 text-[14px] font-semibold text-[#0f172a]">Wali Kelas</p>
+                        </div>
+                        <div>
+                            <p class="text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b]">Email Instansi</p>
+                            <p class="mt-1 text-[14px] font-semibold text-[#0f172a]" x-text="userProfile.email"></p>
+                        </div>
+                        <div>
+                            <p class="text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b]">Nomor Telepon</p>
+                            <p class="mt-1 text-[14px] font-semibold text-[#0f172a]" x-text="userProfile.phone"></p>
+                        </div>
+                        <div>
+                            <p class="text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b]">Unit Kerja</p>
+                            <p class="mt-1 text-[14px] font-semibold text-[#0f172a]">SMK Negeri 7 Batak</p>
+                        </div>
                     </div>
                 </div>
 
@@ -135,5 +207,76 @@
         <div class="border-t border-[#e2e8f0] pt-6 text-center">
             <p class="text-[11px] font-semibold uppercase tracking-[0.15em] text-[#94a3b8]">SIRAPI © 2024 • Sistem Rapor Pintar</p>
         </div>
+
+        <!-- ======================= -->
+        <!-- MODALS                    -->
+        <!-- ======================= -->
+
+        <!-- Modal Edit Profil -->
+        <div x-show="editProfileModal" style="display: none;" class="fixed inset-0 z-50 flex items-center justify-center bg-[#0f172a]/60 backdrop-blur-sm" x-transition>
+            <div @click.outside="editProfileModal = false" class="bg-white rounded-2xl w-[450px] shadow-xl overflow-hidden">
+                <div class="flex items-center justify-between px-6 py-4 border-b border-[#e2e8f0] bg-[#f8fafc]">
+                    <div>
+                        <h3 class="text-[16px] font-black text-[#0f172a]">Ubah Profil</h3>
+                        <p class="text-[12px] text-[#64748b]">Perbarui data diri pokok Anda.</p>
+                    </div>
+                    <button @click="editProfileModal = false" class="text-[#94a3b8] hover:text-[#0f172a] transition">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </button>
+                </div>
+                <div class="p-6 space-y-4">
+                    <div>
+                        <label class="block text-[11px] font-bold uppercase tracking-[0.15em] text-[#64748b] mb-1">Nama Lengkap</label>
+                        <input type="text" x-model="formProfile.name" class="w-full h-11 rounded-lg border border-[#e2e8f0] px-3 font-semibold text-[13px] text-[#0f172a] focus:ring-2 focus:ring-[#3b82f6]/20 outline-none transition">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold uppercase tracking-[0.15em] text-[#64748b] mb-1">Email Instansi</label>
+                        <input type="email" x-model="formProfile.email" class="w-full h-11 rounded-lg border border-[#e2e8f0] px-3 font-semibold text-[13px] text-[#0f172a] focus:ring-2 focus:ring-[#3b82f6]/20 outline-none transition">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold uppercase tracking-[0.15em] text-[#64748b] mb-1">Nomor Telepon</label>
+                        <input type="text" x-model="formProfile.phone" class="w-full h-11 rounded-lg border border-[#e2e8f0] px-3 font-semibold text-[13px] text-[#0f172a] focus:ring-2 focus:ring-[#3b82f6]/20 outline-none transition">
+                    </div>
+                </div>
+                <div class="px-6 py-4 bg-[#f8fafc] border-t border-[#e2e8f0] flex justify-end gap-3">
+                    <button @click="editProfileModal = false" class="px-4 py-2 rounded-lg text-[13px] font-bold text-[#64748b] hover:bg-[#f1f5f9] transition">Batal</button>
+                    <button @click="saveProfile()" class="px-4 py-2 rounded-lg bg-[#0f172a] text-[13px] font-bold text-white hover:bg-[#1e293b] transition">Simpan Perubahan</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Ubah Sandi -->
+        <div x-show="passwordModal" style="display: none;" class="fixed inset-0 z-50 flex items-center justify-center bg-[#0f172a]/60 backdrop-blur-sm" x-transition>
+            <div @click.outside="passwordModal = false" class="bg-white rounded-2xl w-[400px] shadow-xl overflow-hidden">
+                <div class="flex items-center justify-between px-6 py-4 border-b border-[#e2e8f0] bg-[#f8fafc]">
+                    <div>
+                        <h3 class="text-[16px] font-black text-[#0f172a]">Ubah Kata Sandi</h3>
+                        <p class="text-[12px] text-[#64748b]">Gunakan kombinasi sandi yang kuat.</p>
+                    </div>
+                    <button @click="passwordModal = false" class="text-[#94a3b8] hover:text-[#0f172a] transition">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </button>
+                </div>
+                <div class="p-6 space-y-4">
+                    <div>
+                        <label class="block text-[11px] font-bold uppercase tracking-[0.15em] text-[#64748b] mb-1">Kata Sandi Saat Ini</label>
+                        <input type="password" x-model="formPassword.old" class="w-full h-11 rounded-lg border border-[#e2e8f0] px-3 text-[13px] text-[#0f172a] focus:ring-2 focus:ring-[#3b82f6]/20 outline-none transition">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold uppercase tracking-[0.15em] text-[#64748b] mb-1">Kata Sandi Baru</label>
+                        <input type="password" x-model="formPassword.new" class="w-full h-11 rounded-lg border border-[#e2e8f0] px-3 text-[13px] text-[#0f172a] focus:ring-2 focus:ring-[#3b82f6]/20 outline-none transition">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold uppercase tracking-[0.15em] text-[#64748b] mb-1">Konfirmasi Sandi Baru</label>
+                        <input type="password" x-model="formPassword.confirm" class="w-full h-11 rounded-lg border border-[#e2e8f0] px-3 text-[13px] text-[#0f172a] focus:ring-2 focus:ring-[#3b82f6]/20 outline-none transition">
+                    </div>
+                </div>
+                <div class="px-6 py-4 bg-[#f8fafc] border-t border-[#e2e8f0] flex justify-end gap-3">
+                    <button @click="passwordModal = false" class="px-4 py-2 rounded-lg text-[13px] font-bold text-[#64748b] hover:bg-[#f1f5f9] transition">Batal</button>
+                    <button @click="savePassword()" class="px-4 py-2 rounded-lg bg-[#1d4ed8] text-[13px] font-bold text-white hover:bg-[#2563eb] transition">Ubah Kata Sandi</button>
+                </div>
+            </div>
+        </div>
+
     </div>
 </x-walikelas-shell>
