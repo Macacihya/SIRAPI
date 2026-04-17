@@ -7,6 +7,7 @@
     showEdit: false,
     editData: {},
     form: { nama: '', nip: '', email: '', peran: 'GURU MAPEL', mapel: '' },
+    daftarMapel: ['Pendidikan Agama', 'Pendidikan Pancasila', 'Bahasa Indonesia', 'Matematika', 'IPAS', 'PJOK', 'Seni Budaya', 'Fisika', 'Kimia', 'Biologi', 'Sosiologi', 'Sejarah', 'Bahasa Inggris'],
     gurus: [
         { name: 'Drs. Ahmad Subagja, M.Pd.', email: 'ahmad.subagja@school.id', nip: '197503122005011880', roles: ['WALI KELAS XI IPA 1'], mapel: 'Matematika Wajib' },
         { name: 'Siti Rahmawati, S.Pd.', email: 'siti.rahma@school.id', nip: '198011852014012001', roles: ['GURU MAPEL'], mapel: 'Bahasa Inggris' },
@@ -75,7 +76,7 @@
                 <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Email</label><input x-model="form.email" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20" placeholder="email@school.id" type="email"></div>
                 <div class="grid gap-4 sm:grid-cols-2">
                     <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Peran / Jabatan</label><select x-model="form.peran" class="mt-1 h-[42px] w-full appearance-none rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6]"><option>GURU MAPEL</option><option>WALI KELAS</option></select></div>
-                    <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Mata Pelajaran</label><input x-model="form.mapel" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20" placeholder="Matematika Wajib"></div>
+                    <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Mata Pelajaran</label><select x-model="form.mapel" class="mt-1 h-[42px] w-full appearance-none rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6]"><option value="" disabled selected>-- Pilih Mapel --</option><template x-for="m in daftarMapel" :key="m"><option :value="m" x-text="m"></option></template></select></div>
                 </div>
             </div>
             <div class="flex gap-3 border-t border-[#e2e8f0] bg-[#f8fafc] px-6 py-4 rounded-b-2xl">
@@ -95,7 +96,7 @@
                     <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">NIP / NUPTK</label><input x-model="editData.nip" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none" readonly></div>
                 </div>
                 <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Email</label><input x-model="editData.email" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20"></div>
-                <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Mata Pelajaran</label><input x-model="editData.mapel" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20"></div>
+                <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Mata Pelajaran</label><select x-model="editData.mapel" class="mt-1 h-[42px] w-full appearance-none rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6]"><option value="" disabled selected>-- Pilih Mapel --</option><template x-for="m in daftarMapel" :key="m"><option :value="m" x-text="m"></option></template></select></div>
             </div>
             <div class="flex gap-3 border-t border-[#e2e8f0] bg-[#f8fafc] px-6 py-4 rounded-b-2xl">
                 <button @click="showEdit = false" class="flex-1 rounded-lg border border-[#e2e8f0] bg-white py-2.5 text-[12px] font-bold text-[#475569]">Batal</button>

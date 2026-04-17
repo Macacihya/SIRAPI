@@ -5,7 +5,6 @@
     hapusTarget: null,
     pembulatan: 'Terdekat',
     komponen: [
-        { id: 1, nama: 'Tugas Harian', bobot: 20, kode: 'TH' },
         { id: 2, nama: 'Ulangan Harian (UH)', bobot: 25, kode: 'UH' },
         { id: 3, nama: 'Penilaian Tengah Semester', bobot: 25, kode: 'PTS' },
         { id: 4, nama: 'Penilaian Akhir Semester', bobot: 30, kode: 'PAS' },

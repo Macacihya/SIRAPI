@@ -68,7 +68,7 @@
                 Filter Peran
             </button>
             <div x-show="filterOpen" @click.outside="filterOpen = false" x-transition class="absolute left-0 top-full mt-1 w-48 rounded-xl border border-[#e2e8f0] bg-white p-2 shadow-lg z-50" style="display:none">
-                <template x-for="f in ['Semua', 'Admin', 'Guru', 'Siswa', 'Operator']">
+                <template x-for="f in ['Semua', 'Admin', 'Guru']">
                     <button @click="activeFilter = f; filterOpen = false" class="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-[13px] font-medium transition hover:bg-[#f1f5f9]" :class="activeFilter === f ? 'bg-[#eff6ff] text-[#1d4ed8] font-bold' : 'text-[#334155]'">
                         <span class="h-2 w-2 rounded-full" :class="activeFilter === f ? 'bg-[#1d4ed8]' : 'bg-[#e2e8f0]'"></span>
                         <span x-text="f"></span>
@@ -160,18 +160,11 @@
                 <div>
                     <label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Role / Peran</label>
                     <div class="mt-2 flex flex-wrap gap-2">
-                        <template x-for="r in ['ADMIN TU','GURU MAPEL','WALI KELAS','OPERATOR','SISWA']">
+                        <template x-for="r in ['GURU MAPEL','WALI KELAS']">
                             <label class="flex cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-1.5 text-[12px] font-semibold transition" :class="form.roles.includes(r) ? 'bg-[#0f172a] text-white border-[#0f172a]' : 'border-[#e2e8f0] text-[#475569] hover:bg-[#f1f5f9]'">
                                 <input type="checkbox" :value="r" x-model="form.roles" class="hidden"><span x-text="r"></span>
                             </label>
                         </template>
-                    </div>
-                </div>
-                <div>
-                    <label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Status</label>
-                    <div class="mt-2 flex gap-4">
-                        <label class="flex items-center gap-2 text-[14px] font-medium cursor-pointer"><input type="radio" value="Aktif" x-model="form.status" class="accent-[#0f172a]"> Aktif</label>
-                        <label class="flex items-center gap-2 text-[14px] font-medium cursor-pointer"><input type="radio" value="Nonaktif" x-model="form.status" class="accent-[#0f172a]"> Nonaktif</label>
                     </div>
                 </div>
             </div>
@@ -197,7 +190,7 @@
                 <div>
                     <label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Role / Peran</label>
                     <div class="mt-2 flex flex-wrap gap-2">
-                        <template x-for="r in ['ADMIN TU','GURU MAPEL','WALI KELAS','OPERATOR','SISWA']">
+                        <template x-for="r in ['GURU MAPEL','WALI KELAS']">
                             <label class="flex cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-1.5 text-[12px] font-semibold transition" :class="editData.roles && editData.roles.includes(r) ? 'bg-[#0f172a] text-white border-[#0f172a]' : 'border-[#e2e8f0] text-[#475569] hover:bg-[#f1f5f9]'">
                                 <input type="checkbox" :value="r" x-model="editData.roles" class="hidden"><span x-text="r"></span>
                             </label>

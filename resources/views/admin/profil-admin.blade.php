@@ -7,7 +7,7 @@
     showUbahSandi: false,
     showUploadFoto: false,
     fotoUploaded: false,
-    profilForm: { nama: '{{ $user->name }}', nip: '19880412 201503 1 002', jabatan: 'Admin TU', email: '{{ $user->email ?? 'admin@sekolah.sch.id' }}', telepon: '+62 812-3456-7890', unit: 'SMK Negeri 7 Batak' },
+    profilForm: { nama: '{{ $user->name }}', nip: '19880412 201503 1 002', jabatan: 'Admin TU', email: '{{ $user->email ?? 'admin@sekolah.sch.id' }}', telepon: '+62 812-3456-7890', unit: 'SD Negeri 01 Indonesia' },
     sandiForm: { lama: '', baru: '', konfirmasi: '' },
     submitProfil() { this.showEditProfil = false; $dispatch('toast',{message:'Profil berhasil diperbarui!',type:'success'}); },
     submitSandi() { if (!this.sandiForm.lama || !this.sandiForm.baru) { $dispatch('toast',{message:'Semua field harus diisi!',type:'error'}); return; } if (this.sandiForm.baru !== this.sandiForm.konfirmasi) { $dispatch('toast',{message:'Konfirmasi password tidak cocok!',type:'error'}); return; } this.sandiForm = {lama:'',baru:'',konfirmasi:''}; this.showUbahSandi = false; $dispatch('toast',{message:'Kata sandi berhasil diubah!',type:'success'}); },
@@ -45,7 +45,7 @@
                 <p class="text-[10px] font-bold uppercase tracking-[0.18em] text-[#64748b]">Informasi Akun</p>
                 <div class="mt-4 space-y-3">
                     <div class="flex items-center justify-between text-[13px]"><span class="text-[#64748b]">Status Akun</span><span class="inline-flex items-center gap-1 rounded-md border border-[#a7f3d0] bg-[#ecfdf5] px-2 py-0.5 text-[10px] font-bold text-[#059669]">AKTIF</span></div>
-                    <div class="flex items-center justify-between text-[13px]"><span class="text-[#64748b]">Tahun Ajaran</span><span class="font-bold text-[#0f172a]">2023/2024 Genap</span></div>
+                    <div class="flex items-center justify-between text-[13px]"><span class="text-[#64748b]">Tahun Ajaran</span><span class="font-bold text-[#0f172a]">2026/2027 Genap</span></div>
                     <div class="flex items-center justify-between text-[13px]"><span class="text-[#64748b]">Login Terakhir</span><span class="font-bold text-[#0f172a]">Hari ini, 08:24</span></div>
                 </div>
             </div>

@@ -145,7 +145,7 @@
                         </div>
                         <div>
                             <p class="text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b]">Unit Kerja</p>
-                            <p class="mt-1 text-[14px] font-semibold text-[#0f172a]">SMK Negeri 7 Batak</p>
+                            <p class="mt-1 text-[14px] font-semibold text-[#0f172a]">SD Negeri 01 Indonesia</p>
                         </div>
                     </div>
                 </div>

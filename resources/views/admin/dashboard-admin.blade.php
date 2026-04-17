@@ -9,7 +9,7 @@
         </div>
         <div class="rounded-[14px] border border-[#e2e8f0] bg-white p-6">
             <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-[#64748b]">Tahun Ajaran Aktif</p>
-            <p class="mt-2 text-[28px] font-black tracking-[-0.04em] text-[#0f172a]">2023/2024 Ganjil</p>
+            <p class="mt-2 text-[28px] font-black tracking-[-0.04em] text-[#0f172a]">2026/2027 Ganjil</p>
             <span class="mt-2 inline-flex rounded-[4px] bg-[#f1f5f9] px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-[0.08em] text-[#64748b]">Status: Aktif & Berjalan</span>
         </div>
     </div>

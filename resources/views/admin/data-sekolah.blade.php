@@ -12,7 +12,7 @@
         <div>
             <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-[#64748b]">Profil Lembaga</p>
             <h1 class="mt-1 text-[32px] font-black tracking-[-0.04em] text-[#0f172a]">Identitas Sekolah</h1>
-            <p class="mt-2 max-w-[480px] text-[14px] leading-[1.8] text-[#475569]">Perbarui informasi dasar sekolah, status akreditasi, dan detail kepala sekolah.</p>
+            <p class="mt-2 max-w-[480px] text-[14px] leading-[1.8] text-[#475569]">Perbarui informasi dasar sekolah dan detail kepala sekolah.</p>
         </div>
         <div class="flex items-center gap-2">
             <button @click="showBatalkan = true" class="flex h-[42px] items-center gap-2 rounded-[8px] border border-[#e2e8f0] bg-white px-5 text-[13px] font-bold text-[#475569] transition hover:bg-[#f1f5f9]">Batalkan Perubahan</button>
@@ -20,7 +20,7 @@
         </div>
     </div>
 
-    {{-- ─── LOGO + AKREDITASI + INFO ────────────────────── --}}
+    {{-- ─── LOGO + INFO ────────────────────────────────── --}}
     <div class="grid gap-6 lg:grid-cols-[260px_minmax(0,1fr)]">
         <div class="space-y-4">
             <div class="rounded-[14px] border border-[#e2e8f0] bg-white p-6 text-center">
@@ -32,25 +32,14 @@
                 <p class="mt-0.5 text-[11px] text-[#94a3b8]">Format PNG/JPG, Maks 2MB</p>
                 <button @click="showUploadLogo = true" class="mt-3 flex h-[36px] w-full items-center justify-center rounded-[6px] border border-[#e2e8f0] bg-white text-[12px] font-bold uppercase tracking-[0.08em] text-[#475569] transition hover:bg-[#f1f5f9]">Upload File</button>
             </div>
-            <div class="rounded-[14px] border border-[#e2e8f0] bg-white p-6">
-                <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-[#64748b]">Status Akreditasi</p>
-                <div class="mt-3 grid grid-cols-2 gap-2">
-                    <div class="rounded-[8px] border-2 border-[#0f172a] p-3 text-center"><span class="text-[28px] font-black text-[#0f172a]">A</span><p class="mt-1 text-[9px] font-bold uppercase text-[#64748b]">Sangat Memuaskan</p></div>
-                    <div class="rounded-[8px] border border-[#e2e8f0] p-3 text-center"><span class="text-[28px] font-black text-[#94a3b8]">B</span><p class="mt-1 text-[9px] font-bold uppercase text-[#94a3b8]">Memuaskan</p></div>
-                </div>
-                <div class="mt-4 border-t border-[#f1f5f9] pt-3">
-                    <p class="text-[10px] font-bold uppercase tracking-[0.08em] text-[#64748b]">No. Sertifikat</p>
-                    <p class="mt-1 text-[14px] font-bold text-[#0f172a]">123/BAN-SM/SK/2022</p>
-                </div>
-            </div>
         </div>
         <div class="space-y-6">
             <div class="rounded-[14px] border border-[#e2e8f0] bg-white p-6">
                 <h3 class="flex items-center gap-2 text-[16px] font-bold text-[#0f172a]"><span class="text-[#1d4ed8]">|</span> Informasi Utama</h3>
                 <div class="mt-5 grid gap-4 sm:grid-cols-2">
-                    <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Nama Sekolah</label><input class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] font-medium text-[#0f172a] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20" value="SMK Teknologi Unggul Jakarta"></div>
+                    <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Nama Sekolah</label><input class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] font-medium text-[#0f172a] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20" value="SD Negeri 01 Indonesia"></div>
                     <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">NPSN</label><input class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] font-medium text-[#0f172a] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20" value="20304857"></div>
-                    <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Bentuk Pendidikan</label><input class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] font-medium text-[#0f172a] outline-none" value="SMK (Sekolah Menengah Kejuruan)" readonly></div>
+                    <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Bentuk Pendidikan</label><input class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] font-medium text-[#0f172a] outline-none" value="SD (Sekolah Dasar)" readonly></div>
                     <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Status Sekolah</label><div class="mt-2 flex items-center gap-4"><label class="flex items-center gap-2 text-[14px] font-medium text-[#0f172a] cursor-pointer"><input type="radio" name="status" checked class="h-4 w-4 accent-[#0f172a]"> Swasta</label><label class="flex items-center gap-2 text-[14px] font-medium text-[#64748b] cursor-pointer"><input type="radio" name="status" class="h-4 w-4 accent-[#0f172a]"> Negeri</label></div></div>
                 </div>
             </div>

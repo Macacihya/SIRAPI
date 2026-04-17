@@ -63,6 +63,7 @@ Route::middleware('auth')->group(function () {
         Route::view('/guru', 'admin.guru-tendik')->name('guru');
         Route::view('/data-siswa', 'admin.data-siswa-admin')->name('data-siswa');
         Route::view('/akademik', 'admin.akademik')->name('akademik');
+        Route::view('/mata-pelajaran', 'admin.mata-pelajaran')->name('mata-pelajaran');
         Route::view('/jadwal-pelajaran', 'admin.jadwal-pelajaran')->name('jadwal-pelajaran');
         Route::view('/aturan-nilai', 'admin.aturan-nilai')->name('aturan-nilai');
         Route::view('/profil', 'admin.profil-admin')->name('profil');
