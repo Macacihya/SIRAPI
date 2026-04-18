@@ -35,7 +35,7 @@
         ],
 
         // Automatically calculate NA (Nilai Akhir)
-        // Weight: UH 40%, UTS 30%, UAS 30%
+        // Weight: UH 50%, UTS 25%, UAS 25%
         calculateNA(g) {
             const uh = Number(g.uh) || 0;
             const uts = Number(g.uts) || 0;
@@ -43,7 +43,7 @@
             
             if (uh === 0 && uts === 0 && uas === 0) return '-';
             
-            return ((uh * 0.4) + (uts * 0.3) + (uas * 0.3)).toFixed(1);
+            return ((uh * 0.5) + (uts * 0.25) + (uas * 0.25)).toFixed(1);
         },
 
         get filteredGrades() {
@@ -170,9 +170,9 @@
                 <thead>
                     <tr class="border-b border-[#e2e8f0] bg-[#f8fafc]">
                         <th class="sticky left-0 z-10 bg-[#f8fafc] border-r border-[#e2e8f0] px-5 py-4 text-left text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b]">Siswa (NIS)</th>
-                        <th class="px-5 py-4 text-center text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b]">Nilai UH (40%)</th>
-                        <th class="px-5 py-4 text-center text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b]">Nilai UTS (30%)</th>
-                        <th class="px-5 py-4 text-center text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b]">Nilai UAS (30%)</th>
+                        <th class="px-5 py-4 text-center text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b]">Nilai UH (50%)</th>
+                        <th class="px-5 py-4 text-center text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b]">Nilai UTS (25%)</th>
+                        <th class="px-5 py-4 text-center text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b]">Nilai UAS (25%)</th>
                         <th class="px-5 py-4 text-center text-[10px] font-bold uppercase tracking-[0.15em] text-[#0f172a] border-l border-[#e2e8f0]">Nilai Akhir</th>
                         <th class="px-5 py-4 text-center text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b]">Status Data</th>
                     </tr>
