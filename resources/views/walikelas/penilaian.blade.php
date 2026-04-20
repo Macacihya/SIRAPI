@@ -157,7 +157,7 @@
                 <select x-model="selectedMapel" @change="currentPage = 1" class="h-11 rounded-lg border border-[#e2e8f0] bg-white px-4 pr-8 text-[11px] font-bold uppercase tracking-wider text-[#475569] outline-none">
                     <option value="">Semua Mapel</option>
                     <option value="agm">Pendidikan Agama</option>
-                    <option value="pan">Pancasila</option>
+                    <option value="pan">Pendidikan Pancasila</option>
                     <option value="bi">B. Indonesia</option>
                     <option value="mtk">Matematika</option>
                     <option value="ipas">IPAS</option>
@@ -187,7 +187,7 @@
                     <tr class="border-b border-[#e2e8f0] bg-[#f8fafc]">
                         <th class="sticky left-0 z-10 bg-[#f8fafc] border-r border-[#e2e8f0] px-5 py-4 text-left text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b] min-w-[200px]">Nama Siswa</th>
                         <th class="px-5 py-4 text-center text-[10px] font-bold uppercase tracking-[0.15em] min-w-[140px]" :class="selectedMapel === 'agm' ? 'text-[#1d4ed8]' : 'text-[#64748b]'">Pendidikan Agama</th>
-                        <th class="px-5 py-4 text-center text-[10px] font-bold uppercase tracking-[0.15em] min-w-[120px]" :class="selectedMapel === 'pan' ? 'text-[#1d4ed8]' : 'text-[#64748b]'">Pancasila</th>
+                        <th class="px-5 py-4 text-center text-[10px] font-bold uppercase tracking-[0.15em] min-w-[120px]" :class="selectedMapel === 'pan' ? 'text-[#1d4ed8]' : 'text-[#64748b]'">Pendidikan Pancasila</th>
                         <th class="px-5 py-4 text-center text-[10px] font-bold uppercase tracking-[0.15em] min-w-[150px]" :class="selectedMapel === 'bi' ? 'text-[#1d4ed8]' : 'text-[#64748b]'">Bahasa Indonesia</th>
                         <th class="px-5 py-4 text-center text-[10px] font-bold uppercase tracking-[0.15em] min-w-[120px]" :class="selectedMapel === 'mtk' ? 'text-[#1d4ed8]' : 'text-[#64748b]'">Matematika</th>
                         <th class="px-5 py-4 text-center text-[10px] font-bold uppercase tracking-[0.15em] min-w-[100px]" :class="selectedMapel === 'ipas' ? 'text-[#1d4ed8]' : 'text-[#64748b]'">IPAS</th>

@@ -16,11 +16,13 @@
         
         userProfile: {
             name: '{{ $user->name ?? 'Drs. M. Taufik' }}',
-            email: 'taufik.indo@sekolah.sch.id',
+            username: '{{ $user->username ?? 'taufik01' }}',
+            nip: '{{ $user->nip ?? '197003121995031002' }}',
+            email: 'taufik@sekolah.sch.id',
             phone: '+62 812-9876-5432'
         },
         
-        formProfile: { name: '', email: '', phone: '' },
+        formProfile: { name: '', username: '', nip: '', email: '', phone: '' },
         formPassword: { old: '', new: '', confirm: '' },
 
         openEditProfile() {
@@ -129,14 +131,18 @@
                         </div>
                         <div>
                             <p class="text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b]">NIP / NUPTK</p>
-                            <p class="mt-1 text-[14px] font-semibold text-[#0f172a]">19780512 200501 1 004</p>
+                            <p class="mt-1 text-[14px] font-semibold text-[#0f172a]" x-text="userProfile.nip"></p>
+                        </div>
+                        <div>
+                            <p class="text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b]">Username Akun</p>
+                            <p class="mt-1 text-[14px] font-semibold text-[#0f172a]" x-text="userProfile.username"></p>
                         </div>
                         <div>
                             <p class="text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b]">Jabatan Kategori</p>
                             <p class="mt-1 text-[14px] font-semibold text-[#0f172a]">Guru Ahli Madya</p>
                         </div>
                         <div>
-                            <p class="text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b]">Unit Kerja Utama</p>
+                            <p class="text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b]">Nama Sekolah</p>
                             <p class="mt-1 text-[14px] font-semibold text-[#0f172a]">SD Negeri 01 Indonesia</p>
                         </div>
                         <div>
@@ -144,7 +150,7 @@
                             <p class="mt-1 text-[14px] font-semibold text-[#0f172a]" x-text="userProfile.email"></p>
                         </div>
                         <div>
-                            <p class="text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b]">Nomor Telepon</p>
+                            <p class="text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b]">Nomor WhatsApp/Telepon</p>
                             <p class="mt-1 text-[14px] font-semibold text-[#0f172a]" x-text="userProfile.phone"></p>
                         </div>
                     </div>
@@ -204,8 +210,18 @@
                 </div>
                 <div class="p-6 space-y-4">
                     <div>
-                        <label class="block text-[11px] font-bold uppercase tracking-[0.15em] text-[#64748b] mb-1">Nama Lengkap</label>
+                        <label class="block text-[11px] font-bold uppercase tracking-[0.15em] text-[#64748b] mb-1">Nama Lengkap / Gelar</label>
                         <input type="text" x-model="formProfile.name" class="w-full h-11 rounded-lg border border-[#e2e8f0] px-3 font-semibold text-[13px] text-[#0f172a] focus:ring-2 focus:ring-[#3b82f6]/20 outline-none transition">
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-[11px] font-bold uppercase tracking-[0.15em] text-[#64748b] mb-1">Username Akun</label>
+                            <input type="text" x-model="formProfile.username" class="w-full h-11 rounded-lg border border-[#e2e8f0] bg-[#f8fafc] px-3 font-semibold text-[13px] text-[#0f172a] outline-none" readonly>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold uppercase tracking-[0.15em] text-[#64748b] mb-1">NIP / NUPTK</label>
+                            <input type="text" x-model="formProfile.nip" class="w-full h-11 rounded-lg border border-[#e2e8f0] bg-[#f8fafc] px-3 font-semibold text-[13px] text-[#0f172a] outline-none" readonly>
+                        </div>
                     </div>
                     <div>
                         <label class="block text-[11px] font-bold uppercase tracking-[0.15em] text-[#64748b] mb-1">Email Sekolah</label>

@@ -7,7 +7,14 @@
     showUbahSandi: false,
     showUploadFoto: false,
     fotoUploaded: false,
-    profilForm: { nama: '{{ $user->name }}', nip: '19880412 201503 1 002', jabatan: 'Admin TU', email: '{{ $user->email ?? 'admin@sekolah.sch.id' }}', telepon: '+62 812-3456-7890', unit: 'SD Negeri 01 Indonesia' },
+    profilForm: { 
+        nama: '{{ $user->name }}', 
+        username: '{{ $user->username ?? 'admin' }}',
+        jabatan: 'Admin TU', 
+        email: '{{ $user->email ?? 'admin@sekolah.sch.id' }}', 
+        telepon: '+62 812-3456-7890', 
+        unit: 'SD Negeri 01 Indonesia' 
+    },
     sandiForm: { lama: '', baru: '', konfirmasi: '' },
     submitProfil() { this.showEditProfil = false; $dispatch('toast',{message:'Profil berhasil diperbarui!',type:'success'}); },
     submitSandi() { if (!this.sandiForm.lama || !this.sandiForm.baru) { $dispatch('toast',{message:'Semua field harus diisi!',type:'error'}); return; } if (this.sandiForm.baru !== this.sandiForm.konfirmasi) { $dispatch('toast',{message:'Konfirmasi password tidak cocok!',type:'error'}); return; } this.sandiForm = {lama:'',baru:'',konfirmasi:''}; this.showUbahSandi = false; $dispatch('toast',{message:'Kata sandi berhasil diubah!',type:'success'}); },
@@ -56,8 +63,7 @@
             <div class="rounded-[14px] border border-[#e2e8f0] bg-white p-6">
                 <h3 class="flex items-center gap-2 text-[16px] font-bold text-[#0f172a]"><svg class="h-5 w-5 text-[#1d4ed8]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>Biodata Lengkap</h3>
                 <div class="mt-5 grid gap-x-8 gap-y-5 sm:grid-cols-2">
-                    <div><p class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Nama Lengkap</p><p class="mt-1 text-[14px] font-bold text-[#0f172a]" x-text="profilForm.nama"></p></div>
-                    <div><p class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">NIP / ID Guru</p><p class="mt-1 text-[14px] font-bold text-[#0f172a]" x-text="profilForm.nip"></p></div>
+                    <div><p class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Username Admin</p><p class="mt-1 text-[14px] font-bold text-[#0f172a]" x-text="profilForm.username"></p></div>
                     <div><p class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Jabatan</p><p class="mt-1 text-[14px] font-bold text-[#0f172a]" x-text="profilForm.jabatan"></p></div>
                     <div><p class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Email Instansi</p><p class="mt-1 text-[14px] font-bold text-[#0f172a]" x-text="profilForm.email"></p></div>
                     <div><p class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Nomor Telepon</p><p class="mt-1 text-[14px] font-bold text-[#0f172a]" x-text="profilForm.telepon"></p></div>
@@ -70,7 +76,7 @@
                 <div class="mt-6 relative">
                     <div class="absolute left-[7px] top-2 bottom-2 w-[2px] bg-[#e2e8f0]"></div>
                     <div class="space-y-7">
-                        @foreach ([['year'=>'2023 - Sekarang','title'=>'Admin TU','desc'=>'Bertanggung jawab penuh atas administrasi, pengelolaan data, dan pelaporan nilai rapor siswa.','active'=>true],['year'=>'2021 - 2023','title'=>'Guru Mata Pelajaran Fisika','desc'=>'Pengampu utama mata pelajaran Fisika untuk seluruh jenjang kelas XI dan XII.','active'=>false],['year'=>'2015 - 2021','title'=>'Staf Kurikulum Bidang Akademik','desc'=>'Membantu perencanaan jadwal belajar mengajar dan koordinasi sistem penilaian sekolah.','active'=>false]] as $riwayat)
+                        @foreach ([['year'=>'2026 - Sekarang','title'=>'Admin TU','desc'=>'Bertanggung jawab penuh atas administrasi, pengelolaan data, dan pelaporan nilai rapor siswa.','active'=>true],['year'=>'2021 - 2023','title'=>'Guru Mata Pelajaran Fisika','desc'=>'Pengampu utama mata pelajaran Fisika untuk seluruh jenjang kelas XI dan XII.','active'=>false],['year'=>'2015 - 2021','title'=>'Staf Kurikulum Bidang Akademik','desc'=>'Membantu perencanaan jadwal belajar mengajar dan koordinasi sistem penilaian sekolah.','active'=>false]] as $riwayat)
                             <div class="relative flex gap-5 pl-6">
                                 <div class="absolute left-0 top-1 flex h-[16px] w-[16px] items-center justify-center rounded-full {{ $riwayat['active'] ? 'bg-[#1d4ed8]' : 'bg-[#e2e8f0]' }}">@if ($riwayat['active'])<div class="h-[6px] w-[6px] rounded-full bg-white"></div>@endif</div>
                                 <div><p class="text-[11px] font-bold uppercase tracking-[0.12em] {{ $riwayat['active'] ? 'text-[#1d4ed8]' : 'text-[#94a3b8]' }}">{{ $riwayat['year'] }}</p><p class="mt-1 text-[15px] font-black text-[#0f172a]">{{ $riwayat['title'] }}</p><p class="mt-1 text-[13px] leading-[1.7] text-[#64748b]">{{ $riwayat['desc'] }}</p></div>
@@ -93,7 +99,7 @@
             <div class="space-y-4 px-6 py-5">
                 <div class="grid gap-4 sm:grid-cols-2">
                     <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Nama Lengkap</label><input x-model="profilForm.nama" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20"></div>
-                    <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">NIP</label><input x-model="profilForm.nip" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none" readonly></div>
+                    <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Username Login</label><input x-model="profilForm.username" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none" readonly></div>
                 </div>
                 <div class="grid gap-4 sm:grid-cols-2">
                     <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Jabatan</label><input x-model="profilForm.jabatan" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20"></div>

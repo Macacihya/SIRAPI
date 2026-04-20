@@ -17,7 +17,7 @@
                 { time: '10:00 - 12:00', subject: 'IPAS', teacher: 'Dr. Heru Prasetyo', isBreak: false },
             ]},
             { day: 'RABU', slots: [
-                { time: '07:30 - 09:30', subject: 'Pancasila', teacher: 'Drs. H. Anwar', isBreak: false },
+                { time: '07:30 - 09:30', subject: 'Pendidikan Pancasila', teacher: 'Drs. H. Anwar', isBreak: false },
                 { time: '09:30 - 10:00', subject: 'ISTIRAHAT', teacher: '', isBreak: true },
                 { time: '10:00 - 12:00', subject: 'Seni Budaya', teacher: 'Larasati, S.Sn', isBreak: false },
             ]},
@@ -118,7 +118,7 @@
                                     // Memperbanyak dummy data agar scrollnya terlihat
                                     $gurus = [
                                         ['mapel' => 'Pendidikan Agama', 'guru' => 'H. Syamsul Maarif, Lc', 'kontak' => '0821-6677-XXXX', 'ruang' => 'Masjid/R.08'],
-                                        ['mapel' => 'Pancasila', 'guru' => 'Drs. H. Anwar', 'kontak' => '0813-2211-XXXX', 'ruang' => 'Ruang 15'],
+                                        ['mapel' => 'Pendidikan Pancasila', 'guru' => 'Drs. H. Anwar', 'kontak' => '0813-2211-XXXX', 'ruang' => 'Ruang 15'],
                                         ['mapel' => 'Bahasa Indonesia', 'guru' => 'Drs. M. Taufik', 'kontak' => '0812-8877-XXXX', 'ruang' => 'Ruang 18'],
                                         ['mapel' => 'Matematika', 'guru' => 'Drs. Bambang H.', 'kontak' => '0812-3344-XXXX', 'ruang' => 'Lab Mat A'],
                                         ['mapel' => 'IPAS', 'guru' => 'Dr. Heru Prasetyo', 'kontak' => '0819-9900-XXXX', 'ruang' => 'Lab Biologi'],

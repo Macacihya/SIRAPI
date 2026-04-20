@@ -16,11 +16,13 @@
         
         userProfile: {
             name: '{{ $user->name ?? 'Heryanto Pratama, S.Pd.' }}',
-            email: 'heryanto.p@sekolah.sch.id',
+            username: '{{ $user->username ?? 'heryanto' }}',
+            nip: '{{ $user->nip ?? '198501012010012001' }}',
+            email: 'heryanto@sekolah.sch.id',
             phone: '+62 812-3456-7890'
         },
         
-        formProfile: { name: '', email: '', phone: '' },
+        formProfile: { name: '', username: '', nip: '', email: '', phone: '' },
         formPassword: { old: '', new: '', confirm: '' },
 
         openEditProfile() {
@@ -116,36 +118,39 @@
 
             {{-- Right: Biodata + History --}}
             <div class="space-y-6">
-                {{-- Biodata --}}
                 <div class="rounded-xl bg-white p-6 ring-1 ring-[#e2e8f0]">
                     <div class="flex items-center gap-2">
                         <svg class="h-5 w-5 text-[#1d4ed8]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                        <h3 class="text-[18px] font-black text-[#0f172a]">Biodata Lengkap</h3>
+                        <h3 class="text-[18px] font-black text-[#0f172a]">Informasi Wali Kelas</h3>
                     </div>
                     <div class="mt-5 grid gap-5 sm:grid-cols-2">
                         <div>
-                            <p class="text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b]">Nama Lengkap</p>
+                            <p class="text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b]">Nama Lengkap / Gelar</p>
                             <p class="mt-1 text-[14px] font-semibold text-[#0f172a]" x-text="userProfile.name"></p>
                         </div>
                         <div>
-                            <p class="text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b]">NIP / ID Guru</p>
-                            <p class="mt-1 text-[14px] font-semibold text-[#0f172a]">19880412 201503 1 002</p>
+                            <p class="text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b]">NIP / NUPTK</p>
+                            <p class="mt-1 text-[14px] font-semibold text-[#0f172a]" x-text="userProfile.nip"></p>
                         </div>
                         <div>
-                            <p class="text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b]">Jabatan</p>
+                            <p class="text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b]">Username Akun</p>
+                            <p class="mt-1 text-[14px] font-semibold text-[#0f172a]" x-text="userProfile.username"></p>
+                        </div>
+                        <div>
+                            <p class="text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b]">Jabatan Kategori</p>
                             <p class="mt-1 text-[14px] font-semibold text-[#0f172a]">Wali Kelas</p>
                         </div>
                         <div>
-                            <p class="text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b]">Email Instansi</p>
+                            <p class="text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b]">Nama Sekolah</p>
+                            <p class="mt-1 text-[14px] font-semibold text-[#0f172a]">SD Negeri 01 Indonesia</p>
+                        </div>
+                        <div>
+                            <p class="text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b]">Email Kontak</p>
                             <p class="mt-1 text-[14px] font-semibold text-[#0f172a]" x-text="userProfile.email"></p>
                         </div>
                         <div>
-                            <p class="text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b]">Nomor Telepon</p>
+                            <p class="text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b]">Nomor WhatsApp/Telepon</p>
                             <p class="mt-1 text-[14px] font-semibold text-[#0f172a]" x-text="userProfile.phone"></p>
-                        </div>
-                        <div>
-                            <p class="text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b]">Unit Kerja</p>
-                            <p class="mt-1 text-[14px] font-semibold text-[#0f172a]">SD Negeri 01 Indonesia</p>
                         </div>
                     </div>
                 </div>
@@ -158,8 +163,8 @@
                     </div>
                     <div class="mt-6 space-y-6">
                         @foreach ([
-                            ['year' => '2023 - SEKARANG', 'role' => 'Wali Kelas VI-A', 'desc' => 'Bertanggung jawab penuh atas administrasi, bimbingan akademik, dan pelaporan nilai rapor siswa kelas VI-A.', 'active' => true],
-                            ['year' => '2021 - 2023', 'role' => 'Guru Mata Pelajaran Fisika', 'desc' => 'Pengampu utama mata pelajaran Fisika untuk seluruh jenjang kelas XI dan XII.', 'active' => false],
+                            ['year' => '2026 - SEKARANG', 'role' => 'Wali Kelas VI-A', 'desc' => 'Bertanggung jawab penuh atas administrasi, bimbingan akademik, dan pelaporan nilai rapor siswa kelas VI-A.', 'active' => true],
+                            ['year' => '2021 - 2023', 'role' => 'Guru Mata Pendidikan Pancasila', 'desc' => 'Pengampu utama mata pelajaran  untuk seluruh jenjang kelas V dan VI.', 'active' => false],
                             ['year' => '2015 - 2021', 'role' => 'Staf Kurikulum Bidang Akademik', 'desc' => 'Membantu perencanaan jadwal belajar mengajar dan koordinasi sistem penilaian sekolah.', 'active' => false],
                         ] as $r)
                             <div class="flex gap-4">
@@ -207,12 +212,22 @@
                         <label class="block text-[11px] font-bold uppercase tracking-[0.15em] text-[#64748b] mb-1">Nama Lengkap</label>
                         <input type="text" x-model="formProfile.name" class="w-full h-11 rounded-lg border border-[#e2e8f0] px-3 font-semibold text-[13px] text-[#0f172a] focus:ring-2 focus:ring-[#3b82f6]/20 outline-none transition">
                     </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-[11px] font-bold uppercase tracking-[0.15em] text-[#64748b] mb-1">Username Login</label>
+                            <input type="text" x-model="formProfile.username" class="w-full h-11 rounded-lg border border-[#e2e8f0] bg-[#f8fafc] px-3 font-semibold text-[13px] text-[#0f172a] outline-none" readonly>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold uppercase tracking-[0.15em] text-[#64748b] mb-1">NIP</label>
+                            <input type="text" x-model="formProfile.nip" class="w-full h-11 rounded-lg border border-[#e2e8f0] bg-[#f8fafc] px-3 font-semibold text-[13px] text-[#0f172a] outline-none" readonly>
+                        </div>
+                    </div>
                     <div>
                         <label class="block text-[11px] font-bold uppercase tracking-[0.15em] text-[#64748b] mb-1">Email Instansi</label>
                         <input type="email" x-model="formProfile.email" class="w-full h-11 rounded-lg border border-[#e2e8f0] px-3 font-semibold text-[13px] text-[#0f172a] focus:ring-2 focus:ring-[#3b82f6]/20 outline-none transition">
                     </div>
                     <div>
-                        <label class="block text-[11px] font-bold uppercase tracking-[0.15em] text-[#64748b] mb-1">Nomor Telepon</label>
+                        <label class="block text-[11px] font-bold uppercase tracking-[0.15em] text-[#64748b] mb-1">Nomor WhatsApp/Telepon</label>
                         <input type="text" x-model="formProfile.phone" class="w-full h-11 rounded-lg border border-[#e2e8f0] px-3 font-semibold text-[13px] text-[#0f172a] focus:ring-2 focus:ring-[#3b82f6]/20 outline-none transition">
                     </div>
                 </div>

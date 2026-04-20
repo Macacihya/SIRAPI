@@ -8,6 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Poppins', sans-serif; }
+        .header-font { font-family: 'Poppins', sans-serif; }
 
         /* Print Styles */
         @media print {
@@ -109,6 +110,27 @@
     </style>
 </head>
 
+@php
+    // 1. Ambil data dari request atau dummy
+    $studentId = request('id', 1);
+    $studentName = request('name', 'OSCAR PERMANA');
+    $studentNis = request('nis', '12014');
+    $studentNisn = request('nisn', '0012345614');
+
+    // 2. Data Nilai Dinamis (Agnostik Kurikulum)
+    $mapel = [
+        ['no' => 1, 'nama' => 'Pendidikan Agama', 'nilai' => 88, 'capaian' => 'Memahami makna rukun iman dan rukun islam dengan sangat baik.'],
+        ['no' => 2, 'nama' => 'Pendidikan Pancasila', 'nilai' => 90, 'capaian' => 'Sangat baik dalam mengidentifikasi simbol-sila Pancasila.'],
+        ['no' => 3, 'nama' => 'Bahasa Indonesia', 'nilai' => 85, 'capaian' => 'Mampu menceritakan kembali isi teks dengan runtut dan jelas.'],
+        ['no' => 4, 'nama' => 'Matematika', 'nilai' => 78, 'capaian' => 'Sangat mahir dalam operasi hitung perkalian, perlu bimbingan pada materi pecahan.'],
+        ['no' => 5, 'nama' => 'IPAS', 'nilai' => 82, 'capaian' => 'Menunjukkan rasa ingin tahu yang tinggi terhadap siklus hidup makhluk hidup.'],
+        ['no' => 6, 'nama' => 'PJOK', 'nilai' => 92, 'capaian' => 'Memiliki koordinasi gerak yang sangat baik saat bermain bola.'],
+        ['no' => 7, 'nama' => 'Seni Budaya', 'nilai' => 86, 'capaian' => 'Sangat kreatif dalam eksplorasi warna pada karya seni rupa.'],
+    ];
+
+    $rataRata = round(array_sum(array_column($mapel, 'nilai')) / count($mapel), 2);
+@endphp
+
 <body class="min-h-screen bg-[#e2e8f0]">
 
     {{-- ═══ TOP BAR ═══ --}}
@@ -152,40 +174,64 @@
         {{-- ──── HALAMAN 1 ──── --}}
         <div class="rapor-page mb-8 rounded-lg bg-white p-8 shadow-xl sm:p-12 md:p-16">
 
-            {{-- ──── TITLE ──── --}}
-            <div class="text-center">
-                <h2 class="text-[20px] font-black uppercase tracking-[0.02em] text-[#0f172a]">Laporan Hasil Belajar</h2>
-                <p class="text-[14px] font-bold uppercase text-[#0f172a]">(Rapor)</p>
+            {{-- ──── KOP SURAT (OFFICIAL SCHOOL ADMINISTRATION STANDARD) ──── --}}
+            <div class="header-font flex items-center justify-between border-b-[3px] border-double border-[#000] pb-3 mb-6">
+                <!-- Logo Kiri: Logo Daerah (Tut Wuri / Pemko) -->
+                <div class="flex-shrink-0 flex items-center">
+                    <img src="{{ asset('images/tutwuri.png') }}" alt="Logo Tut Wuri" class="h-[85px] w-auto">
+                </div>
+
+                <!-- Teks Tengah: Hirarki Administrasi -->
+                <div class="flex-1 text-center px-4">
+                    <h3 class="text-[15px] font-bold uppercase leading-tight">Pemerintah Kota Batam</h3>
+                    <h3 class="text-[15px] font-bold uppercase leading-tight">Dinas Pendidikan</h3>
+                    <h2 class="text-[20px] font-black uppercase tracking-wide mt-1">SD NEGERI 01 INDONESIA</h2>
+                    <div class="mt-2 text-[10px] leading-tight font-medium">
+                        <p>Alamat: Jl. Imajinasi No. 42, Kel. Digital, Kec. Batam Kota, Batam, 29461</p>
+                        <p>Telepon: (0778) 469856, Faks: (0778) 463620</p>
+                        <p>Laman: www.sdn01indonesia.sch.id, Surel: info@sdn01indonesia.sch.id</p>
+                    </div>
+                </div>
+
+                <!-- Logo Kanan: Logo Sekolah / Sertifikasi -->
+                <div class="flex-shrink-0 flex items-center">
+                    <img src="{{ asset('images/tutwuri.png') }}" alt="Logo Sekolah" class="h-[85px] w-auto">
+                </div>
             </div>
 
-            {{-- ──── HEADER INFO (Balanced Grid) ──── --}}
-            <div class="mt-8 grid grid-cols-2 gap-x-12 text-[12px]">
+            {{-- ──── JUDUL DOKUMEN ──── --}}
+            <div class="text-center mb-8">
+                <h2 class="text-[18px] font-black uppercase tracking-[0.05em] text-[#0f172a]">Laporan Hasil Belajar (Rapor)</h2>
+            </div>
+
+            {{-- ──── IDENTITAS SISWA (DATA DINAMIS) ──── --}}
+            <div class="grid grid-cols-2 gap-x-12 text-[12px]">
                 <div class="space-y-1">
                     <div class="id-row">
                         <span class="id-label">Nama Sekolah</span>
-                        <span class="id-val">: SD 01 Indonesia</span>
+                        <span class="id-val">: SD NEGERI 01 INDONESIA</span>
                     </div>
                     <div class="id-row">
                         <span class="id-label">Alamat</span>
-                        <span class="id-val">: Jl. Imajinasi No. 42, Kota Digital</span>
+                        <span class="id-val">: Jl. Imajinasi No. 42, Batam</span>
                     </div>
                     <div class="id-row">
                         <span class="id-label">Nama Siswa</span>
-                        <span class="id-val id-val-main">: {{ request('name', 'ACHMAD ALBAR') }}</span>
+                        <span class="id-val">: {{ $studentName }}</span>
                     </div>
                     <div class="id-row">
                         <span class="id-label">NIS / NISN</span>
-                        <span class="id-val">: {{ request('nis', '12001') }} / {{ request('nisn', '00123456789') }}</span>
+                        <span class="id-val">: {{ $studentNis }} / {{ $studentNisn }}</span>
                     </div>
                 </div>
                 <div class="space-y-1">
                     <div class="id-row">
                         <span class="id-label">Kelas</span>
-                        <span class="id-val">: IV (Empat)</span>
+                        <span class="id-val">: IV / Empat</span>
                     </div>
                     <div class="id-row">
                         <span class="id-label">Fase</span>
-                        <span class="id-val">: B</span>
+                        <span class="id-val">: Fase B</span>
                     </div>
                     <div class="id-row">
                         <span class="id-label">Semester</span>
@@ -202,19 +248,6 @@
             <div class="mt-10">
                 <h3 class="text-[13px] font-black uppercase text-[#0f172a]">A. Pengetahuan & Keterampilan</h3>
                 <div class="mt-3 overflow-x-auto">
-                    @php
-                        $mapel = [
-                            ['no' => 1, 'nama' => 'Pendidikan Agama', 'nilai' => 88, 'capaian' => 'Menunjukkan penguasaan yang sangat baik dalam memahami makna rukun iman dan rukun islam.'],
-                            ['no' => 2, 'nama' => 'Pancasila', 'nilai' => 90, 'capaian' => 'Sangat baik dalam mengidentifikasi simbol-simbol sila Pancasila dalam lambang negara.'],
-                            ['no' => 3, 'nama' => 'Bahasa Indonesia', 'nilai' => 85, 'capaian' => 'Baik dalam memahami instruksi lisan dan tulisan serta mampu menceritakan kembali isi teks.'],
-                            ['no' => 4, 'nama' => 'Matematika', 'nilai' => 78, 'capaian' => 'Mampu melakukan operasi hitung perkalian dan pembagian, perlu bimbingan dalam materi pecahan.'],
-                            ['no' => 5, 'nama' => 'IPAS', 'nilai' => 82, 'capaian' => 'Menunjukkan pemahaman yang baik tentang siklus hidup makhluk hidup di lingkungan sekitar.'],
-                            ['no' => 6, 'nama' => 'PJOK', 'nilai' => 92, 'capaian' => 'Sangat terampil dalam mempraktikkan variasi gerak dasar lokomotor dan non lokomotor.'],
-                            ['no' => 7, 'nama' => 'Seni Budaya', 'nilai' => 86, 'capaian' => 'Kreatif dalam membuat karya seni rupa dari bahan alam di lingkungan sekolah.'],
-                        ];
-                        $totalNilai = array_sum(array_column($mapel, 'nilai'));
-                        $rataRata = round($totalNilai / count($mapel), 2);
-                    @endphp
                     <table class="rapor-table">
                         <thead>
                             <tr>
@@ -230,7 +263,9 @@
                                     <td class="text-center font-semibold">{{ $m['no'] }}</td>
                                     <td class="font-semibold">{{ $m['nama'] }}</td>
                                     <td class="text-center font-black text-[14px]">{{ $m['nilai'] }}</td>
-                                    <td class="text-[11px] leading-[1.6] text-[#334155]">{{ $m['capaian'] }}</td>
+                                    <td class="text-[11px] leading-[1.6] text-[#334155]">
+                                        {{ $m['capaian'] }}
+                                    </td>
                                 </tr>
                             @endforeach
                         </tbody>
@@ -278,7 +313,7 @@
                                 <p class="text-[11px] font-bold text-[#475569]">1. SIKAP SPIRITUAL</p>
                                 <p class="text-[11px] font-black text-[#0f172a]">A (SANGAT BAIK)</p>
                             </div>
-                            <p class="mt-2 text-[11px] italic leading-[1.7] text-[#334155]">"Ananda Budi sangat baik dalam ketaatan beribadah, berperilaku syukur, dan selalu berdoa."</p>
+                            <p class="mt-2 text-[11px] italic leading-[1.7] text-[#334155]">"Ananda <strong>{{ $studentName }}</strong> sangat baik dalam ketaatan beribadah, berperilaku syukur, dan selalu berdoa."</p>
                         </div>
 
                         {{-- Sikap Sosial --}}
@@ -320,7 +355,7 @@
             <div class="mt-10">
                 <h3 class="text-[13px] font-black uppercase text-[#0f172a]">D. Catatan Wali Kelas</h3>
                 <div class="catatan-box mt-3 rounded">
-                    <p class="text-[12px] italic leading-[1.8] text-[#334155]">"Selamat Budi! Pertahankan semangat belajarmu, terutama pada mata pelajaran Matematika. Sikap kemandirianmu di kelas patut dicontoh oleh teman-teman lainnya."</p>
+                    <p class="text-[12px] italic leading-[1.8] text-[#334155]">"Selamat <strong>{{ $studentName }}</strong>! Pertahankan semangat belajarmu, terutama pada mata pelajaran Matematika. Sikap kemandirianmu di kelas patut dicontoh oleh teman-teman lainnya."</p>
                 </div>
             </div>
 
@@ -338,7 +373,7 @@
                         <p class="text-[#475569]">Kota Digital, {{ now()->translatedFormat('d F Y') }}</p>
                         <p class="font-semibold text-[#475569]">Wali Kelas,</p>
                         <div class="mt-12">
-                            <p class="text-[14px] font-bold text-[#0f172a] underline underline-offset-4">Budi Santoso, S.Pd.</p>
+                            <p class="text-[14px] font-bold text-[#0f172a] underline underline-offset-4">{{ auth()->user()->name ?? 'Budi Santoso, S.Pd.' }}</p>
                             <p class="mt-0.5 text-[10px] text-[#64748b]">NIP. 198501012010012001</p>
                         </div>
                     </div>
