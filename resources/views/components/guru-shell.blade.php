@@ -43,6 +43,18 @@
             'label' => 'Capaian Kompetensi',
             'href' => route('guru.capaian-kompetensi'),
             'icon' => 'file-text',
+        ],
+        [
+            'key' => 'laporan-nilai',
+            'label' => 'Laporan Nilai',
+            'href' => route('guru.laporan-nilai'),
+            'icon' => 'file-text',
+        ],
+        [
+            'key' => 'rekap-nilai',
+            'label' => 'Rekap Nilai Kelas',
+            'href' => route('guru.rekap-nilai'),
+            'icon' => 'check-square',
         ]
     ];
 @endphp

@@ -46,6 +46,18 @@
             'icon' => 'star',
         ],
         [
+            'key' => 'laporan-nilai',
+            'label' => 'Laporan Nilai',
+            'href' => route('walikelas.laporan-nilai'),
+            'icon' => 'file-text',
+        ],
+        [
+            'key' => 'rekap-nilai',
+            'label' => 'Rekap Nilai Kelas',
+            'href' => route('walikelas.rekap-nilai'),
+            'icon' => 'dashboard',
+        ],
+        [
             'key' => 'rapor',
             'label' => 'Rapor Siswa',
             'href' => route('walikelas.rapor'),

@@ -49,6 +49,8 @@ Route::middleware('auth')->group(function () {
         Route::view('/data-siswa', 'guru.data-siswa')->name('data-siswa');
         Route::view('/penilaian', 'guru.penilaian')->name('penilaian');
         Route::view('/capaian-kompetensi', 'guru.capaian-kompetensi')->name('capaian-kompetensi');
+        Route::view('/laporan-nilai', 'guru.laporan-nilai')->name('laporan-nilai');
+        Route::view('/rekap-nilai', 'guru.rekap-nilai')->name('rekap-nilai');
         Route::view('/profil', 'guru.profil')->name('profil');
     });
 
@@ -65,6 +67,8 @@ Route::middleware('auth')->group(function () {
         Route::view('/penilaian', 'walikelas.penilaian')->name('penilaian');
         Route::view('/rapor', 'walikelas.rapor')->name('rapor');
         Route::view('/rapor/lihat', 'walikelas.lihat-rapor')->name('rapor.lihat');
+        Route::view('/laporan-nilai', 'walikelas.laporan-nilai')->name('laporan-nilai');
+        Route::view('/rekap-nilai', 'walikelas.rekap-nilai')->name('rekap-nilai');
         Route::view('/profil', 'walikelas.profil-user')->name('profil');
     });
 
@@ -79,6 +83,8 @@ Route::middleware('auth')->group(function () {
         Route::view('/mata-pelajaran', 'admin.mata-pelajaran')->name('mata-pelajaran');
         Route::view('/jadwal-pelajaran', 'admin.jadwal-pelajaran')->name('jadwal-pelajaran');
         Route::view('/aturan-nilai', 'admin.aturan-nilai')->name('aturan-nilai');
+        Route::view('/laporan-nilai', 'admin.laporan-nilai')->name('laporan-nilai');
+        Route::view('/rekap-nilai', 'admin.rekap-nilai')->name('rekap-nilai');
         Route::view('/profil', 'admin.profil-admin')->name('profil');
     });
 });

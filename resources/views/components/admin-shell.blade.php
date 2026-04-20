@@ -23,6 +23,8 @@
         ['key' => 'mata-pelajaran',   'label' => 'Mata Pelajaran',    'icon' => 'tag'],
         ['key' => 'jadwal-pelajaran', 'label' => 'Jadwal Pelajaran',  'icon' => 'calendar'],
         ['key' => 'aturan-nilai',     'label' => 'Aturan Nilai',      'icon' => 'clipboard'],
+        ['key' => 'laporan-nilai',    'label' => 'Laporan Nilai',     'icon' => 'book'],
+        ['key' => 'rekap-nilai',      'label' => 'Rekap Nilai Kelas', 'icon' => 'book'],
     ];
 @endphp
 

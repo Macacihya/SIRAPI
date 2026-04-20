@@ -27,7 +27,7 @@ class UserSeeder extends Seeder
                 'name' => 'Drs. M. Taufik',
                 'username' => 'taufik',
                 'nip' => '197805122005011004',
-                'email' => 'taufik@sekolah.sch.id',
+                'email' => '    ',
                 'password' => Hash::make('lopolo9090'),
                 'role' => 'guru',
             ]
