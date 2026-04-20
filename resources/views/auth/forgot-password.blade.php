@@ -1,166 +1,262 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="utf-8">
-    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Lupa Kata Sandi - SIRAPI</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --page-bg: #f4f7fb;
-            --panel-bg: #eff4fb;
-            --text-main: #0f172a;
-            --text-soft: #475569;
-            --text-muted: #64748b;
-            --field-bg: #eef2f7;
-            --field-border: #d9e2ec;
-            --line-soft: rgba(15, 23, 42, 0.06);
-            --brand-1: #1a3a6b;
-            --brand-2: #1e4d9b;
-            --brand-3: #0f2347;
+        * { box-sizing: border-box; }
+        body { font-family: 'Poppins', sans-serif; margin: 0; }
+
+        .input-field {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            border: 1.5px solid #e2e8f0;
+            background: white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+            font-size: 14px;
+            color: #1e293b;
+            outline: none;
+            transition: border-color .2s, box-shadow .2s;
+        }
+        .input-field:focus { border-color: #1a3a6b; box-shadow: 0 0 0 3px rgba(26,58,107,0.1); }
+        .input-field::placeholder { color: #94a3b8; }
+
+        .btn-primary {
+            width: 100%;
+            padding: 14px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #1a3a6b 0%, #1e4d9b 100%);
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 14px rgba(26,58,107,0.35);
+            transition: transform .2s, box-shadow .2s;
+        }
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(26,58,107,0.4); }
+        .btn-primary:disabled { background: #475569; box-shadow: none; cursor: not-allowed; transform: none; }
+
+        .role-btn {
+            padding: 10px 8px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            border: 1px solid #e2e8f0;
+            background: white;
+            color: #64748b;
+            cursor: pointer;
+            transition: all .2s;
+            text-align: center;
+        }
+        .role-btn.active {
+            background: #1a3a6b;
+            color: white;
+            border-color: #1a3a6b;
+            box-shadow: 0 2px 8px rgba(26,58,107,0.3);
         }
 
-        body { font-family: 'Inter', sans-serif; }
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        .left-panel {
+            background: linear-gradient(145deg, #1a3a6b 0%, #0f2347 40%, #0a1a38 100%);
         }
-        .brand-diamond::before {
-            content: "";
-            position: absolute;
-            inset: 0;
-            border: 1px solid var(--line-soft);
-            transform: rotate(45deg);
-            border-radius: 6px;
+
+        .spinner {
+            width: 16px; height: 16px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin .7s linear infinite;
+            display: inline-block;
+            vertical-align: middle;
+            margin-right: 6px;
         }
-        .ghost-block {
-            position: absolute;
-            border-radius: 18px;
-            background: rgba(26, 58, 107, 0.055);
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #64748b;
+            text-decoration: none;
+            margin-bottom: 24px;
+            transition: color .2s;
+        }
+        .back-link:hover { color: #1a3a6b; }
+
+        .success-box {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: 12px;
+            padding: 14px;
+            margin-bottom: 24px;
+        }
+
+        .alert-error {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 10px;
+            padding: 12px 16px;
+            color: #dc2626;
+            font-size: 14px;
+            margin-bottom: 18px;
         }
     </style>
 </head>
-<body class="min-h-screen bg-[var(--page-bg)] text-[var(--text-main)]">
-<div class="mx-auto flex min-h-screen max-w-[1500px] flex-col justify-center px-4 py-4 sm:px-6 sm:py-6 lg:px-10 lg:py-10">
-    <main class="mx-auto w-full max-w-[1260px] overflow-hidden rounded-[18px] bg-white shadow-[0_24px_60px_rgba(15,23,42,0.14)]">
-        <div class="grid min-h-[760px] lg:grid-cols-[1fr_1fr]">
-            <section class="relative overflow-hidden bg-[var(--panel-bg)] px-6 py-8 sm:px-8 sm:py-10 md:px-12 md:py-12 lg:px-16 lg:py-14">
-                <div class="relative z-10">
-                    <div class="relative mb-8 h-12 w-12 sm:mb-10 sm:h-14 sm:w-14 md:h-16 md:w-16 brand-diamond"></div>
+<body class="min-h-screen flex">
 
-                    <div class="mb-10 sm:mb-12 md:mb-14">
-                        <h1 class="text-[28px] font-black uppercase tracking-[-0.05em] text-[var(--brand-1)] sm:text-[34px] md:text-[42px] lg:text-[58px] lg:leading-[0.92]">
-                            SIRAPI
-                        </h1>
-                        <p class="mt-2 text-[10px] font-semibold uppercase tracking-[0.22em] text-[var(--text-muted)] sm:text-[11px] md:text-[13px] md:tracking-[0.24em]">
-                            Sistem Rapor Pintar
-                        </p>
-                    </div>
+    <!-- Left Panel - Branding -->
+    <div class="left-panel hidden lg:flex flex-col justify-between p-12 relative overflow-hidden" style="width:42%">
+        <div style="position:absolute;inset:0;background-image:radial-gradient(circle at 20% 20%,rgba(59,130,246,.15) 0%,transparent 50%),radial-gradient(circle at 80% 80%,rgba(99,102,241,.1) 0%,transparent 50%)"></div>
+        <div style="position:absolute;top:0;right:0;width:288px;height:288px;border-radius:50%;background:#60a5fa;opacity:.05;transform:translate(30%,-30%)"></div>
+        <div style="position:absolute;bottom:0;left:0;width:384px;height:384px;border-radius:50%;background:#818cf8;opacity:.05;transform:translate(-30%,30%)"></div>
 
-                    <div class="max-w-[460px]">
-                        <h2 class="text-[36px] font-black leading-[1.02] tracking-[-0.055em] text-[var(--brand-3)] sm:text-[44px] md:text-[52px] lg:text-[64px]">
-                            Manajemen<br>
-                            Rapor dengan<br>
-                            Presisi.
-                        </h2>
-                        <p class="mt-6 max-w-[420px] text-[15px] leading-[1.75] text-[var(--text-soft)] sm:mt-8 sm:text-[16px] md:mt-10 md:text-[18px]">
-                            Platform terintegrasi untuk pengelolaan nilai, kehadiran, dan pelaporan hasil belajar siswa secara efisien dan transparan.
-                        </p>
-
-                        <div class="mt-10 flex items-center gap-4 sm:mt-12 md:mt-14 md:gap-5">
-                            <div class="relative h-14 w-14 flex-none rounded-[12px] bg-white/60 sm:h-16 sm:w-16 brand-diamond"></div>
-                            <div class="min-w-0">
-                                <p class="text-[18px] font-bold tracking-[-0.04em] text-[var(--brand-3)] sm:text-[20px] md:text-[24px]">sekolah dasar terpadu</p>
-                                <p class="mt-1 text-[14px] text-[var(--text-soft)] sm:text-[15px] md:text-[17px]">Tahun Ajaran 2026/2027</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="ghost-block bottom-[110px] right-[-80px] hidden h-[220px] w-[360px] md:block lg:bottom-[150px] lg:right-[-40px] lg:h-[230px] lg:w-[420px]"></div>
-                <div class="ghost-block bottom-0 left-[48%] hidden h-[220px] w-[36px] rounded-t-[20px] rounded-b-none md:block lg:left-[45%] lg:h-[250px] lg:w-[42px]"></div>
-                <div class="ghost-block bottom-[214px] left-[54%] hidden h-[36px] w-[320px] rounded-l-[20px] rounded-r-none md:block lg:bottom-[245px] lg:h-[42px] lg:w-[390px]"></div>
-            </section>
-
-            <section class="flex items-start justify-center px-6 py-8 sm:px-8 sm:py-10 md:px-12 md:py-12 lg:px-16 lg:py-14">
-                <div class="w-full max-w-[520px] pt-0 text-center sm:pt-2 md:pt-6 lg:pt-10">
-                    <div class="mx-auto flex h-[72px] w-[72px] items-center justify-center rounded-[16px] bg-[rgba(26,58,107,0.08)] sm:h-[78px] sm:w-[78px] md:h-[86px] md:w-[86px]">
-                        <span class="material-symbols-outlined text-[34px] text-[var(--brand-1)] sm:text-[38px] md:text-[42px]">history</span>
-                    </div>
-
-                    <p class="mt-6 text-[13px] font-semibold uppercase tracking-[0.22em] text-[var(--text-muted)] sm:mt-8 sm:text-[15px] md:text-[18px] md:tracking-[0.28em]">
-                        Pemulihan Akun SIRAPI
-                    </p>
-
-                    <h2 class="mt-10 text-[32px] font-extrabold tracking-[-0.05em] text-[var(--brand-3)] sm:mt-12 sm:text-[38px] md:mt-16 md:text-[44px] lg:text-[50px]">
-                        Lupa Kata Sandi
-                    </h2>
-                    <p class="mx-auto mt-4 max-w-[360px] text-[15px] leading-[1.65] text-[var(--text-soft)] sm:text-[16px] md:text-[18px]">
-                        Masukkan email Anda untuk mengatur ulang kata sandi
-                    </p>
-
-                    @if ($errors->any())
-                        <div class="mt-6 rounded-[8px] border border-red-200 bg-red-50 px-4 py-3 text-left text-[14px] text-red-700 sm:mt-8">
-                            {{ $errors->first('email') }}
-                        </div>
-                    @endif
-
-                    @if (session('status'))
-                        <div class="mt-6 rounded-[8px] border border-blue-200 bg-blue-50 px-4 py-3 text-left text-[14px] text-blue-700 sm:mt-8">
-                            {{ session('status') }}
-                        </div>
-                    @endif
-
-                    <form action="{{ route('password.email') }}" class="mx-auto mt-8 max-w-[520px] text-left sm:mt-10 md:mt-12" id="forgotForm" method="POST">
-                        @csrf
-
-                        <label class="mb-2 block text-[12px] font-extrabold uppercase tracking-[0.08em] text-[var(--brand-1)] sm:mb-3 sm:text-[14px]" for="email">Email</label>
-                        <div class="relative">
-                            <input
-                                autocomplete="email"
-                                class="h-[58px] w-full rounded-[8px] border border-[var(--field-border)] bg-[var(--field-bg)] px-4 pr-14 text-[15px] text-[var(--text-main)] placeholder:text-[#8f9bab] focus:border-[var(--brand-2)] focus:ring-4 focus:ring-[rgba(30,77,155,0.12)] sm:h-[62px] sm:px-5 sm:pr-16 sm:text-[17px] md:h-[68px] md:text-[18px]"
-                                id="email"
-                                name="email"
-                                placeholder="nama@email.com"
-                                required
-                                type="email"
-                                value="{{ old('email') }}"
-                            >
-                            <span class="material-symbols-outlined pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-[22px] text-[var(--text-muted)] sm:text-[24px]">mail</span>
-                        </div>
-
-                        <button class="mt-8 flex h-[58px] w-full items-center justify-center gap-3 rounded-[8px] bg-gradient-to-r from-[var(--brand-1)] to-[var(--brand-2)] text-[18px] font-extrabold tracking-[-0.04em] text-white shadow-[0_14px_26px_rgba(26,58,107,0.22)] transition hover:translate-y-[-1px] hover:opacity-95 disabled:translate-y-0 disabled:opacity-70 sm:mt-10 sm:h-[64px] sm:text-[20px] md:h-[74px] md:text-[26px]" id="submitBtn" type="submit">
-                            <span>Kirim Tautan Pemulihan</span>
-                            <span class="material-symbols-outlined text-[22px] sm:text-[24px] md:text-[28px]">arrow_right_alt</span>
-                        </button>
-                    </form>
-
-                    <div class="mx-auto mt-10 max-w-[520px] border-t border-[rgba(26,58,107,0.08)] pt-6 sm:mt-12 sm:pt-7 md:mt-14">
-                        <a class="inline-flex items-center gap-2 text-[15px] font-medium text-[var(--text-soft)] hover:text-[var(--brand-2)]" href="{{ route('login') }}">
-                            <span class="material-symbols-outlined text-[20px] sm:text-[22px]">arrow_back</span>
-                            Kembali ke Login
-                        </a>
-                    </div>
-                </div>
-            </section>
+        <!-- Logo -->
+        <div style="position:relative;z-index:10;display:flex;align-items:center;gap:12px">
+            <div style="width:48px;height:48px;border-radius:12px;background:rgba(96,165,250,.2);border:1px solid rgba(96,165,250,.3);display:flex;align-items:center;justify-content:center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#93c5fd" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+            </div>
+            <div>
+                <p style="color:white;font-weight:700;font-size:20px;line-height:1.2;letter-spacing:.03em">SIRAPI</p>
+                <p style="color:#93c5fd;font-size:11px;letter-spacing:.05em">SISTEM RAPOR PINTAR</p>
+            </div>
         </div>
-    </main>
 
-    <footer class="px-2 pt-6 text-center text-[13px] text-[var(--text-muted)] sm:pt-8 sm:text-[14px] md:pt-10 md:text-[15px]">
-        Butuh bantuan teknis?
-        <a class="text-[var(--brand-2)] underline underline-offset-2 transition hover:opacity-75" href="#">Hubungi Admin Sekolah</a>
-    </footer>
-</div>
+        <!-- Center -->
+        <div style="position:relative;z-index:10">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg>
+                <span style="color:#60a5fa;font-size:13px;font-weight:600;letter-spacing:.08em">SMART REPORT SYSTEM</span>
+            </div>
+            <h1 style="color:white;font-weight:700;font-size:38px;line-height:1.2;margin-bottom:16px">
+                Kelola Rapor<br><span style="color:#60a5fa">Lebih Cerdas</span>
+            </h1>
+            <p style="color:#94a3b8;line-height:1.7;font-size:15px;margin-bottom:32px">
+                Platform digital terpadu untuk mengelola nilai, absensi, dan laporan akademik siswa secara efisien dan akurat.
+            </p>
+            <div style="display:flex;flex-direction:column;gap:14px">
+                @foreach([
+                    'Pengolahan nilai rapor otomatis & akurat',
+                    'Cetak rapor digital dengan satu klik',
+                    'Multi-role: Admin, Guru & Wali Kelas',
+                ] as $fitur)
+                <div style="display:flex;align-items:center;gap:12px">
+                    <div style="width:32px;height:32px;border-radius:8px;background:rgba(96,165,250,.15);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                    </div>
+                    <span style="color:#cbd5e1;font-size:14px">{{ $fitur }}</span>
+                </div>
+                @endforeach
+            </div>
+        </div>
 
-<script>
-    const forgotForm = document.getElementById('forgotForm');
-    const submitButton = document.getElementById('submitBtn');
+        <div style="position:relative;z-index:10">
+            <p style="color:#475569;font-size:12px">&copy; {{ date('Y') }} SIRAPI &middot; Sistem Rapor Pintar</p>
+        </div>
+    </div>
 
-    forgotForm.addEventListener('submit', function () {
-        submitButton.disabled = true;
-    });
-</script>
+    <!-- Right Panel -->
+    <div class="flex-1 flex items-center justify-center p-8" style="background:#f8fafc">
+        <div style="width:100%;max-width:480px">
+
+            <div style="background: white; border: 1px solid #e2e8f0; border-radius: 24px; padding: 40px; box-shadow: 0 10px 30px -10px rgba(0,0,0,0.05)">
+                <!-- Back link -->
+                <a href="{{ route('login') }}" class="back-link">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                    Kembali ke halaman login
+                </a>
+
+                @if(session('status'))
+                <!-- Success state -->
+                <div style="text-align:center">
+                    <div style="width:80px;height:80px;border-radius:50%;background:rgba(34,197,94,.1);border:2px solid rgba(34,197,94,.2);display:flex;align-items:center;justify-content:center;margin:0 auto 24px">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+                        </svg>
+                    </div>
+                    <h3 style="font-size:20px;font-weight:700;color:#0f172a;margin-bottom:8px">Email Terkirim!</h3>
+                    <p style="color:#64748b;font-size:14px;margin-bottom:8px;line-height:1.6">{{ session('status') }}</p>
+                    <div class="success-box">
+                        <p style="font-size:13px;color:#15803d;margin:0">
+                            Periksa folder <strong>Inbox</strong> atau <strong>Spam</strong> email Anda.
+                            Tautan reset berlaku selama <strong>60 menit</strong>.
+                        </p>
+                    </div>
+                    <a href="{{ route('login') }}" class="btn-primary" style="display:block;text-align:center;text-decoration:none;padding:14px;margin-top:8px">
+                        Kembali ke Login
+                    </a>
+                </div>
+                @else
+                <!-- Form state -->
+                <div style="margin-bottom:28px">
+                    <div style="width:56px;height:56px;border-radius:16px;background:rgba(26,58,107,.08);border:1px solid rgba(26,58,107,.12);display:flex;align-items:center;justify-content:center;margin-bottom:20px">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#1a3a6b" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+                        </svg>
+                    </div>
+                    <h2 style="font-size:24px;font-weight:700;color:#0f172a;margin-bottom:8px">Lupa Kata Sandi?</h2>
+                    <p style="color:#64748b;font-size:14px;line-height:1.6">
+                        Masukkan email yang terdaftar. Kami akan mengirimkan tautan untuk mereset kata sandi Anda.
+                    </p>
+                </div>
+
+                @if($errors->any())
+                <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:10px;padding:12px 16px;color:#dc2626;font-size:14px;margin-bottom:18px">
+                    {{ $errors->first('email') }}
+                </div>
+                @endif
+
+                <!-- Role selector -->
+                <div style="margin-bottom:20px">
+                    <p style="font-size:14px;font-weight:500;color:#4b5563;margin-bottom:10px">Role akun:</p>
+                    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+                        <button type="button" class="role-btn active" onclick="setRole(this,'admin')">Admin</button>
+                        <button type="button" class="role-btn" onclick="setRole(this,'guru')">Guru</button>
+                        <button type="button" class="role-btn" onclick="setRole(this,'walikelas')">Wali Kelas</button>
+                    </div>
+                </div>
+
+                <form method="POST" action="{{ route('password.email') }}" id="forgotForm">
+                    @csrf
+                    <input type="hidden" name="role" id="roleInput" value="admin">
+
+                    <div style="margin-bottom:18px">
+                        <label style="display:block;font-size:14px;font-weight:500;color:#374151;margin-bottom:6px">Alamat Email</label>
+                        <input type="email" name="email" class="input-field"
+                            placeholder="Masukkan email terdaftar"
+                            value="{{ old('email') }}" required autocomplete="email">
+                    </div>
+
+                    <button type="submit" class="btn-primary" id="submitBtn">
+                        Kirim Tautan Reset
+                    </button>
+                </form>
+                @endif
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        function setRole(btn, role) {
+            document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById('roleInput').value = role;
+        }
+        const form = document.getElementById('forgotForm');
+        if (form) {
+            form.addEventListener('submit', function() {
+                const btn = document.getElementById('submitBtn');
+                btn.disabled = true;
+                btn.innerHTML = '<span class="spinner"></span> Mengirim...';
+            });
+        }
+    </script>
 </body>
 </html>

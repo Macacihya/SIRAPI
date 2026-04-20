@@ -84,7 +84,7 @@
 
 
 
-    <p class="text-center text-[11px] font-semibold tracking-[0.1em] text-[#94a3b8]">SIRAPI &copy; 2024 &bull; SISTEM RAPOR PINTAR</p>
+    <p class="text-center text-[11px] font-semibold tracking-[0.1em] text-[#94a3b8]">SIRAPI &copy; {{ date('Y') }} &bull; SISTEM RAPOR PINTAR</p>
 
     {{-- ═══ MODAL: Ubah Profil ═══ --}}
     <div x-show="showEditProfil" class="fixed inset-0 z-[100] flex items-center justify-center bg-[#0f172a]/60 backdrop-blur-sm" style="display:none" x-transition @click.self="showEditProfil = false">

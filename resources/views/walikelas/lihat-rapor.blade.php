@@ -3,25 +3,56 @@
 <head>
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <title>Lihat Rapor - SIRAPI</title>
+    <title>Rapor - {{ request('name', 'Siswa') }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; }
+        body { font-family: 'Poppins', sans-serif; }
 
         /* Print Styles */
         @media print {
-            body { background: white !important; }
+            @page { 
+                size: A4; 
+                margin: 0; 
+            }
+            body { 
+                background: white !important; 
+                margin: 0 !important;
+                padding: 0 !important;
+            }
             .no-print { display: none !important; }
             .rapor-page {
                 box-shadow: none !important;
                 margin: 0 !important;
                 border-radius: 0 !important;
-                max-width: 100% !important;
+                width: 210mm !important;
+                min-height: 297mm !important;
+                padding: 15mm 20mm !important;
+                page-break-after: always;
+                display: flex;
+                flex-direction: column;
             }
             .print-container {
                 padding: 0 !important;
-                min-height: auto !important;
+                margin: 0 !important;
+                width: 210mm !important;
+                max-width: none !important;
+            }
+            .page-break {
+                clear: both;
+                break-before: page;
+            }
+        }
+
+        /* Screen only adjustments for A4 preview */
+        @media screen {
+            .rapor-page {
+                width: 210mm;
+                min-height: 297mm;
+                margin-left: auto;
+                margin-right: auto;
+                display: flex;
+                flex-direction: column;
             }
         }
 
@@ -69,6 +100,12 @@
             border: 1.5px solid #1e293b;
             padding: 16px 20px;
         }
+
+        /* Identity Alignment Helpers */
+        .id-row { display: flex; gap: 8px; }
+        .id-label { width: 100px; flex-shrink: 0; color: #475569; }
+        .id-val { font-weight: 600; color: #0f172a; }
+        .id-val-main { font-weight: 800; text-transform: uppercase; }
     </style>
 </head>
 
@@ -110,8 +147,10 @@
     </header>
 
     {{-- ═══ RAPOR CONTENT ═══ --}}
-    <div class="print-container mx-auto max-w-[800px] px-4 py-8 sm:px-6">
-        <div class="rapor-page rounded-lg bg-white p-8 shadow-xl sm:p-12 md:p-16">
+    <div class="print-container mx-auto py-8">
+        
+        {{-- ──── HALAMAN 1 ──── --}}
+        <div class="rapor-page mb-8 rounded-lg bg-white p-8 shadow-xl sm:p-12 md:p-16">
 
             {{-- ──── TITLE ──── --}}
             <div class="text-center">
@@ -119,39 +158,43 @@
                 <p class="text-[14px] font-bold uppercase text-[#0f172a]">(Rapor)</p>
             </div>
 
-            {{-- ──── HEADER INFO ──── --}}
-            <div class="mt-8 grid grid-cols-2 gap-x-8 gap-y-2 text-[12px]">
-                <div class="flex gap-2">
-                    <span class="w-[100px] shrink-0 text-[#475569]">Nama Sekolah</span>
-                    <span class="font-semibold text-[#0f172a]">: SD 01 Indonesia</span>
+            {{-- ──── HEADER INFO (Balanced Grid) ──── --}}
+            <div class="mt-8 grid grid-cols-2 gap-x-12 text-[12px]">
+                <div class="space-y-1">
+                    <div class="id-row">
+                        <span class="id-label">Nama Sekolah</span>
+                        <span class="id-val">: SD 01 Indonesia</span>
+                    </div>
+                    <div class="id-row">
+                        <span class="id-label">Alamat</span>
+                        <span class="id-val">: Jl. Imajinasi No. 42, Kota Digital</span>
+                    </div>
+                    <div class="id-row">
+                        <span class="id-label">Nama Siswa</span>
+                        <span class="id-val id-val-main">: {{ request('name', 'ACHMAD ALBAR') }}</span>
+                    </div>
+                    <div class="id-row">
+                        <span class="id-label">NIS / NISN</span>
+                        <span class="id-val">: {{ request('nis', '12001') }} / {{ request('nisn', '00123456789') }}</span>
+                    </div>
                 </div>
-                <div class="flex gap-2">
-                    <span class="w-[80px] shrink-0 text-[#475569]">Kelas</span>
-                    <span class="font-semibold text-[#0f172a]">: IV (Empat)</span>
-                </div>
-                <div class="flex gap-2">
-                    <span class="w-[100px] shrink-0 text-[#475569]">Alamat</span>
-                    <span class="font-semibold text-[#0f172a]">: Jl. Imajinasi No. 42, Kota Digital</span>
-                </div>
-                <div class="flex gap-2">
-                    <span class="w-[80px] shrink-0 text-[#475569]">Fase</span>
-                    <span class="font-semibold text-[#0f172a]">: B</span>
-                </div>
-                <div class="flex gap-2">
-                    <span class="w-[100px] shrink-0 text-[#475569]">Nama Siswa</span>
-                    <span class="font-bold uppercase text-[#0f172a]">: {{ request('name', 'BUDI SANTOSO') }}</span>
-                </div>
-                <div class="flex gap-2">
-                    <span class="w-[80px] shrink-0 text-[#475569]">Semester</span>
-                    <span class="font-semibold text-[#0f172a]">: 1 (Ganjil)</span>
-                </div>
-                <div class="flex gap-2">
-                    <span class="w-[100px] shrink-0 text-[#475569]">NISN</span>
-                    <span class="font-semibold text-[#0f172a]">: {{ request('nis', '00123456789') }}</span>
-                </div>
-                <div class="flex gap-2">
-                    <span class="w-[80px] shrink-0 text-[#475569]">Tahun Ajaran</span>
-                    <span class="font-semibold text-[#0f172a]">: 2026/2027</span>
+                <div class="space-y-1">
+                    <div class="id-row">
+                        <span class="id-label">Kelas</span>
+                        <span class="id-val">: IV (Empat)</span>
+                    </div>
+                    <div class="id-row">
+                        <span class="id-label">Fase</span>
+                        <span class="id-val">: B</span>
+                    </div>
+                    <div class="id-row">
+                        <span class="id-label">Semester</span>
+                        <span class="id-val">: 1 (Ganjil)</span>
+                    </div>
+                    <div class="id-row">
+                        <span class="id-label">Tahun Ajaran</span>
+                        <span class="id-val">: 2026/2027</span>
+                    </div>
                 </div>
             </div>
 
@@ -214,8 +257,17 @@
                 </div>
             </div>
 
+            {{-- ──── FOOTER HALAMAN 1 ──── --}}
+            <div class="mt-auto border-t border-[#e2e8f0] pt-4 text-center">
+                <p class="text-[10px] text-[#94a3b8]">Halaman 1 dari 2</p>
+            </div>
+        </div>
+
+        {{-- ──── HALAMAN 2 ──── --}}
+        <div class="rapor-page page-break rounded-lg bg-white p-8 shadow-xl sm:p-12 md:p-16">
+
             {{-- ──── B. SIKAP & C. KEHADIRAN ──── --}}
-            <div class="mt-10 grid gap-6 sm:grid-cols-2">
+            <div class="grid gap-6 sm:grid-cols-2">
                 {{-- B. Sikap --}}
                 <div>
                     <h3 class="text-[13px] font-black uppercase text-[#0f172a]">B. Sikap</h3>
@@ -272,19 +324,18 @@
                 </div>
             </div>
 
-            {{-- ──── TANDA TANGAN ──── --}}
-            <div class="mt-14">
+            {{-- ──── TANDA TANGAN (Triangular Layout) ──── --}}
+            <div class="mt-12 pt-16">
                 <div class="grid grid-cols-2 gap-8 text-center text-[12px]">
-                    {{-- Orang Tua / Wali --}}
+                    {{-- Baris 1: Kiri & Kanan --}}
                     <div>
                         <p class="text-[#475569]">Mengetahui</p>
                         <p class="font-semibold text-[#475569]">Orang Tua/Wali,</p>
-                        <div class="mt-16 border-b border-[#1e293b] mx-auto w-[160px]"></div>
+                        <div class="mt-16 border-b border-[#1e293b] mx-auto w-[180px]"></div>
                     </div>
 
-                    {{-- Wali Kelas --}}
                     <div>
-                        <p class="text-[#475569]">Kota Digital, 22 Desember 2023</p>
+                        <p class="text-[#475569]">Kota Digital, {{ now()->translatedFormat('d F Y') }}</p>
                         <p class="font-semibold text-[#475569]">Wali Kelas,</p>
                         <div class="mt-12">
                             <p class="text-[14px] font-bold text-[#0f172a] underline underline-offset-4">Budi Santoso, S.Pd.</p>
@@ -293,24 +344,24 @@
                     </div>
                 </div>
 
-                {{-- Kepala Sekolah --}}
-                <div class="mt-10 text-center text-[12px]">
+                {{-- Baris 2: Tengah (Kepala Sekolah) --}}
+                <div class="mt-12 text-center text-[12px]">
                     <p class="text-[#475569]">Mengetahui,</p>
                     <p class="font-semibold text-[#475569]">Kepala Sekolah,</p>
-                    <div class="mt-12">
+                    <div class="mt-14">
                         <p class="text-[14px] font-bold text-[#0f172a] underline underline-offset-4">Dr. Ahmad Hidayat, M.Pd.</p>
                         <p class="mt-0.5 text-[10px] text-[#64748b]">NIP. 197003121995031002</p>
                     </div>
                 </div>
             </div>
 
-            {{-- ──── FOOTER ──── --}}
-            <div class="mt-12 border-t border-[#e2e8f0] pt-4 text-center">
-                <p class="text-[10px] text-[#94a3b8]">Halaman 1 dari 1 — SIRAPI (Sistem Rapor Digital)</p>
+            {{-- ──── FOOTER HALAMAN 2 ──── --}}
+            <div class="mt-auto border-t border-[#e2e8f0] pt-4 text-center">
+                <p class="text-[10px] text-[#94a3b8]">Halaman 2 dari 2</p>
             </div>
-
         </div>
     </div>
+
 
 </body>
 </html>

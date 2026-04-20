@@ -15,29 +15,31 @@ class UserSeeder extends Seeder
             [
                 'name' => 'Administrator',
                 'username' => 'admin',
-                'email' => 'admin@sirapi.com',
+                'email' => 'admin@sekolah.sch.id',
                 'password' => Hash::make('lopolo9090'),
                 'role' => 'admin',
             ]
         );
 
         User::updateOrCreate(
-            ['username' => 'guru01'],
+            ['role' => 'guru'],
             [
-                'name' => 'Guru Satu',
-                'username' => 'guru01',
-                'email' => 'guru01@sirapi.com',
+                'name' => 'Drs. M. Taufik',
+                'username' => 'taufik',
+                'nip' => '197805122005011004',
+                'email' => 'taufik@sekolah.sch.id',
                 'password' => Hash::make('lopolo9090'),
                 'role' => 'guru',
             ]
         );
 
         User::updateOrCreate(
-            ['username' => 'walikelas01'],
+            ['role' => 'walikelas'],
             [
-                'name' => 'Wali Kelas Satu',
-                'username' => 'walikelas01',
-                'email' => 'walikelas01@sirapi.com',
+                'name' => 'Heryanto Pratama, S.Pd.',
+                'username' => 'heryanto',
+                'nip' => '198804122015031002',
+                'email' => 'heryanto@sekolah.sch.id',
                 'password' => Hash::make('lopolo9090'),
                 'role' => 'walikelas',
             ]

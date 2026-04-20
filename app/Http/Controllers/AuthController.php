@@ -18,17 +18,23 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
-        $credentials = $request->validate([
+        $request->validate([
             'username' => ['required', 'string'],
             'password' => ['required', 'string'],
-        ], [
-            'username.required' => 'Username wajib diisi.',
-            'password.required' => 'Kata sandi wajib diisi.',
         ]);
 
+        $input = $request->input('username');
+        
+        if (filter_var($input, FILTER_VALIDATE_EMAIL)) {
+            $loginField = 'email';
+        } elseif (is_numeric($input) && strlen($input) >= 10) {
+            $loginField = 'nip';
+        } else {
+            $loginField = 'username';
+        }
         $role = $request->input('role', 'admin');
 
-        if (Auth::attempt(['username' => $credentials['username'], 'password' => $credentials['password']], $request->boolean('remember'))) {
+        if (Auth::attempt([$loginField => $request->input('username'), 'password' => $request->input('password')], $request->boolean('remember'))) {
             $request->session()->regenerate();
 
             $user = Auth::user();

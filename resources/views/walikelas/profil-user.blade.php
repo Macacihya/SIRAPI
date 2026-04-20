@@ -183,7 +183,7 @@
 
         {{-- Footer --}}
         <div class="border-t border-[#e2e8f0] pt-6 text-center">
-            <p class="text-[11px] font-semibold uppercase tracking-[0.15em] text-[#94a3b8]">SIRAPI © 2024 • Sistem Rapor Pintar</p>
+            <p class="text-[11px] font-semibold uppercase tracking-[0.15em] text-[#94a3b8]">SIRAPI © {{ date('Y') }} • Sistem Rapor Pintar</p>
         </div>
 
         <!-- ======================= -->
