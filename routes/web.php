@@ -14,21 +14,6 @@ Route::get('/', function () {
 });
 Route::post('/', [AuthController::class, 'login']);
 
-<<<<<<< Updated upstream
-// Mockup routes (tanpa controller) — file ada di folder pages/
-Route::view('/didit', 'pages.didit');
-Route::view('/rian', 'pages.rian');
-Route::view('/fariz', 'pages.fariz');
-Route::view('/home', 'pages.home');
-Route::view('/about', 'pages.about');
-Route::view('/contact', 'pages.contact');
-Route::view('/features', 'pages.features');
-Route::view('/services', 'pages.services');
-
-Route::get('/products', [ProductController::class, 'index']);
-
-=======
->>>>>>> Stashed changes
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
     Route::post('/login', [AuthController::class, 'login'])->name('login.post');
