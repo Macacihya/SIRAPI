@@ -15,12 +15,16 @@
                     desc_sp: 'Sangat baik dalam ketaatan beribadah dan berperilaku syukur dalam setiap kegiatan.', 
                     sikap_so: 'A (Sangat Baik)', 
                     desc_so: 'Sangat baik dalam sikap disiplin, jujur, dan tanggung jawab.', 
+                    eskul: [
+                        { id: 1, nama: 'Pramuka', ket: 'Sangat aktif dalam kegiatan perkemahan.' },
+                        { id: 2, nama: 'Seni Tari', ket: 'Mampu memperagakan gerak dasar tari daerah.' }
+                    ],
                     catatan: 'Tingkatkan terus prestasimu, pertahankan semangat belajarnya!'
                 }
             },
             { 
                 id: 14, nis: '12014', nisn: '0012345614', name: 'Oscar Permana', avatar: 'OP', status: 'Belum',
-                form: { sikap_sp: '', desc_sp: '', sikap_so: '', desc_so: '', catatan: '' }
+                form: { sikap_sp: '', desc_sp: '', sikap_so: '', desc_so: '', eskul: [], catatan: '' }
             },
             { 
                 id: 3, nis: '12003', nisn: '0012345603', name: 'Dandi Pratama', avatar: 'DP', status: 'Draft',
@@ -29,13 +33,16 @@
                     desc_sp: 'Sudah baik dalam ketaatan beribadah namun perlu bimbingan dalam perilaku syukur.', 
                     sikap_so: 'B (Baik)', 
                     desc_so: 'Cukup disiplin namun perlu ditingkatkan lagi tanggung jawabnya.', 
+                    eskul: [
+                        { id: 1, nama: 'Pramuka', ket: 'Aktif mengikuti latihan rutin.' }
+                    ],
                     catatan: 'Cukup bagus, ayo semangat lagi belajarnya!'
                 }
             },
             // ... siswa lainnya didefinisikan dengan struktur form: { ... } yang sama
             { 
                 id: 5, nis: '12005', nisn: '0012345605', name: 'Farhan Azis', avatar: 'FA', status: 'Belum',
-                form: { sikap_sp: '', desc_sp: '', sikap_so: '', desc_so: '', catatan: '' }
+                form: { sikap_sp: '', desc_sp: '', sikap_so: '', desc_so: '', eskul: [], catatan: '' }
             },
             { 
                 id: 7, nis: '12007', nisn: '0012345607', name: 'Hendra Yulian', avatar: 'HY', status: 'Selesai',
@@ -44,12 +51,13 @@
                     desc_sp: 'Sikap spiritual sangat menonjol terutama dalam hal toleransi antar umat beragama.', 
                     sikap_so: 'B (Baik)', 
                     desc_so: 'Sangat aktif dalam kegiatan sosial sekolah.', 
+                    eskul: [],
                     catatan: 'Lanjutkan progres positif ini di semester depan.'
                 }
             },
             { 
                 id: 8, nis: '12008', nisn: '0012345608', name: 'Intan Sari', avatar: 'IS', status: 'Belum',
-                form: { sikap_sp: '', desc_sp: '', sikap_so: '', desc_so: '', catatan: '' }
+                form: { sikap_sp: '', desc_sp: '', sikap_so: '', desc_so: '', eskul: [], catatan: '' }
             },
             { 
                 id: 9, nis: '12009', nisn: '0012345609', name: 'Joko Wibowo', avatar: 'JW', status: 'Draft',
@@ -58,12 +66,13 @@
                     desc_sp: 'Baik dalam ibadah harian.', 
                     sikap_so: 'B (Baik)', 
                     desc_so: 'Perlu lebih aktif berkomunikasi dengan teman.', 
+                    eskul: [],
                     catatan: 'Tingkatkan kepercayaan diri dalam bergaul.'
                 }
             },
             { 
                 id: 10, nis: '12010', nisn: '0012345610', name: 'Kirana Rahma', avatar: 'KR', status: 'Belum',
-                form: { sikap_sp: '', desc_sp: '', sikap_so: '', desc_so: '', catatan: '' }
+                form: { sikap_sp: '', desc_sp: '', sikap_so: '', desc_so: '', eskul: [], catatan: '' }
             },
             { 
                 id: 11, nis: '12011', nisn: '0012345611', name: 'Lukman Putra', avatar: 'LP', status: 'Selesai',
@@ -72,12 +81,13 @@
                     desc_sp: 'Sangat tekun dan rajin beribadah.', 
                     sikap_so: 'A (Sangat Baik)', 
                     desc_so: 'Disiplin dan sopan santun sangat baik.', 
+                    eskul: [],
                     catatan: 'Anak yang cerdas dan berbudi luhur.'
                 }
             },
             { 
                 id: 12, nis: '12012', nisn: '0012345612', name: 'Maya Nurhaliza', avatar: 'MN', status: 'Belum',
-                form: { sikap_sp: '', desc_sp: '', sikap_so: '', desc_so: '', catatan: '' }
+                form: { sikap_sp: '', desc_sp: '', sikap_so: '', desc_so: '', eskul: [], catatan: '' }
             },
             { 
                 id: 13, nis: '12013', nisn: '0012345613', name: 'Nanda Rizky', avatar: 'NR', status: 'Draft',
@@ -86,12 +96,13 @@
                     desc_sp: 'Ibadah teratur.', 
                     sikap_so: 'C (Cukup)', 
                     desc_so: 'Tingkatkan kedisiplinan mengumpulkan tugas.', 
+                    eskul: [],
                     catatan: 'Jangan malas mencatat materi pembelajaran.'
                 }
             },
             { 
                 id: 15, nis: '12015', nisn: '0012345615', name: 'Putri Setiawan', avatar: 'PS', status: 'Belum',
-                form: { sikap_sp: '', desc_sp: '', sikap_so: '', desc_so: '', catatan: '' }
+                form: { sikap_sp: '', desc_sp: '', sikap_so: '', desc_so: '', eskul: [], catatan: '' }
             },
             { 
                 id: 16, nis: '12016', nisn: '0012345616', name: 'Qiyamul Haq', avatar: 'QH', status: 'Selesai',
@@ -100,20 +111,30 @@
                     desc_sp: 'Nama mencerminkan sikap spiritualnya yang sangat kuat.', 
                     sikap_so: 'A (Sangat Baik)', 
                     desc_so: 'Kepemimpinan dan tanggung jawab luar biasa.', 
+                    eskul: [],
                     catatan: 'Calon pemimpin masa depan.'
                 }
             },
             { 
                 id: 18, nis: '12018', nisn: '0012345618', name: 'Surya Bagaskara', avatar: 'SB', status: 'Belum',
-                form: { sikap_sp: '', desc_sp: '', sikap_so: '', desc_so: '', catatan: '' }
+                form: { sikap_sp: '', desc_sp: '', sikap_so: '', desc_so: '', eskul: [], catatan: '' }
             },
         ],
         draftModalOpen: false,
         saveModalOpen: false,
         previewModalOpen: false,
+        eskulToDelete: null,
         deleteConfirmOpen: false,
         prestasiToDelete: null,
         
+        addEskul() {
+            this.selectedStudent.form.eskul.push({ id: Date.now(), nama: '', ket: '' });
+        },
+
+        removeEskul(id) {
+            this.selectedStudent.form.eskul = this.selectedStudent.form.eskul.filter(e => e.id !== id);
+        },
+
         prestasiList: [
             { id: 1, jenis: 'Akademik', keterangan: 'Juara 1 Olimpiade Matematika Tingkat Kota' }
         ],
@@ -284,10 +305,58 @@
                         </div>
                     </div>
 
-                    <!-- Section 2: Kehadiran Siswa -->
+                    <!-- Section 2: Ekstrakurikuler -->
+                    <div class="bg-white rounded-xl border border-[#e2e8f0] shadow-sm overflow-hidden">
+                        <div class="px-5 py-3 border-b border-[#e2e8f0] bg-[#f8fafc] flex items-center justify-between">
+                            <h3 class="text-[14px] font-bold text-[#0f172a]">2. Ekstrakurikuler</h3>
+                            <button @click="addEskul()" :disabled="selectedStudent.status === 'Selesai'" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#eff6ff] text-[11px] font-bold text-[#1d4ed8] hover:bg-[#dbeafe] transition disabled:opacity-50">
+                                <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+                                Tambah Eskul
+                            </button>
+                        </div>
+                        <div class="p-5">
+                            <div class="overflow-x-auto">
+                                <table class="w-full">
+                                    <thead>
+                                        <tr class="text-[11px] font-bold text-[#64748b] uppercase tracking-wider">
+                                            <th class="text-left pb-3 w-[40px]">No</th>
+                                            <th class="text-left pb-3">Kegiatan Ekstrakurikuler</th>
+                                            <th class="text-left pb-3 pl-4">Keterangan / Capaian</th>
+                                            <th class="pb-3 w-[40px]"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-[#f1f5f9]">
+                                        <template x-for="(e, index) in selectedStudent.form.eskul" :key="e.id">
+                                            <tr>
+                                                <td class="py-3 text-[13px] font-medium text-[#64748b]" x-text="index + 1"></td>
+                                                <td class="py-3">
+                                                    <input type="text" x-model="e.nama" :readonly="selectedStudent.status === 'Selesai'" class="w-full h-9 rounded-lg border border-[#e2e8f0] px-3 text-[13px] focus:ring-2 focus:ring-[#3b82f6]/20 focus:border-[#3b82f6] outline-none transition readonly:bg-[#f8fafc]">
+                                                </td>
+                                                <td class="py-3 pl-4">
+                                                    <input type="text" x-model="e.ket" :readonly="selectedStudent.status === 'Selesai'" class="w-full h-9 rounded-lg border border-[#e2e8f0] px-3 text-[13px] focus:ring-2 focus:ring-[#3b82f6]/20 focus:border-[#3b82f6] outline-none transition readonly:bg-[#f8fafc]" placeholder="Cth: Sangat aktif dalam kegiatan perkemahan...">
+                                                </td>
+                                                <td class="py-3 text-right">
+                                                    <button @click="removeEskul(e.id)" :disabled="selectedStudent.status === 'Selesai'" class="p-1.5 text-[#94a3b8] hover:text-[#dc2626] transition disabled:hidden">
+                                                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        </template>
+                                        <template x-if="selectedStudent.form.eskul.length === 0">
+                                            <tr>
+                                                <td colspan="4" class="py-6 text-center text-[12px] text-[#94a3b8] italic">Belum ada data ekstrakurikuler yang ditambahkan.</td>
+                                            </tr>
+                                        </template>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section 3: Kehadiran Siswa -->
                     <div class="bg-white rounded-xl border border-[#e2e8f0] shadow-sm overflow-hidden">
                         <div class="px-5 py-3 border-b border-[#e2e8f0] bg-[#f8fafc]">
-                            <h3 class="text-[14px] font-bold text-[#0f172a]">2. Kehadiran Siswa</h3>
+                            <h3 class="text-[14px] font-bold text-[#0f172a]">3. Kehadiran Siswa</h3>
                         </div>
                         <div class="p-5">
                             <div class="grid grid-cols-3 gap-4 text-center">
@@ -308,10 +377,10 @@
                         </div>
                     </div>
 
-                    <!-- Section 3: Catatan Wali Kelas -->
+                    <!-- Section 4: Catatan Wali Kelas -->
                     <div class="bg-white rounded-xl border border-[#e2e8f0] shadow-sm overflow-hidden">
                         <div class="px-5 py-3 border-b border-[#e2e8f0] bg-[#f8fafc]">
-                            <h3 class="text-[14px] font-bold text-[#0f172a]">3. Catatan Wali Kelas</h3>
+                            <h3 class="text-[14px] font-bold text-[#0f172a]">4. Catatan Wali Kelas</h3>
                         </div>
                         <div class="p-5">
                             <textarea x-model="selectedStudent.form.catatan" :readonly="selectedStudent.status === 'Selesai'" rows="4" class="w-full rounded-lg border border-[#e2e8f0] p-3 text-[13px] focus:ring-2 focus:ring-[#3b82f6]/20 focus:border-[#3b82f6] outline-none resize-none readonly:bg-[#f1f5f9] readonly:text-[#94a3b8]" placeholder="Tuliskan pesan, motivasi, atau evaluasi wali kelas untuk siswa ini..."></textarea>
@@ -339,75 +408,41 @@
             </div>
             
             <!-- Modal Simpan Draft -->
-            <div x-show="draftModalOpen" style="display: none;" class="fixed inset-0 z-50 flex items-center justify-center bg-[#0f172a]/60 backdrop-blur-sm" x-transition>
-                <div @click.outside="draftModalOpen = false" class="bg-white rounded-2xl p-6 w-[450px] shadow-xl border-t-8 border-[#f59e0b]">
-                    <div class="w-12 h-12 rounded-full bg-[#fff7ed] flex items-center justify-center mb-4 text-[#f59e0b]">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" /></svg>
+            <div x-show="draftModalOpen" style="display: none;" class="fixed inset-0 z-[100] flex items-center justify-center bg-[#0f172a]/60 backdrop-blur-sm px-4" x-transition @click.self="draftModalOpen = false">
+                <div class="flex w-full max-w-sm flex-col rounded-2xl bg-white shadow-2xl">
+                    <div class="p-6 text-center">
+                        <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#fff7ed] text-[#ea580c] mb-4 ring-4 ring-[#ffedd5]">
+                            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg>
+                        </div>
+                        <h3 class="text-[18px] font-black text-[#0f172a]">Simpan Draft Rapor?</h3>
+                        <p class="mt-2 text-[13px] leading-[1.8] text-[#64748b]">Data sikap dan catatan wali kelas untuk <strong x-text="selectedStudent.name"></strong> akan disimpan sebagai draft.</p>
                     </div>
-                    <h3 class="text-xl font-bold text-[#0f172a] mb-2">Simpan sebagai Draft?</h3>
-                    <p class="text-[13px] text-[#64748b] mb-4">Progres pengisian rapor untuk <strong x-text="selectedStudent.name"></strong> akan disimpan untuk dilanjutkan nanti.</p>
-                    
-                    <!-- Ringkasan Isi (List) -->
-                    <div class="bg-[#fafafb] rounded-xl p-4 mb-6 border border-[#e2e8f0]">
-                        <p class="text-[11px] font-bold text-[#94a3b8] uppercase tracking-wider mb-2">Data yang akan disimpan:</p>
-                        <ul class="text-[12px] space-y-1.5 text-[#475569]">
-                            <li class="flex items-center gap-2"><svg class="w-3.5 h-3.5 text-[#f59e0b]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4"/></svg> Draft Nilai Sikap</li>
-                            <li class="flex items-center gap-2"><svg class="w-3.5 h-3.5 text-[#f59e0b]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4"/></svg> Rekap Kehadiran Siswa</li>
-                            <li class="flex items-center gap-2"><svg class="w-3.5 h-3.5 text-[#f59e0b]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4"/></svg> Catatan Wali Kelas</li>
-                        </ul>
-                    </div>
-
-                    <div class="flex justify-end gap-3">
-                        <button @click="draftModalOpen = false" class="px-4 py-2 rounded-lg text-[13px] font-bold text-[#64748b] hover:bg-[#f1f5f9]">Batal</button>
-                        <button @click="saveDraft()" class="px-5 py-2.5 rounded-lg bg-[#f59e0b] text-[13px] font-bold text-white hover:bg-[#d97706] shadow-sm">Simpan Draft</button>
+                    <div class="flex gap-3 bg-[#f8fafc] px-6 py-4 rounded-b-2xl border-t border-[#e2e8f0]">
+                        <button @click="draftModalOpen = false" class="flex-1 rounded-lg border border-[#e2e8f0] bg-white px-4 py-2.5 text-[12px] font-bold text-[#475569] transition hover:bg-[#f1f5f9]">Batal</button>
+                        <button @click="saveDraft()" class="flex-1 rounded-lg bg-[#ea580c] px-4 py-2.5 text-[12px] font-bold text-white transition hover:bg-[#c2410c]">Ya, Simpan Draft</button>
                     </div>
                 </div>
             </div>
 
             <!-- Modal Finalisasi Rapor -->
-            <div x-show="saveModalOpen" style="display: none;" class="fixed inset-0 z-50 flex items-center justify-center bg-[#0f172a]/60 backdrop-blur-sm" x-transition>
-                <div @click.outside="saveModalOpen = false" class="bg-white rounded-2xl p-6 w-[450px] shadow-xl border-t-8 border-[#dc2626]">
-                    <div class="w-12 h-12 rounded-full bg-[#fef2f2] flex items-center justify-center mb-4 text-[#dc2626]">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
-                    </div>
-                    <h3 class="text-xl font-bold text-[#0f172a] mb-2">Konfirmasi Finalisasi Rapor</h3>
-                    <p class="text-[13px] text-[#64748b] mb-4">Mohon periksa kembali data berikut sebelum memfinalisasi rapor <strong x-text="selectedStudent.name"></strong>:</p>
-
-                    <!-- Ringkasan Isi (List) -->
-                    <div class="bg-[#fef2f2]/30 rounded-xl p-4 mb-6 border border-[#fecaca]">
-                        <p class="text-[11px] font-bold text-[#dc2626] uppercase tracking-wider mb-2">Persyaratan Finalisasi:</p>
-                        <ul class="text-[12px] space-y-1.5 text-[#475569]">
-                            <li class="flex items-center gap-2">
-                                <svg class="w-3.5 h-3.5 text-[#dc2626]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                                <span>Input Sikap & Catatan Walas</span>
-                            </li>
-                            <li class="flex items-center gap-2">
-                                <svg x-show="!hasMissingSubjectGrades" class="w-3.5 h-3.5 text-[#dc2626]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                                <svg x-show="hasMissingSubjectGrades" class="w-3.5 h-3.5 text-red-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/></svg>
-                                <span :class="hasMissingSubjectGrades ? 'text-red-600 font-bold' : ''">Seluruh Nilai Guru Mapel Terkirim</span>
-                            </li>
-                        </ul>
-
-                        <!-- Warning Block jika data tidak lengkap -->
-                        <div x-show="hasMissingSubjectGrades || isFormIncomplete" class="mt-4 p-3 bg-red-600 rounded-lg text-[11px] text-white font-medium leading-tight flex gap-3">
-                             <svg class="w-5 h-5 flex-shrink-0 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-                             <span>TIDAK DAPAT FINALISASI: Masih ada nilai dari Guru Mata Pelajaran yang belum dikirim. Silakan hubungi guru terkait untuk mengirim nilai.</span>
+            <div x-show="saveModalOpen" style="display: none;" class="fixed inset-0 z-[100] flex items-center justify-center bg-[#0f172a]/60 backdrop-blur-sm px-4" x-transition @click.self="saveModalOpen = false">
+                <div class="flex w-full max-w-sm flex-col rounded-2xl bg-white shadow-2xl">
+                    <div class="p-6 text-center">
+                        <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#fef2f2] text-[#dc2626] mb-4 ring-4 ring-[#fee2e2]">
+                            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
                         </div>
-                        
-                        <div x-show="!hasMissingSubjectGrades && !isFormIncomplete" class="mt-4 p-2 bg-white/50 rounded-lg text-[11px] text-[#b91c1c] font-black leading-tight flex gap-2">
-                             <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-                             PERINGATAN: DATA YANG SUDAH FINAL TIDAK DAPAT DIEDIT KEMBALI!
-                        </div>
+                        <h3 class="text-[18px] font-black text-[#0f172a]">Finalisasi Rapor?</h3>
+                        <p class="mt-2 text-[13px] leading-[1.8] text-[#64748b]">Rapor <strong x-text="selectedStudent.name"></strong> akan dikunci. Data yang sudah final tidak dapat diubah lagi dan siap untuk dicetak.</p>
                     </div>
-
-                    <div class="flex justify-end gap-3">
-                        <button @click="saveModalOpen = false" class="px-4 py-2 rounded-lg text-[13px] font-bold text-[#64748b] hover:bg-[#f1f5f9]">Batal</button>
-                        <button @click="submitToBackend()" :disabled="hasMissingSubjectGrades || isFormIncomplete" :class="(hasMissingSubjectGrades || isFormIncomplete) ? 'bg-gray-400 cursor-not-allowed' : 'bg-[#dc2626] hover:bg-[#b91c1c] shadow-md'" class="px-5 py-2.5 rounded-lg text-[13px] font-bold text-white transition">
-                            <span x-text="(hasMissingSubjectGrades || isFormIncomplete) ? 'Belum Bisa Finalisasi' : 'Ya, Finalisasi Sekarang'"></span>
+                    <div class="flex gap-3 bg-[#f8fafc] px-6 py-4 rounded-b-2xl border-t border-[#e2e8f0]">
+                        <button @click="saveModalOpen = false" class="flex-1 rounded-lg border border-[#e2e8f0] bg-white px-4 py-2.5 text-[12px] font-bold text-[#475569] transition hover:bg-[#f1f5f9]">Batal</button>
+                        <button @click="submitToBackend()" :disabled="hasMissingSubjectGrades || isFormIncomplete" :class="(hasMissingSubjectGrades || isFormIncomplete) ? 'bg-gray-400 cursor-not-allowed' : 'bg-[#dc2626] hover:bg-[#b91c1c]'" class="flex-1 rounded-lg px-4 py-2.5 text-[12px] font-bold text-white transition">
+                            <span x-text="(hasMissingSubjectGrades || isFormIncomplete) ? 'Belum Lengkap' : 'Ya, Finalisasi'"></span>
                         </button>
                     </div>
                 </div>
             </div>
+
 
             <!-- Modal Konfirmasi Hapus Prestasi -->
             <div x-show="deleteConfirmOpen" style="display: none;" class="fixed inset-0 z-50 flex items-center justify-center bg-[#0f172a]/60 backdrop-blur-sm" x-transition>

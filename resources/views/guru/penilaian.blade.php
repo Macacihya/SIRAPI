@@ -10,13 +10,9 @@
             body { background: white !important; }
         }
         
-        /* Sticky Actions Bottom Bar */
-        .sticky-actions {
-            box-shadow: 0 -4px 12px -4px rgba(0, 0, 0, 0.05);
-        }
     </style>
 
-    <div class="space-y-6 pb-24" x-data="{
+    <div class="space-y-6 pb-12" x-data="{
         searchQuery: '',
         filterKelas: 'VI-A',
         filterSemester: 'Ganjil',
@@ -219,24 +215,29 @@
                         </tr>
                     </template>
                 </tbody>
+                {{-- Action Footer inside Table --}}
+                <tfoot x-show="filteredGrades.length > 0" class="no-print border-t border-[#e2e8f0] bg-[#f8fafc]">
+                    <tr>
+                        <td colspan="6" class="px-6 py-4">
+                            <div class="flex items-center justify-between">
+                                <div class="hidden sm:block">
+                                    <p class="text-[12px] text-[#64748b]">Terdapat <strong class="text-[#0f172a]" x-text="filteredGrades.filter(g => g.status !== 'Final').length"></strong> data siswa yang belum difinalisasi.</p>
+                                </div>
+                                <div class="flex w-full sm:w-auto items-center gap-3">
+                                    <button @click="saveDraft()" class="flex-1 sm:flex-none flex items-center justify-center gap-2 rounded-lg border border-[#e2e8f0] bg-white px-5 py-2.5 text-[12px] font-bold text-[#475569] transition hover:bg-[#f1f5f9] hover:text-[#0f172a]">
+                                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                        Simpan Draft
+                                    </button>
+                                    <button @click="finalize()" class="flex-1 sm:flex-none flex items-center justify-center gap-2 rounded-lg bg-[#1d4ed8] px-5 py-2.5 text-[12px] font-bold text-white transition hover:bg-[#1e40af] shadow-[0_4px_12px_rgba(29,78,216,0.3)]">
+                                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                        Finalisasi Nilai
+                                    </button>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                </tfoot>
             </table>
-        </div>
-
-        {{-- Sticky Action Bottom Bar --}}
-        <div class="no-print sticky-actions fixed bottom-0 left-0 lg:left-[240px] right-0 z-40 flex items-center justify-between border-t border-[#e2e8f0] bg-white/95 px-4 py-4 sm:px-6 lg:px-8 backdrop-blur" x-show="filteredGrades.length > 0">
-            <div class="hidden sm:block">
-                <p class="text-[12px] text-[#64748b]">Terdapat <strong class="text-[#0f172a]" x-text="filteredGrades.filter(g => g.status !== 'Final').length"></strong> data siswa yang belum difinalisasi.</p>
-            </div>
-            <div class="flex w-full sm:w-auto items-center gap-3">
-                <button @click="saveDraft()" class="flex-1 sm:flex-none flex items-center justify-center gap-2 rounded-lg border border-[#e2e8f0] bg-white px-5 py-2.5 text-[12px] font-bold text-[#475569] transition hover:bg-[#f1f5f9] hover:text-[#0f172a]">
-                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                    Simpan Draft
-                </button>
-                <button @click="finalize()" class="flex-1 sm:flex-none flex items-center justify-center gap-2 rounded-lg bg-[#1d4ed8] px-5 py-2.5 text-[12px] font-bold text-white transition hover:bg-[#1e40af] shadow-[0_4px_12px_rgba(29,78,216,0.3)]">
-                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                    Finalisasi Nilai
-                </button>
-            </div>
         </div>
 
         {{-- ═══════ MODAL SIMPAN DRAFT ═══════ --}}

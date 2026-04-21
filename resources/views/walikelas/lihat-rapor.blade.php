@@ -113,19 +113,27 @@
 @php
     // 1. Ambil data dari request atau dummy
     $studentId = request('id', 1);
-    $studentName = request('name', 'OSCAR PERMANA');
-    $studentNis = request('nis', '12014');
-    $studentNisn = request('nisn', '0012345614');
+    $studentName = strtoupper(request('name', 'ACHMAD ALBAR'));
+    $studentFirstName = explode(' ', trim($studentName))[0];
+    $studentNis = request('nis', '12001');
+    $studentNisn = request('nisn', '0012345601');
 
-    // 2. Data Nilai Dinamis (Agnostik Kurikulum)
+    // 2. Data Nilai Dinamis
     $mapel = [
-        ['no' => 1, 'nama' => 'Pendidikan Agama', 'nilai' => 88, 'capaian' => 'Memahami makna rukun iman dan rukun islam dengan sangat baik.'],
-        ['no' => 2, 'nama' => 'Pendidikan Pancasila', 'nilai' => 90, 'capaian' => 'Sangat baik dalam mengidentifikasi simbol-sila Pancasila.'],
-        ['no' => 3, 'nama' => 'Bahasa Indonesia', 'nilai' => 85, 'capaian' => 'Mampu menceritakan kembali isi teks dengan runtut dan jelas.'],
-        ['no' => 4, 'nama' => 'Matematika', 'nilai' => 78, 'capaian' => 'Sangat mahir dalam operasi hitung perkalian, perlu bimbingan pada materi pecahan.'],
+        ['no' => 1, 'nama' => 'Pendidikan Agama', 'nilai' => 85, 'capaian' => 'Sangat baik dalam memahami kisah keteladanan Nabi Muhammad SAW.'],
+        ['no' => 2, 'nama' => 'Pendidikan Pancasila', 'nilai' => 87, 'capaian' => 'Sangat baik dalam mengidentifikasi simbol-sila Pancasila.'],
+        ['no' => 3, 'nama' => 'Bahasa Indonesia', 'nilai' => 84, 'capaian' => 'Mampu menceritakan kembali isi teks dengan runtut dan jelas.'],
+        ['no' => 4, 'nama' => 'Matematika', 'nilai' => 80, 'capaian' => 'Sangat mahir dalam operasi perkalian, perlu bimbingan pada pembagian.'],
         ['no' => 5, 'nama' => 'IPAS', 'nilai' => 82, 'capaian' => 'Menunjukkan rasa ingin tahu yang tinggi terhadap siklus hidup makhluk hidup.'],
-        ['no' => 6, 'nama' => 'PJOK', 'nilai' => 92, 'capaian' => 'Memiliki koordinasi gerak yang sangat baik saat bermain bola.'],
+        ['no' => 6, 'nama' => 'PJOK', 'nilai'  => 88, 'capaian' => 'Memiliki koordinasi gerak yang sangat baik saat bermain bola.'],
         ['no' => 7, 'nama' => 'Seni Budaya', 'nilai' => 86, 'capaian' => 'Sangat kreatif dalam eksplorasi warna pada karya seni rupa.'],
+    ];
+
+    // 3. Data Tambahan (Eskul)
+    $eskul = [
+        ['nama' => 'Pramuka', 'ket' => 'Sangat aktif dalam kegiatan perkemahan dan memiliki kedisiplinan yang tinggi.'],
+        ['nama' => 'Seni Tari', 'ket' => 'Mampu memperagakan gerak dasar tari daerah dengan cukup luwes.'],
+        ['nama' => 'Karate', 'ket' => 'Memiliki ketangkasan gerak yang baik dan disiplin dalam berlatih.'],
     ];
 
     $rataRata = round(array_sum(array_column($mapel, 'nilai')) / count($mapel), 2);
@@ -195,7 +203,7 @@
 
                 <!-- Logo Kanan: Logo Sekolah / Sertifikasi -->
                 <div class="flex-shrink-0 flex items-center">
-                    <img src="{{ asset('images/tutwuri.png') }}" alt="Logo Sekolah" class="h-[85px] w-auto">
+                    <img src="{{ asset('images/logo-sekolah.png') }}" alt="Logo Sekolah" class="h-[85px] w-auto">
                 </div>
             </div>
 
@@ -283,7 +291,7 @@
                 <div class="mt-2 flex items-center gap-6 rounded bg-[#f8fafc] px-4 py-2.5 text-[12px] ring-1 ring-[#1e293b]">
                     <div class="flex items-center gap-2">
                         <span class="font-semibold text-[#475569]">Peringkat:</span>
-                        <span class="font-black text-[#0f172a]">5</span>
+                        <span class="font-black text-[#0f172a]">3</span>
                     </div>
                     <div class="flex items-center gap-2">
                         <span class="font-semibold text-[#475569]">Jumlah Siswa:</span>
@@ -301,11 +309,40 @@
         {{-- ──── HALAMAN 2 ──── --}}
         <div class="rapor-page page-break rounded-lg bg-white p-8 shadow-xl sm:p-12 md:p-16">
 
-            {{-- ──── B. SIKAP & C. KEHADIRAN ──── --}}
+            {{-- ──── B. EKSTRAKURIKULER ──── --}}
+            <div class="mb-10">
+                <h3 class="text-[13px] font-black uppercase text-[#0f172a]">B. Ekstrakurikuler</h3>
+                <div class="mt-3">
+                    <table class="rapor-table">
+                        <thead>
+                            <tr>
+                                <th class="w-[40px]">No</th>
+                                <th class="w-[200px]">Kegiatan Ekstrakurikuler</th>
+                                <th>Keterangan</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse ($eskul as $index => $e)
+                                <tr>
+                                    <td class="text-center">{{ $index + 1 }}</td>
+                                    <td class="font-semibold">{{ $e['nama'] }}</td>
+                                    <td class="text-[11px]">{{ $e['ket'] ?: '—' }}</td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="3" class="text-center italic text-[#64748b]">Tidak Mengikuti</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            {{-- ──── C. SIKAP & D. KEHADIRAN ──── --}}
             <div class="grid gap-6 sm:grid-cols-2">
-                {{-- B. Sikap --}}
+                {{-- C. Sikap --}}
                 <div>
-                    <h3 class="text-[13px] font-black uppercase text-[#0f172a]">B. Sikap</h3>
+                    <h3 class="text-[13px] font-black uppercase text-[#0f172a]">C. Sikap</h3>
                     <div class="mt-3 space-y-3">
                         {{-- Sikap Spiritual --}}
                         <div class="sikap-box rounded">
@@ -313,7 +350,7 @@
                                 <p class="text-[11px] font-bold text-[#475569]">1. SIKAP SPIRITUAL</p>
                                 <p class="text-[11px] font-black text-[#0f172a]">A (SANGAT BAIK)</p>
                             </div>
-                            <p class="mt-2 text-[11px] italic leading-[1.7] text-[#334155]">"Ananda <strong>{{ $studentName }}</strong> sangat baik dalam ketaatan beribadah, berperilaku syukur, dan selalu berdoa."</p>
+                            <p class="mt-2 text-[11px] italic leading-[1.7] text-[#334155]">"Ananda <strong>{{ $studentFirstName }}</strong> sangat baik dalam ketaatan beribadah, berperilaku syukur, dan selalu berdoa."</p>
                         </div>
 
                         {{-- Sikap Sosial --}}
@@ -327,9 +364,9 @@
                     </div>
                 </div>
 
-                {{-- C. Kehadiran --}}
+                {{-- D. Kehadiran --}}
                 <div>
-                    <h3 class="text-[13px] font-black uppercase text-[#0f172a]">C. Kehadiran</h3>
+                    <h3 class="text-[13px] font-black uppercase text-[#0f172a]">D. Kehadiran</h3>
                     <div class="mt-3">
                         <table class="kehadiran-table w-full">
                             <tbody>
@@ -351,41 +388,41 @@
                 </div>
             </div>
 
-            {{-- ──── D. CATATAN WALI KELAS ──── --}}
+            {{-- ──── E. CATATAN WALI KELAS ──── --}}
             <div class="mt-10">
-                <h3 class="text-[13px] font-black uppercase text-[#0f172a]">D. Catatan Wali Kelas</h3>
+                <h3 class="text-[13px] font-black uppercase text-[#0f172a]">E. Catatan Wali Kelas</h3>
                 <div class="catatan-box mt-3 rounded">
-                    <p class="text-[12px] italic leading-[1.8] text-[#334155]">"Selamat <strong>{{ $studentName }}</strong>! Pertahankan semangat belajarmu, terutama pada mata pelajaran Matematika. Sikap kemandirianmu di kelas patut dicontoh oleh teman-teman lainnya."</p>
+                    <p class="text-[12px] italic leading-[1.8] text-[#334155]">"Selamat <strong>{{ $studentFirstName }}</strong>! Pertahankan semangat belajarmu, terutama pada mata pelajaran Matematika. Sikap kemandirianmu di kelas patut dicontoh oleh teman-teman lainnya."</p>
                 </div>
             </div>
 
             {{-- ──── TANDA TANGAN (Triangular Layout) ──── --}}
-            <div class="mt-12 pt-16">
-                <div class="grid grid-cols-2 gap-8 text-center text-[12px]">
+            <div class="mt-6 pt-4">
+                <div class="grid grid-cols-2 gap-8 text-center text-[11px]">
                     {{-- Baris 1: Kiri & Kanan --}}
                     <div>
                         <p class="text-[#475569]">Mengetahui</p>
-                        <p class="font-semibold text-[#475569]">Orang Tua/Wali,</p>
-                        <div class="mt-16 border-b border-[#1e293b] mx-auto w-[180px]"></div>
+                        <p class="font-bold text-[#475569]">Orang Tua/Wali,</p>
+                        <div class="mt-12 border-b border-[#1e293b] mx-auto w-[160px]"></div>
                     </div>
 
                     <div>
                         <p class="text-[#475569]">Kota Digital, {{ now()->translatedFormat('d F Y') }}</p>
-                        <p class="font-semibold text-[#475569]">Wali Kelas,</p>
-                        <div class="mt-12">
-                            <p class="text-[14px] font-bold text-[#0f172a] underline underline-offset-4">{{ auth()->user()->name ?? 'Budi Santoso, S.Pd.' }}</p>
-                            <p class="mt-0.5 text-[10px] text-[#64748b]">NIP. 198501012010012001</p>
+                        <p class="font-bold text-[#475569]">Wali Kelas,</p>
+                        <div class="mt-10">
+                            <p class="text-[13px] font-bold text-[#0f172a] underline underline-offset-4">{{ auth()->user()->name ?? 'Heryanto Pratama, S.Pd.' }}</p>
+                            <p class="mt-0.5 text-[9px] text-[#64748b]">NIP. 198501012010012001</p>
                         </div>
                     </div>
                 </div>
 
                 {{-- Baris 2: Tengah (Kepala Sekolah) --}}
-                <div class="mt-12 text-center text-[12px]">
+                <div class="mt-8 text-center text-[11px]">
                     <p class="text-[#475569]">Mengetahui,</p>
-                    <p class="font-semibold text-[#475569]">Kepala Sekolah,</p>
-                    <div class="mt-14">
-                        <p class="text-[14px] font-bold text-[#0f172a] underline underline-offset-4">Dr. Ahmad Hidayat, M.Pd.</p>
-                        <p class="mt-0.5 text-[10px] text-[#64748b]">NIP. 197003121995031002</p>
+                    <p class="font-bold text-[#475569]">Kepala Sekolah,</p>
+                    <div class="mt-12">
+                        <p class="text-[13px] font-bold text-[#0f172a] underline underline-offset-4">Dr. Ahmad Hidayat, M.Pd.</p>
+                        <p class="mt-0.5 text-[9px] text-[#64748b]">NIP. 197003121995031002</p>
                     </div>
                 </div>
             </div>
