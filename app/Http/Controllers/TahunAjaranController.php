@@ -15,12 +15,12 @@ class TahunAjaranController extends Controller
             ->orderByRaw("CASE WHEN semester = 'Ganjil' THEN 0 ELSE 1 END")
             ->get();
 
-        return view('tahun-ajaran.index', compact('tahunAjarans'));
+        return view('pages.tahun-ajaran.index', compact('tahunAjarans'));
     }
 
     public function create()
     {
-        return view('tahun-ajaran.create');
+        return view('pages.tahun-ajaran.create');
     }
 
     public function store(Request $request)
@@ -40,7 +40,7 @@ class TahunAjaranController extends Controller
 
     public function edit(TahunAjaran $tahunAjaran)
     {
-        return view('tahun-ajaran.edit', compact('tahunAjaran'));
+        return view('pages.tahun-ajaran.edit', compact('tahunAjaran'));
     }
 
     public function update(Request $request, TahunAjaran $tahunAjaran)

@@ -1,11 +1,4 @@
-﻿{{-- Halaman: jadwal-pelajaran --- menggunakan layout admin --}}
-@extends('layouts.admin')
-@section('title', 'Jadwal Pelajaran')
-@section('subtitle', 'Jadwal mata pelajaran')
-@section('active', 'jadwal-pelajaran')
-
-@section('content')
-user()" active="jadwal-pelajaran" title="Jadwal Pelajaran" subtitle="Manajemen alokasi waktu dan ruang kelas">
+<x-admin-shell :user="auth()->user()" active="jadwal-pelajaran" title="Jadwal Pelajaran" subtitle="Manajemen alokasi waktu dan ruang kelas">
 <div x-data="{
     view: 'mingguan',
     showTambah: false,
@@ -16,6 +9,7 @@ user()" active="jadwal-pelajaran" title="Jadwal Pelajaran" subtitle="Manajemen a
     tambahForm: { hari:'Senin', mulai:'07:00', selesai:'08:30', mapel:'', guru:'', ruang:'' },
     assignForm: { mapel:'', guru:'', ruang:'' },
     konflikResolved: false,
+    daftarMapel: ['Pendidikan Agama', 'Pendidikan Pancasila', 'Bahasa Indonesia', 'Matematika', 'IPAS', 'PJOK', 'Seni Budaya', 'Fisika', 'Kimia', 'Biologi', 'Sosiologi', 'Sejarah', 'Bahasa Inggris'],
     daftarGuru: [
         'Drs. Ahmad Subagja, M.Pd.',
         'Siti Rahmawati, S.Pd.',
@@ -84,19 +78,19 @@ user()" active="jadwal-pelajaran" title="Jadwal Pelajaran" subtitle="Manajemen a
 
     {{-- DAILY VIEW --}}
     <div x-show="view==='harian'" class="rounded-[14px] border border-[#e2e8f0] bg-white p-6" style="display:none">
-        <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-[#64748b]">Jadwal Hari Ini â€” Senin</p>
+        <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-[#64748b]">Jadwal Hari Ini — Senin</p>
         <div class="mt-4 space-y-3">
             @foreach ([['time'=>'07:00-08:30','mapel'=>'Matematika Wajib','guru'=>'Drs. Bambang Wijaya','ruang'=>'Lab 02'],['time'=>'08:45-10:15','mapel'=>'Kimia Dasar','guru'=>'Dr. Agus Salim','ruang'=>'Lab Kimia'],['time'=>'10:30-12:00','mapel'=>'Bahasa Inggris','guru'=>'Siti Rahmawati, S.Pd.','ruang'=>'R. 201']] as $j)
                 <div class="flex items-center gap-4 rounded-[10px] border border-[#e2e8f0] p-4 transition hover:bg-[#f8fafc]">
                     <div class="w-[100px] flex-none"><p class="text-[14px] font-black text-[#0f172a]">{{ $j['time'] }}</p></div>
                     <div class="h-10 w-[3px] rounded-full bg-[#1d4ed8]"></div>
-                    <div class="flex-1"><p class="text-[14px] font-bold text-[#0f172a]">{{ $j['mapel'] }}</p><p class="text-[12px] text-[#64748b]">{{ $j['guru'] }} Â· {{ $j['ruang'] }}</p></div>
+                    <div class="flex-1"><p class="text-[14px] font-bold text-[#0f172a]">{{ $j['mapel'] }}</p><p class="text-[12px] text-[#64748b]">{{ $j['guru'] }} · {{ $j['ruang'] }}</p></div>
                 </div>
             @endforeach
         </div>
     </div>
 
-    {{-- â•â•â• MODAL: Tambah Jadwal â•â•â• --}}
+    {{-- ═══ MODAL: Tambah Jadwal ═══ --}}
     <div x-show="showTambah" class="fixed inset-0 z-[100] flex items-center justify-center bg-[#0f172a]/60 backdrop-blur-sm" style="display:none" x-transition @click.self="showTambah = false">
         <div class="w-[90%] max-w-lg rounded-2xl bg-white shadow-2xl" @click.stop>
             <div class="flex items-center justify-between border-b border-[#e2e8f0] px-6 py-4"><h3 class="text-[18px] font-black text-[#0f172a]">Tambah Jadwal Baru</h3><button @click="showTambah = false" class="flex h-8 w-8 items-center justify-center rounded-lg text-[#94a3b8] hover:bg-[#f1f5f9]"><svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-width="2" stroke-linecap="round"></path></svg></button></div>
@@ -106,7 +100,7 @@ user()" active="jadwal-pelajaran" title="Jadwal Pelajaran" subtitle="Manajemen a
                     <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Jam Mulai</label><input x-model="tambahForm.mulai" type="time" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6]"></div>
                     <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Jam Selesai</label><input x-model="tambahForm.selesai" type="time" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6]"></div>
                 </div>
-                <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Mata Pelajaran</label><input x-model="tambahForm.mapel" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20" placeholder="Nama mata pelajaran"></div>
+                <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Mata Pelajaran</label><select x-model="tambahForm.mapel" class="mt-1 h-[42px] w-full appearance-none rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6]"><option value="" disabled selected>-- Pilih Mapel --</option><template x-for="m in daftarMapel" :key="m"><option :value="m" x-text="m"></option></template></select></div>
                 <div class="grid gap-4 sm:grid-cols-2">
                     <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Guru Pengampu</label><select x-model="tambahForm.guru" class="mt-1 h-[42px] w-full appearance-none rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6]"><option value="" disabled selected>-- Pilih Guru --</option><template x-for="g in daftarGuru" :key="g"><option :value="g" x-text="g"></option></template></select></div>
                     <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Ruangan</label><input x-model="tambahForm.ruang" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20" placeholder="R. 201"></div>
@@ -119,7 +113,7 @@ user()" active="jadwal-pelajaran" title="Jadwal Pelajaran" subtitle="Manajemen a
         </div>
     </div>
 
-    {{-- â•â•â• MODAL: Konflik â•â•â• --}}
+    {{-- ═══ MODAL: Konflik ═══ --}}
     <div x-show="showKonflik" class="fixed inset-0 z-[100] flex items-center justify-center bg-[#0f172a]/60 backdrop-blur-sm" style="display:none" x-transition @click.self="showKonflik = false">
         <div class="w-[90%] max-w-sm rounded-2xl bg-white shadow-2xl" @click.stop>
             <div class="p-6">
@@ -135,13 +129,13 @@ user()" active="jadwal-pelajaran" title="Jadwal Pelajaran" subtitle="Manajemen a
         </div>
     </div>
 
-    {{-- â•â•â• MODAL: Assign â•â•â• --}}
+    {{-- ═══ MODAL: Assign ═══ --}}
     <div x-show="showAssign" class="fixed inset-0 z-[100] flex items-center justify-center bg-[#0f172a]/60 backdrop-blur-sm" style="display:none" x-transition @click.self="showAssign = false">
         <div class="w-[90%] max-w-sm rounded-2xl bg-white shadow-2xl" @click.stop>
             <div class="flex items-center justify-between border-b border-[#e2e8f0] px-6 py-4"><h3 class="text-[18px] font-black text-[#0f172a]">Assign Jadwal</h3><button @click="showAssign = false" class="flex h-8 w-8 items-center justify-center rounded-lg text-[#94a3b8] hover:bg-[#f1f5f9]"><svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-width="2" stroke-linecap="round"></path></svg></button></div>
             <div class="space-y-4 px-6 py-5">
-                <p class="text-[12px] text-[#64748b]">Slot: <strong>Kamis, 08:45 â€“ 10:15</strong></p>
-                <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Mata Pelajaran</label><input x-model="assignForm.mapel" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20" placeholder="Nama mapel"></div>
+                <p class="text-[12px] text-[#64748b]">Slot: <strong>Kamis, 08:45 – 10:15</strong></p>
+                <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Mata Pelajaran</label><select x-model="assignForm.mapel" class="mt-1 h-[42px] w-full appearance-none rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6]"><option value="" disabled selected>-- Pilih Mapel --</option><template x-for="m in daftarMapel" :key="m"><option :value="m" x-text="m"></option></template></select></div>
                 <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Guru</label><select x-model="assignForm.guru" class="mt-1 h-[42px] w-full appearance-none rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6]"><option value="" disabled selected>-- Pilih Guru --</option><template x-for="g in daftarGuru" :key="g"><option :value="g" x-text="g"></option></template></select></div>
                 <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Ruangan</label><input x-model="assignForm.ruang" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20" placeholder="R. 201"></div>
             </div>
@@ -152,7 +146,7 @@ user()" active="jadwal-pelajaran" title="Jadwal Pelajaran" subtitle="Manajemen a
         </div>
     </div>
 
-    {{-- â•â•â• MODAL: Detail Jadwal â•â•â• --}}
+    {{-- ═══ MODAL: Detail Jadwal ═══ --}}
     <div x-show="showDetail" class="fixed inset-0 z-[100] flex items-center justify-center bg-[#0f172a]/60 backdrop-blur-sm" style="display:none" x-transition @click.self="showDetail = false">
         <div class="w-[90%] max-w-sm rounded-2xl bg-white shadow-2xl" @click.stop>
             <div class="flex items-center justify-between border-b border-[#e2e8f0] px-6 py-4"><h3 class="text-[18px] font-black text-[#0f172a]">Detail Jadwal</h3><button @click="showDetail = false" class="flex h-8 w-8 items-center justify-center rounded-lg text-[#94a3b8] hover:bg-[#f1f5f9]"><svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-width="2" stroke-linecap="round"></path></svg></button></div>
@@ -169,5 +163,4 @@ user()" active="jadwal-pelajaran" title="Jadwal Pelajaran" subtitle="Manajemen a
     </div>
 
 </div>
-@endsection
-
+</x-admin-shell>

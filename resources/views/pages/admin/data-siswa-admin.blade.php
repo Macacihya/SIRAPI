@@ -1,11 +1,4 @@
-﻿{{-- Halaman: data-siswa-admin --- menggunakan layout admin --}}
-@extends('layouts.admin')
-@section('title', 'Data Siswa')
-@section('subtitle', 'Pengelolaan data siswa')
-@section('active', 'data-siswa')
-
-@section('content')
-user()" active="data-siswa" title="Data Siswa" subtitle="Pengelolaan data induk siswa">
+<x-admin-shell :user="auth()->user()" active="data-siswa" title="Data Siswa" subtitle="Pengelolaan data induk siswa">
 <div x-data="{
     kelasFilter: 'Semua',
     statusFilter: 'Semua',
@@ -13,13 +6,15 @@ user()" active="data-siswa" title="Data Siswa" subtitle="Pengelolaan data induk 
     showDelete: false,
     deleteTarget: null,
     selectAll: false,
-    form: { nama: '', nisn: '', kelas: 'XII - MIPA 1', gender: 'Laki-laki', status: 'AKTIF' },
+    showDeleteAll: false,
+    daftarKelas: ['Kelas 1', 'Kelas 2', 'Kelas 3', 'Kelas 4', 'Kelas 5', 'Kelas 6'],
+    form: { nama: '', nisn: '', kelas: 'Kelas 1', gender: 'Laki-laki', status: 'AKTIF' },
     siswa: [
-        { id: 1, name: 'Ahmad Fauzi', nisn: '0061263844', kelas: 'XII - MIPA 1', gender: 'Laki-laki', status: 'AKTIF', selected: false },
-        { id: 2, name: 'Siti Aminah', nisn: '0061263721', kelas: 'XII - MIPA 1', gender: 'Perempuan', status: 'AKTIF', selected: false },
-        { id: 3, name: 'Budi Darmawan', nisn: '0051284118', kelas: 'XI - IIS 2', gender: 'Laki-laki', status: 'LEAVE', selected: false },
-        { id: 4, name: 'Rina Maharani', nisn: '0061344532', kelas: 'X - MIPA 3', gender: 'Perempuan', status: 'AKTIF', selected: false },
-        { id: 5, name: 'Dimas Prasetyo', nisn: '0061398812', kelas: 'XI - MIPA 2', gender: 'Laki-laki', status: 'AKTIF', selected: false },
+        { id: 1, name: 'Ahmad Fauzi', nisn: '0061263844', kelas: 'Kelas 6', gender: 'Laki-laki', status: 'AKTIF', selected: false },
+        { id: 2, name: 'Siti Aminah', nisn: '0061263721', kelas: 'Kelas 5', gender: 'Perempuan', status: 'AKTIF', selected: false },
+        { id: 3, name: 'Budi Darmawan', nisn: '0051284118', kelas: 'Kelas 4', gender: 'Laki-laki', status: 'LEAVE', selected: false },
+        { id: 4, name: 'Rina Maharani', nisn: '0061344532', kelas: 'Kelas 3', gender: 'Perempuan', status: 'AKTIF', selected: false },
+        { id: 5, name: 'Dimas Prasetyo', nisn: '0061398812', kelas: 'Kelas 2', gender: 'Laki-laki', status: 'AKTIF', selected: false },
     ],
     get filtered() {
         let r = this.siswa;
@@ -29,9 +24,10 @@ user()" active="data-siswa" title="Data Siswa" subtitle="Pengelolaan data induk 
     },
     get selectedCount() { return this.siswa.filter(s => s.selected).length; },
     toggleAll() { this.selectAll = !this.selectAll; this.filtered.forEach(s => s.selected = this.selectAll); },
-    submitAdd() { this.siswa.unshift({ id: Date.now(), name: this.form.nama, nisn: this.form.nisn, kelas: this.form.kelas, gender: this.form.gender, status: this.form.status, selected: false }); this.form = { nama:'',nisn:'',kelas:'XII - MIPA 1',gender:'Laki-laki',status:'AKTIF'}; this.showAdd = false; $dispatch('toast',{message:'Siswa berhasil ditambahkan!',type:'success'}); },
+    submitAdd() { this.siswa.unshift({ id: Date.now(), name: this.form.nama, nisn: this.form.nisn, kelas: this.form.kelas, gender: this.form.gender, status: this.form.status, selected: false }); this.form = { nama:'',nisn:'',kelas:'Kelas 1',gender:'Laki-laki',status:'AKTIF'}; this.showAdd = false; $dispatch('toast',{message:'Siswa berhasil ditambahkan!',type:'success'}); },
     confirmDelete(s) { this.deleteTarget = s; this.showDelete = true; },
-    doDelete() { this.siswa = this.siswa.filter(s => s.id !== this.deleteTarget.id); this.showDelete = false; this.deleteTarget = null; $dispatch('toast',{message:'Data siswa berhasil dihapus.',type:'error'}); },
+    doDelete() { this.siswa = this.siswa.filter(s => s.id !== this.deleteTarget.id); this.showDelete = false; this.deleteTarget = null; this.selectAll=false; $dispatch('toast',{message:'Data siswa berhasil dihapus.',type:'error'}); },
+    doDeleteAll() { this.siswa = this.siswa.filter(s => !s.selected); this.showDeleteAll = false; this.selectAll = false; $dispatch('toast',{message:'Semua data siswa yang dipilih berhasil dihapus.',type:'error'}); },
     openedMenu: null,
 }" class="space-y-6">
 
@@ -55,10 +51,13 @@ user()" active="data-siswa" title="Data Siswa" subtitle="Pengelolaan data induk 
     {{-- FILTERS --}}
     <div class="flex flex-wrap items-center justify-between gap-3">
         <div class="flex items-center gap-2">
-            <select x-model="kelasFilter" class="h-[38px] appearance-none rounded-[8px] border border-[#e2e8f0] bg-white px-4 pr-10 text-[13px] font-medium outline-none focus:border-[#3b82f6]"><option>Semua</option><option>X</option><option>XI</option><option>XII</option></select>
+            <select x-model="kelasFilter" class="h-[38px] appearance-none rounded-[8px] border border-[#e2e8f0] bg-white px-4 pr-10 text-[13px] font-medium outline-none focus:border-[#3b82f6]"><option>Semua</option><template x-for="k in daftarKelas" :key="k"><option :value="k" x-text="k"></option></template></select>
             <select x-model="statusFilter" class="h-[38px] appearance-none rounded-[8px] border border-[#e2e8f0] bg-white px-4 pr-10 text-[13px] font-medium outline-none focus:border-[#3b82f6]"><option>Semua</option><option>AKTIF</option><option>LEAVE</option></select>
         </div>
-        <p class="text-[12px] font-semibold text-[#64748b]">Menampilkan <span x-text="filtered.length"></span> siswa</p>
+        <div class="flex items-center gap-3">
+            <button x-show="selectedCount === filtered.length && filtered.length > 0" @click="showDeleteAll = true" x-transition class="flex h-[38px] items-center gap-2 rounded-[8px] bg-[#dc2626] px-4 text-[12px] font-bold text-white transition hover:bg-[#b91c1c]"><svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>Hapus Semua (<span x-text="selectedCount"></span>)</button>
+            <p class="text-[12px] font-semibold text-[#64748b]">Menampilkan <span x-text="filtered.length"></span> siswa</p>
+        </div>
     </div>
 
     {{-- TABLE --}}
@@ -96,7 +95,7 @@ user()" active="data-siswa" title="Data Siswa" subtitle="Pengelolaan data induk 
         </table>
     </div>
 
-    {{-- â•â•â• MODAL: Tambah Siswa â•â•â• --}}
+    {{-- ═══ MODAL: Tambah Siswa ═══ --}}
     <div x-show="showAdd" class="fixed inset-0 z-[100] flex items-center justify-center bg-[#0f172a]/60 backdrop-blur-sm" style="display:none" x-transition @click.self="showAdd = false">
         <div class="w-[90%] max-w-lg rounded-2xl bg-white shadow-2xl" @click.stop>
             <div class="flex items-center justify-between border-b border-[#e2e8f0] px-6 py-4"><h3 class="text-[18px] font-black text-[#0f172a]">Tambah Data Siswa</h3><button @click="showAdd = false" class="flex h-8 w-8 items-center justify-center rounded-lg text-[#94a3b8] hover:bg-[#f1f5f9]"><svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-width="2" stroke-linecap="round"></path></svg></button></div>
@@ -106,7 +105,7 @@ user()" active="data-siswa" title="Data Siswa" subtitle="Pengelolaan data induk 
                     <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">NISN</label><input x-model="form.nisn" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20" placeholder="00XXXXXXXX"></div>
                 </div>
                 <div class="grid gap-4 sm:grid-cols-2">
-                    <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Kelas</label><select x-model="form.kelas" class="mt-1 h-[42px] w-full appearance-none rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6]"><option>XII - MIPA 1</option><option>XI - MIPA 2</option><option>XI - IIS 2</option><option>X - MIPA 3</option></select></div>
+                    <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Kelas</label><select x-model="form.kelas" class="mt-1 h-[42px] w-full appearance-none rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6]"><template x-for="k in daftarKelas" :key="k"><option :value="k" x-text="k"></option></template></select></div>
                     <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Jenis Kelamin</label><div class="mt-2 flex gap-4"><label class="flex items-center gap-2 text-[14px] font-medium cursor-pointer"><input type="radio" value="Laki-laki" x-model="form.gender" class="accent-[#0f172a]"> Laki-laki</label><label class="flex items-center gap-2 text-[14px] font-medium cursor-pointer"><input type="radio" value="Perempuan" x-model="form.gender" class="accent-[#0f172a]"> Perempuan</label></div></div>
                 </div>
             </div>
@@ -117,7 +116,7 @@ user()" active="data-siswa" title="Data Siswa" subtitle="Pengelolaan data induk 
         </div>
     </div>
 
-    {{-- â•â•â• MODAL: Hapus Siswa â•â•â• --}}
+    {{-- ═══ MODAL: Hapus Siswa ═══ --}}
     <div x-show="showDelete" class="fixed inset-0 z-[100] flex items-center justify-center bg-[#0f172a]/60 backdrop-blur-sm" style="display:none" x-transition @click.self="showDelete = false">
         <div class="w-[90%] max-w-sm rounded-2xl bg-white shadow-2xl" @click.stop>
             <div class="p-6 text-center">
@@ -131,7 +130,20 @@ user()" active="data-siswa" title="Data Siswa" subtitle="Pengelolaan data induk 
             </div>
         </div>
     </div>
+    {{-- ═══ MODAL: Hapus Semua Siswa ═══ --}}
+    <div x-show="showDeleteAll" class="fixed inset-0 z-[100] flex items-center justify-center bg-[#0f172a]/60 backdrop-blur-sm" style="display:none" x-transition @click.self="showDeleteAll = false">
+        <div class="w-[90%] max-w-sm rounded-2xl bg-white shadow-2xl" @click.stop>
+            <div class="p-6 text-center">
+                <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#fef2f2] text-[#dc2626] ring-4 ring-[#fee2e2]"><svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></div>
+                <h3 class="mt-4 text-[18px] font-black text-[#0f172a]">Hapus Semua Data Terpilih?</h3>
+                <p class="mt-2 text-[13px] text-[#64748b]">Sebanyak <strong x-text="selectedCount"></strong> data siswa akan dihapus secara permanen. Anda yakin?</p>
+            </div>
+            <div class="flex gap-3 border-t border-[#e2e8f0] bg-[#f8fafc] px-6 py-4 rounded-b-2xl">
+                <button @click="showDeleteAll = false" class="flex-1 rounded-lg border border-[#e2e8f0] bg-white py-2.5 text-[12px] font-bold text-[#475569]">Batal</button>
+                <button @click="doDeleteAll()" class="flex-1 rounded-lg bg-[#dc2626] py-2.5 text-[12px] font-bold text-white">Ya, Hapus Semua</button>
+            </div>
+        </div>
+    </div>
 
 </div>
-@endsection
-
+</x-admin-shell>

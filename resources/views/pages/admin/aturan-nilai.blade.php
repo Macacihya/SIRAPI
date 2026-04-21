@@ -1,21 +1,13 @@
-﻿{{-- Halaman: aturan-nilai --- menggunakan layout admin --}}
-@extends('layouts.admin')
-@section('title', 'Aturan Nilai')
-@section('subtitle', 'Konfigurasi aturan penilaian')
-@section('active', 'aturan-nilai')
-
-@section('content')
-user()" active="aturan-nilai" title="Aturan Nilai" subtitle="Konfigurasi sistem penilaian akademik">
+<x-admin-shell :user="auth()->user()" active="aturan-nilai" title="Aturan Nilai" subtitle="Konfigurasi sistem penilaian akademik">
 <div x-data="{
     showHapus: false,
     showRiwayat: false,
     hapusTarget: null,
     pembulatan: 'Terdekat',
     komponen: [
-        { id: 1, nama: 'Tugas Harian', bobot: 20, kode: 'TH' },
-        { id: 2, nama: 'Ulangan Harian (UH)', bobot: 25, kode: 'UH' },
-        { id: 3, nama: 'Penilaian Tengah Semester', bobot: 25, kode: 'PTS' },
-        { id: 4, nama: 'Penilaian Akhir Semester', bobot: 30, kode: 'PAS' },
+        { id: 2, nama: 'Ulangan Harian (UH)', bobot: 50, kode: 'UH' },
+        { id: 3, nama: 'Ujian Tengah Semester', bobot: 25, kode: 'UTS' },
+        { id: 4, nama: 'Ujian Akhir Semester', bobot: 25, kode: 'UAS' },
     ],
     get totalBobot() { return this.komponen.reduce((s, k) => s + Number(k.bobot), 0); },
     get isValid() { return this.totalBobot === 100; },
@@ -111,8 +103,8 @@ user()" active="aturan-nilai" title="Aturan Nilai" subtitle="Konfigurasi sistem 
             <div class="rounded-[14px] border border-[#e2e8f0] bg-white p-6">
                 <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-[#64748b]">Riwayat Perubahan</p>
                 <div class="mt-4 space-y-3 divide-y divide-[#f1f5f9]">
-                    @foreach ([['date'=>'12 Jan 2024','desc'=>'Bobot PAS diubah 35% â†’ 30%','by'=>'Admin TU'],['date'=>'05 Des 2023','desc'=>'Tambah komponen Tugas Harian','by'=>'Admin TU']] as $r)
-                        <div class="pt-3 first:pt-0"><p class="text-[12px] font-bold text-[#0f172a]">{{ $r['desc'] }}</p><p class="mt-0.5 text-[10px] text-[#94a3b8]">{{ $r['date'] }} Â· {{ $r['by'] }}</p></div>
+                    @foreach ([['date'=>'12 Jan 2024','desc'=>'Bobot PAS diubah 35% → 30%','by'=>'Admin TU'],['date'=>'05 Des 2023','desc'=>'Tambah komponen Tugas Harian','by'=>'Admin TU']] as $r)
+                        <div class="pt-3 first:pt-0"><p class="text-[12px] font-bold text-[#0f172a]">{{ $r['desc'] }}</p><p class="mt-0.5 text-[10px] text-[#94a3b8]">{{ $r['date'] }} · {{ $r['by'] }}</p></div>
                     @endforeach
                 </div>
                 <button @click="showRiwayat = true" class="mt-4 text-[11px] font-bold uppercase tracking-[0.08em] text-[#1d4ed8] hover:text-[#1e40af]">Lihat Riwayat Lengkap</button>
@@ -120,7 +112,7 @@ user()" active="aturan-nilai" title="Aturan Nilai" subtitle="Konfigurasi sistem 
         </div>
     </div>
 
-    {{-- â•â•â• MODAL: Hapus Komponen â•â•â• --}}
+    {{-- ═══ MODAL: Hapus Komponen ═══ --}}
     <div x-show="showHapus" class="fixed inset-0 z-[100] flex items-center justify-center bg-[#0f172a]/60 backdrop-blur-sm" style="display:none" x-transition @click.self="showHapus = false">
         <div class="w-[90%] max-w-sm rounded-2xl bg-white shadow-2xl" @click.stop>
             <div class="p-6 text-center">
@@ -135,18 +127,17 @@ user()" active="aturan-nilai" title="Aturan Nilai" subtitle="Konfigurasi sistem 
         </div>
     </div>
 
-    {{-- â•â•â• MODAL: Riwayat Lengkap â•â•â• --}}
+    {{-- ═══ MODAL: Riwayat Lengkap ═══ --}}
     <div x-show="showRiwayat" class="fixed inset-0 z-[100] flex items-center justify-center bg-[#0f172a]/60 backdrop-blur-sm" style="display:none" x-transition @click.self="showRiwayat = false">
         <div class="w-[90%] max-w-lg rounded-2xl bg-white shadow-2xl max-h-[80vh] flex flex-col" @click.stop>
             <div class="flex items-center justify-between border-b border-[#e2e8f0] px-6 py-4"><h3 class="text-[18px] font-black text-[#0f172a]">Riwayat Perubahan Lengkap</h3><button @click="showRiwayat = false" class="flex h-8 w-8 items-center justify-center rounded-lg text-[#94a3b8] hover:bg-[#f1f5f9]"><svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-width="2" stroke-linecap="round"></path></svg></button></div>
             <div class="flex-1 overflow-y-auto px-6 py-4 divide-y divide-[#f1f5f9]">
-                @foreach ([['date'=>'12 Jan 2024','desc'=>'Bobot PAS diubah 35% â†’ 30%','by'=>'Admin TU'],['date'=>'05 Des 2023','desc'=>'Tambah komponen Tugas Harian (20%)','by'=>'Admin TU'],['date'=>'10 Nov 2023','desc'=>'KKM diubah 70 â†’ 75','by'=>'Kepsek'],['date'=>'01 Sep 2023','desc'=>'Pembulatan diubah ke Terdekat','by'=>'Admin TU'],['date'=>'15 Jul 2023','desc'=>'Konfigurasi awal semester ganjil','by'=>'System']] as $r)
-                    <div class="py-3"><p class="text-[13px] font-bold text-[#0f172a]">{{ $r['desc'] }}</p><p class="mt-0.5 text-[11px] text-[#94a3b8]">{{ $r['date'] }} Â· {{ $r['by'] }}</p></div>
+                @foreach ([['date'=>'12 Jan 2024','desc'=>'Bobot PAS diubah 35% → 30%','by'=>'Admin TU'],['date'=>'05 Des 2023','desc'=>'Tambah komponen Tugas Harian (20%)','by'=>'Admin TU'],['date'=>'10 Nov 2023','desc'=>'KKM diubah 70 → 75','by'=>'Kepsek'],['date'=>'01 Sep 2023','desc'=>'Pembulatan diubah ke Terdekat','by'=>'Admin TU'],['date'=>'15 Jul 2023','desc'=>'Konfigurasi awal semester ganjil','by'=>'System']] as $r)
+                    <div class="py-3"><p class="text-[13px] font-bold text-[#0f172a]">{{ $r['desc'] }}</p><p class="mt-0.5 text-[11px] text-[#94a3b8]">{{ $r['date'] }} · {{ $r['by'] }}</p></div>
                 @endforeach
             </div>
         </div>
     </div>
 
 </div>
-@endsection
-
+</x-admin-shell>

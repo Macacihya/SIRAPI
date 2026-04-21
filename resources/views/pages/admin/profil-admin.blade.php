@@ -1,11 +1,4 @@
-﻿{{-- Halaman: profil-admin --- menggunakan layout admin --}}
-@extends('layouts.admin')
-@section('title', 'Profil Admin')
-@section('subtitle', 'Data profil admin TU')
-@section('active', 'profil')
-
-@section('content')
-user()" active="profil" title="Profil Saya" subtitle="Informasi akun dan biodata">
+<x-admin-shell :user="auth()->user()" active="profil" title="Profil Pengguna" subtitle="Informasi akun dan biodata">
 @php
     $user = auth()->user();
 @endphp
@@ -14,13 +7,20 @@ user()" active="profil" title="Profil Saya" subtitle="Informasi akun dan biodata
     showUbahSandi: false,
     showUploadFoto: false,
     fotoUploaded: false,
-    profilForm: { nama: '{{ $user->name }}', nip: '19880412 201503 1 002', jabatan: 'Admin TU', email: '{{ $user->email ?? 'admin@sekolah.sch.id' }}', telepon: '+62 812-3456-7890', unit: 'SMK Negeri 7 Batak' },
+    profilForm: { 
+        nama: '{{ $user->name }}', 
+        username: '{{ $user->username ?? 'admin' }}',
+        jabatan: 'Admin TU', 
+        email: '{{ $user->email ?? 'admin@sekolah.sch.id' }}', 
+        telepon: '+62 812-3456-7890', 
+        unit: 'SD Negeri 01 Indonesia' 
+    },
     sandiForm: { lama: '', baru: '', konfirmasi: '' },
     submitProfil() { this.showEditProfil = false; $dispatch('toast',{message:'Profil berhasil diperbarui!',type:'success'}); },
     submitSandi() { if (!this.sandiForm.lama || !this.sandiForm.baru) { $dispatch('toast',{message:'Semua field harus diisi!',type:'error'}); return; } if (this.sandiForm.baru !== this.sandiForm.konfirmasi) { $dispatch('toast',{message:'Konfirmasi password tidak cocok!',type:'error'}); return; } this.sandiForm = {lama:'',baru:'',konfirmasi:''}; this.showUbahSandi = false; $dispatch('toast',{message:'Kata sandi berhasil diubah!',type:'success'}); },
 }" class="space-y-6">
 
-    {{-- â”€â”€â”€ TOP GRID: LEFT PROFILE + RIGHT BIODATA â”€â”€â”€â”€â”€â”€â”€â”€ --}}
+    {{-- ─── TOP GRID: LEFT PROFILE + RIGHT BIODATA ──────── --}}
     <div class="grid gap-6 lg:grid-cols-[280px_minmax(0,1fr)]">
 
         {{-- LEFT: Avatar + Actions + Account Info --}}
@@ -52,7 +52,7 @@ user()" active="profil" title="Profil Saya" subtitle="Informasi akun dan biodata
                 <p class="text-[10px] font-bold uppercase tracking-[0.18em] text-[#64748b]">Informasi Akun</p>
                 <div class="mt-4 space-y-3">
                     <div class="flex items-center justify-between text-[13px]"><span class="text-[#64748b]">Status Akun</span><span class="inline-flex items-center gap-1 rounded-md border border-[#a7f3d0] bg-[#ecfdf5] px-2 py-0.5 text-[10px] font-bold text-[#059669]">AKTIF</span></div>
-                    <div class="flex items-center justify-between text-[13px]"><span class="text-[#64748b]">Tahun Ajaran</span><span class="font-bold text-[#0f172a]">2023/2024 Genap</span></div>
+                    <div class="flex items-center justify-between text-[13px]"><span class="text-[#64748b]">Tahun Ajaran</span><span class="font-bold text-[#0f172a]">2026/2027 Genap</span></div>
                     <div class="flex items-center justify-between text-[13px]"><span class="text-[#64748b]">Login Terakhir</span><span class="font-bold text-[#0f172a]">Hari ini, 08:24</span></div>
                 </div>
             </div>
@@ -63,8 +63,7 @@ user()" active="profil" title="Profil Saya" subtitle="Informasi akun dan biodata
             <div class="rounded-[14px] border border-[#e2e8f0] bg-white p-6">
                 <h3 class="flex items-center gap-2 text-[16px] font-bold text-[#0f172a]"><svg class="h-5 w-5 text-[#1d4ed8]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>Biodata Lengkap</h3>
                 <div class="mt-5 grid gap-x-8 gap-y-5 sm:grid-cols-2">
-                    <div><p class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Nama Lengkap</p><p class="mt-1 text-[14px] font-bold text-[#0f172a]" x-text="profilForm.nama"></p></div>
-                    <div><p class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">NIP / ID Guru</p><p class="mt-1 text-[14px] font-bold text-[#0f172a]" x-text="profilForm.nip"></p></div>
+                    <div><p class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Username Admin</p><p class="mt-1 text-[14px] font-bold text-[#0f172a]" x-text="profilForm.username"></p></div>
                     <div><p class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Jabatan</p><p class="mt-1 text-[14px] font-bold text-[#0f172a]" x-text="profilForm.jabatan"></p></div>
                     <div><p class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Email Instansi</p><p class="mt-1 text-[14px] font-bold text-[#0f172a]" x-text="profilForm.email"></p></div>
                     <div><p class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Nomor Telepon</p><p class="mt-1 text-[14px] font-bold text-[#0f172a]" x-text="profilForm.telepon"></p></div>
@@ -77,7 +76,7 @@ user()" active="profil" title="Profil Saya" subtitle="Informasi akun dan biodata
                 <div class="mt-6 relative">
                     <div class="absolute left-[7px] top-2 bottom-2 w-[2px] bg-[#e2e8f0]"></div>
                     <div class="space-y-7">
-                        @foreach ([['year'=>'2023 - Sekarang','title'=>'Admin TU','desc'=>'Bertanggung jawab penuh atas administrasi, pengelolaan data, dan pelaporan nilai rapor siswa.','active'=>true],['year'=>'2021 - 2023','title'=>'Guru Mata Pelajaran Fisika','desc'=>'Pengampu utama mata pelajaran Fisika untuk seluruh jenjang kelas XI dan XII.','active'=>false],['year'=>'2015 - 2021','title'=>'Staf Kurikulum Bidang Akademik','desc'=>'Membantu perencanaan jadwal belajar mengajar dan koordinasi sistem penilaian sekolah.','active'=>false]] as $riwayat)
+                        @foreach ([['year'=>'2026 - Sekarang','title'=>'Admin TU','desc'=>'Bertanggung jawab penuh atas administrasi, pengelolaan data, dan pelaporan nilai rapor siswa.','active'=>true],['year'=>'2021 - 2023','title'=>'Guru Mata Pelajaran Fisika','desc'=>'Pengampu utama mata pelajaran Fisika untuk seluruh jenjang kelas XI dan XII.','active'=>false],['year'=>'2015 - 2021','title'=>'Staf Kurikulum Bidang Akademik','desc'=>'Membantu perencanaan jadwal belajar mengajar dan koordinasi sistem penilaian sekolah.','active'=>false]] as $riwayat)
                             <div class="relative flex gap-5 pl-6">
                                 <div class="absolute left-0 top-1 flex h-[16px] w-[16px] items-center justify-center rounded-full {{ $riwayat['active'] ? 'bg-[#1d4ed8]' : 'bg-[#e2e8f0]' }}">@if ($riwayat['active'])<div class="h-[6px] w-[6px] rounded-full bg-white"></div>@endif</div>
                                 <div><p class="text-[11px] font-bold uppercase tracking-[0.12em] {{ $riwayat['active'] ? 'text-[#1d4ed8]' : 'text-[#94a3b8]' }}">{{ $riwayat['year'] }}</p><p class="mt-1 text-[15px] font-black text-[#0f172a]">{{ $riwayat['title'] }}</p><p class="mt-1 text-[13px] leading-[1.7] text-[#64748b]">{{ $riwayat['desc'] }}</p></div>
@@ -89,28 +88,18 @@ user()" active="profil" title="Profil Saya" subtitle="Informasi akun dan biodata
         </div>
     </div>
 
-    {{-- STATUS CARDS --}}
-    <div class="grid gap-4 sm:grid-cols-2">
-        <div @click="$dispatch('toast',{message:'Detail sertifikasi: No. 2206/CERT/2019',type:'info'})" class="flex items-center justify-between rounded-[14px] border border-[#e2e8f0] bg-white p-5 cursor-pointer transition hover:shadow-md">
-            <div class="flex items-center gap-4"><div class="flex h-10 w-10 items-center justify-center rounded-full bg-[#eff6ff] text-[#1d4ed8]"><svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></div><div><p class="text-[14px] font-bold text-[#0f172a]">Sertifikasi Pendidik</p><p class="mt-0.5 text-[12px] text-[#64748b]">Sertifikat No. 2206/CERT/2019 Â· <span class="text-[#059669] font-semibold">Aktif</span></p></div></div>
-            <svg class="h-4 w-4 text-[#94a3b8]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-        </div>
-        <div @click="$dispatch('toast',{message:'Sinkronisasi data berhasil!',type:'success'})" class="flex items-center justify-between rounded-[14px] border border-[#e2e8f0] bg-white p-5 cursor-pointer transition hover:shadow-md">
-            <div class="flex items-center gap-4"><div class="flex h-10 w-10 items-center justify-center rounded-full bg-[#eff6ff] text-[#1d4ed8]"><svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4" stroke-width="2"></path></svg></div><div><p class="text-[14px] font-bold text-[#0f172a]">Verifikasi Data Pokok</p><p class="mt-0.5 text-[12px] text-[#64748b]">Sinkronisasi Terakhir: 12 Jan 2024</p></div></div>
-            <svg class="h-4 w-4 text-[#94a3b8]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-        </div>
-    </div>
 
-    <p class="text-center text-[11px] font-semibold tracking-[0.1em] text-[#94a3b8]">SIRAPI &copy; 2024 &bull; SISTEM RAPOR PINTAR</p>
 
-    {{-- â•â•â• MODAL: Ubah Profil â•â•â• --}}
+    <p class="text-center text-[11px] font-semibold tracking-[0.1em] text-[#94a3b8]">SIRAPI &copy; {{ date('Y') }} &bull; SISTEM RAPOR PINTAR</p>
+
+    {{-- ═══ MODAL: Ubah Profil ═══ --}}
     <div x-show="showEditProfil" class="fixed inset-0 z-[100] flex items-center justify-center bg-[#0f172a]/60 backdrop-blur-sm" style="display:none" x-transition @click.self="showEditProfil = false">
         <div class="w-[90%] max-w-lg rounded-2xl bg-white shadow-2xl" @click.stop>
             <div class="flex items-center justify-between border-b border-[#e2e8f0] px-6 py-4"><h3 class="text-[18px] font-black text-[#0f172a]">Ubah Profil</h3><button @click="showEditProfil = false" class="flex h-8 w-8 items-center justify-center rounded-lg text-[#94a3b8] hover:bg-[#f1f5f9]"><svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-width="2" stroke-linecap="round"></path></svg></button></div>
             <div class="space-y-4 px-6 py-5">
                 <div class="grid gap-4 sm:grid-cols-2">
                     <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Nama Lengkap</label><input x-model="profilForm.nama" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20"></div>
-                    <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">NIP</label><input x-model="profilForm.nip" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none" readonly></div>
+                    <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Username Login</label><input x-model="profilForm.username" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none" readonly></div>
                 </div>
                 <div class="grid gap-4 sm:grid-cols-2">
                     <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Jabatan</label><input x-model="profilForm.jabatan" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20"></div>
@@ -128,14 +117,14 @@ user()" active="profil" title="Profil Saya" subtitle="Informasi akun dan biodata
         </div>
     </div>
 
-    {{-- â•â•â• MODAL: Ubah Kata Sandi â•â•â• --}}
+    {{-- ═══ MODAL: Ubah Kata Sandi ═══ --}}
     <div x-show="showUbahSandi" class="fixed inset-0 z-[100] flex items-center justify-center bg-[#0f172a]/60 backdrop-blur-sm" style="display:none" x-transition @click.self="showUbahSandi = false">
         <div class="w-[90%] max-w-sm rounded-2xl bg-white shadow-2xl" @click.stop>
             <div class="flex items-center justify-between border-b border-[#e2e8f0] px-6 py-4"><h3 class="text-[18px] font-black text-[#0f172a]">Ubah Kata Sandi</h3><button @click="showUbahSandi = false" class="flex h-8 w-8 items-center justify-center rounded-lg text-[#94a3b8] hover:bg-[#f1f5f9]"><svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-width="2" stroke-linecap="round"></path></svg></button></div>
             <div class="space-y-4 px-6 py-5">
-                <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Password Lama</label><input x-model="sandiForm.lama" type="password" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20" placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"></div>
-                <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Password Baru</label><input x-model="sandiForm.baru" type="password" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20" placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"></div>
-                <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Konfirmasi Password</label><input x-model="sandiForm.konfirmasi" type="password" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20" placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"></div>
+                <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Password Lama</label><input x-model="sandiForm.lama" type="password" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20" placeholder="••••••••"></div>
+                <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Password Baru</label><input x-model="sandiForm.baru" type="password" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20" placeholder="••••••••"></div>
+                <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Konfirmasi Password</label><input x-model="sandiForm.konfirmasi" type="password" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20" placeholder="••••••••"></div>
             </div>
             <div class="flex gap-3 border-t border-[#e2e8f0] bg-[#f8fafc] px-6 py-4 rounded-b-2xl">
                 <button @click="showUbahSandi = false" class="flex-1 rounded-lg border border-[#e2e8f0] bg-white py-2.5 text-[12px] font-bold text-[#475569]">Batal</button>
@@ -144,7 +133,7 @@ user()" active="profil" title="Profil Saya" subtitle="Informasi akun dan biodata
         </div>
     </div>
 
-    {{-- â•â•â• MODAL: Upload Foto â•â•â• --}}
+    {{-- ═══ MODAL: Upload Foto ═══ --}}
     <div x-show="showUploadFoto" class="fixed inset-0 z-[100] flex items-center justify-center bg-[#0f172a]/60 backdrop-blur-sm" style="display:none" x-transition @click.self="showUploadFoto = false">
         <div class="w-[90%] max-w-sm rounded-2xl bg-white shadow-2xl" @click.stop>
             <div class="flex items-center justify-between border-b border-[#e2e8f0] px-6 py-4"><h3 class="text-[18px] font-black text-[#0f172a]">Upload Foto Profil</h3><button @click="showUploadFoto = false" class="flex h-8 w-8 items-center justify-center rounded-lg text-[#94a3b8] hover:bg-[#f1f5f9]"><svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-width="2" stroke-linecap="round"></path></svg></button></div>
@@ -163,5 +152,4 @@ user()" active="profil" title="Profil Saya" subtitle="Informasi akun dan biodata
     </div>
 
 </div>
-@endsection
-
+</x-admin-shell>

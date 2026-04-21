@@ -15,7 +15,7 @@ class DashboardController extends Controller
         }
 
         if ($user?->role === 'walikelas') {
-            return view('walikelas.dashboard-walikelas', [
+            return view('pages.walikelas.dashboard-walikelas', [
                 'user' => $user,
             ]);
         }

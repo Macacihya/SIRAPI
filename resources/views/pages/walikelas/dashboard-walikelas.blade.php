@@ -1,11 +1,10 @@
-﻿{{-- Halaman: dashboard-walikelas --- menggunakan layout walikelas --}}
-@extends('layouts.walikelas')
-@section('title', 'Dashboard')
-@section('subtitle', 'Selamat datang di Panel Wali Kelas')
-@section('active', 'dashboard')
-
-@section('content')
-<div class="space-y-6">
+<x-walikelas-shell
+    :user="auth()->user()"
+    active="dashboard"
+    title="Dashboard Utama"
+    subtitle="Selamat datang di Panel Wali Kelas"
+>
+    <div class="space-y-6">
         <div>
             <div class="space-y-4">
                 <div class="grid gap-4 md:grid-cols-3">
@@ -17,7 +16,7 @@
                             </div>
                         </div>
                         <div class="mt-3 flex items-end gap-2">
-                            <span class="text-[56px] font-black leading-none tracking-[-0.06em] text-[#0f172a]">36</span>
+                            <span class="text-[56px] font-black leading-none tracking-[-0.06em] text-[#0f172a]">18</span>
                             <span class="pb-2 text-[15px] font-semibold text-[#64748b]">Peserta Didik</span>
                         </div>
                         <div class="mt-5 h-[4px] rounded-full bg-[#1d4ed8]"></div>
@@ -66,13 +65,13 @@
                                 </p>
                             </div>
                             <div class="text-right">
-                                <div class="text-[48px] font-black leading-none tracking-[-0.06em] text-[#0f172a] md:text-[56px]">25<span class="text-[24px] font-bold text-[#94a3b8]"> /36</span></div>
+                                <div class="text-[48px] font-black leading-none tracking-[-0.06em] text-[#0f172a] md:text-[56px]">4<span class="text-[24px] font-bold text-[#94a3b8]"> /18</span></div>
                             </div>
                         </div>
 
                         <div class="mt-6 h-[42px] overflow-hidden rounded-[4px] bg-[#cbd5e1]">
-                            <div class="flex h-full w-[69%] items-center justify-end bg-[#1d4ed8] pr-4 text-[12px] font-bold uppercase tracking-[0.1em] text-white">
-                                69% Selesai
+                            <div class="flex h-full w-[22%] items-center justify-end bg-[#1d4ed8] pr-4 text-[12px] font-bold uppercase tracking-[0.1em] text-white">
+                                22% Selesai
                             </div>
                         </div>
 
@@ -84,7 +83,7 @@
                                         <path d="M12 14v3m0 0-1.5-1.5M12 17l1.5-1.5" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
                                     </svg>
                                 </div>
-                                <p class="text-[22px] font-bold tracking-[-0.03em] text-[#0f172a]">11 Siswa Tersisa</p>
+                                <p class="text-[22px] font-bold tracking-[-0.03em] text-[#0f172a]">14 Siswa Tersisa</p>
                                 <p class="mt-2 text-[14px] leading-6 text-[#475569]">Belum memiliki input nilai akhir.</p>
                             </article>
 
@@ -95,7 +94,7 @@
                                         <path d="m9.5 12 1.7 1.7 3.8-3.8" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
                                     </svg>
                                 </div>
-                                <p class="text-[22px] font-bold tracking-[-0.03em] text-[#0f172a]">25 Siswa Valid</p>
+                                <p class="text-[22px] font-bold tracking-[-0.03em] text-[#0f172a]">4 Siswa Valid</p>
                                 <p class="mt-2 text-[14px] leading-6 text-[#475569]">Data sudah siap untuk dicetak.</p>
                             </article>
                         </div>
@@ -112,9 +111,9 @@
 
                         <div class="mt-5 space-y-5">
                             @foreach ([
-                                ['initials' => 'AD', 'name' => 'Aditya Dharmawan', 'detail' => 'Absensi: 4 Hari Tanpa Keterangan', 'badge' => 'KRITIS', 'badgeClass' => 'bg-[#fef2f2] text-[#dc2626]'],
-                                ['initials' => 'BS', 'name' => 'Bunga Salasbila', 'detail' => 'Nilai MTK: 65 (Dibawah KKM 75)', 'badge' => 'PERINGATAN', 'badgeClass' => 'bg-[#eff6ff] text-[#1d4ed8]'],
-                                ['initials' => 'FP', 'name' => 'Fahri Pratama', 'detail' => 'Nilai IPA: 68 (Dibawah KKM 75)', 'badge' => 'PERINGATAN', 'badgeClass' => 'bg-[#eff6ff] text-[#1d4ed8]'],
+                                ['initials' => 'OP', 'name' => 'Oscar Permana', 'detail' => 'Absensi: 1 Hari Tanpa Keterangan', 'badge' => 'KRITIS', 'badgeClass' => 'bg-[#fef2f2] text-[#dc2626]'],
+                                ['initials' => 'EK', 'name' => 'Endah Kartika', 'detail' => 'Nilai MTK: 65 (Dibawah KKM 75)', 'badge' => 'PERINGATAN', 'badgeClass' => 'bg-[#eff6ff] text-[#1d4ed8]'],
+                                ['initials' => 'DP', 'name' => 'Dandi Pratama', 'detail' => 'Nilai IPA: 68 (Dibawah KKM 75)', 'badge' => 'PERINGATAN', 'badgeClass' => 'bg-[#eff6ff] text-[#1d4ed8]'],
                             ] as $item)
                                 <div class="flex gap-3">
                                     <div class="flex h-11 w-11 flex-none items-center justify-center rounded-[6px] bg-[#f1f5f9] text-[12px] font-bold text-[#1e40af]">
@@ -131,13 +130,13 @@
                             @endforeach
                         </div>
 
-                        <button class="mt-6 flex h-[46px] w-full items-center justify-center rounded-[4px] border border-[#cbd5e1] bg-white text-[12px] font-extrabold uppercase tracking-[0.12em] text-[#1e40af] transition hover:bg-[#f1f5f9]" type="button">
+                        <a href="{{ url('walikelas/profil-kelas') }}" class="mt-6 flex h-[46px] w-full items-center justify-center rounded-[4px] border border-[#cbd5e1] bg-white text-[12px] font-extrabold uppercase tracking-[0.12em] text-[#1e40af] transition hover:bg-[#f1f5f9]">
                             Lihat Detail Semua
-                        </button>
+                        </a>
                     </aside>
                 </div>
             </div>
         </div>
     </div>
-@endsection
 
+</x-walikelas-shell>

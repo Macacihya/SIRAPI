@@ -32,14 +32,14 @@ Route::middleware('auth')->group(function () {
 
     // ─── Guru Mata Pelajaran Pages ─────────────────────────────────
     Route::prefix('guru')->name('guru.')->group(function () {
-        Route::view('/dashboard', 'guru.dashboard')->name('dashboard');
-        Route::view('/jadwal-mengajar', 'guru.jadwal-mengajar')->name('jadwal-mengajar');
-        Route::view('/data-siswa', 'guru.data-siswa')->name('data-siswa');
-        Route::view('/penilaian', 'guru.penilaian')->name('penilaian');
-        Route::view('/capaian-kompetensi', 'guru.capaian-kompetensi')->name('capaian-kompetensi');
-        Route::view('/laporan-nilai', 'guru.laporan-nilai')->name('laporan-nilai');
-        Route::view('/rekap-nilai', 'guru.rekap-nilai')->name('rekap-nilai');
-        Route::view('/profil', 'guru.profil')->name('profil');
+        Route::view('/dashboard', 'pages.guru.dashboard')->name('dashboard');
+        Route::view('/jadwal-mengajar', 'pages.guru.jadwal-mengajar')->name('jadwal-mengajar');
+        Route::view('/data-siswa', 'pages.guru.data-siswa')->name('data-siswa');
+        Route::view('/penilaian', 'pages.guru.penilaian')->name('penilaian');
+        Route::view('/capaian-kompetensi', 'pages.guru.capaian-kompetensi')->name('capaian-kompetensi');
+        Route::view('/laporan-nilai', 'pages.guru.laporan-nilai')->name('laporan-nilai');
+        Route::view('/rekap-nilai', 'pages.guru.rekap-nilai')->name('rekap-nilai');
+        Route::view('/profil', 'pages.guru.profil')->name('profil');
     });
 
     Route::resource('sekolah', SekolahController::class);
@@ -48,31 +48,31 @@ Route::middleware('auth')->group(function () {
 
     // ─── Walikelas Pages ─────────────────────────────────
     Route::prefix('walikelas')->name('walikelas.')->group(function () {
-        Route::view('/dashboard', 'walikelas.dashboard-walikelas')->name('dashboard');
-        Route::view('/profil-kelas', 'walikelas.profil-kelas')->name('profil-kelas');
-        Route::view('/jadwal-kelas', 'walikelas.jadwal-kelas')->name('jadwal-kelas');
-        Route::view('/kehadiran', 'walikelas.kehadiran')->name('kehadiran');
-        Route::view('/penilaian', 'walikelas.penilaian')->name('penilaian');
-        Route::view('/rapor', 'walikelas.rapor')->name('rapor');
-        Route::view('/rapor/lihat', 'walikelas.lihat-rapor')->name('rapor.lihat');
-        Route::view('/laporan-nilai', 'walikelas.laporan-nilai')->name('laporan-nilai');
-        Route::view('/rekap-nilai', 'walikelas.rekap-nilai')->name('rekap-nilai');
-        Route::view('/profil', 'walikelas.profil-user')->name('profil');
+        Route::view('/dashboard', 'pages.walikelas.dashboard-walikelas')->name('dashboard');
+        Route::view('/profil-kelas', 'pages.walikelas.profil-kelas')->name('profil-kelas');
+        Route::view('/jadwal-kelas', 'pages.walikelas.jadwal-kelas')->name('jadwal-kelas');
+        Route::view('/kehadiran', 'pages.walikelas.kehadiran')->name('kehadiran');
+        Route::view('/penilaian', 'pages.walikelas.penilaian')->name('penilaian');
+        Route::view('/rapor', 'pages.walikelas.rapor')->name('rapor');
+        Route::view('/rapor/lihat', 'pages.walikelas.lihat-rapor')->name('rapor.lihat');
+        Route::view('/laporan-nilai', 'pages.walikelas.laporan-nilai')->name('laporan-nilai');
+        Route::view('/rekap-nilai', 'pages.walikelas.rekap-nilai')->name('rekap-nilai');
+        Route::view('/profil', 'pages.walikelas.profil-user')->name('profil');
     });
 
     // ─── Admin TU Pages ─────────────────────────────────
     Route::prefix('admin')->name('admin.')->group(function () {
-        Route::view('/dashboard', 'admin.dashboard-admin')->name('dashboard');
-        Route::view('/manajemen-user', 'admin.manajemen-user')->name('manajemen-user');
-        Route::view('/data-sekolah', 'admin.data-sekolah')->name('data-sekolah');
-        Route::view('/guru', 'admin.guru-tendik')->name('guru');
-        Route::view('/data-siswa', 'admin.data-siswa-admin')->name('data-siswa');
-        Route::view('/akademik', 'admin.akademik')->name('akademik');
-        Route::view('/mata-pelajaran', 'admin.mata-pelajaran')->name('mata-pelajaran');
-        Route::view('/jadwal-pelajaran', 'admin.jadwal-pelajaran')->name('jadwal-pelajaran');
-        Route::view('/aturan-nilai', 'admin.aturan-nilai')->name('aturan-nilai');
-        Route::view('/laporan-nilai', 'admin.laporan-nilai')->name('laporan-nilai');
-        Route::view('/rekap-nilai', 'admin.rekap-nilai')->name('rekap-nilai');
-        Route::view('/profil', 'admin.profil-admin')->name('profil');
+        Route::view('/dashboard', 'pages.admin.dashboard-admin')->name('dashboard');
+        Route::view('/manajemen-user', 'pages.admin.manajemen-user')->name('manajemen-user');
+        Route::view('/data-sekolah', 'pages.admin.data-sekolah')->name('data-sekolah');
+        Route::view('/guru', 'pages.admin.guru-tendik')->name('guru');
+        Route::view('/data-siswa', 'pages.admin.data-siswa-admin')->name('data-siswa');
+        Route::view('/akademik', 'pages.admin.akademik')->name('akademik');
+        Route::view('/mata-pelajaran', 'pages.admin.mata-pelajaran')->name('mata-pelajaran');
+        Route::view('/jadwal-pelajaran', 'pages.admin.jadwal-pelajaran')->name('jadwal-pelajaran');
+        Route::view('/aturan-nilai', 'pages.admin.aturan-nilai')->name('aturan-nilai');
+        Route::view('/laporan-nilai', 'pages.admin.laporan-nilai')->name('laporan-nilai');
+        Route::view('/rekap-nilai', 'pages.admin.rekap-nilai')->name('rekap-nilai');
+        Route::view('/profil', 'pages.admin.profil-admin')->name('profil');
     });
 });

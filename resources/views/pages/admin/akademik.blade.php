@@ -1,11 +1,4 @@
-﻿{{-- Halaman: akademik --- menggunakan layout admin --}}
-@extends('layouts.admin')
-@section('title', 'Akademik')
-@section('subtitle', 'Informasi akademik sekolah')
-@section('active', 'akademik')
-
-@section('content')
-user()" active="akademik" title="Manajemen Akademik" subtitle="Pengelolaan tahun ajaran dan kelas">
+<x-admin-shell :user="auth()->user()" active="akademik" title="Manajemen Akademik" subtitle="Pengelolaan tahun ajaran dan kelas">
 <div x-data="{
     showUbahPeriode: false,
     showTambahKelas: false,
@@ -13,7 +6,7 @@ user()" active="akademik" title="Manajemen Akademik" subtitle="Pengelolaan tahun
     showAntrean: false,
     showDetailKelas: false,
     detailKelas: null,
-    periodeForm: { tahun: '2024/2025', semester: 'Ganjil', mulai: '2024-07-15', selesai: '2024-12-20' },
+    periodeForm: { tahun: '2026/2027', semester: 'Ganjil', mulai: '2026-07-15', selesai: '2026-12-20' },
     kelasForm: { nama: '', jurusan: 'SAINTEK / MIPA', kapasitas: 36, wali: '' },
     daftarGuru: [
         'Drs. Ahmad Subagja, M.Pd.',
@@ -47,7 +40,7 @@ user()" active="akademik" title="Manajemen Akademik" subtitle="Pengelolaan tahun
     <div class="grid gap-6 xl:grid-cols-[minmax(0,1fr)_280px]">
         <div class="space-y-5">
             <div class="flex items-start justify-between">
-                <div><h1 class="text-[28px] font-black tracking-[-0.04em] text-[#0f172a]">Tahun Ajaran 2023/2024</h1><p class="mt-1 text-[14px] text-[#475569]">Linimasa kegiatan akademik berjalan.</p></div>
+                <div><h1 class="text-[28px] font-black tracking-[-0.04em] text-[#0f172a]">Tahun Ajaran 2026/2027</h1><p class="mt-1 text-[14px] text-[#475569]">Linimasa kegiatan akademik berjalan.</p></div>
                 <button @click="showUbahPeriode = true" class="flex h-[38px] items-center gap-2 rounded-[8px] border border-[#e2e8f0] bg-white px-4 text-[12px] font-bold uppercase tracking-[0.08em] text-[#334155] transition hover:bg-[#f1f5f9]">Ubah Periode</button>
             </div>
             <div class="rounded-[14px] border border-[#e2e8f0] bg-white p-6">
@@ -116,7 +109,7 @@ user()" active="akademik" title="Manajemen Akademik" subtitle="Pengelolaan tahun
         </div>
     </div>
 
-    {{-- â•â•â• MODAL: Ubah Periode â•â•â• --}}
+    {{-- ═══ MODAL: Ubah Periode ═══ --}}
     <div x-show="showUbahPeriode" class="fixed inset-0 z-[100] flex items-center justify-center bg-[#0f172a]/60 backdrop-blur-sm" style="display:none" x-transition @click.self="showUbahPeriode = false">
         <div class="w-[90%] max-w-md rounded-2xl bg-white shadow-2xl" @click.stop>
             <div class="flex items-center justify-between border-b border-[#e2e8f0] px-6 py-4"><h3 class="text-[18px] font-black text-[#0f172a]">Ubah Periode Akademik</h3><button @click="showUbahPeriode = false" class="flex h-8 w-8 items-center justify-center rounded-lg text-[#94a3b8] hover:bg-[#f1f5f9]"><svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-width="2" stroke-linecap="round"></path></svg></button></div>
@@ -135,7 +128,7 @@ user()" active="akademik" title="Manajemen Akademik" subtitle="Pengelolaan tahun
         </div>
     </div>
 
-    {{-- â•â•â• MODAL: Tambah Kelas â•â•â• --}}
+    {{-- ═══ MODAL: Tambah Kelas ═══ --}}
     <div x-show="showTambahKelas" class="fixed inset-0 z-[100] flex items-center justify-center bg-[#0f172a]/60 backdrop-blur-sm" style="display:none" x-transition @click.self="showTambahKelas = false">
         <div class="w-[90%] max-w-md rounded-2xl bg-white shadow-2xl" @click.stop>
             <div class="flex items-center justify-between border-b border-[#e2e8f0] px-6 py-4"><h3 class="text-[18px] font-black text-[#0f172a]">Tambah Kelas Baru</h3><button @click="showTambahKelas = false" class="flex h-8 w-8 items-center justify-center rounded-lg text-[#94a3b8] hover:bg-[#f1f5f9]"><svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-width="2" stroke-linecap="round"></path></svg></button></div>
@@ -154,7 +147,7 @@ user()" active="akademik" title="Manajemen Akademik" subtitle="Pengelolaan tahun
         </div>
     </div>
 
-    {{-- â•â•â• MODAL: Plotting Otomatis â•â•â• --}}
+    {{-- ═══ MODAL: Plotting Otomatis ═══ --}}
     <div x-show="showPlotting" class="fixed inset-0 z-[100] flex items-center justify-center bg-[#0f172a]/60 backdrop-blur-sm" style="display:none" x-transition @click.self="showPlotting = false">
         <div class="w-[90%] max-w-sm rounded-2xl bg-white shadow-2xl" @click.stop>
             <div class="p-6 text-center">
@@ -169,7 +162,7 @@ user()" active="akademik" title="Manajemen Akademik" subtitle="Pengelolaan tahun
         </div>
     </div>
 
-    {{-- â•â•â• MODAL: Semua Antrean â•â•â• --}}
+    {{-- ═══ MODAL: Semua Antrean ═══ --}}
     <div x-show="showAntrean" class="fixed inset-0 z-[100] flex items-center justify-center bg-[#0f172a]/60 backdrop-blur-sm" style="display:none" x-transition @click.self="showAntrean = false">
         <div class="w-[90%] max-w-2xl rounded-2xl bg-white shadow-2xl max-h-[80vh] flex flex-col" @click.stop>
             <div class="flex items-center justify-between border-b border-[#e2e8f0] px-6 py-4"><h3 class="text-[18px] font-black text-[#0f172a]">Semua Antrean Plotting</h3><button @click="showAntrean = false" class="flex h-8 w-8 items-center justify-center rounded-lg text-[#94a3b8] hover:bg-[#f1f5f9]"><svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-width="2" stroke-linecap="round"></path></svg></button></div>
@@ -180,7 +173,7 @@ user()" active="akademik" title="Manajemen Akademik" subtitle="Pengelolaan tahun
         </div>
     </div>
 
-    {{-- â•â•â• MODAL: Detail Kelas â•â•â• --}}
+    {{-- ═══ MODAL: Detail Kelas ═══ --}}
     <div x-show="showDetailKelas" class="fixed inset-0 z-[100] flex items-center justify-center bg-[#0f172a]/60 backdrop-blur-sm" style="display:none" x-transition @click.self="showDetailKelas = false">
         <div class="w-[90%] max-w-md rounded-2xl bg-white shadow-2xl" @click.stop>
             <div class="flex items-center justify-between border-b border-[#e2e8f0] px-6 py-4"><h3 class="text-[18px] font-black text-[#0f172a]">Detail Kelas <span x-text="detailKelas?.nama"></span></h3><button @click="showDetailKelas = false" class="flex h-8 w-8 items-center justify-center rounded-lg text-[#94a3b8] hover:bg-[#f1f5f9]"><svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-width="2" stroke-linecap="round"></path></svg></button></div>
@@ -198,5 +191,4 @@ user()" active="akademik" title="Manajemen Akademik" subtitle="Pengelolaan tahun
     </div>
 
 </div>
-@endsection
-
+</x-admin-shell>

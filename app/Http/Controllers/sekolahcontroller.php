@@ -10,12 +10,12 @@ class SekolahController extends Controller
     public function index()
     {
         $sekolahs = Sekolah::all();
-        return view('sekolah.index', compact('sekolahs'));
+        return view('pages.sekolah.index', compact('sekolahs'));
     }
 
     public function create()
     {
-        return view('sekolah.create');
+        return view('pages.sekolah.create');
     }
 
     public function store(Request $request)
@@ -34,7 +34,7 @@ class SekolahController extends Controller
     public function edit($id)
     {
         $sekolah = Sekolah::findOrFail($id);
-        return view('sekolah.edit', compact('sekolah'));
+        return view('pages.sekolah.edit', compact('sekolah'));
     }
 
     public function update(Request $request, $id)

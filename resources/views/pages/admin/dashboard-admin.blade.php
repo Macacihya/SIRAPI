@@ -1,14 +1,7 @@
-﻿{{-- Halaman: dashboard-admin --- menggunakan layout admin --}}
-@extends('layouts.admin')
-@section('title', 'Dashboard')
-@section('subtitle', 'Selamat datang di Panel Admin TU')
-@section('active', 'dashboard')
-
-@section('content')
-user()" active="dashboard" title="Dashboard" subtitle="Selamat datang di Panel Admin TU">
+<x-admin-shell :user="auth()->user()" active="dashboard" title="Dashboard" subtitle="Selamat datang di Panel Admin TU">
 <div x-data="{ showAllActivity: false, showSupport: false, supportForm: { nama: '', email: '', pesan: '' } }" class="space-y-6">
 
-    {{-- â”€â”€â”€ TOP: Heading + Tahun Ajaran â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ --}}
+    {{-- ─── TOP: Heading + Tahun Ajaran ─────────────────── --}}
     <div class="grid gap-6 xl:grid-cols-[minmax(0,1fr)_300px]">
         <div>
             <h1 class="text-[32px] font-black tracking-[-0.04em] text-[#0f172a] lg:text-[40px]">Ringkasan Administrasi</h1>
@@ -16,12 +9,12 @@ user()" active="dashboard" title="Dashboard" subtitle="Selamat datang di Panel A
         </div>
         <div class="rounded-[14px] border border-[#e2e8f0] bg-white p-6">
             <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-[#64748b]">Tahun Ajaran Aktif</p>
-            <p class="mt-2 text-[28px] font-black tracking-[-0.04em] text-[#0f172a]">2023/2024 Ganjil</p>
+            <p class="mt-2 text-[28px] font-black tracking-[-0.04em] text-[#0f172a]">2026/2027 Ganjil</p>
             <span class="mt-2 inline-flex rounded-[4px] bg-[#f1f5f9] px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-[0.08em] text-[#64748b]">Status: Aktif & Berjalan</span>
         </div>
     </div>
 
-    {{-- â”€â”€â”€ STAT CARDS + ABSENSI â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ --}}
+    {{-- ─── STAT CARDS + ABSENSI ────────────────────────── --}}
     <div class="grid gap-4 lg:grid-cols-[1fr_1fr_1fr_280px]">
         <div class="rounded-[14px] border border-[#e2e8f0] bg-white p-6">
             <div class="mb-4 flex h-10 w-10 items-center justify-center rounded-[8px] bg-[#f1f5f9] text-[#64748b]"><svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2" stroke-linecap="round" stroke-width="2"></path><circle cx="9.5" cy="7" r="3" stroke-width="2"></circle><path d="M20 21v-2a4 4 0 0 0-3-3.87" stroke-linecap="round" stroke-width="2"></path><path d="M16 4.13a3 3 0 0 1 0 5.74" stroke-linecap="round" stroke-width="2"></path></svg></div>
@@ -49,7 +42,7 @@ user()" active="dashboard" title="Dashboard" subtitle="Selamat datang di Panel A
         </div>
     </div>
 
-    {{-- â”€â”€â”€ AKTIVITAS + STATUS DEPARTEMEN â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ --}}
+    {{-- ─── AKTIVITAS + STATUS DEPARTEMEN ───────────────── --}}
     <div class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_300px]">
         <div class="rounded-[14px] border border-[#e2e8f0] bg-white p-6">
             <div class="flex items-start justify-between">
@@ -107,7 +100,7 @@ user()" active="dashboard" title="Dashboard" subtitle="Selamat datang di Panel A
         </div>
     </div>
 
-    {{-- â•â•â• MODAL: Lihat Semua Aktivitas â•â•â• --}}
+    {{-- ═══ MODAL: Lihat Semua Aktivitas ═══ --}}
     <div x-show="showAllActivity" class="fixed inset-0 z-[100] flex items-center justify-center bg-[#0f172a]/60 backdrop-blur-sm" style="display:none" x-transition @click.self="showAllActivity = false">
         <div class="w-[90%] max-w-2xl rounded-2xl bg-white shadow-2xl max-h-[80vh] flex flex-col" @click.stop>
             <div class="flex items-center justify-between border-b border-[#e2e8f0] px-6 py-4">
@@ -137,7 +130,7 @@ user()" active="dashboard" title="Dashboard" subtitle="Selamat datang di Panel A
         </div>
     </div>
 
-    {{-- â•â•â• MODAL: Support Center â•â•â• --}}
+    {{-- ═══ MODAL: Support Center ═══ --}}
     <div x-show="showSupport" class="fixed inset-0 z-[100] flex items-center justify-center bg-[#0f172a]/60 backdrop-blur-sm" style="display:none" x-transition @click.self="showSupport = false">
         <div class="w-[90%] max-w-md rounded-2xl bg-white shadow-2xl" @click.stop>
             <div class="flex items-center justify-between border-b border-[#e2e8f0] px-6 py-4">
@@ -157,5 +150,4 @@ user()" active="dashboard" title="Dashboard" subtitle="Selamat datang di Panel A
     </div>
 
 </div>
-@endsection
-
+</x-admin-shell>

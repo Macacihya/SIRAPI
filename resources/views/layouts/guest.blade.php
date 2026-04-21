@@ -22,7 +22,7 @@
 <body class="bg-gray-100 min-h-screen flex flex-col">
 
     {{-- Navbar publik — menggunakan Blade Component reusable --}}
-    <x-public-navbar :active="View::yieldContent('active', 'home')" />
+    {{-- <x-public-navbar :active="View::yieldContent('active', 'home')" /> --}}
 
     {{-- Konten utama halaman (diisi oleh setiap halaman via @section) --}}
     <main class="flex-1 mt-16 p-8 max-w-5xl mx-auto w-full">
@@ -30,7 +30,7 @@
     </main>
 
     {{-- Footer publik — menggunakan Blade Component reusable --}}
-    <x-footer />
+    {{-- <x-footer /> --}}
 
 </body>
 </html>
