@@ -2,13 +2,30 @@
 <div x-data="{
     showHapus: false,
     showRiwayat: false,
+    showHapusSikap: false,
+    showHapusEskul: false,
     hapusTarget: null,
+    hapusSikapTarget: null,
+    hapusEskulTarget: null,
     pembulatan: 'Terdekat',
+
     komponen: [
         { id: 2, nama: 'Ulangan Harian (UH)', bobot: 50, kode: 'UH' },
         { id: 3, nama: 'Ujian Tengah Semester', bobot: 25, kode: 'UTS' },
         { id: 4, nama: 'Ujian Akhir Semester', bobot: 25, kode: 'UAS' },
     ],
+
+    aspekSikap: [
+        { id: 1, nama: 'Sikap Spiritual', predikat: ['A','B','C','D'], deskripsi: 'Ketaatan beribadah, berperilaku syukur, dan berdoa' },
+        { id: 2, nama: 'Sikap Sosial', predikat: ['A','B','C','D'], deskripsi: 'Jujur, disiplin, tanggung jawab, dan kerja sama' },
+    ],
+
+    eskul: [
+        { id: 1, nama: 'Pramuka', wajib: true },
+        { id: 2, nama: 'Seni Tari', wajib: false },
+        { id: 3, nama: 'Karate', wajib: false },
+    ],
+
     get totalBobot() { return this.komponen.reduce((s, k) => s + Number(k.bobot), 0); },
     get isValid() { return this.totalBobot === 100; },
     get previewNilai() {
@@ -18,9 +35,18 @@
         if (this.pembulatan === 'Ke Bawah') return Math.floor(raw);
         return Math.round(raw);
     },
+
     addKomponen() { this.komponen.push({id:Date.now(), nama:'Komponen Baru', bobot:0, kode:'KB'}); },
     confirmHapus(k) { this.hapusTarget = k; this.showHapus = true; },
     doHapus() { this.komponen = this.komponen.filter(k => k.id !== this.hapusTarget.id); this.showHapus = false; $dispatch('toast',{message:'Komponen berhasil dihapus',type:'error'}); },
+
+    addAspekSikap() { this.aspekSikap.push({ id: Date.now(), nama: 'Aspek Sikap Baru', predikat: ['A','B','C','D'], deskripsi: '' }); },
+    confirmHapusSikap(a) { this.hapusSikapTarget = a; this.showHapusSikap = true; },
+    doHapusSikap() { this.aspekSikap = this.aspekSikap.filter(a => a.id !== this.hapusSikapTarget.id); this.showHapusSikap = false; $dispatch('toast',{message:'Aspek sikap dihapus',type:'error'}); },
+
+    addEskul() { this.eskul.push({ id: Date.now(), nama: 'Kegiatan Baru', wajib: false }); },
+    confirmHapusEskul(e) { this.hapusEskulTarget = e; this.showHapusEskul = true; },
+    doHapusEskul() { this.eskul = this.eskul.filter(e => e.id !== this.hapusEskulTarget.id); this.showHapusEskul = false; $dispatch('toast',{message:'Ekstrakurikuler dihapus',type:'error'}); },
 }" class="space-y-6">
 
     {{-- HEADING --}}
@@ -112,6 +138,152 @@
         </div>
     </div>
 
+    {{-- ═══════════════════════════════════════════════════════════ --}}
+    {{-- SECTION: Aspek Nilai Sikap                                 --}}
+    {{-- Sesuai format rapor: Sikap Spiritual, Sikap Sosial, dll    --}}
+    {{-- Masing-masing punya predikat (A/B/C/D) + deskripsi narasi --}}
+    {{-- ═══════════════════════════════════════════════════════════ --}}
+    <div class="rounded-[14px] border border-[#e2e8f0] bg-white overflow-hidden">
+        <div class="flex items-center justify-between border-b border-[#e2e8f0] px-6 py-4">
+            <div>
+                <h3 class="text-[16px] font-bold text-[#0f172a]">Aspek Nilai Sikap</h3>
+                <p class="mt-0.5 text-[12px] text-[#64748b]">Daftar kategori penilaian sikap di rapor. Wali Kelas akan mengisi predikat & deskripsi narasi per siswa.</p>
+            </div>
+            <button @click="addAspekSikap()" class="flex h-[34px] items-center gap-1.5 rounded-[6px] bg-[#1d4ed8] px-3 text-[11px] font-bold text-white hover:bg-[#1e40af]">
+                <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4" stroke-width="2" stroke-linecap="round"></path></svg>
+                Tambah Aspek
+            </button>
+        </div>
+
+        {{-- Empty state --}}
+        <template x-if="aspekSikap.length === 0">
+            <div class="flex flex-col items-center justify-center py-10 text-[#94a3b8]">
+                <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                <p class="mt-2 text-[13px] font-semibold">Belum ada aspek sikap. Klik "Tambah Aspek" untuk menambahkan.</p>
+            </div>
+        </template>
+
+        <div class="divide-y divide-[#f1f5f9]">
+            <template x-for="(a, idx) in aspekSikap" :key="a.id">
+                <div class="flex flex-col gap-3 px-6 py-4 transition hover:bg-[#fafbfc]">
+                    <div class="flex items-center gap-4">
+                        {{-- Nomor urut --}}
+                        <span class="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-[#f1f5f9] text-[11px] font-black text-[#475569]" x-text="idx + 1"></span>
+                        {{-- Input nama aspek --}}
+                        <input
+                            x-model="a.nama"
+                            class="flex-1 rounded-[6px] border border-transparent bg-transparent px-2 py-1.5 text-[14px] font-bold text-[#0f172a] outline-none transition hover:border-[#e2e8f0] focus:border-[#3b82f6] focus:bg-[#f8fafc] focus:ring-2 focus:ring-[#3b82f6]/20"
+                            placeholder="Nama aspek sikap..."
+                        >
+                        {{-- Badge predikat --}}
+                        <div class="hidden sm:flex items-center gap-1.5">
+                            <template x-for="p in a.predikat" :key="p">
+                                <span class="flex h-7 w-7 items-center justify-center rounded-md border border-[#e2e8f0] bg-[#f8fafc] text-[11px] font-black text-[#475569]" x-text="p"></span>
+                            </template>
+                        </div>
+                        {{-- Hapus --}}
+                        <button @click="confirmHapusSikap(a)" class="rounded-lg p-1.5 text-[#94a3b8] transition hover:bg-[#fef2f2] hover:text-[#dc2626]">
+                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                        </button>
+                    </div>
+                    {{-- Deskripsi aspek --}}
+                    <div class="ml-11">
+                        <input
+                            x-model="a.deskripsi"
+                            class="w-full rounded-[6px] border border-[#e2e8f0] bg-[#f8fafc] px-3 py-2 text-[12px] text-[#64748b] outline-none transition focus:border-[#3b82f6] focus:bg-white focus:ring-2 focus:ring-[#3b82f6]/20 focus:text-[#0f172a]"
+                            placeholder="Deskripsi aspek yang dinilai (contoh: Ketaatan beribadah, berperilaku syukur...)" 
+                        >
+                        <p class="mt-1.5 text-[10px] text-[#94a3b8] italic">Wali Kelas akan mengisi predikat (A/B/C/D) + narasi deskriptif per siswa di rapor.</p>
+                    </div>
+                </div>
+            </template>
+        </div>
+
+        <div class="flex items-center justify-between border-t border-[#e2e8f0] bg-[#f8fafc] px-6 py-3">
+            <span class="text-[12px] font-bold text-[#64748b]">Total Aspek Sikap</span>
+            <span class="text-[18px] font-black text-[#0f172a]" x-text="aspekSikap.length + ' Aspek'"></span>
+        </div>
+    </div>
+
+    {{-- ═══════════════════════════════════════════════════════════ --}}
+    {{-- SECTION: Kegiatan Ekstrakurikuler                          --}}
+    {{-- Sesuai format rapor: Nama kegiatan + Keterangan (narasi)   --}}
+    {{-- ═══════════════════════════════════════════════════════════ --}}
+    <div class="rounded-[14px] border border-[#e2e8f0] bg-white overflow-hidden">
+        <div class="flex items-center justify-between border-b border-[#e2e8f0] px-6 py-4">
+            <div>
+                <h3 class="text-[16px] font-bold text-[#0f172a]">Kegiatan Ekstrakurikuler</h3>
+                <p class="mt-0.5 text-[12px] text-[#64748b]">Daftar kegiatan eskul yang tersedia di sekolah. Wali Kelas akan mengisi keterangan per siswa di rapor.</p>
+            </div>
+            <button @click="addEskul()" class="flex h-[34px] items-center gap-1.5 rounded-[6px] bg-[#1d4ed8] px-3 text-[11px] font-bold text-white hover:bg-[#1e40af]">
+                <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4" stroke-width="2" stroke-linecap="round"></path></svg>
+                Tambah Eskul
+            </button>
+        </div>
+
+        {{-- Header kolom --}}
+        <div class="grid grid-cols-[auto_1fr_auto_auto] items-center gap-4 border-b border-[#f1f5f9] bg-[#f8fafc] px-6 py-2.5">
+            <span class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">#</span>
+            <span class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Nama Kegiatan</span>
+            <span class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Jenis</span>
+            <span></span>
+        </div>
+
+        {{-- Empty state --}}
+        <template x-if="eskul.length === 0">
+            <div class="flex flex-col items-center justify-center py-10 text-[#94a3b8]">
+                <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                <p class="mt-2 text-[13px] font-semibold">Belum ada ekstrakurikuler. Klik "Tambah Eskul" untuk menambahkan.</p>
+            </div>
+        </template>
+
+        <div class="divide-y divide-[#f1f5f9]">
+            <template x-for="(e, idx) in eskul" :key="e.id">
+                <div class="grid grid-cols-[auto_1fr_auto_auto] items-center gap-4 px-6 py-3">
+                    {{-- Nomor urut --}}
+                    <span class="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-[#f1f5f9] text-[11px] font-black text-[#475569]" x-text="idx + 1"></span>
+                    {{-- Input nama eskul --}}
+                    <input
+                        x-model="e.nama"
+                        class="rounded-[6px] border border-transparent bg-transparent px-2 py-1.5 text-[14px] font-semibold text-[#0f172a] outline-none transition hover:border-[#e2e8f0] focus:border-[#3b82f6] focus:bg-[#f8fafc] focus:ring-2 focus:ring-[#3b82f6]/20"
+                        placeholder="Nama kegiatan eskul..."
+                    >
+                    {{-- Toggle wajib/pilihan --}}
+                    <label class="flex cursor-pointer items-center gap-2">
+                        <div
+                            @click="e.wajib = !e.wajib"
+                            class="relative h-5 w-9 rounded-full transition-colors duration-200"
+                            :class="e.wajib ? 'bg-[#1d4ed8]' : 'bg-[#cbd5e1]'"
+                        >
+                            <div
+                                class="absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform duration-200"
+                                :class="e.wajib ? 'translate-x-4' : 'translate-x-0.5'"
+                            ></div>
+                        </div>
+                        <span class="text-[11px] font-bold" :class="e.wajib ? 'text-[#1d4ed8]' : 'text-[#94a3b8]'" x-text="e.wajib ? 'Wajib' : 'Pilihan'"></span>
+                    </label>
+                    {{-- Hapus --}}
+                    <button @click="confirmHapusEskul(e)" class="rounded-lg p-1.5 text-[#94a3b8] transition hover:bg-[#fef2f2] hover:text-[#dc2626]">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                    </button>
+                </div>
+            </template>
+        </div>
+
+        <div class="flex items-center justify-between border-t border-[#e2e8f0] bg-[#f8fafc] px-6 py-3">
+            <div>
+                <span class="text-[12px] font-bold text-[#64748b]">Total Eskul</span>
+                <span class="ml-2 text-[10px] text-[#94a3b8] italic">Wali Kelas mengisi kolom "Keterangan" per siswa di rapor</span>
+            </div>
+            <div class="flex items-center gap-3">
+                <span class="text-[11px] font-semibold text-[#64748b]" x-text="eskul.filter(e => e.wajib).length + ' Wajib'"></span>
+                <span class="text-[#e2e8f0]">·</span>
+                <span class="text-[11px] font-semibold text-[#64748b]" x-text="eskul.filter(e => !e.wajib).length + ' Pilihan'"></span>
+                <span class="text-[18px] font-black text-[#0f172a]" x-text="eskul.length + ' Total'"></span>
+            </div>
+        </div>
+    </div>
+
     {{-- ═══ MODAL: Hapus Komponen ═══ --}}
     <div x-show="showHapus" class="fixed inset-0 z-[100] flex items-center justify-center bg-[#0f172a]/60 backdrop-blur-sm" style="display:none" x-transition @click.self="showHapus = false">
         <div class="w-[90%] max-w-sm rounded-2xl bg-white shadow-2xl" @click.stop>
@@ -123,6 +295,36 @@
             <div class="flex gap-3 border-t border-[#e2e8f0] bg-[#f8fafc] px-6 py-4 rounded-b-2xl">
                 <button @click="showHapus = false" class="flex-1 rounded-lg border border-[#e2e8f0] bg-white py-2.5 text-[12px] font-bold text-[#475569]">Batal</button>
                 <button @click="doHapus()" class="flex-1 rounded-lg bg-[#dc2626] py-2.5 text-[12px] font-bold text-white">Ya, Hapus</button>
+            </div>
+        </div>
+    </div>
+
+    {{-- ═══ MODAL: Hapus Aspek Sikap ═══ --}}
+    <div x-show="showHapusSikap" class="fixed inset-0 z-[100] flex items-center justify-center bg-[#0f172a]/60 backdrop-blur-sm" style="display:none" x-transition @click.self="showHapusSikap = false">
+        <div class="w-[90%] max-w-sm rounded-2xl bg-white shadow-2xl" @click.stop>
+            <div class="p-6 text-center">
+                <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#fef2f2] text-[#dc2626] ring-4 ring-[#fee2e2]"><svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></div>
+                <h3 class="mt-4 text-[18px] font-black text-[#0f172a]">Hapus Aspek Sikap?</h3>
+                <p class="mt-2 text-[13px] text-[#64748b]">Aspek "<strong x-text="hapusSikapTarget?.nama"></strong>" akan dihapus dari konfigurasi rapor.</p>
+            </div>
+            <div class="flex gap-3 border-t border-[#e2e8f0] bg-[#f8fafc] px-6 py-4 rounded-b-2xl">
+                <button @click="showHapusSikap = false" class="flex-1 rounded-lg border border-[#e2e8f0] bg-white py-2.5 text-[12px] font-bold text-[#475569]">Batal</button>
+                <button @click="doHapusSikap()" class="flex-1 rounded-lg bg-[#dc2626] py-2.5 text-[12px] font-bold text-white">Ya, Hapus</button>
+            </div>
+        </div>
+    </div>
+
+    {{-- ═══ MODAL: Hapus Eskul ═══ --}}
+    <div x-show="showHapusEskul" class="fixed inset-0 z-[100] flex items-center justify-center bg-[#0f172a]/60 backdrop-blur-sm" style="display:none" x-transition @click.self="showHapusEskul = false">
+        <div class="w-[90%] max-w-sm rounded-2xl bg-white shadow-2xl" @click.stop>
+            <div class="p-6 text-center">
+                <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#fef2f2] text-[#dc2626] ring-4 ring-[#fee2e2]"><svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></div>
+                <h3 class="mt-4 text-[18px] font-black text-[#0f172a]">Hapus Ekstrakurikuler?</h3>
+                <p class="mt-2 text-[13px] text-[#64748b]">"<strong x-text="hapusEskulTarget?.nama"></strong>" akan dihapus dari daftar eskul.</p>
+            </div>
+            <div class="flex gap-3 border-t border-[#e2e8f0] bg-[#f8fafc] px-6 py-4 rounded-b-2xl">
+                <button @click="showHapusEskul = false" class="flex-1 rounded-lg border border-[#e2e8f0] bg-white py-2.5 text-[12px] font-bold text-[#475569]">Batal</button>
+                <button @click="doHapusEskul()" class="flex-1 rounded-lg bg-[#dc2626] py-2.5 text-[12px] font-bold text-white">Ya, Hapus</button>
             </div>
         </div>
     </div>
