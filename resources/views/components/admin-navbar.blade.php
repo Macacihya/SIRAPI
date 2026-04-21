@@ -19,14 +19,18 @@
 
     // Daftar menu navigasi admin TU
     $menus = [
-        ['key' => 'dashboard',        'label' => 'Dashboard',         'icon' => 'dashboard'],
-        ['key' => 'manajemen-user',   'label' => 'Manajemen User',    'icon' => 'users-manage'],
-        ['key' => 'data-sekolah',     'label' => 'Data Sekolah',      'icon' => 'school'],
-        ['key' => 'guru',             'label' => 'Guru',              'icon' => 'user'],
-        ['key' => 'data-siswa',       'label' => 'Data Siswa',        'icon' => 'users'],
-        ['key' => 'akademik',         'label' => 'Akademik',          'icon' => 'book'],
-        ['key' => 'jadwal-pelajaran', 'label' => 'Jadwal Pelajaran',  'icon' => 'calendar'],
-        ['key' => 'aturan-nilai',     'label' => 'Aturan Nilai',      'icon' => 'clipboard'],
+        ['key' => 'dashboard',        'label' => 'Dashboard',         'href' => route('dashboard'),        'icon' => 'dashboard'],
+        ['key' => 'manajemen-user',   'label' => 'Manajemen User',    'href' => route('manajemen-user'),   'icon' => 'users-manage'],
+        ['key' => 'data-sekolah',     'label' => 'Data Sekolah',      'href' => route('data-sekolah'),     'icon' => 'school'],
+        ['key' => 'guru',             'label' => 'Guru',              'href' => route('guru-tendik'),      'icon' => 'user'],
+        ['key' => 'data-siswa',       'label' => 'Data Siswa',        'href' => route('siswa'),            'icon' => 'users'],
+        ['key' => 'akademik',         'label' => 'Akademik',          'href' => route('akademik'),         'icon' => 'book'],
+        ['key' => 'mata-pelajaran',   'label' => 'Mata Pelajaran',    'href' => route('mata-pelajaran'),   'icon' => 'book'],
+        ['key' => 'jadwal-pelajaran', 'label' => 'Jadwal Pelajaran',  'href' => route('jadwal'),           'icon' => 'calendar'],
+        ['key' => 'aturan-nilai',     'label' => 'Aturan Nilai',      'href' => route('aturan-nilai'),     'icon' => 'clipboard'],
+        ['key' => 'laporan-nilai',    'label' => 'Laporan Nilai',     'href' => route('laporan-nilai'),    'icon' => 'book'],
+        ['key' => 'rekap-nilai',      'label' => 'Rekap Nilai',       'href' => route('rekap-nilai'),      'icon' => 'clipboard'],
+        ['key' => 'profil',           'label' => 'Profil Saya',       'href' => route('profil'),           'icon' => 'user'],
     ];
 @endphp
 
@@ -53,7 +57,7 @@
             @foreach ($menus as $menu)
                 @php $isActive = $active === $menu['key']; @endphp
                 <a
-                    href="{{ route('admin.' . ($menu['key'] === 'guru' ? 'guru' : ($menu['key'] === 'data-siswa' ? 'data-siswa' : $menu['key']))) }}"
+                    href="{{ $menu['href'] }}"
                     class="{{ $isActive ? 'bg-[#eff6ff] text-[#1d4ed8] shadow-[inset_-4px_0_0_0_#3b82f6]' : 'text-[#64748b] hover:bg-[#f1f5f9] hover:text-[#0f172a]' }} flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] font-medium transition"
                 >
                     {{-- Icon SVG berdasarkan key menu --}}
@@ -105,7 +109,7 @@
 
     {{-- Profil user di bagian bawah sidebar --}}
     <div class="shrink-0 border-t border-[#e2e8f0] bg-[#f8fafc] px-4 py-3">
-        <a href="{{ route('admin.profil') }}" class="mb-2.5 flex items-center gap-3 rounded-lg p-1 -m-1 transition hover:bg-[#f1f5f9]">
+        <a href="{{ route('profil') }}" class="mb-2.5 flex items-center gap-3 rounded-lg p-1 -m-1 transition hover:bg-[#f1f5f9]">
             <div class="flex h-9 w-9 flex-none items-center justify-center rounded-lg bg-[#1e40af] text-[11px] font-bold text-white">
                 {{ $initials }}
             </div>

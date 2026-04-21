@@ -91,7 +91,7 @@
 
             {{-- Kanan: Info user --}}
             <div class="flex items-center gap-2 sm:gap-3">
-                <a href="{{ route('admin.profil') }}" class="hidden items-center gap-2.5 sm:flex rounded-lg p-1.5 -m-1.5 transition hover:bg-[#f1f5f9]">
+                <a href="{{ route('profil') }}" class="hidden items-center gap-2.5 sm:flex rounded-lg p-1.5 -m-1.5 transition hover:bg-[#f1f5f9]">
                     <div class="text-right">
                         <p class="text-[13px] font-bold text-[#1e293b]">{{ $user->name }}</p>
                         <p class="text-[10px] text-[#64748b]">ID. {{ strtoupper($user->username ?? 'ADMIN') }}</p>
@@ -100,7 +100,7 @@
                         {{ $initials }}
                     </div>
                 </a>
-                <a href="{{ route('admin.profil') }}" class="flex h-9 w-9 items-center justify-center rounded-lg bg-[#1e40af] text-[11px] font-bold text-white sm:hidden">
+                <a href="{{ route('profil') }}" class="flex h-9 w-9 items-center justify-center rounded-lg bg-[#1e40af] text-[11px] font-bold text-white sm:hidden">
                     {{ $initials }}
                 </a>
             </div>

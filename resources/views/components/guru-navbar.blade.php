@@ -19,14 +19,14 @@
 
     // Daftar menu navigasi guru mata pelajaran
     $menus = [
-        ['key' => 'dashboard',          'label' => 'Dashboard',          'href' => route('guru.dashboard'),          'icon' => 'dashboard'],
-        ['key' => 'jadwal-mengajar',    'label' => 'Jadwal Mengajar',    'href' => route('guru.jadwal-mengajar'),    'icon' => 'calendar'],
-        ['key' => 'data-siswa',         'label' => 'Data Siswa',         'href' => route('guru.data-siswa'),         'icon' => 'users'],
-        ['key' => 'penilaian',          'label' => 'Penilaian',          'href' => route('guru.penilaian'),          'icon' => 'star'],
-        ['key' => 'capaian-kompetensi', 'label' => 'Capaian Kompetensi','href' => route('guru.capaian-kompetensi'), 'icon' => 'file-text'],
-        ['key' => 'laporan-nilai',      'label' => 'Laporan Nilai',      'href' => route('guru.laporan-nilai'),      'icon' => 'chart'],
-        ['key' => 'rekap-nilai',        'label' => 'Rekap Nilai Kelas',  'href' => route('guru.rekap-nilai'),        'icon' => 'check-square'],
-        ['key' => 'profil',             'label' => 'Profil Saya',        'href' => route('guru.profil'),             'icon' => 'user'],
+        ['key' => 'dashboard',          'label' => 'Dashboard',          'href' => route('dashboard'),          'icon' => 'dashboard'],
+        ['key' => 'jadwal-mengajar',    'label' => 'Jadwal Mengajar',    'href' => route('jadwal'),             'icon' => 'calendar'],
+        ['key' => 'data-siswa',         'label' => 'Data Siswa',         'href' => route('siswa'),              'icon' => 'users'],
+        ['key' => 'penilaian',          'label' => 'Penilaian',          'href' => route('penilaian'),          'icon' => 'star'],
+        ['key' => 'capaian-kompetensi', 'label' => 'Capaian Kompetensi','href' => route('capaian-kompetensi'), 'icon' => 'file-text'],
+        ['key' => 'laporan-nilai',      'label' => 'Laporan Nilai',      'href' => route('laporan-nilai'),      'icon' => 'chart'],
+        ['key' => 'rekap-nilai',        'label' => 'Rekap Nilai Kelas',  'href' => route('rekap-nilai'),        'icon' => 'check-square'],
+        ['key' => 'profil',             'label' => 'Profil Saya',        'href' => route('profil'),             'icon' => 'user'],
     ];
 @endphp
 
@@ -107,7 +107,7 @@
 
     {{-- Profil user di bagian bawah sidebar --}}
     <div class="shrink-0 border-t border-[#e2e8f0] bg-[#f8fafc] px-4 py-3">
-        <a href="{{ route('guru.profil') }}" class="mb-2.5 flex items-center gap-3 rounded-lg p-1 -m-1 transition hover:bg-[#f1f5f9]">
+        <a href="{{ route('profil') }}" class="mb-2.5 flex items-center gap-3 rounded-lg p-1 -m-1 transition hover:bg-[#f1f5f9]">
             <div class="flex h-9 w-9 flex-none items-center justify-center rounded-lg bg-[#1e40af] text-[11px] font-bold text-white">
                 {{ $initials }}
             </div>

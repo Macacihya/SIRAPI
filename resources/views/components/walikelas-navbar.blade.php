@@ -18,12 +18,15 @@
 
     // Daftar menu navigasi wali kelas
     $menus = [
-        ['key' => 'dashboard',    'label' => 'Dashboard',       'href' => route('dashboard'),               'icon' => 'dashboard'],
-        ['key' => 'profil-kelas', 'label' => 'Profil Kelas',    'href' => route('walikelas.profil-kelas'),  'icon' => 'home'],
-        ['key' => 'jadwal-kelas', 'label' => 'Jadwal Kelas',    'href' => route('walikelas.jadwal-kelas'),  'icon' => 'calendar'],
-        ['key' => 'kehadiran',    'label' => 'Kehadiran Siswa', 'href' => route('walikelas.kehadiran'),     'icon' => 'check-square'],
-        ['key' => 'penilaian',    'label' => 'Penilaian Kelas', 'href' => route('walikelas.penilaian'),     'icon' => 'star'],
-        ['key' => 'rapor',        'label' => 'Rapor Siswa',     'href' => route('walikelas.rapor'),         'icon' => 'file-text'],
+        ['key' => 'dashboard',    'label' => 'Dashboard',       'href' => route('dashboard'),       'icon' => 'dashboard'],
+        ['key' => 'profil-kelas', 'label' => 'Profil Kelas',    'href' => route('profil-kelas'),    'icon' => 'home'],
+        ['key' => 'jadwal-kelas', 'label' => 'Jadwal Kelas',    'href' => route('jadwal'),          'icon' => 'calendar'],
+        ['key' => 'kehadiran',    'label' => 'Kehadiran Siswa', 'href' => route('kehadiran'),       'icon' => 'check-square'],
+        ['key' => 'penilaian',    'label' => 'Penilaian Kelas', 'href' => route('penilaian'),       'icon' => 'star'],
+        ['key' => 'rapor',        'label' => 'Rapor Siswa',     'href' => route('rapor'),           'icon' => 'file-text'],
+        ['key' => 'laporan-nilai','label' => 'Laporan Nilai',   'href' => route('laporan-nilai'),   'icon' => 'file-text'],
+        ['key' => 'rekap-nilai',  'label' => 'Rekap Nilai',     'href' => route('rekap-nilai'),     'icon' => 'check-square'],
+        ['key' => 'profil',       'label' => 'Profil Saya',     'href' => route('profil'),          'icon' => 'user'],
     ];
 @endphp
 
@@ -88,7 +91,7 @@
 
     {{-- Profil user di bagian bawah --}}
     <div class="shrink-0 border-t border-[#e2e8f0] bg-[#f8fafc] px-4 py-3">
-        <a href="{{ route('walikelas.profil') }}" class="mb-2.5 flex items-center gap-3 rounded-lg p-1 -m-1 transition hover:bg-[#f1f5f9]">
+        <a href="{{ route('profil') }}" class="mb-2.5 flex items-center gap-3 rounded-lg p-1 -m-1 transition hover:bg-[#f1f5f9]">
             <div class="flex h-9 w-9 flex-none items-center justify-center rounded-lg bg-[#1e40af] text-[11px] font-bold text-white">
                 {{ $initials }}
             </div>
