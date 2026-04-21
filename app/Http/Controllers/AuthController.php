@@ -34,6 +34,13 @@ class AuthController extends Controller
         }
         $role = $request->input('role', 'admin');
 
+        // Validasi: Guru dan Wali Kelas (harus Email/NIP)
+        if (($role === 'guru' || $role === 'walikelas') && $loginField === 'username') {
+            return back()->withErrors([
+                'username' => 'Guru dan Wali Kelas wajib menggunakan Email atau NIP untuk login.',
+            ])->onlyInput('username');
+        }
+
         if (Auth::attempt([$loginField => $request->input('username'), 'password' => $request->input('password')], $request->boolean('remember'))) {
             $request->session()->regenerate();
 
