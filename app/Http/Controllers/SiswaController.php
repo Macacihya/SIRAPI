@@ -23,6 +23,6 @@ class SiswaController extends Controller
     public function tampilkan()
     {
         $data = $this->getData();
-        return view('siswa', compact('data'));
+        return view('pages.siswa', compact('data'));
     }
 }

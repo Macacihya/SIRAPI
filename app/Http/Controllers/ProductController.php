@@ -21,7 +21,7 @@ class ProductController extends Controller
             ['id' => 4, 'produk' => 'Tas Composer'],
         ];
 
-        // Mengirim data ke view 'list_product'
-        return view('list_product', compact('data'));
+        // Mengirim data ke view 'pages.products'
+        return view('pages.products', compact('data'));
     }
 }

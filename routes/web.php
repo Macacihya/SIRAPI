@@ -14,15 +14,15 @@ Route::get('/', function () {
 });
 Route::post('/', [AuthController::class, 'login']);
 
-// Mockup routes (tanpa controller)
-Route::view('/didit', 'didit');
-Route::view('/rian', 'rian');
-Route::view('/fariz', 'fariz');
-Route::view('/home', 'home');
-Route::view('/about', 'about');
-Route::view('/contact', 'contact');
-Route::view('/features', 'features');
-Route::view('/services', 'services');
+// Mockup routes (tanpa controller) — file ada di folder pages/
+Route::view('/didit', 'pages.didit');
+Route::view('/rian', 'pages.rian');
+Route::view('/fariz', 'pages.fariz');
+Route::view('/home', 'pages.home');
+Route::view('/about', 'pages.about');
+Route::view('/contact', 'pages.contact');
+Route::view('/features', 'pages.features');
+Route::view('/services', 'pages.services');
 
 Route::get('/products', [ProductController::class, 'index']);
 

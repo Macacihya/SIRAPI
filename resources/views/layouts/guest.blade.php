@@ -29,5 +29,8 @@
         @yield('content')
     </main>
 
+    {{-- Footer publik — menggunakan Blade Component reusable --}}
+    <x-footer />
+
 </body>
 </html>
