@@ -1,11 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <title>Edit Sekolah</title>
-    @vite('resources/css/app.css')
-</head>
-<body class="bg-gray-100">
+@extends('layouts.admin')
 
+@section('title', 'Edit Sekolah')
+@section('active', 'data-sekolah')
+
+@section('content')
 <div class="max-w-xl mx-auto mt-10 bg-white p-6 rounded-xl shadow">
     <div class="mb-6 flex items-center justify-between">
         <h1 class="text-2xl font-bold">Edit Sekolah</h1>
@@ -46,6 +44,4 @@
         </button>
     </form>
 </div>
-
-</body>
-</html>
+@endsection

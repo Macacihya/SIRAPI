@@ -1,11 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <title>Data Sekolah</title>
-    @vite('resources/css/app.css')
-</head>
-<body class="bg-gray-100">
+@extends('layouts.admin')
 
+@section('title', 'Data Sekolah')
+@section('active', 'data-sekolah')
+
+@section('content')
 <div class="max-w-5xl mx-auto mt-10 bg-white p-6 rounded-xl shadow">
     <div class="flex justify-between items-center mb-6">
         <h1 class="text-2xl font-bold">Data Sekolah</h1>
@@ -58,6 +56,4 @@
         </tbody>
     </table>
 </div>
-
-</body>
-</html>
+@endsection

@@ -1,11 +1,9 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <title>Data Tahun Ajaran</title>
-    @vite('resources/css/app.css')
-</head>
-<body class="bg-gray-100">
+@extends('layouts.admin')
 
+@section('title', 'Data Tahun Ajaran')
+@section('active', 'tahun-ajaran')
+
+@section('content')
 <div class="max-w-5xl mx-auto mt-10 bg-white p-6 rounded-xl shadow">
     <div class="flex justify-between items-center mb-6">
         <div>
@@ -67,6 +65,4 @@
         </tbody>
     </table>
 </div>
-
-</body>
-</html>
+@endsection

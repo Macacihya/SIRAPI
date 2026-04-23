@@ -1,11 +1,9 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <title>Edit Tahun Ajaran</title>
-    @vite('resources/css/app.css')
-</head>
-<body class="bg-gray-100">
+@extends('layouts.admin')
 
+@section('title', 'Edit Tahun Ajaran')
+@section('active', 'tahun-ajaran')
+
+@section('content')
 <div class="max-w-xl mx-auto mt-10 bg-white p-6 rounded-xl shadow">
     <div class="mb-6 flex items-center justify-between">
         <h1 class="text-2xl font-bold">Edit Tahun Ajaran</h1>
@@ -57,6 +55,4 @@
         </button>
     </form>
 </div>
-
-</body>
-</html>
+@endsection
