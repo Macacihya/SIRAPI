@@ -30,7 +30,6 @@
         ['key' => 'aturan-nilai',     'label' => 'Aturan Nilai',      'href' => route('aturan-nilai'),     'icon' => 'clipboard'],
         ['key' => 'laporan-nilai',    'label' => 'Laporan Nilai',     'href' => route('laporan-nilai'),    'icon' => 'book'],
         ['key' => 'rekap-nilai',      'label' => 'Rekap Nilai',       'href' => route('rekap-nilai'),      'icon' => 'clipboard'],
-        ['key' => 'profil',           'label' => 'Profil Saya',       'href' => route('profil'),           'icon' => 'user'],
     ];
 @endphp
 
@@ -107,18 +106,8 @@
         </div>
     </nav>
 
-    {{-- Profil user di bagian bawah sidebar --}}
+    {{-- Tombol logout di bagian bawah sidebar --}}
     <div class="shrink-0 border-t border-[#e2e8f0] bg-[#f8fafc] px-4 py-3">
-        <a href="{{ route('profil') }}" class="mb-2.5 flex items-center gap-3 rounded-lg p-1 -m-1 transition hover:bg-[#f1f5f9]">
-            <div class="flex h-9 w-9 flex-none items-center justify-center rounded-lg bg-[#1e40af] text-[11px] font-bold text-white">
-                {{ $initials }}
-            </div>
-            <div class="min-w-0">
-                <p class="truncate text-[12px] font-bold text-[#0f172a]">{{ $user->name }}</p>
-                <p class="text-[9px] font-semibold uppercase tracking-[0.12em] text-[#64748b]">Admin TU</p>
-            </div>
-        </a>
-        {{-- Tombol logout (trigger modal di layout) --}}
         <button @click="logoutModalOpen = true" class="flex h-[34px] w-full items-center justify-center rounded bg-[#1d4ed8] text-[11px] font-bold uppercase tracking-wider text-white transition hover:bg-[#2563eb]" type="button">
             Keluar
         </button>
