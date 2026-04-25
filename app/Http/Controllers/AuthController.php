@@ -24,21 +24,15 @@ class AuthController extends Controller
         ]);
 
         $input = $request->input('username');
-        
-        if (filter_var($input, FILTER_VALIDATE_EMAIL)) {
-            $loginField = 'email';
-        } elseif (is_numeric($input) && strlen($input) >= 10) {
-            $loginField = 'nip';
-        } else {
-            $loginField = 'username';
-        }
         $role = $request->input('role', 'admin');
-
-        // Validasi: Guru dan Wali Kelas (harus Email/NIP)
-        if (($role === 'guru' || $role === 'walikelas') && $loginField === 'username') {
-            return back()->withErrors([
-                'username' => 'Guru dan Wali Kelas wajib menggunakan Email atau NIP untuk login.',
-            ])->onlyInput('username');
+        
+        // Tentukan field login berdasarkan Role
+        if ($role === 'admin') {
+            // Admin login pakai Email atau Username
+            $loginField = filter_var($input, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
+        } else {
+            // Guru & Walikelas login pakai Email atau NIP
+            $loginField = filter_var($input, FILTER_VALIDATE_EMAIL) ? 'email' : 'nip';
         }
 
         if (Auth::attempt([$loginField => $request->input('username'), 'password' => $request->input('password')], $request->boolean('remember'))) {
