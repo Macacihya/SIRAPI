@@ -68,9 +68,6 @@
                 </div>
             </div>
             <div class="flex items-center gap-2 sm:gap-3">
-                <button aria-label="Notifikasi" class="flex h-9 w-9 items-center justify-center rounded-full border border-[#cbd5e1] text-[#475569] transition hover:bg-[#f1f5f9]" type="button">
-                    <svg class="h-[18px] w-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 17h5l-1.4-1.4a2 2 0 0 1-.6-1.42V11a6 6 0 1 0-12 0v3.18a2 2 0 0 1-.59 1.41L4 17h5" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path><path d="M9 17a3 3 0 0 0 6 0" stroke-linecap="round" stroke-width="2"></path></svg>
-                </button>
                 <a href="{{ route('profil') }}" class="hidden items-center gap-2.5 sm:flex rounded-lg p-1.5 -m-1.5 transition hover:bg-[#f1f5f9]">
                     <div class="text-right">
                         <p class="text-[13px] font-bold text-[#1e293b]">{{ $user->name }}</p>
