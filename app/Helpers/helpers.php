@@ -10,14 +10,9 @@ if (!function_exists('getLayout')) {
      */
     function getLayout(): string
     {
-        $role = getUserRole();
-
-        return match ($role) {
-            'admin'     => 'layouts.admin',
-            'guru'      => 'layouts.guru',
-            'walikelas' => 'layouts.walikelas',
-            default     => 'layouts.admin',
-        };
+        // Semua role kini menggunakan satu master layout terpusat.
+        // Layout mendeteksi role secara otomatis via getUserRole().
+        return 'layouts.app';
     }
 }
 

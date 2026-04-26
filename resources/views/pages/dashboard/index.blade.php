@@ -4,7 +4,7 @@
      Menggunakan getLayout() untuk pemilihan layout dinamis.
      ============================================================ --}}
 
-@extends(getLayout())
+@extends('layouts.app')
 @section('title', 'Dashboard')
 @section('subtitle', 'Selamat datang di SIRAPI')
 @section('active', 'dashboard')

@@ -3,7 +3,7 @@
      Memuat partial yang sesuai berdasarkan role user.
      ============================================================ --}}
 
-@extends(getLayout())
+@extends('layouts.app')
 @section('title', 'Profil Pengguna')
 @section('subtitle', 'Informasi akun dan biodata')
 @section('active', 'profil')

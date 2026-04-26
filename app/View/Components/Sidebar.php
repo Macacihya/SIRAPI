@@ -7,15 +7,15 @@ use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
 
 /**
- * AdminNavbar — Komponen sidebar navigasi untuk halaman Admin TU.
+ * Sidebar — Komponen sidebar navigasi terpusat untuk semua role.
  *
- * Menampilkan sidebar dengan brand, badge tahun ajaran, menu navigasi,
- * dan profil user di bagian bawah. Prop $active untuk highlight menu aktif.
+ * Menggantikan AdminNavbar, GuruNavbar, dan WalikelasNavbar
+ * menjadi SATU komponen yang membaca menu dari config/sirapi_menus.php.
  *
  * Cara pakai di Blade:
- *   <x-admin-navbar active="dashboard" />
+ *   <x-sidebar :active="View::yieldContent('active', 'dashboard')" />
  */
-class AdminNavbar extends Component
+class Sidebar extends Component
 {
     /**
      * Menu yang sedang aktif (contoh: 'dashboard', 'manajemen-user', dll).
@@ -25,7 +25,7 @@ class AdminNavbar extends Component
     /**
      * Buat instance komponen baru.
      *
-     * @param string $active  — key menu yang aktif
+     * @param string $active — key menu yang aktif
      */
     public function __construct(string $active = 'dashboard')
     {
@@ -37,6 +37,6 @@ class AdminNavbar extends Component
      */
     public function render(): View|Closure|string
     {
-        return view('components.admin-navbar');
+        return view('components.sidebar');
     }
 }

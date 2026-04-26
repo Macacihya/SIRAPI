@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+@extends('layouts.app')
 @section('title', 'Mata Pelajaran')
 @section('subtitle', 'Data mata pelajaran')
 @section('active', 'mata-pelajaran')

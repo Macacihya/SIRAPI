@@ -1,4 +1,4 @@
-@extends('layouts.walikelas')
+@extends('layouts.app')
 @section('title', 'Kehadiran Siswa')
 @section('subtitle', 'Rekap kehadiran siswa')
 @section('active', 'kehadiran')

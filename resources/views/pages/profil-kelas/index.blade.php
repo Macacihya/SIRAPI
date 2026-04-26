@@ -1,4 +1,4 @@
-@extends('layouts.walikelas')
+@extends('layouts.app')
 @section('title', 'Profil Kelas')
 @section('subtitle', 'Informasi kelas wali')
 @section('active', 'profil-kelas')

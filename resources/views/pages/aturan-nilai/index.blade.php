@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+@extends('layouts.app')
 @section('title', 'Aturan Nilai')
 @section('subtitle', 'Pengaturan sistem penilaian')
 @section('active', 'aturan-nilai')

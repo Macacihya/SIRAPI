@@ -1,4 +1,4 @@
-@extends(getLayout())
+@extends('layouts.app')
 @section('title', 'Rekap Nilai Kelas')
 @section('subtitle', 'Rekap nilai per kelas')
 @section('active', 'rekap-nilai')

@@ -1,32 +1,30 @@
 {{-- ============================================================
-     Komponen: GuruNavbar
-     Deskripsi: Sidebar navigasi untuk halaman Guru Mata Pelajaran.
+     Komponen: Sidebar (Unified)
+     Deskripsi: Sidebar navigasi terpusat untuk SEMUA role.
+     Menggantikan: admin-navbar, guru-navbar, walikelas-navbar
+
      Props: $active — menu yang sedang aktif
 
-     Komponen ini di-extract dari guru-shell.blade.php agar
-     kode sidebar tidak perlu ditulis ulang di setiap halaman.
-     Digunakan oleh: layouts/guru.blade.php
+     Menu dibaca dari config/sirapi_menus.php berdasarkan role
+     user yang login. Output HTML IDENTIK dengan navbar lama.
      ============================================================ --}}
 
 @php
-    // Ambil data user yang sedang login untuk ditampilkan di sidebar
-    $user = auth()->user();
-    $initials = collect(explode(' ', trim($user->name ?? 'SIRAPI')))
-        ->filter()
-        ->take(2)
-        ->map(fn ($part) => strtoupper(substr($part, 0, 1)))
-        ->implode('');
+    // Ambil role user yang login (admin/guru/walikelas)
+    $role = getUserRole();
 
-    // Daftar menu navigasi guru mata pelajaran
-    $menus = [
-        ['key' => 'dashboard',          'label' => 'Dashboard',          'href' => route('dashboard'),          'icon' => 'dashboard'],
-        ['key' => 'jadwal-mengajar',    'label' => 'Jadwal Mengajar',    'href' => route('jadwal'),             'icon' => 'calendar'],
-        ['key' => 'data-siswa',         'label' => 'Data Siswa',         'href' => route('siswa'),              'icon' => 'users'],
-        ['key' => 'penilaian',          'label' => 'Penilaian',          'href' => route('penilaian'),          'icon' => 'star'],
-        ['key' => 'capaian-kompetensi', 'label' => 'Capaian Kompetensi','href' => route('capaian-kompetensi'), 'icon' => 'file-text'],
-        ['key' => 'laporan-nilai',      'label' => 'Laporan Nilai',      'href' => route('laporan-nilai'),      'icon' => 'chart'],
-        ['key' => 'rekap-nilai',        'label' => 'Rekap Nilai Kelas',  'href' => route('rekap-nilai'),        'icon' => 'check-square'],
-    ];
+    // Ambil daftar menu dari config berdasarkan role
+    $menus = collect(config("sirapi_menus.{$role}", []))->map(function ($item) {
+        // Resolve route name menjadi URL
+        $item['href'] = route($item['route']);
+        return $item;
+    })->toArray();
+
+    // Ambil label & badge untuk role ini dari config
+    $roleLabels = config("sirapi_menus.role_labels.{$role}", [
+        'subtitle' => 'SIRAPI',
+        'badge'    => 'Panel',
+    ]);
 @endphp
 
 {{-- Sidebar fixed di sisi kiri (responsive: hidden di mobile, toggle via Alpine.js) --}}
@@ -37,13 +35,13 @@
     {{-- Brand SIRAPI --}}
     <div class="flex min-h-[64px] flex-col justify-center border-b border-[#e2e8f0] px-5">
         <h1 class="text-[20px] font-black uppercase tracking-[-0.06em] text-[#0f172a]">SIRAPI</h1>
-        <p class="text-[9px] font-bold uppercase tracking-[0.2em] text-[#3b82f6]">Guru Mata Pelajaran</p>
+        <p class="text-[9px] font-bold uppercase tracking-[0.2em] text-[#3b82f6]">{{ $roleLabels['subtitle'] }}</p>
     </div>
 
-    {{-- Badge role --}}
+    {{-- Badge tahun ajaran (tampil untuk SEMUA role) --}}
     <div class="mx-3 mt-3 rounded-lg border border-[#e2e8f0] bg-[#f8fafc] px-3 py-2">
-        <p class="text-[10px] font-semibold uppercase tracking-wider text-[#64748b]">Panel Guru</p>
-        <p class="mt-0.5 text-xs font-bold text-[#1e40af]">Tahun Ajaran 2023/2024</p>
+        <p class="text-[10px] font-semibold uppercase tracking-wider text-[#64748b]">{{ $roleLabels['badge'] }}</p>
+        <p class="mt-0.5 text-xs font-bold text-[#1e40af]">Tahun Ajaran 2025/2026</p>
     </div>
 
     {{-- Menu navigasi (scrollable jika banyak) --}}
@@ -55,7 +53,7 @@
                     href="{{ $menu['href'] }}"
                     class="{{ $isActive ? 'bg-[#eff6ff] text-[#1d4ed8] shadow-[inset_-4px_0_0_0_#3b82f6]' : 'text-[#64748b] hover:bg-[#f1f5f9] hover:text-[#0f172a]' }} flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] font-medium transition"
                 >
-                    {{-- Icon SVG berdasarkan key menu --}}
+                    {{-- Icon SVG berdasarkan key icon dari config --}}
                     @if ($menu['icon'] === 'dashboard')
                         <svg class="h-4 w-4 flex-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <rect x="3" y="3" width="7" height="7" rx="1.5" stroke-width="2"></rect>
@@ -63,10 +61,17 @@
                             <rect x="3" y="14" width="7" height="7" rx="1.5" stroke-width="2"></rect>
                             <rect x="14" y="14" width="7" height="7" rx="1.5" stroke-width="2"></rect>
                         </svg>
-                    @elseif ($menu['icon'] === 'calendar')
+                    @elseif ($menu['icon'] === 'users-manage')
                         <svg class="h-4 w-4 flex-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <rect x="3" y="5" width="18" height="16" rx="2" stroke-width="2"></rect>
-                            <path d="M16 3v4M8 3v4M3 10h18" stroke-linecap="round" stroke-width="2"></path>
+                            <path d="M17 20h5v-2a4 4 0 00-5-3.87M9 20H4v-2a4 4 0 015-3.87m6-4a4 4 0 11-8 0 4 4 0 018 0zm6-4a2 2 0 11-4 0 2 2 0 014 0zM5 8a2 2 0 11-4 0 2 2 0 014 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                        </svg>
+                    @elseif ($menu['icon'] === 'school')
+                        <svg class="h-4 w-4 flex-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11M8 14v3M12 14v3M16 14v3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                        </svg>
+                    @elseif ($menu['icon'] === 'user')
+                        <svg class="h-4 w-4 flex-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
                         </svg>
                     @elseif ($menu['icon'] === 'users')
                         <svg class="h-4 w-4 flex-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -74,6 +79,19 @@
                             <circle cx="9.5" cy="7" r="3" stroke-width="2"></circle>
                             <path d="M20 21v-2a4 4 0 0 0-3-3.87" stroke-linecap="round" stroke-width="2"></path>
                             <path d="M16 4.13a3 3 0 0 1 0 5.74" stroke-linecap="round" stroke-width="2"></path>
+                        </svg>
+                    @elseif ($menu['icon'] === 'book')
+                        <svg class="h-4 w-4 flex-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                        </svg>
+                    @elseif ($menu['icon'] === 'calendar')
+                        <svg class="h-4 w-4 flex-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <rect x="3" y="4" width="18" height="18" rx="2" stroke-width="2"></rect>
+                            <path d="M16 2v4M8 2v4M3 10h18" stroke-width="2" stroke-linecap="round"></path>
+                        </svg>
+                    @elseif ($menu['icon'] === 'clipboard')
+                        <svg class="h-4 w-4 flex-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
                         </svg>
                     @elseif ($menu['icon'] === 'star')
                         <svg class="h-4 w-4 flex-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -88,11 +106,13 @@
                         <svg class="h-4 w-4 flex-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path d="M18 20V10M12 20V4M6 20v-6" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
                         </svg>
-                    @elseif ($menu['icon'] === 'user')
+                    @elseif ($menu['icon'] === 'home')
                         <svg class="h-4 w-4 flex-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                            <path d="M3 11.5 12 4l9 7.5" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                            <path d="M5.5 10.5V20h13V10.5" stroke-linejoin="round" stroke-width="2"></path>
                         </svg>
                     @else
+                        {{-- Fallback icon: file-text --}}
                         <svg class="h-4 w-4 flex-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke-linejoin="round" stroke-width="2"></path>
                             <path d="M14 2v6h6M8 13h8M8 17h5M8 9h3" stroke-linecap="round" stroke-width="2"></path>

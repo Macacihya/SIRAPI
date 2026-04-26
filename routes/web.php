@@ -6,7 +6,6 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\SekolahController;
 use App\Http\Controllers\GuruController;
 use App\Http\Controllers\SiswaController;
-use App\Http\Controllers\ProductController_Fariz;
 use Illuminate\Support\Facades\Route;
 
 // ─── Guest Routes ────────────────────────────────────────────
@@ -29,7 +28,6 @@ Route::middleware('auth')->group(function () {
     // ── Semua Role ───────────────────────────────────────────
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::view('/profil', 'pages.profil.index')->name('profil');
-    Route::get('/product', [ProductController_Fariz::class, 'index'])->name('product');
     Route::view('/laporan-nilai', 'pages.laporan-nilai.index')->name('laporan-nilai');
     Route::view('/rekap-nilai', 'pages.rekap-nilai.index')->name('rekap-nilai');
 

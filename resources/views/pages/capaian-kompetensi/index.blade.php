@@ -1,4 +1,4 @@
-@extends('layouts.guru')
+@extends('layouts.app')
 @section('title', 'Capaian Kompetensi')
 @section('subtitle', 'Pencapaian siswa per kompetensi')
 @section('active', 'capaian-kompetensi')

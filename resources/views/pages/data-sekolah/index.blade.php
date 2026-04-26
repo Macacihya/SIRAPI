@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+@extends('layouts.app')
 @section('title', 'Data Sekolah')
 @section('subtitle', 'Informasi institusi pendidikan')
 @section('active', 'data-sekolah')
