@@ -94,7 +94,7 @@
                 <a href="{{ route('profil') }}" class="hidden items-center gap-2.5 sm:flex rounded-lg p-1.5 -m-1.5 transition hover:bg-[#f1f5f9]">
                     <div class="text-right">
                         <p class="text-[13px] font-bold text-[#1e293b]">{{ $user->name }}</p>
-                        <p class="text-[10px] text-[#64748b]">ID. {{ strtoupper($user->username ?? 'ADMIN') }}</p>
+                        <p class="text-[10px] text-[#64748b]">{{ ($user->username ?? 'ADMIN') }}</p>
                     </div>
                     <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-[#1e40af] text-[11px] font-bold text-white">
                         {{ $initials }}
