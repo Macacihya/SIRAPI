@@ -31,3 +31,17 @@ if (!function_exists('getUserRole')) {
         return in_array($role, ['admin', 'admin_tu']) ? 'admin' : $role;
     }
 }
+
+if (!function_exists('getGuruData')) {
+    /**
+     * Mengambil profil data Guru dari tabel 'gurus' berdasarkan NIP user yang login.
+     */
+    function getGuruData()
+    {
+        if (auth()->check()) {
+            return \App\Models\Guru::where('nip', auth()->user()->nip)->first();
+        }
+        return null;
+    }
+}
+
