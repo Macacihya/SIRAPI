@@ -4,55 +4,61 @@
 @section('active', 'aturan-nilai')
 
 @section('content')
-<div x-data="{
-    showHapus: false,
-    showRiwayat: false,
-    showHapusSikap: false,
-    showHapusEskul: false,
-    hapusTarget: null,
-    hapusSikapTarget: null,
-    hapusEskulTarget: null,
-    pembulatan: 'Terdekat',
+<script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('aturanNilaiData', () => ({
+            showHapus: false,
+            showRiwayat: false,
+            showHapusSikap: false,
+            showHapusEskul: false,
+            hapusTarget: null,
+            hapusSikapTarget: null,
+            hapusEskulTarget: null,
+            pembulatan: 'Terdekat',
 
-    komponen: [
-        { id: 2, nama: 'Ulangan Harian (UH)', bobot: 50, kode: 'UH' },
-        { id: 3, nama: 'Ujian Tengah Semester', bobot: 25, kode: 'UTS' },
-        { id: 4, nama: 'Ujian Akhir Semester', bobot: 25, kode: 'UAS' },
-    ],
+            komponen: [
+                { id: 2, nama: 'Ulangan Harian (UH)', bobot: 50, kode: 'UH' },
+                { id: 3, nama: 'Ujian Tengah Semester', bobot: 25, kode: 'UTS' },
+                { id: 4, nama: 'Ujian Akhir Semester', bobot: 25, kode: 'UAS' },
+            ],
 
-    aspekSikap: [
-        { id: 1, nama: 'Sikap Spiritual', predikat: ['A','B','C','D'], deskripsi: 'Ketaatan beribadah, berperilaku syukur, dan berdoa' },
-        { id: 2, nama: 'Sikap Sosial', predikat: ['A','B','C','D'], deskripsi: 'Jujur, disiplin, tanggung jawab, dan kerja sama' },
-    ],
+            aspekSikap: [
+                { id: 1, nama: 'Sikap Spiritual', predikat: ['A','B','C','D'], deskripsi: 'Ketaatan beribadah, berperilaku syukur, dan berdoa' },
+                { id: 2, nama: 'Sikap Sosial', predikat: ['A','B','C','D'], deskripsi: 'Jujur, disiplin, tanggung jawab, dan kerja sama' },
+            ],
 
-    eskul: [
-        { id: 1, nama: 'Pramuka', wajib: true },
-        { id: 2, nama: 'Seni Tari', wajib: false },
-        { id: 3, nama: 'Karate', wajib: false },
-    ],
+            eskul: [
+                { id: 1, nama: 'Pramuka', wajib: true },
+                { id: 2, nama: 'Seni Tari', wajib: false },
+                { id: 3, nama: 'Karate', wajib: false },
+            ],
 
-    get totalBobot() { return this.komponen.reduce((s, k) => s + Number(k.bobot), 0); },
-    get isValid() { return this.totalBobot === 100; },
-    get previewNilai() {
-        let sample = {TH: 85, UH: 78, PTS: 80, PAS: 90};
-        let raw = this.komponen.reduce((s, k) => s + (sample[k.kode]||80) * (Number(k.bobot)/100), 0);
-        if (this.pembulatan === 'Ke Atas') return Math.ceil(raw);
-        if (this.pembulatan === 'Ke Bawah') return Math.floor(raw);
-        return Math.round(raw);
-    },
+            get totalBobot() { return this.komponen.reduce((s, k) => s + Number(k.bobot), 0); },
+            get isValid() { return this.totalBobot === 100; },
+            get previewNilai() {
+                let sample = {TH: 85, UH: 78, PTS: 80, PAS: 90};
+                let raw = this.komponen.reduce((s, k) => s + (sample[k.kode]||80) * (Number(k.bobot)/100), 0);
+                if (this.pembulatan === 'Ke Atas') return Math.ceil(raw);
+                if (this.pembulatan === 'Ke Bawah') return Math.floor(raw);
+                return Math.round(raw);
+            },
 
-    addKomponen() { this.komponen.push({id:Date.now(), nama:'Komponen Baru', bobot:0, kode:'KB'}); },
-    confirmHapus(k) { this.hapusTarget = k; this.showHapus = true; },
-    doHapus() { this.komponen = this.komponen.filter(k => k.id !== this.hapusTarget.id); this.showHapus = false; $dispatch('toast',{message:'Komponen berhasil dihapus',type:'error'}); },
+            addKomponen() { this.komponen.push({id:Date.now(), nama:'Komponen Baru', bobot:0, kode:'KB'}); },
+            confirmHapus(k) { this.hapusTarget = k; this.showHapus = true; },
+            doHapus() { this.komponen = this.komponen.filter(k => k.id !== this.hapusTarget.id); this.showHapus = false; this.$dispatch('toast',{message:'Komponen berhasil dihapus',type:'error'}); },
 
-    addAspekSikap() { this.aspekSikap.push({ id: Date.now(), nama: 'Aspek Sikap Baru', predikat: ['A','B','C','D'], deskripsi: '' }); },
-    confirmHapusSikap(a) { this.hapusSikapTarget = a; this.showHapusSikap = true; },
-    doHapusSikap() { this.aspekSikap = this.aspekSikap.filter(a => a.id !== this.hapusSikapTarget.id); this.showHapusSikap = false; $dispatch('toast',{message:'Aspek sikap dihapus',type:'error'}); },
+            addAspekSikap() { this.aspekSikap.push({ id: Date.now(), nama: 'Aspek Sikap Baru', predikat: ['A','B','C','D'], deskripsi: '' }); },
+            confirmHapusSikap(a) { this.hapusSikapTarget = a; this.showHapusSikap = true; },
+            doHapusSikap() { this.aspekSikap = this.aspekSikap.filter(a => a.id !== this.hapusSikapTarget.id); this.showHapusSikap = false; this.$dispatch('toast',{message:'Aspek sikap dihapus',type:'error'}); },
 
-    addEskul() { this.eskul.push({ id: Date.now(), nama: 'Kegiatan Baru', wajib: false }); },
-    confirmHapusEskul(e) { this.hapusEskulTarget = e; this.showHapusEskul = true; },
-    doHapusEskul() { this.eskul = this.eskul.filter(e => e.id !== this.hapusEskulTarget.id); this.showHapusEskul = false; $dispatch('toast',{message:'Ekstrakurikuler dihapus',type:'error'}); },
-}" class="space-y-6">
+            addEskul() { this.eskul.push({ id: Date.now(), nama: 'Kegiatan Baru', wajib: false }); },
+            confirmHapusEskul(e) { this.hapusEskulTarget = e; this.showHapusEskul = true; },
+            doHapusEskul() { this.eskul = this.eskul.filter(e => e.id !== this.hapusEskulTarget.id); this.showHapusEskul = false; this.$dispatch('toast',{message:'Ekstrakurikuler dihapus',type:'error'}); },
+        }));
+    });
+</script>
+
+<div x-data="aturanNilaiData" class="space-y-6">
 
     {{-- HEADING --}}
     <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
@@ -290,61 +296,43 @@
     </div>
 
     {{-- ═══ MODAL: Hapus Komponen ═══ --}}
-    <div x-show="showHapus" class="fixed inset-0 z-[100] flex items-center justify-center bg-[#0f172a]/60 backdrop-blur-sm" style="display:none" x-transition @click.self="showHapus = false">
-        <div class="w-[90%] max-w-sm rounded-2xl bg-white shadow-2xl" @click.stop>
-            <div class="p-6 text-center">
-                <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#fef2f2] text-[#dc2626] ring-4 ring-[#fee2e2]"><svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></div>
-                <h3 class="mt-4 text-[18px] font-black text-[#0f172a]">Hapus Komponen?</h3>
-                <p class="mt-2 text-[13px] text-[#64748b]">Komponen "<strong x-text="hapusTarget?.nama"></strong>" akan dihapus.</p>
-            </div>
-            <div class="flex gap-3 border-t border-[#e2e8f0] bg-[#f8fafc] px-6 py-4 rounded-b-2xl">
-                <button @click="showHapus = false" class="flex-1 rounded-lg border border-[#e2e8f0] bg-white py-2.5 text-[12px] font-bold text-[#475569]">Batal</button>
-                <button @click="doHapus()" class="flex-1 rounded-lg bg-[#dc2626] py-2.5 text-[12px] font-bold text-white">Ya, Hapus</button>
-            </div>
-        </div>
-    </div>
+    <x-confirm-dialog
+        alpineShow="showHapus"
+        type="danger"
+        title="Hapus Komponen?"
+        message="Komponen '<strong x-text='hapusTarget?.nama'></strong>' akan dihapus."
+        confirmText="Ya, Hapus"
+        confirmAction="doHapus()"
+    />
 
     {{-- ═══ MODAL: Hapus Aspek Sikap ═══ --}}
-    <div x-show="showHapusSikap" class="fixed inset-0 z-[100] flex items-center justify-center bg-[#0f172a]/60 backdrop-blur-sm" style="display:none" x-transition @click.self="showHapusSikap = false">
-        <div class="w-[90%] max-w-sm rounded-2xl bg-white shadow-2xl" @click.stop>
-            <div class="p-6 text-center">
-                <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#fef2f2] text-[#dc2626] ring-4 ring-[#fee2e2]"><svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></div>
-                <h3 class="mt-4 text-[18px] font-black text-[#0f172a]">Hapus Aspek Sikap?</h3>
-                <p class="mt-2 text-[13px] text-[#64748b]">Aspek "<strong x-text="hapusSikapTarget?.nama"></strong>" akan dihapus dari konfigurasi rapor.</p>
-            </div>
-            <div class="flex gap-3 border-t border-[#e2e8f0] bg-[#f8fafc] px-6 py-4 rounded-b-2xl">
-                <button @click="showHapusSikap = false" class="flex-1 rounded-lg border border-[#e2e8f0] bg-white py-2.5 text-[12px] font-bold text-[#475569]">Batal</button>
-                <button @click="doHapusSikap()" class="flex-1 rounded-lg bg-[#dc2626] py-2.5 text-[12px] font-bold text-white">Ya, Hapus</button>
-            </div>
-        </div>
-    </div>
+    <x-confirm-dialog
+        alpineShow="showHapusSikap"
+        type="danger"
+        title="Hapus Aspek Sikap?"
+        message="Aspek '<strong x-text='hapusSikapTarget?.nama'></strong>' akan dihapus dari konfigurasi rapor."
+        confirmText="Ya, Hapus"
+        confirmAction="doHapusSikap()"
+    />
 
     {{-- ═══ MODAL: Hapus Eskul ═══ --}}
-    <div x-show="showHapusEskul" class="fixed inset-0 z-[100] flex items-center justify-center bg-[#0f172a]/60 backdrop-blur-sm" style="display:none" x-transition @click.self="showHapusEskul = false">
-        <div class="w-[90%] max-w-sm rounded-2xl bg-white shadow-2xl" @click.stop>
-            <div class="p-6 text-center">
-                <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#fef2f2] text-[#dc2626] ring-4 ring-[#fee2e2]"><svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></div>
-                <h3 class="mt-4 text-[18px] font-black text-[#0f172a]">Hapus Ekstrakurikuler?</h3>
-                <p class="mt-2 text-[13px] text-[#64748b]">"<strong x-text="hapusEskulTarget?.nama"></strong>" akan dihapus dari daftar eskul.</p>
-            </div>
-            <div class="flex gap-3 border-t border-[#e2e8f0] bg-[#f8fafc] px-6 py-4 rounded-b-2xl">
-                <button @click="showHapusEskul = false" class="flex-1 rounded-lg border border-[#e2e8f0] bg-white py-2.5 text-[12px] font-bold text-[#475569]">Batal</button>
-                <button @click="doHapusEskul()" class="flex-1 rounded-lg bg-[#dc2626] py-2.5 text-[12px] font-bold text-white">Ya, Hapus</button>
-            </div>
-        </div>
-    </div>
+    <x-confirm-dialog
+        alpineShow="showHapusEskul"
+        type="danger"
+        title="Hapus Ekstrakurikuler?"
+        message="'<strong x-text='hapusEskulTarget?.nama'></strong>' akan dihapus dari daftar eskul."
+        confirmText="Ya, Hapus"
+        confirmAction="doHapusEskul()"
+    />
 
     {{-- ═══ MODAL: Riwayat Lengkap ═══ --}}
-    <div x-show="showRiwayat" class="fixed inset-0 z-[100] flex items-center justify-center bg-[#0f172a]/60 backdrop-blur-sm" style="display:none" x-transition @click.self="showRiwayat = false">
-        <div class="w-[90%] max-w-lg rounded-2xl bg-white shadow-2xl max-h-[80vh] flex flex-col" @click.stop>
-            <div class="flex items-center justify-between border-b border-[#e2e8f0] px-6 py-4"><h3 class="text-[18px] font-black text-[#0f172a]">Riwayat Perubahan Lengkap</h3><button @click="showRiwayat = false" class="flex h-8 w-8 items-center justify-center rounded-lg text-[#94a3b8] hover:bg-[#f1f5f9]"><svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-width="2" stroke-linecap="round"></path></svg></button></div>
-            <div class="flex-1 overflow-y-auto px-6 py-4 divide-y divide-[#f1f5f9]">
-                @foreach ([['date'=>'12 Jan 2024','desc'=>'Bobot PAS diubah 35% → 30%','by'=>'Admin TU'],['date'=>'05 Des 2023','desc'=>'Tambah komponen Tugas Harian (20%)','by'=>'Admin TU'],['date'=>'10 Nov 2023','desc'=>'KKM diubah 70 → 75','by'=>'Kepsek'],['date'=>'01 Sep 2023','desc'=>'Pembulatan diubah ke Terdekat','by'=>'Admin TU'],['date'=>'15 Jul 2023','desc'=>'Konfigurasi awal semester ganjil','by'=>'System']] as $r)
-                    <div class="py-3"><p class="text-[13px] font-bold text-[#0f172a]">{{ $r['desc'] }}</p><p class="mt-0.5 text-[11px] text-[#94a3b8]">{{ $r['date'] }} · {{ $r['by'] }}</p></div>
-                @endforeach
-            </div>
+    <x-modal alpineShow="showRiwayat" title="Riwayat Perubahan Lengkap" maxWidth="lg">
+        <div class="overflow-y-auto px-6 py-4 divide-y divide-[#f1f5f9] -mx-6 -my-5">
+            @foreach ([['date'=>'12 Jan 2024','desc'=>'Bobot PAS diubah 35% → 30%','by'=>'Admin TU'],['date'=>'05 Des 2023','desc'=>'Tambah komponen Tugas Harian (20%)','by'=>'Admin TU'],['date'=>'10 Nov 2023','desc'=>'KKM diubah 70 → 75','by'=>'Kepsek'],['date'=>'01 Sep 2023','desc'=>'Pembulatan diubah ke Terdekat','by'=>'Admin TU'],['date'=>'15 Jul 2023','desc'=>'Konfigurasi awal semester ganjil','by'=>'System']] as $r)
+                <div class="py-3 first:pt-0 last:pb-0"><p class="text-[13px] font-bold text-[#0f172a]">{{ $r['desc'] }}</p><p class="mt-0.5 text-[11px] text-[#94a3b8]">{{ $r['date'] }} · {{ $r['by'] }}</p></div>
+            @endforeach
         </div>
-    </div>
+    </x-modal>
 
 </div>
 @endsection

@@ -7,7 +7,14 @@
 
     @if(getUserRole() === 'admin')
         {{-- Konten Admin: Laporan Nilai --}}
-<div class="space-y-6" x-data="{ expanded: null }">
+<script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('laporanAdminData', () => ({
+            expanded: null
+        }));
+    });
+</script>
+<div class="space-y-6" x-data="laporanAdminData">
     {{-- Header --}}
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
@@ -89,7 +96,14 @@
 </div>
     @elseif(getUserRole() === 'guru')
         {{-- Konten Guru: Laporan Nilai --}}
-<div class="space-y-6" x-data="{ expanded: null }">
+<script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('laporanGuruData', () => ({
+            expanded: null
+        }));
+    });
+</script>
+<div class="space-y-6" x-data="laporanGuruData">
     {{-- Header --}}
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
@@ -202,7 +216,14 @@
 </div>
     @elseif(getUserRole() === 'walikelas')
         {{-- Konten Walikelas: Laporan Nilai --}}
-<div class="space-y-6" x-data="{ expanded: null }">
+<script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('laporanWalikelasData', () => ({
+            expanded: null
+        }));
+    });
+</script>
+<div class="space-y-6" x-data="laporanWalikelasData">
     {{-- Header --}}
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>

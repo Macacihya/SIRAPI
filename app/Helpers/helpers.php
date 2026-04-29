@@ -26,7 +26,7 @@ if (!function_exists('getUserRole')) {
      */
     function getUserRole(): string
     {
-        $role = auth()->user()->role ?? 'admin';
+        $role = auth()->user()?->role ?? 'admin';
 
         return in_array($role, ['admin', 'admin_tu']) ? 'admin' : $role;
     }

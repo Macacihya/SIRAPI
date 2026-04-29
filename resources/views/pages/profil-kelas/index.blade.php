@@ -348,95 +348,101 @@
             </div>
 
             {{-- Pagination --}}
-            <div class="no-print flex flex-col items-center justify-between gap-3 sm:flex-row">
-                <p class="text-[11px] font-bold uppercase tracking-[0.1em] text-[#64748b]">
-                    Menampilkan <span x-text="paginatedSiswa.length"></span> dari <span x-text="filteredSiswa.length"></span> siswa
-                </p>
-                <div class="flex items-center gap-1" x-show="totalPages > 1">
-                    <button @click="goToPage(currentPage - 1)" :disabled="currentPage <= 1" class="flex h-8 w-8 items-center justify-center rounded-lg text-[#94a3b8] transition hover:bg-[#f1f5f9] disabled:opacity-30 disabled:cursor-not-allowed">‹</button>
-                    <template x-for="p in pageNumbers" :key="p">
-                        <button @click="goToPage(p)" :class="currentPage === p ? 'bg-[#1d4ed8] text-white' : 'text-[#64748b] hover:bg-[#f1f5f9]'" class="flex h-8 w-8 items-center justify-center rounded-lg text-[12px] font-bold transition" x-text="p"></button>
-                    </template>
-                    <button @click="goToPage(currentPage + 1)" :disabled="currentPage >= totalPages" class="flex h-8 w-8 items-center justify-center rounded-lg text-[#64748b] transition hover:bg-[#f1f5f9] disabled:opacity-30 disabled:cursor-not-allowed">›</button>
-                </div>
+            <div class="no-print border-t border-[#e2e8f0] px-6 py-4">
+                <nav class="flex items-center justify-between">
+                    {{-- Left Side: Info --}}
+                    <div class="flex items-center gap-4 text-[13px] text-[#64748b]">
+                        <div class="flex items-center gap-2">
+                            <span>Tampilkan</span>
+                            <select x-model="perPage" @change="currentPage = 1" class="h-9 rounded-[10px] border border-[#e2e8f0] bg-white px-3 font-bold text-[#0f172a] outline-none transition focus:border-[#3b82f6]">
+                                <option value="8">8</option>
+                                <option value="15">15</option>
+                                <option value="30">30</option>
+                            </select>
+                            <span>data</span>
+                        </div>
+                        <span class="text-[#cbd5e1]">•</span>
+                        <div>
+                            Menampilkan 
+                            <span class="font-bold text-[#0f172a]" x-text="paginatedSiswa.length"></span> 
+                            dari 
+                            <span class="font-bold text-[#0f172a]" x-text="filteredSiswa.length"></span>
+                        </div>
+                    </div>
+
+                    {{-- Right Side: Navigation Buttons --}}
+                    <div class="flex items-center gap-1" x-show="totalPages > 1">
+                        <button @click="goToPage(currentPage - 1)" :disabled="currentPage <= 1" class="flex h-9 w-9 items-center justify-center rounded-[10px] text-[#64748b] transition hover:bg-[#f1f5f9] disabled:opacity-30 disabled:cursor-not-allowed">
+                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                        </button>
+                        
+                        <template x-for="p in pageNumbers" :key="p">
+                            <button @click="goToPage(p)" 
+                                :class="currentPage === p ? 'bg-[#3b82f6] text-white shadow-lg shadow-blue-500/30' : 'text-[#64748b] hover:bg-[#f1f5f9]'" 
+                                class="flex h-9 w-9 items-center justify-center rounded-[10px] text-[13px] font-black transition" 
+                                x-text="p"></button>
+                        </template>
+
+                        <button @click="goToPage(currentPage + 1)" :disabled="currentPage >= totalPages" class="flex h-9 w-9 items-center justify-center rounded-[10px] text-[#64748b] transition hover:bg-[#f1f5f9] disabled:opacity-30 disabled:cursor-not-allowed">
+                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                        </button>
+                    </div>
+                </nav>
             </div>
         </div>
 
         {{-- ═══════ MODAL EDIT SISWA ═══════ --}}
-        <div x-show="editModalOpen" class="fixed inset-0 z-[100] flex items-center justify-center bg-[#0f172a]/60 backdrop-blur-sm" style="display: none;" x-transition @click.self="editModalOpen = false">
-            <div class="flex w-[95%] max-w-lg flex-col rounded-2xl bg-white shadow-2xl" @click.stop>
-                {{-- Modal Header --}}
-                <div class="flex items-center justify-between border-b border-[#e2e8f0] px-6 py-4">
+        <x-modal alpineShow="editModalOpen" title="Edit Data Siswa" subtitle="Ubah jabatan organisasi kelas siswa" maxWidth="lg">
+            <div class="space-y-5">
+                {{-- Student Info Preview --}}
+                <div class="flex items-center gap-4 rounded-xl bg-[#f8fafc] p-4 ring-1 ring-[#e2e8f0]">
+                    <div class="flex h-14 w-14 items-center justify-center rounded-xl bg-[#1e40af] text-[16px] font-bold text-white" x-text="editForm.init"></div>
                     <div>
-                        <h2 class="text-[18px] font-black text-[#0f172a]">Edit Data Siswa</h2>
-                        <p class="mt-0.5 text-[12px] text-[#64748b]">Ubah jabatan organisasi kelas siswa</p>
-                    </div>
-                    <button @click="editModalOpen = false" class="rounded-full bg-[#f1f5f9] p-2 text-[#64748b] transition hover:bg-[#e2e8f0] hover:text-[#0f172a]">
-                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-width="2" stroke-linecap="round"/></svg>
-                    </button>
-                </div>
-
-                {{-- Modal Body --}}
-                <div class="space-y-5 px-6 py-5">
-                    {{-- Student Info Preview --}}
-                    <div class="flex items-center gap-4 rounded-xl bg-[#f8fafc] p-4 ring-1 ring-[#e2e8f0]">
-                        <div class="flex h-14 w-14 items-center justify-center rounded-xl bg-[#1e40af] text-[16px] font-bold text-white" x-text="editForm.init"></div>
-                        <div>
-                            <p class="text-[16px] font-bold text-[#0f172a]" x-text="editForm.nama"></p>
-                            <p class="mt-0.5 text-[12px] text-[#64748b]" x-text="editForm.nis"></p>
-                            <p class="mt-0.5 text-[11px] text-[#64748b]" x-text="editForm.jk"></p>
-                        </div>
-                    </div>
-
-                    {{-- Jabatan Dropdown --}}
-                    <div>
-                        <label class="mb-2 block text-[11px] font-bold uppercase tracking-[0.15em] text-[#64748b]">
-                            Jabatan Organisasi Kelas
-                        </label>
-                        <select x-model="editForm.role" class="h-12 w-full rounded-lg border border-[#e2e8f0] bg-white px-4 text-[14px] font-semibold text-[#0f172a] outline-none transition focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20">
-                            <template x-for="role in ['SISWA', 'KETUA KELAS', 'WAKIL KETUA', 'SEKRETARIS 1', 'SEKRETARIS 2', 'BENDAHARA 1', 'BENDAHARA 2']" :key="role">
-                                <option :value="role" :disabled="!isRoleAvailable(role) && editForm.role !== role" x-text="role + (limits[role] < 999 ? (isRoleAvailable(role) || editForm.role === role ? ' — Tersedia' : ' — Terisi') : '')"></option>
-                            </template>
-                        </select>
-                    </div>
-
-                    {{-- Kuota Info --}}
-                    <div class="rounded-xl bg-[#f8fafc] p-4 ring-1 ring-[#e2e8f0]">
-                        <p class="mb-3 text-[10px] font-bold uppercase tracking-[0.2em] text-[#64748b]">Kuota Jabatan Saat Ini</p>
-                        <div class="grid grid-cols-2 gap-2">
-                            <template x-for="role in ['KETUA KELAS', 'WAKIL KETUA', 'SEKRETARIS 1', 'SEKRETARIS 2', 'BENDAHARA 1', 'BENDAHARA 2']" :key="role">
-                                <div class="flex items-center justify-between rounded-lg bg-white px-3 py-2 ring-1 ring-[#e2e8f0]">
-                                    <span class="text-[11px] font-semibold text-[#475569]" x-text="role"></span>
-                                    <span class="text-[12px] font-black" :class="countRole(role) >= limits[role] ? 'text-[#dc2626]' : 'text-[#16a34a]'" x-text="countRole(role) + '/' + limits[role]"></span>
-                                </div>
-                            </template>
-                        </div>
+                        <p class="text-[16px] font-bold text-[#0f172a]" x-text="editForm.nama"></p>
+                        <p class="mt-0.5 text-[12px] text-[#64748b]" x-text="editForm.nis"></p>
+                        <p class="mt-0.5 text-[11px] text-[#64748b]" x-text="editForm.jk"></p>
                     </div>
                 </div>
 
-                {{-- Modal Footer --}}
-                <div class="flex gap-3 border-t border-[#e2e8f0] bg-[#f8fafc] px-6 py-4 rounded-b-2xl">
-                    <button @click="editModalOpen = false" class="flex-1 rounded-lg border border-[#e2e8f0] bg-white px-4 py-2.5 text-[12px] font-bold text-[#475569] transition hover:bg-[#f1f5f9]">Batal</button>
-                    <button @click="confirmSave()" class="flex-1 rounded-lg bg-[#1d4ed8] px-4 py-2.5 text-[12px] font-bold text-white transition hover:bg-[#2563eb]">Simpan Perubahan</button>
+                {{-- Jabatan Dropdown --}}
+                <div>
+                    <label class="mb-2 block text-[11px] font-bold uppercase tracking-[0.15em] text-[#64748b]">
+                        Jabatan Organisasi Kelas
+                    </label>
+                    <select x-model="editForm.role" class="h-12 w-full rounded-lg border border-[#e2e8f0] bg-white px-4 text-[14px] font-semibold text-[#0f172a] outline-none transition focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20">
+                        <template x-for="role in ['SISWA', 'KETUA KELAS', 'WAKIL KETUA', 'SEKRETARIS 1', 'SEKRETARIS 2', 'BENDAHARA 1', 'BENDAHARA 2']" :key="role">
+                            <option :value="role" :disabled="!isRoleAvailable(role) && editForm.role !== role" x-text="role + (limits[role] < 999 ? (isRoleAvailable(role) || editForm.role === role ? ' — Tersedia' : ' — Terisi') : '')"></option>
+                        </template>
+                    </select>
+                </div>
+
+                {{-- Kuota Info --}}
+                <div class="rounded-xl bg-[#f8fafc] p-4 ring-1 ring-[#e2e8f0]">
+                    <p class="mb-3 text-[10px] font-bold uppercase tracking-[0.2em] text-[#64748b]">Kuota Jabatan Saat Ini</p>
+                    <div class="grid grid-cols-2 gap-2">
+                        <template x-for="role in ['KETUA KELAS', 'WAKIL KETUA', 'SEKRETARIS 1', 'SEKRETARIS 2', 'BENDAHARA 1', 'BENDAHARA 2']" :key="role">
+                            <div class="flex items-center justify-between rounded-lg bg-white px-3 py-2 ring-1 ring-[#e2e8f0]">
+                                <span class="text-[11px] font-semibold text-[#475569]" x-text="role"></span>
+                                <span class="text-[12px] font-black" :class="countRole(role) >= limits[role] ? 'text-[#dc2626]' : 'text-[#16a34a]'" x-text="countRole(role) + '/' + limits[role]"></span>
+                            </div>
+                        </template>
+                    </div>
                 </div>
             </div>
-        </div>
+            <x-slot:footer>
+                <button @click="editModalOpen = false" class="flex-1 rounded-lg border border-[#e2e8f0] bg-white px-4 py-2.5 text-[12px] font-bold text-[#475569] transition hover:bg-[#f1f5f9]">Batal</button>
+                <button @click="confirmSave()" class="flex-1 rounded-lg bg-[#1d4ed8] px-4 py-2.5 text-[12px] font-bold text-white transition hover:bg-[#2563eb]">Simpan Perubahan</button>
+            </x-slot:footer>
+        </x-modal>
 
         {{-- ═══════ MODAL KONFIRMASI SIMPAN ═══════ --}}
-        <div x-show="saveModalOpen" class="fixed inset-0 z-[110] flex items-center justify-center bg-[#0f172a]/60 backdrop-blur-sm" style="display: none;" x-transition @click.self="saveModalOpen = false">
-            <div class="flex w-[90%] max-w-sm flex-col rounded-2xl bg-white shadow-2xl">
-                <div class="p-6 text-center">
-                    <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#eff6ff] text-[#1d4ed8] mb-4 ring-4 ring-[#dbeafe]">
-                        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                    </div>
-                    <h3 class="text-[18px] font-black text-[#0f172a]">Simpan Perubahan?</h3>
-                    <p class="mt-2 text-[13px] leading-[1.8] text-[#64748b]">Jabatan siswa <strong class="text-[#0f172a]" x-text="editForm.nama"></strong> akan diubah menjadi <strong class="text-[#1d4ed8]" x-text="editForm.role"></strong>.</p>
-                </div>
-                <div class="flex gap-3 bg-[#f8fafc] px-6 py-4 rounded-b-2xl border-t border-[#e2e8f0]">
-                    <button @click="saveModalOpen = false" class="flex-1 rounded-lg border border-[#e2e8f0] bg-white px-4 py-2.5 text-[12px] font-bold text-[#475569] transition hover:bg-[#f1f5f9]">Batal</button>
-                    <button @click="executeSave()" class="flex-1 rounded-lg bg-[#1d4ed8] px-4 py-2.5 text-[12px] font-bold text-white transition hover:bg-[#2563eb]">Ya, Simpan</button>
-                </div>
-            </div>
-        </div>
+        <x-confirm-dialog
+            alpineShow="saveModalOpen"
+            type="success"
+            title="Simpan Perubahan?"
+            message="Jabatan siswa <strong class='text-[#0f172a]' x-text='editForm.nama'></strong> akan diubah menjadi <strong class='text-[#1d4ed8]' x-text='editForm.role'></strong>."
+            confirmText="Ya, Simpan"
+            confirmAction="executeSave()"
+        />
     </div>
 @endsection

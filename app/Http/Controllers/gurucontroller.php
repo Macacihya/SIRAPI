@@ -8,26 +8,48 @@ use App\Models\Sekolah;
 
 class GuruController extends Controller
 {
-    public function index()
+    private function getMockGurus()
     {
-        $gurus = collect([
-            (object)['nama' => 'Budi Santoso',    'nip' => '198501012010011001', 'mata_pelajaran' => 'Matematika',   'sekolah' => (object)['nama_sekolah' => 'SD Negeri 1 Jakarta']],
-            (object)['nama' => 'Siti Rahayu',     'nip' => '198702022011012002', 'mata_pelajaran' => 'Bahasa Indonesia', 'sekolah' => (object)['nama_sekolah' => 'SD Negeri 1 Jakarta']],
-            (object)['nama' => 'Ahmad Fauzi',     'nip' => '199003032012011003', 'mata_pelajaran' => 'IPA',          'sekolah' => (object)['nama_sekolah' => 'SD Negeri 2 Jakarta']],
-            (object)['nama' => 'Dewi Lestari',    'nip' => '198904042013012004', 'mata_pelajaran' => 'IPS',          'sekolah' => (object)['nama_sekolah' => 'SD Negeri 2 Jakarta']],
-            (object)['nama' => 'Rudi Hermawan',   'nip' => '199105052014011005', 'mata_pelajaran' => 'PJOK',         'sekolah' => (object)['nama_sekolah' => 'SD Negeri 3 Jakarta']],
-        ]);
+        $firstNames = ['Budi', 'Siti', 'Ahmad', 'Dewi', 'Rudi', 'Hendra', 'Rina', 'Agus', 'Ratna', 'Cipto', 'Bambang', 'Endang'];
+        $lastNames = ['Santoso', 'Rahayu', 'Fauzi', 'Lestari', 'Hermawan', 'Gunawan', 'Sari', 'Salim', 'Kusuma', 'Wijaya'];
+        $subjects = ['Matematika', 'Bahasa Indonesia', 'IPA', 'IPS', 'PJOK', 'Bahasa Inggris', 'Seni Budaya', 'Prakarya', '-'];
 
-        return view('pages.admin.guru-tendik', compact('gurus'));
+        $gurus = [];
+        for ($i = 1; $i <= 35; $i++) {
+            $name = $firstNames[array_rand($firstNames)] . ' ' . $lastNames[array_rand($lastNames)];
+            $email = strtolower(str_replace(' ', '.', $name)) . '@school.id';
+            $roles = (rand(1, 10) > 7) ? ['WALI KELAS XI IPA 1'] : ['GURU MAPEL'];
+            $mapel = in_array('GURU MAPEL', $roles) ? $subjects[array_rand($subjects)] : '-';
+
+            $gurus[] = (object)[
+                'name' => $name,
+                'email' => $email,
+                'nip' => '19' . rand(70, 95) . str_pad(rand(1, 12), 2, '0', STR_PAD_LEFT) . str_pad(rand(1, 28), 2, '0', STR_PAD_LEFT) . '20' . rand(10, 23) . str_pad(rand(1, 12), 2, '0', STR_PAD_LEFT) . '100' . rand(1, 9),
+                'roles' => $roles,
+                'mapel' => $mapel
+            ];
+        }
+        return collect($gurus);
     }
 
-    public function tampilkan()
+    public function index(Request $request)
     {
-        $gurus = collect([
-            (object)['nama' => 'Budi Santoso',    'nip' => '198501012010011001', 'mata_pelajaran' => 'Matematika',   'sekolah' => (object)['nama_sekolah' => 'SD Negeri 1 Jakarta']],
-            (object)['nama' => 'Siti Rahayu',     'nip' => '198702022011012002', 'mata_pelajaran' => 'Bahasa Indonesia', 'sekolah' => (object)['nama_sekolah' => 'SD Negeri 1 Jakarta']],
+        return $this->tampilkan($request);
+    }
+
+    public function tampilkan(Request $request)
+    {
+        $allData = $this->getMockGurus();
+        $perPage = 10;
+        $currentPage = \Illuminate\Pagination\LengthAwarePaginator::resolveCurrentPage();
+        $currentPageItems = $allData->slice(($currentPage - 1) * $perPage, $perPage)->values();
+
+        $gurus = new \Illuminate\Pagination\LengthAwarePaginator($currentPageItems, $allData->count(), $perPage, $currentPage, [
+            'path' => \Illuminate\Pagination\LengthAwarePaginator::resolveCurrentPath(),
+            'query' => $request->query(),
         ]);
-        return view('pages.admin.guru-tendik', compact('gurus'));
+
+        return view('pages.guru-tendik.index', compact('gurus')); // Updated view path based on route Route::view('/guru-tendik', 'pages.guru-tendik.index')
     }
 
     public function create()

@@ -4,65 +4,71 @@
 @section('active', 'kehadiran')
 
 @section('content')
-<div class="space-y-6" x-data="{
-        activeTab: 'input',
-        saveModalOpen: false,
-        selectedDate: new Date().toISOString().split('T')[0],
+<script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('kehadiranData', () => ({
+            activeTab: 'input',
+            saveModalOpen: false,
+            selectedDate: new Date().toISOString().split('T')[0],
 
-        get formattedDate() {
-            const d = new Date(this.selectedDate + 'T00:00:00');
-            const days = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
-            const months = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
-            return days[d.getDay()] + ', ' + d.getDate() + ' ' + months[d.getMonth()] + ' ' + d.getFullYear();
-        },
+            get formattedDate() {
+                const d = new Date(this.selectedDate + 'T00:00:00');
+                const days = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+                const months = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+                return days[d.getDay()] + ', ' + d.getDate() + ' ' + months[d.getMonth()] + ' ' + d.getFullYear();
+            },
 
-        siswaKehadiran: [
-            { no: '01', nama: 'Achmad Albar', status: 'hadir', ket: '' },
-            { no: '02', nama: 'Oscar Permana', status: 'alpa', ket: 'Tanpa Keterangan' },
-            { no: '03', nama: 'Bella Monica', status: 'izin', ket: 'Acara Keluarga' },
-            { no: '04', nama: 'Gita Ananda', status: 'hadir', ket: '' },
-            { no: '05', nama: 'Endah Kartika', status: 'hadir', ket: '' },
-            { no: '06', nama: 'Rina Agustina', status: 'hadir', ket: '' },
-            { no: '07', nama: 'Dandi Pratama', status: 'hadir', ket: '' },
-            { no: '08', nama: 'Farhan Azis', status: 'sakit', ket: 'Demam' },
-            { no: '09', nama: 'Hendra Yulian', status: 'hadir', ket: '' },
-            { no: '10', nama: 'Intan Sari', status: 'alpa', ket: '' },
-            { no: '11', nama: 'Joko Wibowo', status: 'hadir', ket: '' },
-            { no: '12', nama: 'Kirana Rahma', status: 'hadir', ket: '' },
-            { no: '13', nama: 'Lukman Putra', status: 'izin', ket: 'Sakit Gigi' },
-            { no: '14', nama: 'Maya Nurhaliza', status: 'hadir', ket: '' },
-            { no: '15', nama: 'Nanda Rizky', status: 'hadir', ket: '' },
-            { no: '16', nama: 'Putri Setiawan', status: 'hadir', ket: '' },
-            { no: '17', nama: 'Qiyamul Haq', status: 'hadir', ket: '' },
-            { no: '18', nama: 'Surya Bagaskara', status: 'hadir', ket: '' },
-        ],
+            siswaKehadiran: [
+                { no: '01', nama: 'Achmad Albar', status: 'hadir', ket: '' },
+                { no: '02', nama: 'Oscar Permana', status: 'alpa', ket: 'Tanpa Keterangan' },
+                { no: '03', nama: 'Bella Monica', status: 'izin', ket: 'Acara Keluarga' },
+                { no: '04', nama: 'Gita Ananda', status: 'hadir', ket: '' },
+                { no: '05', nama: 'Endah Kartika', status: 'hadir', ket: '' },
+                { no: '06', nama: 'Rina Agustina', status: 'hadir', ket: '' },
+                { no: '07', nama: 'Dandi Pratama', status: 'hadir', ket: '' },
+                { no: '08', nama: 'Farhan Azis', status: 'sakit', ket: 'Demam' },
+                { no: '09', nama: 'Hendra Yulian', status: 'hadir', ket: '' },
+                { no: '10', nama: 'Intan Sari', status: 'alpa', ket: '' },
+                { no: '11', nama: 'Joko Wibowo', status: 'hadir', ket: '' },
+                { no: '12', nama: 'Kirana Rahma', status: 'hadir', ket: '' },
+                { no: '13', nama: 'Lukman Putra', status: 'izin', ket: 'Sakit Gigi' },
+                { no: '14', nama: 'Maya Nurhaliza', status: 'hadir', ket: '' },
+                { no: '15', nama: 'Nanda Rizky', status: 'hadir', ket: '' },
+                { no: '16', nama: 'Putri Setiawan', status: 'hadir', ket: '' },
+                { no: '17', nama: 'Qiyamul Haq', status: 'hadir', ket: '' },
+                { no: '18', nama: 'Surya Bagaskara', status: 'hadir', ket: '' },
+            ],
 
-        get statsHadir() { return this.siswaKehadiran.filter(s => s.status === 'hadir').length; },
-        get statsIzin() { return this.siswaKehadiran.filter(s => s.status === 'izin').length; },
-        get statsSakit() { return this.siswaKehadiran.filter(s => s.status === 'sakit').length; },
-        get statsAlpa() { return this.siswaKehadiran.filter(s => s.status === 'alpa').length; },
-        get statsPercent() { return Math.round(this.statsHadir / this.siswaKehadiran.length * 100); },
+            get statsHadir() { return this.siswaKehadiran.filter(s => s.status === 'hadir').length; },
+            get statsIzin() { return this.siswaKehadiran.filter(s => s.status === 'izin').length; },
+            get statsSakit() { return this.siswaKehadiran.filter(s => s.status === 'sakit').length; },
+            get statsAlpa() { return this.siswaKehadiran.filter(s => s.status === 'alpa').length; },
+            get statsPercent() { return Math.round(this.statsHadir / this.siswaKehadiran.length * 100); },
 
-        // Rekap bulanan (dummy)
-        rekapBulan: [
-            { bulan: 'Oktober 2023', hadir: 92, izin: 4, sakit: 3, alpa: 1 },
-            { bulan: 'November 2023', hadir: 88, izin: 6, sakit: 4, alpa: 2 },
-            { bulan: 'Desember 2023', hadir: 95, izin: 2, sakit: 2, alpa: 1 },
-        ],
+            // Rekap bulanan (dummy)
+            rekapBulan: [
+                { bulan: 'Oktober 2023', hadir: 92, izin: 4, sakit: 3, alpa: 1 },
+                { bulan: 'November 2023', hadir: 88, izin: 6, sakit: 4, alpa: 2 },
+                { bulan: 'Desember 2023', hadir: 95, izin: 2, sakit: 2, alpa: 1 },
+            ],
 
-        savedToast: false,
-        doSave() {
-            this.saveModalOpen = false;
-            this.savedToast = true;
-            setTimeout(() => this.savedToast = false, 3000);
-        },
-        setSemuaHadir() {
-            this.siswaKehadiran.forEach(s => {
-                s.status = 'hadir';
-                s.ket = '';
-            });
-        }
-    }">
+            savedToast: false,
+            doSave() {
+                this.saveModalOpen = false;
+                this.savedToast = true;
+                setTimeout(() => this.savedToast = false, 3000);
+            },
+            setSemuaHadir() {
+                this.siswaKehadiran.forEach(s => {
+                    s.status = 'hadir';
+                    s.ket = '';
+                });
+            }
+        }));
+    });
+</script>
+
+<div class="space-y-6" x-data="kehadiranData">
         <h1 class="text-[28px] font-black tracking-[-0.04em] text-[#0f172a] sm:text-[36px]">Kehadiran Siswa</h1>
 
         {{-- Controls --}}

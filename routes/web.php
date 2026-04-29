@@ -35,8 +35,9 @@ Route::middleware('auth')->group(function () {
     Route::middleware('role:admin')->group(function () {
         Route::view('/manajemen-user', 'pages.manajemen-user.index')->name('manajemen-user');
         Route::view('/data-sekolah', 'pages.data-sekolah.index')->name('data-sekolah');
-        Route::view('/guru-tendik', 'pages.guru-tendik.index')->name('guru-tendik');
+        Route::get('/guru-tendik', [GuruController::class, 'index'])->name('guru-tendik');
         Route::view('/akademik', 'pages.akademik.index')->name('akademik');
+        Route::view('/kelas', 'pages.kelas.index')->name('kelas'); // Menambahkan route untuk data kelas
         Route::view('/mata-pelajaran', 'pages.mata-pelajaran.index')->name('mata-pelajaran');
         Route::view('/aturan-nilai', 'pages.aturan-nilai.index')->name('aturan-nilai');
 
@@ -49,7 +50,7 @@ Route::middleware('auth')->group(function () {
 
     // ── Admin & Guru ─────────────────────────────────────────
     Route::middleware('role:admin,guru')->group(function () {
-        Route::view('/siswa', 'pages.siswa.index')->name('siswa');
+        Route::get('/siswa', [SiswaController::class, 'index'])->name('siswa');
     });
 
     // ── Admin, Guru & Walikelas ──────────────────────────────

@@ -103,52 +103,40 @@
     </div>
 
     {{-- ═══ MODAL: Lihat Semua Aktivitas ═══ --}}
-    <div x-show="showAllActivity" class="fixed inset-0 z-[100] flex items-center justify-center bg-[#0f172a]/60 backdrop-blur-sm" style="display:none" x-transition @click.self="showAllActivity = false">
-        <div class="w-[90%] max-w-2xl rounded-2xl bg-white shadow-2xl max-h-[80vh] flex flex-col" @click.stop>
-            <div class="flex items-center justify-between border-b border-[#e2e8f0] px-6 py-4">
-                <h3 class="text-[18px] font-black text-[#0f172a]">Semua Aktivitas Sistem</h3>
-                <button @click="showAllActivity = false" class="flex h-8 w-8 items-center justify-center rounded-lg text-[#94a3b8] hover:bg-[#f1f5f9]"><svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-width="2" stroke-linecap="round"></path></svg></button>
-            </div>
-            <div class="flex-1 overflow-y-auto px-6 py-4 divide-y divide-[#f1f5f9]">
-                @foreach ([
-                    ['title' => 'Pendaftaran Siswa Baru', 'desc' => 'Admin TU-02 menambahkan 5 berkas siswa baru.', 'time' => '10 Menit Lalu'],
-                    ['title' => 'Update Jadwal Akademik', 'desc' => 'Perubahan jadwal Matematika Kelas XI-A.', 'time' => '2 Jam Lalu'],
-                    ['title' => 'Validasi Nilai Akhir Semester', 'desc' => 'Sistem memproses laporan 12 kelas Kelas X.', 'time' => 'Kemarin'],
-                    ['title' => 'Sinkronisasi Data DAPODIK', 'desc' => 'Berhasil sinkron 1,248 data siswa aktif.', 'time' => '2 Hari Lalu'],
-                    ['title' => 'Perubahan Jadwal Mengajar', 'desc' => 'Guru B. Wijaya dipindahkan ke jadwal Kamis.', 'time' => '3 Hari Lalu'],
-                    ['title' => 'Backup Database Triwulan', 'desc' => 'Backup otomatis berhasil (2.4GB).', 'time' => '1 Minggu Lalu'],
-                ] as $log)
-                    <div class="flex items-start gap-4 py-4">
-                        <div class="flex h-9 w-9 flex-none items-center justify-center rounded-[8px] bg-[#eff6ff] text-[#1d4ed8]">
-                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-width="2"></circle><path d="M12 6v6l4 2" stroke-width="2" stroke-linecap="round"></path></svg>
-                        </div>
-                        <div class="flex-1 min-w-0">
-                            <div class="flex items-center justify-between gap-2"><p class="text-[13px] font-bold text-[#0f172a]">{{ $log['title'] }}</p><span class="flex-none text-[10px] font-bold uppercase tracking-[0.08em] text-[#94a3b8]">{{ $log['time'] }}</span></div>
-                            <p class="mt-1 text-[12px] text-[#64748b]">{{ $log['desc'] }}</p>
-                        </div>
+    <x-modal alpineShow="showAllActivity" title="Semua Aktivitas Sistem" maxWidth="2xl">
+        <div class="overflow-y-auto px-6 py-4 divide-y divide-[#f1f5f9] -mx-6 -my-5">
+            @foreach ([
+                ['title' => 'Pendaftaran Siswa Baru', 'desc' => 'Admin TU-02 menambahkan 5 berkas siswa baru.', 'time' => '10 Menit Lalu'],
+                ['title' => 'Update Jadwal Akademik', 'desc' => 'Perubahan jadwal Tematik Kelas 1-A.', 'time' => '2 Jam Lalu'],
+                ['title' => 'Validasi Nilai Akhir Semester', 'desc' => 'Sistem memproses laporan seluruh rombel Kelas 1-6.', 'time' => 'Kemarin'],
+                ['title' => 'Sinkronisasi Data DAPODIK', 'desc' => 'Berhasil sinkron 1,248 data siswa aktif.', 'time' => '2 Hari Lalu'],
+                ['title' => 'Perubahan Jadwal Mengajar', 'desc' => 'Guru B. Wijaya dipindahkan ke jadwal Kamis.', 'time' => '3 Hari Lalu'],
+                ['title' => 'Backup Database Triwulan', 'desc' => 'Backup otomatis berhasil (2.4GB).', 'time' => '1 Minggu Lalu'],
+            ] as $log)
+                <div class="flex items-start gap-4 py-4 first:pt-0 last:pb-0">
+                    <div class="flex h-9 w-9 flex-none items-center justify-center rounded-[8px] bg-[#eff6ff] text-[#1d4ed8]">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-width="2"></circle><path d="M12 6v6l4 2" stroke-width="2" stroke-linecap="round"></path></svg>
                     </div>
-                @endforeach
-            </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center justify-between gap-2"><p class="text-[13px] font-bold text-[#0f172a]">{{ $log['title'] }}</p><span class="flex-none text-[10px] font-bold uppercase tracking-[0.08em] text-[#94a3b8]">{{ $log['time'] }}</span></div>
+                        <p class="mt-1 text-[12px] text-[#64748b]">{{ $log['desc'] }}</p>
+                    </div>
+                </div>
+            @endforeach
         </div>
-    </div>
+    </x-modal>
 
     {{-- ═══ MODAL: Support Center ═══ --}}
-    <div x-show="showSupport" class="fixed inset-0 z-[100] flex items-center justify-center bg-[#0f172a]/60 backdrop-blur-sm" style="display:none" x-transition @click.self="showSupport = false">
-        <div class="w-[90%] max-w-md rounded-2xl bg-white shadow-2xl" @click.stop>
-            <div class="flex items-center justify-between border-b border-[#e2e8f0] px-6 py-4">
-                <h3 class="text-[18px] font-black text-[#0f172a]">Hubungi Support</h3>
-                <button @click="showSupport = false" class="flex h-8 w-8 items-center justify-center rounded-lg text-[#94a3b8] hover:bg-[#f1f5f9]"><svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-width="2" stroke-linecap="round"></path></svg></button>
-            </div>
-            <div class="space-y-4 px-6 py-5">
-                <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Nama</label><input x-model="supportForm.nama" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20" type="text" placeholder="Nama lengkap"></div>
-                <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Email</label><input x-model="supportForm.email" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20" type="email" placeholder="email@sirapi.sch.id"></div>
-                <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Pesan</label><textarea x-model="supportForm.pesan" class="mt-1 flex w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 py-3 text-[14px] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20" rows="3" placeholder="Jelaskan kendala Anda..."></textarea></div>
-            </div>
-            <div class="flex gap-3 border-t border-[#e2e8f0] bg-[#f8fafc] px-6 py-4 rounded-b-2xl">
-                <button @click="showSupport = false" class="flex-1 rounded-lg border border-[#e2e8f0] bg-white py-2.5 text-[12px] font-bold text-[#475569] hover:bg-[#f1f5f9]">Batal</button>
-                <button @click="showSupport = false; supportForm = {nama:'',email:'',pesan:''}; $dispatch('toast', {message: 'Pesan berhasil dikirim ke IT Support!', type: 'success'})" class="flex-1 rounded-lg bg-[#1d4ed8] py-2.5 text-[12px] font-bold text-white hover:bg-[#1e40af]">Kirim Pesan</button>
-            </div>
+    <x-modal alpineShow="showSupport" title="Hubungi Support" maxWidth="md">
+        <div class="space-y-4">
+            <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Nama</label><input x-model="supportForm.nama" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20" type="text" placeholder="Nama lengkap"></div>
+            <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Email</label><input x-model="supportForm.email" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20" type="email" placeholder="email@sirapi.sch.id"></div>
+            <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Pesan</label><textarea x-model="supportForm.pesan" class="mt-1 flex w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 py-3 text-[14px] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20" rows="3" placeholder="Jelaskan kendala Anda..."></textarea></div>
         </div>
-    </div>
+        <x-slot:footer>
+            <button @click="showSupport = false" class="flex-1 rounded-lg border border-[#e2e8f0] bg-white py-2.5 text-[12px] font-bold text-[#475569] hover:bg-[#f1f5f9]">Batal</button>
+            <button @click="showSupport = false; supportForm = {nama:'',email:'',pesan:''}; $dispatch('toast', {message: 'Pesan berhasil dikirim ke IT Support!', type: 'success'})" class="flex-1 rounded-lg bg-[#1d4ed8] py-2.5 text-[12px] font-bold text-white hover:bg-[#1e40af]">Kirim Pesan</button>
+        </x-slot:footer>
+    </x-modal>
 
 </div>

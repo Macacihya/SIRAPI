@@ -17,86 +17,92 @@
         }
     </style>
 
-    <div class="space-y-6 pb-24" x-data="{
-        searchQuery: '',
-        filterKelas: 'VI-A',
-        filterSemester: 'Ganjil',
-        
-        // Modal State
-        saveDraftModalOpen: false,
-        finalizeModalOpen: false,
-
-        grades: [
-            { id: 1, kelas: 'VI-A', nis: '12001', init: 'AA', nama: 'Achmad Albar', uh: 85, uts: 88, uas: 90, status: 'Draft' },
-            { id: 2, kelas: 'VI-A', nis: '12002', init: 'BM', nama: 'Bella Monica', uh: 90, uts: 92, uas: 88, status: 'Final' },
-            { id: 3, kelas: 'VI-A', nis: '12003', init: 'DP', nama: 'Dandi Pratama', uh: 70, uts: 75, uas: 72, status: 'Draft' },
-            { id: 4, kelas: 'VI-A', nis: '12004', init: 'EK', nama: 'Endah Kartika', uh: null, uts: null, uas: null, status: 'Belum' },
-            { id: 5, kelas: 'I-A', nis: '01011', init: 'AB', nama: 'Andi Budiman', uh: 80, uts: 82, uas: 85, status: 'Final' },
-            { id: 6, kelas: 'I-A', nis: '01012', init: 'SA', nama: 'Siti Aminah', uh: 95, uts: 90, uas: 92, status: 'Draft' },
-        ],
-
-        // Automatically calculate NA (Nilai Akhir)
-        // Weight: UH 50%, UTS 25%, UAS 25%
-        calculateNA(g) {
-            const uh = Number(g.uh) || 0;
-            const uts = Number(g.uts) || 0;
-            const uas = Number(g.uas) || 0;
+    <script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('penilaianGuruData', () => ({
+            searchQuery: '',
+            filterKelas: 'VI-A',
+            filterSemester: 'Ganjil',
             
-            if (uh === 0 && uts === 0 && uas === 0) return '-';
-            
-            return ((uh * 0.5) + (uts * 0.25) + (uas * 0.25)).toFixed(1);
-        },
+            // Modal State
+            saveDraftModalOpen: false,
+            finalizeModalOpen: false,
 
-        get filteredGrades() {
-            let result = this.grades;
+            grades: [
+                { id: 1, kelas: 'VI-A', nis: '12001', init: 'AA', nama: 'Achmad Albar', uh: 85, uts: 88, uas: 90, status: 'Draft' },
+                { id: 2, kelas: 'VI-A', nis: '12002', init: 'BM', nama: 'Bella Monica', uh: 90, uts: 92, uas: 88, status: 'Final' },
+                { id: 3, kelas: 'VI-A', nis: '12003', init: 'DP', nama: 'Dandi Pratama', uh: 70, uts: 75, uas: 72, status: 'Draft' },
+                { id: 4, kelas: 'VI-A', nis: '12004', init: 'EK', nama: 'Endah Kartika', uh: null, uts: null, uas: null, status: 'Belum' },
+                { id: 5, kelas: 'I-A', nis: '01011', init: 'AB', nama: 'Andi Budiman', uh: 80, uts: 82, uas: 85, status: 'Final' },
+                { id: 6, kelas: 'I-A', nis: '01012', init: 'SA', nama: 'Siti Aminah', uh: 95, uts: 90, uas: 92, status: 'Draft' },
+            ],
+
+            // Automatically calculate NA (Nilai Akhir)
+            // Weight: UH 50%, UTS 25%, UAS 25%
+            calculateNA(g) {
+                const uh = Number(g.uh) || 0;
+                const uts = Number(g.uts) || 0;
+                const uas = Number(g.uas) || 0;
+                
+                if (uh === 0 && uts === 0 && uas === 0) return '-';
+                
+                return ((uh * 0.5) + (uts * 0.25) + (uas * 0.25)).toFixed(1);
+            },
+
+            get filteredGrades() {
+                let result = this.grades;
+                
+                if (this.filterKelas) {
+                    result = result.filter(g => g.kelas === this.filterKelas);
+                }
+                
+                if (this.searchQuery) {
+                    const q = this.searchQuery.toLowerCase();
+                    result = result.filter(g => g.nama.toLowerCase().includes(q) || g.nis.includes(q));
+                }
+                return result;
+            },
+
+            get classAverage() {
+                const gradesWithNA = this.filteredGrades.filter(g => this.calculateNA(g) !== '-');
+                if (gradesWithNA.length === 0) return '0.0';
+                
+                const sum = gradesWithNA.reduce((acc, g) => acc + Number(this.calculateNA(g)), 0);
+                return (sum / gradesWithNA.length).toFixed(1);
+            },
             
-            if (this.filterKelas) {
-                result = result.filter(g => g.kelas === this.filterKelas);
+            get hasUnsavedChanges() {
+                // Simplified check based on status
+                return this.filteredGrades.some(g => g.status === 'Belum');
+            },
+
+            // Actions
+            saveDraft() {
+                this.saveDraftModalOpen = true;
+            },
+            
+            confirmSaveDraft() {
+                this.filteredGrades.forEach(g => {
+                    if(g.status === 'Belum') g.status = 'Draft';
+                });
+                this.saveDraftModalOpen = false;
+            },
+
+            finalize() {
+                this.finalizeModalOpen = true;
+            },
+            
+            confirmFinalize() {
+                this.filteredGrades.forEach(g => {
+                    g.status = 'Final';
+                });
+                this.finalizeModalOpen = false;
             }
-            
-            if (this.searchQuery) {
-                const q = this.searchQuery.toLowerCase();
-                result = result.filter(g => g.nama.toLowerCase().includes(q) || g.nis.includes(q));
-            }
-            return result;
-        },
+        }));
+    });
+</script>
 
-        get classAverage() {
-            const gradesWithNA = this.filteredGrades.filter(g => this.calculateNA(g) !== '-');
-            if (gradesWithNA.length === 0) return '0.0';
-            
-            const sum = gradesWithNA.reduce((acc, g) => acc + Number(this.calculateNA(g)), 0);
-            return (sum / gradesWithNA.length).toFixed(1);
-        },
-        
-        get hasUnsavedChanges() {
-            // Simplified check based on status
-            return this.filteredGrades.some(g => g.status === 'Belum');
-        },
-
-        // Actions
-        saveDraft() {
-            this.saveDraftModalOpen = true;
-        },
-        
-        confirmSaveDraft() {
-            this.filteredGrades.forEach(g => {
-                if(g.status === 'Belum') g.status = 'Draft';
-            });
-            this.saveDraftModalOpen = false;
-        },
-
-        finalize() {
-            this.finalizeModalOpen = true;
-        },
-        
-        confirmFinalize() {
-            this.filteredGrades.forEach(g => {
-                g.status = 'Final';
-            });
-            this.finalizeModalOpen = false;
-        }
-    }">
+<div class="space-y-6 pb-24" x-data="penilaianGuruData">
         {{-- Title + Info --}}
         <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div>
@@ -242,38 +248,24 @@
         </div>
 
         {{-- ═══════ MODAL SIMPAN DRAFT ═══════ --}}
-        <div x-show="saveDraftModalOpen" class="fixed inset-0 z-[100] flex items-center justify-center bg-[#0f172a]/60 backdrop-blur-sm px-4" style="display: none;" x-transition @click.self="saveDraftModalOpen = false">
-            <div class="flex w-full max-w-sm flex-col rounded-2xl bg-white shadow-2xl">
-                <div class="p-6 text-center">
-                    <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#fff7ed] text-[#ea580c] mb-4 ring-4 ring-[#ffedd5]">
-                        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg>
-                    </div>
-                    <h3 class="text-[18px] font-black text-[#0f172a]">Simpan Draft Sementara?</h3>
-                    <p class="mt-2 text-[13px] leading-[1.8] text-[#64748b]">Nilai yang Anda masukkan akan disimpan sebagai draft. Anda masih dapat mengubahnya nanti.</p>
-                </div>
-                <div class="flex gap-3 bg-[#f8fafc] px-6 py-4 rounded-b-2xl border-t border-[#e2e8f0]">
-                    <button @click="saveDraftModalOpen = false" class="flex-1 rounded-lg border border-[#e2e8f0] bg-white px-4 py-2.5 text-[12px] font-bold text-[#475569] transition hover:bg-[#f1f5f9]">Batal</button>
-                    <button @click="confirmSaveDraft()" class="flex-1 rounded-lg bg-[#ea580c] px-4 py-2.5 text-[12px] font-bold text-white transition hover:bg-[#c2410c]">Ya, Simpan Draft</button>
-                </div>
-            </div>
-        </div>
+        <x-confirm-dialog
+            alpineShow="saveDraftModalOpen"
+            type="warning"
+            title="Simpan Draft Sementara?"
+            message="Nilai yang Anda masukkan akan disimpan sebagai draft. Anda masih dapat mengubahnya nanti."
+            confirmText="Ya, Simpan Draft"
+            confirmAction="confirmSaveDraft()"
+        />
 
         {{-- ═══════ MODAL FINALISASI ═══════ --}}
-        <div x-show="finalizeModalOpen" class="fixed inset-0 z-[100] flex items-center justify-center bg-[#0f172a]/60 backdrop-blur-sm px-4" style="display: none;" x-transition @click.self="finalizeModalOpen = false">
-            <div class="flex w-full max-w-sm flex-col rounded-2xl bg-white shadow-2xl">
-                <div class="p-6 text-center">
-                    <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#fef2f2] text-[#dc2626] mb-4 ring-4 ring-[#fee2e2]">
-                        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                    </div>
-                    <h3 class="text-[18px] font-black text-[#0f172a]">Kunci & Finalisasi?</h3>
-                    <p class="mt-2 text-[13px] leading-[1.8] text-[#64748b]">Setelah difinalisasi, formulir akan <strong class="text-[#0f172a]">terkunci</strong> dan nilai akan diteruskan otomatis ke panel Wali Kelas. Apakah Anda yakin?</p>
-                </div>
-                <div class="flex gap-3 bg-[#f8fafc] px-6 py-4 rounded-b-2xl border-t border-[#e2e8f0]">
-                    <button @click="finalizeModalOpen = false" class="flex-1 rounded-lg border border-[#e2e8f0] bg-white px-4 py-2.5 text-[12px] font-bold text-[#475569] transition hover:bg-[#f1f5f9]">Kenbali</button>
-                    <button @click="confirmFinalize()" class="flex-1 rounded-lg bg-[#dc2626] px-4 py-2.5 text-[12px] font-bold text-white transition hover:bg-[#b91c1c]">Ya, Finalisasi</button>
-                </div>
-            </div>
-        </div>
+        <x-confirm-dialog
+            alpineShow="finalizeModalOpen"
+            type="danger"
+            title="Kunci & Finalisasi?"
+            message="Setelah difinalisasi, formulir akan <strong class='text-[#0f172a]'>terkunci</strong> dan nilai akan diteruskan otomatis ke panel Wali Kelas. Apakah Anda yakin?"
+            confirmText="Ya, Finalisasi"
+            confirmAction="confirmFinalize()"
+        />
 
     </div>
     @elseif(getUserRole() === 'walikelas')
@@ -285,88 +277,94 @@
         }
     </style>
 
-    <div class="space-y-6" x-data="{
-        searchQuery: '',
-        selectedMapel: '',
-        filterStatus: '',
-        filterOpen: false,
-        currentPage: 1,
-        perPage: 8,
+    <script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('penilaianWalikelasData', () => ({
+            searchQuery: '',
+            selectedMapel: '',
+            filterStatus: '',
+            filterOpen: false,
+            currentPage: 1,
+            perPage: 8,
 
-        grades: [
-            { no: '01', nis: '12001 / 005432101', init: 'AA', nama: 'Achmad Albar', agm: 88, pan: 85, bi: 90, mtk: 85, ipas: 78, pj: 92, sb: 85, avg: 85.7, status: 'TUNTAS' },
-            { no: '02', nis: '12002 / 005432102', init: 'BM', nama: 'Bella Monica', agm: 90, pan: 92, bi: 88, mtk: 92, ipas: 88, pj: 90, sb: 87, avg: 90.0, status: 'TUNTAS' },
-            { no: '03', nis: '12003 / 005432103', init: 'DP', nama: 'Dandi Pratama', agm: 85, pan: 80, bi: 70, mtk: 68, ipas: 68, pj: 85, sb: 75, avg: 74.5, status: 'BELUM' },
-            { no: '04', nis: '12004 / 005432104', init: 'EK', nama: 'Endah Kartika', agm: 88, pan: 85, bi: 82, mtk: 65, ipas: 80, pj: 85, sb: 80, avg: 80.5, status: 'TUNTAS' },
-            { no: '05', nis: '12005 / 005432105', init: 'FA', nama: 'Farhan Azis', agm: 82, pan: 85, bi: 85, mtk: 78, ipas: 77, pj: 80, sb: 80, avg: 81.0, status: 'TUNTAS' },
-            { no: '06', nis: '12006 / 005432106', init: 'GA', nama: 'Gita Ananda', agm: 92, pan: 95, bi: 93, mtk: 90, ipas: 88, pj: 95, sb: 90, avg: 91.7, status: 'TUNTAS' },
-            { no: '07', nis: '12007 / 005432107', init: 'HY', nama: 'Hendra Yulian', agm: 80, pan: 75, bi: 68, mtk: 70, ipas: 72, pj: 80, sb: 75, avg: 74.2, status: 'BELUM' },
-            { no: '08', nis: '12008 / 005432108', init: 'IS', nama: 'Intan Sari', agm: 86, pan: 88, bi: 86, mtk: 82, ipas: 84, pj: 88, sb: 85, avg: 85.3, status: 'TUNTAS' },
-            { no: '09', nis: '12009 / 005432109', init: 'JW', nama: 'Joko Wibowo', agm: 85, pan: 82, bi: 80, mtk: 76, ipas: 78, pj: 85, sb: 82, avg: 81.1, status: 'TUNTAS' },
-            { no: '10', nis: '12010 / 005432110', init: 'KR', nama: 'Kirana Rahma', agm: 95, pan: 94, bi: 92, mtk: 95, ipas: 90, pj: 96, sb: 93, avg: 93.5, status: 'TUNTAS' },
-            { no: '11', nis: '12011 / 005432111', init: 'LP', nama: 'Lukman Putra', agm: 75, pan: 70, bi: 65, mtk: 60, ipas: 58, pj: 75, sb: 70, avg: 67.2, status: 'BELUM' },
-            { no: '12', nis: '12012 / 005432112', init: 'MN', nama: 'Maya Nurhaliza', agm: 88, pan: 90, bi: 84, mtk: 88, ipas: 86, pj: 88, sb: 85, avg: 86.6, status: 'TUNTAS' },
-            { no: '13', nis: '12013 / 005432113', init: 'NR', nama: 'Nanda Rizky', agm: 85, pan: 82, bi: 76, mtk: 79, ipas: 81, pj: 88, sb: 84, avg: 81.6, status: 'TUNTAS' },
-            { no: '14', nis: '12014 / 005432114', init: 'OP', nama: 'Oscar Permana', agm: 78, pan: 75, bi: 74, mtk: 72, ipas: 68, pj: 78, sb: 75, avg: 73.8, status: 'BELUM' },
-            { no: '15', nis: '12015 / 005432115', init: 'PS', nama: 'Putri Setiawan', agm: 90, pan: 88, bi: 89, mtk: 86, ipas: 82, pj: 90, sb: 88, avg: 87.1, status: 'TUNTAS' },
-            { no: '16', nis: '12016 / 005432116', init: 'QH', nama: 'Qiyamul Haq', agm: 92, pan: 90, bi: 87, mtk: 91, ipas: 93, pj: 92, sb: 90, avg: 90.5, status: 'TUNTAS' },
-            { no: '17', nis: '12017 / 005432117', init: 'RA', nama: 'Rina Agustina', agm: 82, pan: 80, bi: 72, mtk: 68, ipas: 65, pj: 82, sb: 78, avg: 74.4, status: 'BELUM' },
-            { no: '18', nis: '12018 / 005432118', init: 'SB', nama: 'Surya Bagaskara', agm: 88, pan: 86, bi: 81, mtk: 84, ipas: 87, pj: 88, sb: 85, avg: 85.0, status: 'TUNTAS' },
-        ],
+            grades: [
+                { no: '01', nis: '12001 / 005432101', init: 'AA', nama: 'Achmad Albar', agm: 88, pan: 85, bi: 90, mtk: 85, ipas: 78, pj: 92, sb: 85, avg: 85.7, status: 'TUNTAS' },
+                { no: '02', nis: '12002 / 005432102', init: 'BM', nama: 'Bella Monica', agm: 90, pan: 92, bi: 88, mtk: 92, ipas: 88, pj: 90, sb: 87, avg: 90.0, status: 'TUNTAS' },
+                { no: '03', nis: '12003 / 005432103', init: 'DP', nama: 'Dandi Pratama', agm: 85, pan: 80, bi: 70, mtk: 68, ipas: 68, pj: 85, sb: 75, avg: 74.5, status: 'BELUM' },
+                { no: '04', nis: '12004 / 005432104', init: 'EK', nama: 'Endah Kartika', agm: 88, pan: 85, bi: 82, mtk: 65, ipas: 80, pj: 85, sb: 80, avg: 80.5, status: 'TUNTAS' },
+                { no: '05', nis: '12005 / 005432105', init: 'FA', nama: 'Farhan Azis', agm: 82, pan: 85, bi: 85, mtk: 78, ipas: 77, pj: 80, sb: 80, avg: 81.0, status: 'TUNTAS' },
+                { no: '06', nis: '12006 / 005432106', init: 'GA', nama: 'Gita Ananda', agm: 92, pan: 95, bi: 93, mtk: 90, ipas: 88, pj: 95, sb: 90, avg: 91.7, status: 'TUNTAS' },
+                { no: '07', nis: '12007 / 005432107', init: 'HY', nama: 'Hendra Yulian', agm: 80, pan: 75, bi: 68, mtk: 70, ipas: 72, pj: 80, sb: 75, avg: 74.2, status: 'BELUM' },
+                { no: '08', nis: '12008 / 005432108', init: 'IS', nama: 'Intan Sari', agm: 86, pan: 88, bi: 86, mtk: 82, ipas: 84, pj: 88, sb: 85, avg: 85.3, status: 'TUNTAS' },
+                { no: '09', nis: '12009 / 005432109', init: 'JW', nama: 'Joko Wibowo', agm: 85, pan: 82, bi: 80, mtk: 76, ipas: 78, pj: 85, sb: 82, avg: 81.1, status: 'TUNTAS' },
+                { no: '10', nis: '12010 / 005432110', init: 'KR', nama: 'Kirana Rahma', agm: 95, pan: 94, bi: 92, mtk: 95, ipas: 90, pj: 96, sb: 93, avg: 93.5, status: 'TUNTAS' },
+                { no: '11', nis: '12011 / 005432111', init: 'LP', nama: 'Lukman Putra', agm: 75, pan: 70, bi: 65, mtk: 60, ipas: 58, pj: 75, sb: 70, avg: 67.2, status: 'BELUM' },
+                { no: '12', nis: '12012 / 005432112', init: 'MN', nama: 'Maya Nurhaliza', agm: 88, pan: 90, bi: 84, mtk: 88, ipas: 86, pj: 88, sb: 85, avg: 86.6, status: 'TUNTAS' },
+                { no: '13', nis: '12013 / 005432113', init: 'NR', nama: 'Nanda Rizky', agm: 85, pan: 82, bi: 76, mtk: 79, ipas: 81, pj: 88, sb: 84, avg: 81.6, status: 'TUNTAS' },
+                { no: '14', nis: '12014 / 005432114', init: 'OP', nama: 'Oscar Permana', agm: 78, pan: 75, bi: 74, mtk: 72, ipas: 68, pj: 78, sb: 75, avg: 73.8, status: 'BELUM' },
+                { no: '15', nis: '12015 / 005432115', init: 'PS', nama: 'Putri Setiawan', agm: 90, pan: 88, bi: 89, mtk: 86, ipas: 82, pj: 90, sb: 88, avg: 87.1, status: 'TUNTAS' },
+                { no: '16', nis: '12016 / 005432116', init: 'QH', nama: 'Qiyamul Haq', agm: 92, pan: 90, bi: 87, mtk: 91, ipas: 93, pj: 92, sb: 90, avg: 90.5, status: 'TUNTAS' },
+                { id: 17, nis: '12017 / 005432117', init: 'RA', nama: 'Rina Agustina', agm: 82, pan: 80, bi: 72, mtk: 68, ipas: 65, pj: 82, sb: 78, avg: 74.4, status: 'BELUM' },
+                { id: 18, nis: '12018 / 005432118', init: 'SB', nama: 'Surya Bagaskara', agm: 88, pan: 86, bi: 81, mtk: 84, ipas: 87, pj: 88, sb: 85, avg: 85.0, status: 'TUNTAS' },
+            ],
 
-        get filteredGrades() {
-            let result = [...this.grades];
-            if (this.searchQuery) {
-                const q = this.searchQuery.toLowerCase();
-                result = result.filter(g => g.nama.toLowerCase().includes(q) || g.nis.includes(q));
+            get filteredGrades() {
+                let result = [...this.grades];
+                if (this.searchQuery) {
+                    const q = this.searchQuery.toLowerCase();
+                    result = result.filter(g => g.nama.toLowerCase().includes(q) || g.nis.includes(q));
+                }
+                if (this.filterStatus) result = result.filter(g => g.status === this.filterStatus);
+                if (this.selectedMapel) {
+                    result.sort((a, b) => a[this.selectedMapel] - b[this.selectedMapel]);
+                }
+                return result;
+            },
+
+            get totalPages() {
+                return Math.ceil(this.filteredGrades.length / this.perPage) || 1;
+            },
+
+            get paginatedGrades() {
+                const start = (this.currentPage - 1) * this.perPage;
+                return this.filteredGrades.slice(start, start + this.perPage);
+            },
+
+            get pageNumbers() {
+                const pages = [];
+                for (let i = 1; i <= this.totalPages; i++) pages.push(i);
+                return pages;
+            },
+
+            get tuntasCount() {
+                return this.grades.filter(g => g.status === 'TUNTAS').length;
+            },
+
+            get tuntasPercent() {
+                return Math.round(this.tuntasCount / this.grades.length * 100);
+            },
+
+            get classAverage() {
+                const sum = this.grades.reduce((acc, g) => acc + g.avg, 0);
+                return (sum / this.grades.length).toFixed(1);
+            },
+
+            goToPage(p) {
+                if (p >= 1 && p <= this.totalPages) this.currentPage = p;
+            },
+
+            resetFilters() {
+                this.searchQuery = '';
+                this.selectedMapel = '';
+                this.filterStatus = '';
+                this.currentPage = 1;
+                this.filterOpen = false;
             }
-            if (this.filterStatus) result = result.filter(g => g.status === this.filterStatus);
-            if (this.selectedMapel) {
-                result.sort((a, b) => a[this.selectedMapel] - b[this.selectedMapel]);
-            }
-            return result;
-        },
+        }));
+    });
+</script>
 
-        get totalPages() {
-            return Math.ceil(this.filteredGrades.length / this.perPage) || 1;
-        },
-
-        get paginatedGrades() {
-            const start = (this.currentPage - 1) * this.perPage;
-            return this.filteredGrades.slice(start, start + this.perPage);
-        },
-
-        get pageNumbers() {
-            const pages = [];
-            for (let i = 1; i <= this.totalPages; i++) pages.push(i);
-            return pages;
-        },
-
-        get tuntasCount() {
-            return this.grades.filter(g => g.status === 'TUNTAS').length;
-        },
-
-        get tuntasPercent() {
-            return Math.round(this.tuntasCount / this.grades.length * 100);
-        },
-
-        get classAverage() {
-            const sum = this.grades.reduce((acc, g) => acc + g.avg, 0);
-            return (sum / this.grades.length).toFixed(1);
-        },
-
-        goToPage(p) {
-            if (p >= 1 && p <= this.totalPages) this.currentPage = p;
-        },
-
-        resetFilters() {
-            this.searchQuery = '';
-            this.selectedMapel = '';
-            this.filterStatus = '';
-            this.currentPage = 1;
-            this.filterOpen = false;
-        }
-    }">
+<div class="space-y-6" x-data="penilaianWalikelasData">
         {{-- Title + Actions --}}
         <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div>

@@ -408,56 +408,36 @@
             </div>
             
             <!-- Modal Simpan Draft -->
-            <div x-show="draftModalOpen" style="display: none;" class="fixed inset-0 z-[100] flex items-center justify-center bg-[#0f172a]/60 backdrop-blur-sm px-4" x-transition @click.self="draftModalOpen = false">
-                <div class="flex w-full max-w-sm flex-col rounded-2xl bg-white shadow-2xl">
-                    <div class="p-6 text-center">
-                        <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#fff7ed] text-[#ea580c] mb-4 ring-4 ring-[#ffedd5]">
-                            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg>
-                        </div>
-                        <h3 class="text-[18px] font-black text-[#0f172a]">Simpan Draft Rapor?</h3>
-                        <p class="mt-2 text-[13px] leading-[1.8] text-[#64748b]">Data sikap dan catatan wali kelas untuk <strong x-text="selectedStudent.name"></strong> akan disimpan sebagai draft.</p>
-                    </div>
-                    <div class="flex gap-3 bg-[#f8fafc] px-6 py-4 rounded-b-2xl border-t border-[#e2e8f0]">
-                        <button @click="draftModalOpen = false" class="flex-1 rounded-lg border border-[#e2e8f0] bg-white px-4 py-2.5 text-[12px] font-bold text-[#475569] transition hover:bg-[#f1f5f9]">Batal</button>
-                        <button @click="saveDraft()" class="flex-1 rounded-lg bg-[#ea580c] px-4 py-2.5 text-[12px] font-bold text-white transition hover:bg-[#c2410c]">Ya, Simpan Draft</button>
-                    </div>
-                </div>
-            </div>
+            <x-confirm-dialog
+                alpineShow="draftModalOpen"
+                type="warning"
+                title="Simpan Draft Rapor?"
+                message="Data sikap dan catatan wali kelas untuk <strong x-text='selectedStudent.name'></strong> akan disimpan sebagai draft."
+                confirmText="Ya, Simpan Draft"
+                confirmAction="saveDraft()"
+            />
 
             <!-- Modal Finalisasi Rapor -->
-            <div x-show="saveModalOpen" style="display: none;" class="fixed inset-0 z-[100] flex items-center justify-center bg-[#0f172a]/60 backdrop-blur-sm px-4" x-transition @click.self="saveModalOpen = false">
-                <div class="flex w-full max-w-sm flex-col rounded-2xl bg-white shadow-2xl">
-                    <div class="p-6 text-center">
-                        <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#fef2f2] text-[#dc2626] mb-4 ring-4 ring-[#fee2e2]">
-                            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                        </div>
-                        <h3 class="text-[18px] font-black text-[#0f172a]">Finalisasi Rapor?</h3>
-                        <p class="mt-2 text-[13px] leading-[1.8] text-[#64748b]">Rapor <strong x-text="selectedStudent.name"></strong> akan dikunci. Data yang sudah final tidak dapat diubah lagi dan siap untuk dicetak.</p>
-                    </div>
-                    <div class="flex gap-3 bg-[#f8fafc] px-6 py-4 rounded-b-2xl border-t border-[#e2e8f0]">
-                        <button @click="saveModalOpen = false" class="flex-1 rounded-lg border border-[#e2e8f0] bg-white px-4 py-2.5 text-[12px] font-bold text-[#475569] transition hover:bg-[#f1f5f9]">Batal</button>
-                        <button @click="submitToBackend()" :disabled="hasMissingSubjectGrades || isFormIncomplete" :class="(hasMissingSubjectGrades || isFormIncomplete) ? 'bg-gray-400 cursor-not-allowed' : 'bg-[#dc2626] hover:bg-[#b91c1c]'" class="flex-1 rounded-lg px-4 py-2.5 text-[12px] font-bold text-white transition">
-                            <span x-text="(hasMissingSubjectGrades || isFormIncomplete) ? 'Belum Lengkap' : 'Ya, Finalisasi'"></span>
-                        </button>
-                    </div>
-                </div>
-            </div>
-
+            <x-confirm-dialog
+                alpineShow="saveModalOpen"
+                type="danger"
+                title="Finalisasi Rapor?"
+                message="Rapor <strong x-text='selectedStudent.name'></strong> akan dikunci. Data yang sudah final tidak dapat diubah lagi dan siap untuk dicetak."
+                confirmText="Ya, Finalisasi"
+                confirmAction="submitToBackend()"
+                :disabledCondition="`hasMissingSubjectGrades || isFormIncomplete`"
+                disabledText="Belum Lengkap"
+            />
 
             <!-- Modal Konfirmasi Hapus Prestasi -->
-            <div x-show="deleteConfirmOpen" style="display: none;" class="fixed inset-0 z-50 flex items-center justify-center bg-[#0f172a]/60 backdrop-blur-sm" x-transition>
-                <div @click.outside="deleteConfirmOpen = false" class="bg-white rounded-2xl p-6 w-[400px] shadow-xl">
-                    <div class="w-12 h-12 rounded-full bg-[#fef2f2] flex items-center justify-center mb-4 text-red-500">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                    </div>
-                    <h3 class="text-xl font-bold text-[#0f172a] mb-2">Hapus Prestasi?</h3>
-                    <p class="text-[13px] text-[#64748b] mb-6">Apakah Anda yakin ingin menghapus data prestasi ini dari form?</p>
-                    <div class="flex justify-end gap-3">
-                        <button @click="deleteConfirmOpen = false" class="px-4 py-2 rounded-lg text-[13px] font-bold text-[#64748b] hover:bg-[#f1f5f9]">Batal</button>
-                        <button @click="deletePrestasi()" class="px-4 py-2 rounded-lg bg-red-600 text-[13px] font-bold text-white hover:bg-red-700">Hapus</button>
-                    </div>
-                </div>
-            </div>
+            <x-confirm-dialog
+                alpineShow="deleteConfirmOpen"
+                type="danger"
+                title="Hapus Prestasi?"
+                message="Apakah Anda yakin ingin menghapus data prestasi ini dari form?"
+                confirmText="Hapus"
+                confirmAction="deletePrestasi()"
+            />
 
         </div>
     </div>

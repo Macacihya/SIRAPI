@@ -10,26 +10,31 @@
         @include('pages.jadwal.partials.admin')
     @elseif(getUserRole() === 'guru')
         {{-- Konten Guru: Jadwal Mengajar --}}
-<div class="space-y-6" x-data="{
-        activeTab: 'Senin',
-        hariList: ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat'],
-        jadwal: {
-            'Senin': [
-                { waktu: '07:30 - 09:00', durasi: '90 Menit', mapel: 'Bahasa Indonesia', kelas: 'Kelas VI - A', ruangan: 'R. Teori 6A', type: 'jadwal', status: 'Selesai' },
-                { waktu: '09:00 - 10:30', durasi: '90 Menit', mapel: 'Bahasa Indonesia', kelas: 'Kelas V - A', ruangan: 'R. Teori 5A', type: 'jadwal', status: 'Menunggu' },
-                { durasi: '30 Menit', type: 'istirahat' },
-                { waktu: '11:00 - 12:30', durasi: '90 Menit', mapel: 'Karya Ilmiah (Ekskul)', kelas: 'Kelas Gabungan', ruangan: 'Perpustakaan', type: 'jadwal', status: 'Menunggu' }
-            ],
-            'Selasa': [
-                { waktu: '07:30 - 09:00', durasi: '90 Menit', mapel: 'Bahasa Indonesia', kelas: 'Kelas IV - A', ruangan: 'R. Teori 4A', type: 'jadwal', status: 'Menunggu' },
-                { durasi: '30 Menit', type: 'istirahat' },
-                { waktu: '09:30 - 11:00', durasi: '90 Menit', mapel: 'Bahasa Indonesia', kelas: 'Kelas VI - B', ruangan: 'R. Teori 6B', type: 'jadwal', status: 'Menunggu' }
-            ],
-            'Rabu': [],
-            'Kamis': [],
-            'Jumat': []
-        }
-    }">
+<script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('jadwalGuruData', () => ({
+            activeTab: 'Senin',
+            hariList: ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat'],
+            jadwal: {
+                'Senin': [
+                    { waktu: '07:30 - 09:00', durasi: '90 Menit', mapel: 'Bahasa Indonesia', kelas: 'Kelas VI - A', ruangan: 'R. Teori 6A', type: 'jadwal', status: 'Selesai' },
+                    { waktu: '09:00 - 10:30', durasi: '90 Menit', mapel: 'Bahasa Indonesia', kelas: 'Kelas V - A', ruangan: 'R. Teori 5A', type: 'jadwal', status: 'Menunggu' },
+                    { durasi: '30 Menit', type: 'istirahat' },
+                    { waktu: '11:00 - 12:30', durasi: '90 Menit', mapel: 'Karya Ilmiah (Ekskul)', kelas: 'Kelas Gabungan', ruangan: 'Perpustakaan', type: 'jadwal', status: 'Menunggu' }
+                ],
+                'Selasa': [
+                    { waktu: '07:30 - 09:00', durasi: '90 Menit', mapel: 'Bahasa Indonesia', kelas: 'Kelas IV - A', ruangan: 'R. Teori 4A', type: 'jadwal', status: 'Menunggu' },
+                    { durasi: '30 Menit', type: 'istirahat' },
+                    { waktu: '09:30 - 11:00', durasi: '90 Menit', mapel: 'Bahasa Indonesia', kelas: 'Kelas VI - B', ruangan: 'R. Teori 6B', type: 'jadwal', status: 'Menunggu' }
+                ],
+                'Rabu': [],
+                'Kamis': [],
+                'Jumat': []
+            }
+        }));
+    });
+</script>
+<div class="space-y-6" x-data="jadwalGuruData">
         {{-- Header Section --}}
         <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
@@ -181,36 +186,41 @@
     </div>
     @elseif(getUserRole() === 'walikelas')
         {{-- Konten Walikelas: Jadwal Kelas --}}
-<div class="space-y-8" x-data="{
-        days: [
-            { day: 'SENIN', slots: [
-                { time: '07:30 - 09:30', subject: 'Pendidikan Agama', teacher: 'H. Syamsul Maarif, Lc', isBreak: false },
-                { time: '09:30 - 10:00', subject: 'ISTIRAHAT', teacher: '', isBreak: true },
-                { time: '10:00 - 12:00', subject: 'Matematika', teacher: 'Drs. Bambang H.', isBreak: false },
-            ]},
-            { day: 'SELASA', slots: [
-                { time: '07:30 - 09:30', subject: 'Bahasa Indonesia', teacher: 'Drs. M. Taufik', isBreak: false },
-                { time: '09:30 - 10:00', subject: 'ISTIRAHAT', teacher: '', isBreak: true },
-                { time: '10:00 - 12:00', subject: 'IPAS', teacher: 'Dr. Heru Prasetyo', isBreak: false },
-            ]},
-            { day: 'RABU', slots: [
-                { time: '07:30 - 09:30', subject: 'Pendidikan Pancasila', teacher: 'Drs. H. Anwar', isBreak: false },
-                { time: '09:30 - 10:00', subject: 'ISTIRAHAT', teacher: '', isBreak: true },
-                { time: '10:00 - 12:00', subject: 'Seni Budaya', teacher: 'Larasati, S.Sn', isBreak: false },
-            ]},
-            { day: 'KAMIS', slots: [
-                { time: '07:30 - 09:30', subject: 'PJOK', teacher: 'Slamet Raharjo, S.Pd', isBreak: false },
-                { time: '09:30 - 10:00', subject: 'ISTIRAHAT', teacher: '', isBreak: true },
-                { time: '10:00 - 12:00', subject: 'Matematika', teacher: 'Drs. Bambang H.', isBreak: false },
-            ]},
-            { day: 'JUMAT', slots: [
-                { time: '07:30 - 08:30', subject: 'Pembinaan Wali Kelas', teacher: 'Drs. Ahmad Subarjo', isBreak: false },
-                { time: '08:30 - 09:30', subject: 'Bahasa Indonesia', teacher: 'Drs. M. Taufik', isBreak: false },
-                { time: '09:30 - 10:00', subject: 'ISTIRAHAT', teacher: '', isBreak: true },
-                { time: '10:00 - 11:30', subject: 'IPAS', teacher: 'Dr. Heru Prasetyo', isBreak: false },
-            ]}
-        ]
-    }">
+<script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('jadwalWalikelasData', () => ({
+            days: [
+                { day: 'SENIN', slots: [
+                    { time: '07:30 - 09:30', subject: 'Pendidikan Agama', teacher: 'H. Syamsul Maarif, Lc', isBreak: false },
+                    { time: '09:30 - 10:00', subject: 'ISTIRAHAT', teacher: '', isBreak: true },
+                    { time: '10:00 - 12:00', subject: 'Matematika', teacher: 'Drs. Bambang H.', isBreak: false },
+                ]},
+                { day: 'SELASA', slots: [
+                    { time: '07:30 - 09:30', subject: 'Bahasa Indonesia', teacher: 'Drs. M. Taufik', isBreak: false },
+                    { time: '09:30 - 10:00', subject: 'ISTIRAHAT', teacher: '', isBreak: true },
+                    { time: '10:00 - 12:00', subject: 'IPAS', teacher: 'Dr. Heru Prasetyo', isBreak: false },
+                ]},
+                { day: 'RABU', slots: [
+                    { time: '07:30 - 09:30', subject: 'Pendidikan Pancasila', teacher: 'Drs. H. Anwar', isBreak: false },
+                    { time: '09:30 - 10:00', subject: 'ISTIRAHAT', teacher: '', isBreak: true },
+                    { time: '10:00 - 12:00', subject: 'Seni Budaya', teacher: 'Larasati, S.Sn', isBreak: false },
+                ]},
+                { day: 'KAMIS', slots: [
+                    { time: '07:30 - 09:30', subject: 'PJOK', teacher: 'Slamet Raharjo, S.Pd', isBreak: false },
+                    { time: '09:30 - 10:00', subject: 'ISTIRAHAT', teacher: '', isBreak: true },
+                    { time: '10:00 - 12:00', subject: 'Matematika', teacher: 'Drs. Bambang H.', isBreak: false },
+                ]},
+                { day: 'JUMAT', slots: [
+                    { time: '07:30 - 08:30', subject: 'Pembinaan Wali Kelas', teacher: 'Drs. Ahmad Subarjo', isBreak: false },
+                    { time: '08:30 - 09:30', subject: 'Bahasa Indonesia', teacher: 'Drs. M. Taufik', isBreak: false },
+                    { time: '09:30 - 10:00', subject: 'ISTIRAHAT', teacher: '', isBreak: true },
+                    { time: '10:00 - 11:30', subject: 'IPAS', teacher: 'Dr. Heru Prasetyo', isBreak: false },
+                ]}
+            ]
+        }));
+    });
+</script>
+<div class="space-y-8" x-data="jadwalWalikelasData">
         {{-- Title + Actions --}}
         <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
             <div>

@@ -4,56 +4,62 @@
 @section('active', 'mata-pelajaran')
 
 @section('content')
-<div x-data="{
-    search: '',
-    showAdd: false,
-    showEdit: false,
-    showDelete: false,    
-    editData: {},
-    deleteData: {},
-    form: { kode: '', nama: '', kelompok: 'Wajib' },
-    mapel: [
-        { kode: 'MP01', nama: 'Pendidikan Agama', kelompok: 'Wajib' },
-        { kode: 'MP02', nama: 'Pendidikan Pancasila', kelompok: 'Wajib' },
-        { kode: 'MP03', nama: 'Bahasa Indonesia', kelompok: 'Wajib' },
-        { kode: 'MP04', nama: 'Matematika', kelompok: 'Wajib' },
-        { kode: 'MP05', nama: 'IPAS', kelompok: 'Wajib' },
-        { kode: 'MP06', nama: 'PJOK', kelompok: 'Wajib' },
-        { kode: 'MP07', nama: 'Seni Budaya', kelompok: 'Pilihan' },
-    ],
-    get filtered() {
-        if (!this.search) return this.mapel;
-        let s = this.search.toLowerCase();
-        return this.mapel.filter(m => m.nama.toLowerCase().includes(s) || m.kode.toLowerCase().includes(s));
-    },
-    submitAdd() { 
-        this.mapel.push({ kode: this.form.kode, nama: this.form.nama, kelompok: this.form.kelompok }); 
-        this.form = { kode: '', nama: '', kelompok: 'Wajib' }; 
-        this.showAdd = false; 
-        $dispatch('toast', { message: 'Mata pelajaran berhasil ditambahkan!', type: 'success' }); 
-    },
-    openEdit(m) { 
-        this.editData = JSON.parse(JSON.stringify(m)); 
-        this.showEdit = true; 
-    },
-    submitEdit() { 
-        let idx = this.mapel.findIndex(m => m.kode === this.editData.kode); 
-        if (idx > -1) { 
-            this.mapel[idx] = JSON.parse(JSON.stringify(this.editData)); 
-        } 
-        this.showEdit = false; 
-        $dispatch('toast', { message: 'Mata pelajaran berhasil diperbarui!', type: 'success' }); 
-    },
-    openDelete(m) {
-        this.deleteData = m;
-        this.showDelete = true;
-    },
-    confirmDelete() {
-        this.mapel = this.mapel.filter(m => m.kode !== this.deleteData.kode);
-        this.showDelete = false;
-        $dispatch('toast', { message: 'Mata pelajaran berhasil dihapus!', type: 'success' }); 
-    }
-}" class="space-y-6">
+<script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('mapelData', () => ({
+            search: '',
+            showAdd: false,
+            showEdit: false,
+            showDelete: false,    
+            editData: {},
+            deleteData: {},
+            form: { kode: '', nama: '', kelompok: 'Wajib' },
+            mapel: [
+                { kode: 'MP01', nama: 'Pendidikan Agama', kelompok: 'Wajib' },
+                { kode: 'MP02', nama: 'Pendidikan Pancasila', kelompok: 'Wajib' },
+                { kode: 'MP03', nama: 'Bahasa Indonesia', kelompok: 'Wajib' },
+                { kode: 'MP04', nama: 'Matematika', kelompok: 'Wajib' },
+                { kode: 'MP05', nama: 'IPAS', kelompok: 'Wajib' },
+                { kode: 'MP06', nama: 'PJOK', kelompok: 'Wajib' },
+                { kode: 'MP07', nama: 'Seni Budaya', kelompok: 'Pilihan' },
+            ],
+            get filtered() {
+                if (!this.search) return this.mapel;
+                let s = this.search.toLowerCase();
+                return this.mapel.filter(m => m.nama.toLowerCase().includes(s) || m.kode.toLowerCase().includes(s));
+            },
+            submitAdd() { 
+                this.mapel.push({ kode: this.form.kode, nama: this.form.nama, kelompok: this.form.kelompok }); 
+                this.form = { kode: '', nama: '', kelompok: 'Wajib' }; 
+                this.showAdd = false; 
+                this.$dispatch('toast', { message: 'Mata pelajaran berhasil ditambahkan!', type: 'success' }); 
+            },
+            openEdit(m) { 
+                this.editData = JSON.parse(JSON.stringify(m)); 
+                this.showEdit = true; 
+            },
+            submitEdit() { 
+                let idx = this.mapel.findIndex(m => m.kode === this.editData.kode); 
+                if (idx > -1) { 
+                    this.mapel[idx] = JSON.parse(JSON.stringify(this.editData)); 
+                } 
+                this.showEdit = false; 
+                this.$dispatch('toast', { message: 'Mata pelajaran berhasil diperbarui!', type: 'success' }); 
+            },
+            openDelete(m) {
+                this.deleteData = m;
+                this.showDelete = true;
+            },
+            confirmDelete() {
+                this.mapel = this.mapel.filter(m => m.kode !== this.deleteData.kode);
+                this.showDelete = false;
+                this.$dispatch('toast', { message: 'Mata pelajaran berhasil dihapus!', type: 'success' }); 
+            }
+        }));
+    });
+</script>
+
+<div x-data="mapelData" class="space-y-6">
 
     {{-- HEADING --}}
     <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
@@ -89,55 +95,84 @@
                 <tr x-show="filtered.length === 0"><td colspan="4" class="py-12 text-center text-[14px] text-[#94a3b8]">Tidak ada data mapel ditemukan.</td></tr>
             </tbody>
         </table>
-        <div class="flex items-center justify-between border-t border-[#e2e8f0] px-6 py-3"><p class="text-[12px] font-semibold text-[#64748b]">Menampilkan <span x-text="filtered.length"></span> dari <span x-text="mapel.length"></span> entri</p></div>
+        <div class="border-t border-[#e2e8f0] px-6 py-4">
+            <nav class="flex items-center justify-between">
+                {{-- Left Side: Info --}}
+                <div class="flex items-center gap-4 text-[13px] text-[#64748b]">
+                    <div class="flex items-center gap-2">
+                        <span>Tampilkan</span>
+                        <select class="h-9 rounded-[10px] border border-[#e2e8f0] bg-white px-3 font-bold text-[#0f172a] outline-none transition focus:border-[#3b82f6]">
+                            <option>10</option>
+                            <option>25</option>
+                            <option>50</option>
+                        </select>
+                        <span>data</span>
+                    </div>
+                    <span class="text-[#cbd5e1]">•</span>
+                    <div>
+                        Menampilkan 
+                        <span class="font-bold text-[#0f172a]" x-text="filtered.length"></span> 
+                        dari 
+                        <span class="font-bold text-[#0f172a]" x-text="mapel.length"></span>
+                    </div>
+                </div>
+
+                {{-- Right Side: Navigation Buttons --}}
+                <div class="flex items-center gap-1">
+                    <button class="flex h-9 w-9 items-center justify-center rounded-[10px] text-[#cbd5e1] cursor-not-allowed">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="m11 17-5-5 5-5m7 10-5-5 5-5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                    </button>
+                    <button class="flex h-9 w-9 items-center justify-center rounded-[10px] text-[#cbd5e1] cursor-not-allowed">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                    </button>
+                    <span class="flex h-9 w-9 items-center justify-center rounded-[10px] bg-[#3b82f6] text-[13px] font-black text-white shadow-lg shadow-blue-500/30">1</span>
+                    <button class="flex h-9 w-9 items-center justify-center rounded-[10px] text-[#cbd5e1] cursor-not-allowed">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                    </button>
+                    <button class="flex h-9 w-9 items-center justify-center rounded-[10px] text-[#cbd5e1] cursor-not-allowed">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="m13 17 5-5-5-5M6 17l5-5-5-5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                    </button>
+                </div>
+            </nav>
+        </div>
     </div>
 
     {{-- ═══ MODAL: Tambah Mapel ═══ --}}
-    <div x-show="showAdd" class="fixed inset-0 z-[100] flex items-center justify-center bg-[#0f172a]/60 backdrop-blur-sm" style="display:none" x-transition @click.self="showAdd = false">
-        <div class="w-[90%] max-w-sm rounded-2xl bg-white shadow-2xl" @click.stop>
-            <div class="flex items-center justify-between border-b border-[#e2e8f0] px-6 py-4"><h3 class="text-[18px] font-black text-[#0f172a]">Tambah Mata Pelajaran</h3><button @click="showAdd = false" class="flex h-8 w-8 items-center justify-center rounded-lg text-[#94a3b8] hover:bg-[#f1f5f9]"><svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-width="2" stroke-linecap="round"></path></svg></button></div>
-            <div class="space-y-4 px-6 py-5">
-                <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Kode Mapel</label><input x-model="form.kode" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6]" placeholder="Contoh: MP08"></div>
-                <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Nama Mata Pelajaran</label><input x-model="form.nama" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6]" placeholder="Contoh: Seni Rupa"></div>
-                <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Kelompok</label><select x-model="form.kelompok" class="mt-1 h-[42px] w-full appearance-none rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6]"><option>Wajib</option><option>Pilihan</option><option>Muatan Lokal</option></select></div>
-            </div>
-            <div class="flex gap-3 border-t border-[#e2e8f0] bg-[#f8fafc] px-6 py-4 rounded-b-2xl">
-                <button @click="showAdd = false" class="flex-1 rounded-lg border border-[#e2e8f0] bg-white py-2.5 text-[12px] font-bold text-[#475569]">Batal</button>
-                <button @click="submitAdd()" class="flex-1 rounded-lg bg-[#1d4ed8] py-2.5 text-[12px] font-bold text-white">Tambah</button>
-            </div>
+    {{-- ═══ MODAL: Tambah Mapel ═══ --}}
+    <x-modal alpineShow="showAdd" title="Tambah Mata Pelajaran" maxWidth="sm">
+        <div class="space-y-4">
+            <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Kode Mapel</label><input x-model="form.kode" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6]" placeholder="Contoh: MP08"></div>
+            <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Nama Mata Pelajaran</label><input x-model="form.nama" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6]" placeholder="Contoh: Seni Rupa"></div>
+            <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Kelompok</label><select x-model="form.kelompok" class="mt-1 h-[42px] w-full appearance-none rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6]"><option>Wajib</option><option>Pilihan</option><option>Muatan Lokal</option></select></div>
         </div>
-    </div>
+        <x-slot:footer>
+            <button @click="showAdd = false" class="flex-1 rounded-lg border border-[#e2e8f0] bg-white py-2.5 text-[12px] font-bold text-[#475569]">Batal</button>
+            <button @click="submitAdd()" class="flex-1 rounded-lg bg-[#1d4ed8] py-2.5 text-[12px] font-bold text-white">Tambah</button>
+        </x-slot:footer>
+    </x-modal>
 
     {{-- ═══ MODAL: Edit Mapel ═══ --}}
-    <div x-show="showEdit" class="fixed inset-0 z-[100] flex items-center justify-center bg-[#0f172a]/60 backdrop-blur-sm" style="display:none" x-transition @click.self="showEdit = false">
-        <div class="w-[90%] max-w-sm rounded-2xl bg-white shadow-2xl" @click.stop>
-            <div class="flex items-center justify-between border-b border-[#e2e8f0] px-6 py-4"><h3 class="text-[18px] font-black text-[#0f172a]">Edit Mata Pelajaran</h3><button @click="showEdit = false" class="flex h-8 w-8 items-center justify-center rounded-lg text-[#94a3b8] hover:bg-[#f1f5f9]"><svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-width="2" stroke-linecap="round"></path></svg></button></div>
-            <div class="space-y-4 px-6 py-5">
-                <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Kode Mapel (readonly)</label><input x-model="editData.kode" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#e2e8f0] px-4 text-[14px] text-[#475569] outline-none" readonly></div>
-                <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Nama Mata Pelajaran</label><input x-model="editData.nama" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6]"></div>
-                <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Kelompok</label><select x-model="editData.kelompok" class="mt-1 h-[42px] w-full appearance-none rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6]"><option>Wajib</option><option>Pilihan</option><option>Muatan Lokal</option></select></div>
-            </div>
-            <div class="flex gap-3 border-t border-[#e2e8f0] bg-[#f8fafc] px-6 py-4 rounded-b-2xl">
-                <button @click="showEdit = false" class="flex-1 rounded-lg border border-[#e2e8f0] bg-white py-2.5 text-[12px] font-bold text-[#475569]">Batal</button>
-                <button @click="submitEdit()" class="flex-1 rounded-lg bg-[#1d4ed8] py-2.5 text-[12px] font-bold text-white">Simpan</button>
-            </div>
+    <x-modal alpineShow="showEdit" title="Edit Mata Pelajaran" maxWidth="sm">
+        <div class="space-y-4">
+            <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Kode Mapel (readonly)</label><input x-model="editData.kode" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#e2e8f0] px-4 text-[14px] text-[#475569] outline-none" readonly></div>
+            <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Nama Mata Pelajaran</label><input x-model="editData.nama" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6]"></div>
+            <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Kelompok</label><select x-model="editData.kelompok" class="mt-1 h-[42px] w-full appearance-none rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6]"><option>Wajib</option><option>Pilihan</option><option>Muatan Lokal</option></select></div>
         </div>
-    </div>
+        <x-slot:footer>
+            <button @click="showEdit = false" class="flex-1 rounded-lg border border-[#e2e8f0] bg-white py-2.5 text-[12px] font-bold text-[#475569]">Batal</button>
+            <button @click="submitEdit()" class="flex-1 rounded-lg bg-[#1d4ed8] py-2.5 text-[12px] font-bold text-white">Simpan</button>
+        </x-slot:footer>
+    </x-modal>
 
     {{-- ═══ MODAL: Hapus Mapel ═══ --}}
-    <div x-show="showDelete" class="fixed inset-0 z-[100] flex items-center justify-center bg-[#0f172a]/60 backdrop-blur-sm" style="display:none" x-transition @click.self="showDelete = false">
-        <div class="w-[90%] max-w-sm rounded-2xl bg-white shadow-2xl" @click.stop>
-            <div class="p-6 text-center">
-                <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#fef2f2] text-[#dc2626] ring-4 ring-[#fee2e2]"><svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></div>
-                <h3 class="mt-4 text-[18px] font-black text-[#0f172a]">Hapus Mata Pelajaran?</h3>
-                <p class="mt-2 text-[13px] text-[#64748b]">Apakah Anda yakin ingin menghapus <strong><span x-text="deleteData.nama"></span></strong> dari daftar sistem?</p>
-            </div>
-            <div class="flex gap-3 border-t border-[#e2e8f0] bg-[#f8fafc] px-6 py-4 rounded-b-2xl">
-                <button @click="showDelete = false" class="flex-1 rounded-lg border border-[#e2e8f0] bg-white py-2.5 text-[12px] font-bold text-[#475569]">Batal</button>
-                <button @click="confirmDelete()" class="flex-1 rounded-lg bg-[#dc2626] py-2.5 text-[12px] font-bold text-white">Ya, Hapus</button>
-            </div>
-        </div>
-    </div>
+    <x-confirm-dialog
+        alpineShow="showDelete"
+        type="danger"
+        title="Hapus Mata Pelajaran?"
+        message="Apakah Anda yakin ingin menghapus <strong x-text='deleteData.nama'></strong> dari daftar sistem?"
+        confirmText="Ya, Hapus"
+        confirmAction="confirmDelete()"
+    />
 
 </div>
 @endsection

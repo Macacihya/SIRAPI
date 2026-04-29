@@ -1,33 +1,39 @@
 {{-- Jadwal Partial: Admin --}}
 
-<div x-data="{
-    view: 'mingguan',
-    showTambah: false,
-    showKonflik: false,
-    showAssign: false,
-    showDetail: false,
-    detailData: null,
-    tambahForm: { hari:'Senin', mulai:'07:00', selesai:'08:30', mapel:'', guru:'', ruang:'' },
-    assignForm: { mapel:'', guru:'', ruang:'' },
-    konflikResolved: false,
-    daftarMapel: ['Pendidikan Agama', 'Pendidikan Pancasila', 'Bahasa Indonesia', 'Matematika', 'IPAS', 'PJOK', 'Seni Budaya', 'Fisika', 'Kimia', 'Biologi', 'Sosiologi', 'Sejarah', 'Bahasa Inggris'],
-    daftarGuru: [
-        'Drs. Ahmad Subagja, M.Pd.',
-        'Siti Rahmawati, S.Pd.',
-        'Bambang Wijaya',
-        'Rina Permata, M.Si.',
-        'Dr. Agus Salim',
-        'Ir. Hendra Gunawan',
-        'Budi Setiawan',
-        'Dewi Kusuma, S.Sos',
-        'Rina Sari, S.E',
-        'Siti Aminah, M.Pd',
-    ],
-    submitTambah() { this.showTambah = false; this.tambahForm = {hari:'Senin',mulai:'07:00',selesai:'08:30',mapel:'',guru:'',ruang:''}; $dispatch('toast',{message:'Jadwal baru berhasil ditambahkan!',type:'success'}); },
-    submitAssign() { this.showAssign = false; this.assignForm = {mapel:'',guru:'',ruang:''}; $dispatch('toast',{message:'Guru berhasil ditugaskan ke slot jadwal!',type:'success'}); },
-    resolveKonflik(method) { this.konflikResolved = true; this.showKonflik = false; $dispatch('toast',{message:'Konflik berhasil diselesaikan: ' + method,type:'success'}); },
-    openDetail(mapel,guru,ruang) { this.detailData = {mapel,guru,ruang}; this.showDetail = true; },
-}" class="space-y-6">
+<script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('jadwalAdminData', () => ({
+            view: 'mingguan',
+            showTambah: false,
+            showKonflik: false,
+            showAssign: false,
+            showDetail: false,
+            detailData: null,
+            tambahForm: { hari:'Senin', mulai:'07:00', selesai:'08:30', mapel:'', guru:'', ruang:'' },
+            assignForm: { mapel:'', guru:'', ruang:'' },
+            konflikResolved: false,
+            daftarMapel: ['Pendidikan Agama', 'Pendidikan Pancasila', 'Bahasa Indonesia', 'Matematika', 'IPAS', 'PJOK', 'Seni Budaya', 'Fisika', 'Kimia', 'Biologi', 'Sosiologi', 'Sejarah', 'Bahasa Inggris'],
+            daftarGuru: [
+                'Drs. Ahmad Subagja, M.Pd.',
+                'Siti Rahmawati, S.Pd.',
+                'Bambang Wijaya',
+                'Rina Permata, M.Si.',
+                'Dr. Agus Salim',
+                'Ir. Hendra Gunawan',
+                'Budi Setiawan',
+                'Dewi Kusuma, S.Sos',
+                'Rina Sari, S.E',
+                'Siti Aminah, M.Pd',
+            ],
+            submitTambah() { this.showTambah = false; this.tambahForm = {hari:'Senin',mulai:'07:00',selesai:'08:30',mapel:'',guru:'',ruang:''}; this.$dispatch('toast',{message:'Jadwal baru berhasil ditambahkan!',type:'success'}); },
+            submitAssign() { this.showAssign = false; this.assignForm = {mapel:'',guru:'',ruang:''}; this.$dispatch('toast',{message:'Guru berhasil ditugaskan ke slot jadwal!',type:'success'}); },
+            resolveKonflik(method) { this.konflikResolved = true; this.showKonflik = false; this.$dispatch('toast',{message:'Konflik berhasil diselesaikan: ' + method,type:'success'}); },
+            openDetail(mapel,guru,ruang) { this.detailData = {mapel,guru,ruang}; this.showDetail = true; },
+        }));
+    });
+</script>
+
+<div x-data="jadwalAdminData" class="space-y-6">
 
     {{-- HEADING --}}
     <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">

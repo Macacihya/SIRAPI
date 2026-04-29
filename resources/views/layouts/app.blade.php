@@ -77,5 +77,8 @@
     {{-- ─── TOAST NOTIFICATION SYSTEM (komponen terpisah) ──────── --}}
     <x-toast />
 
+    {{-- Stack untuk modal dari child views --}}
+    @stack('modals')
+
 </body>
 </html>

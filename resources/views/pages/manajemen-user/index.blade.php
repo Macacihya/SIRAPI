@@ -6,104 +6,97 @@
 @section('content')
 <link rel="stylesheet" href="https://fonts.fontaine.fyi/css?family=Inter&token=weHNunUCikrC3YnBmvrf">
 
-<div x-data="{
-    search: '',
-    showAdd: false,
-    showEdit: false,
-    filterOpen: false,
-    sortOpen: false,
-    activeFilter: 'Semua',
-    editData: {},
-    fonnte_token: 'weHNunUCikrC3YnBmvrf',
+<script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('manajemenUserData', () => ({
+            search: '',
+            showAdd: false,
+            showEdit: false,
+            filterOpen: false,
+            sortOpen: false,
+            activeFilter: 'Semua',
+            editData: {},
+            fonnte_token: 'weHNunUCikrC3YnBmvrf',
 
-    form: { nama: '', email: '', username: '', nip: '', roles: [], status: 'Aktif', whatsapp: '' },
+            form: { nama: '', email: '', username: '', nip: '', roles: [], status: 'Aktif', whatsapp: '' },
 
-    users: [
-        { name: 'Budi Santoso',  email: 'budi.tu@sirapi.sch.id',  id: 'NIP: 19850312200501', roles: ['GURU MAPEL'],               status: 'Aktif' },
-        { name: 'Siti Aminah',   email: 'siti.guru@sirapi.sch.id', id: 'NUPTK: 7831002814',   roles: ['GURU MAPEL', 'WALI KELAS'], status: 'Aktif' },
-        { name: 'Andi Wijaya',   email: 'andi.std@sirapi.sch.id',  id: 'NIP: 0056123881',     roles: ['GURU MAPEL'],               status: 'Nonaktif' },
-        { name: 'Dewi Kusuma',   email: 'dewi.op@sirapi.sch.id',   id: 'NIP: 19900715200801', roles: ['WALI KELAS'],               status: 'Aktif' },
-        { name: 'Rizky Pratama', email: 'rizky.s@sirapi.sch.id',   id: 'NUPTK: 0062198411',   roles: ['GURU MAPEL'],               status: 'Aktif' },
-    ],
+            users: [
+                { name: 'Budi Santoso',  email: 'budi.tu@sirapi.sch.id',  id: 'NIP: 19850312200501', roles: ['GURU MAPEL'],               status: 'Aktif' },
+                { name: 'Siti Aminah',   email: 'siti.guru@sirapi.sch.id', id: 'NUPTK: 7831002814',   roles: ['GURU MAPEL', 'WALI KELAS'], status: 'Aktif' },
+                { name: 'Andi Wijaya',   email: 'andi.std@sirapi.sch.id',  id: 'NIP: 0056123881',     roles: ['GURU MAPEL'],               status: 'Nonaktif' },
+                { name: 'Dewi Kusuma',   email: 'dewi.op@sirapi.sch.id',   id: 'NIP: 19900715200801', roles: ['WALI KELAS'],               status: 'Aktif' },
+                { name: 'Rizky Pratama', email: 'rizky.s@sirapi.sch.id',   id: 'NUPTK: 0062198411',   roles: ['GURU MAPEL'],               status: 'Aktif' },
+            ],
 
-    get filtered() {
-        let r = this.users;
-        if (this.search) {
-            let s = this.search.toLowerCase();
-            r = r.filter(u => u.name.toLowerCase().includes(s) || u.email.toLowerCase().includes(s) || u.id.toLowerCase().includes(s));
-        }
-        if (this.activeFilter !== 'Semua') {
-            if (this.activeFilter === 'Guru Mapel') r = r.filter(u => u.roles.includes('GURU MAPEL'));
-            if (this.activeFilter === 'Wali Kelas') r = r.filter(u => u.roles.includes('WALI KELAS'));
-        }
-        return r;
-    },
+            get filtered() {
+                let r = this.users;
+                if (this.search) {
+                    let s = this.search.toLowerCase();
+                    r = r.filter(u => 
+                        (u.name && u.name.toLowerCase().includes(s)) || 
+                        (u.nama && u.nama.toLowerCase().includes(s)) || 
+                        (u.email && u.email.toLowerCase().includes(s)) || 
+                        (u.id && u.id.toLowerCase().includes(s))
+                    );
+                }
+                if (this.activeFilter !== 'Semua') {
+                    if (this.activeFilter === 'Guru Mapel') r = r.filter(u => u.roles.includes('GURU MAPEL'));
+                    if (this.activeFilter === 'Wali Kelas') r = r.filter(u => u.roles.includes('WALI KELAS'));
+                }
+                return r;
+            },
 
-    openEdit(u) { this.editData = JSON.parse(JSON.stringify(u)); this.showEdit = true; },
+            openEdit(u) { this.editData = JSON.parse(JSON.stringify(u)); this.showEdit = true; },
 
-    async submitAdd() {
-        this.users.unshift({
-            name:   this.form.nama,
-            email:  this.form.email,
-            id:     'NIP: ' + this.form.nip,
-            roles:  this.form.roles.length ? this.form.roles : ['GURU MAPEL'],
-            status: this.form.status
-        });
-
-        if (this.form.whatsapp) {
-            let jabatan = this.form.roles.join(', ') || 'GURU MAPEL';
-            let pesan =
-`Yth. ${this.form.nama},
-
-Berikut adalah informasi akun Anda untuk mengakses sistem SIRAPI:
-
-- Nama        : ${this.form.nama}
-- NIP/NUPTK   : ${this.form.nip}
-- Jabatan     : ${jabatan}
-- Email       : ${this.form.email}
-- Username    : ${this.form.username}
-- Password    : ${this.form.nip}
-- URL Login   : https://sirapi.sch.id/login
-
-Harap segera login dan ganti password Anda setelah masuk pertama kali.
-
-Apabila mengalami kendala, silakan hubungi Admin TU.
-
-Hormat kami,
-Administrator SIRAPI`;
-
-            try {
-                await fetch('https://api.fonnte.com/send', {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': this.fonnte_token,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        target: '62' + this.form.whatsapp.replace(/^0/, ''),
-                        message: pesan,
-                        countryCode: '62'
-                    })
+            async submitAdd() {
+                this.users.unshift({
+                    name:   this.form.nama,
+                    email:  this.form.email,
+                    id:     'NIP: ' + this.form.nip,
+                    roles:  this.form.roles.length ? this.form.roles : ['GURU MAPEL'],
+                    status: this.form.status
                 });
-                $dispatch('toast', { message: 'User ditambahkan & kredensial dikirim via WhatsApp!', type: 'success' });
-            } catch (e) {
-                $dispatch('toast', { message: 'User tersimpan, namun pengiriman WhatsApp gagal.', type: 'warning' });
-            }
-        } else {
-            $dispatch('toast', { message: 'User baru berhasil ditambahkan!', type: 'success' });
-        }
 
-        this.form = { nama: '', email: '', username: '', nip: '', roles: [], status: 'Aktif', whatsapp: '' };
-        this.showAdd = false;
-    },
+                if (this.form.whatsapp) {
+                    let jabatan = this.form.roles.join(', ') || 'GURU MAPEL';
+                    let pesan = `Yth. ${this.form.nama},\n\nBerikut adalah informasi akun Anda untuk mengakses sistem SIRAPI:\n\n- Nama        : ${this.form.nama}\n- NIP/NUPTK   : ${this.form.nip}\n- Jabatan     : ${jabatan}\n- Email       : ${this.form.email}\n- Username    : ${this.form.username}\n- Password    : ${this.form.nip}\n- URL Login   : https://sirapi.sch.id/login\n\nHarap segera login dan ganti password Anda setelah masuk pertama kali.\n\nApabila mengalami kendala, silakan hubungi Admin TU.\n\nHormat kami,\nAdministrator SIRAPI`;
 
-    submitEdit() {
-        let idx = this.users.findIndex(u => u.id === this.editData.id);
-        if (idx > -1) { this.users[idx] = JSON.parse(JSON.stringify(this.editData)); }
-        this.showEdit = false;
-        $dispatch('toast', { message: 'Data user berhasil diperbarui!', type: 'success' });
-    },
-}" class="space-y-6" style="font-family: 'Inter', sans-serif;">
+                    try {
+                        await fetch('https://api.fonnte.com/send', {
+                            method: 'POST',
+                            headers: {
+                                'Authorization': this.fonnte_token,
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                target: '62' + this.form.whatsapp.replace(/^0/, ''),
+                                message: pesan,
+                                countryCode: '62'
+                            })
+                        });
+                        this.$dispatch('toast', { message: 'User ditambahkan & kredensial dikirim via WhatsApp!', type: 'success' });
+                    } catch (e) {
+                        this.$dispatch('toast', { message: 'User tersimpan, namun pengiriman WhatsApp gagal.', type: 'warning' });
+                    }
+                } else {
+                    this.$dispatch('toast', { message: 'User baru berhasil ditambahkan!', type: 'success' });
+                }
+
+                this.form = { nama: '', email: '', username: '', nip: '', roles: [], status: 'Aktif', whatsapp: '' };
+                this.showAdd = false;
+            },
+
+            submitEdit() {
+                let idx = this.users.findIndex(u => u.id === this.editData.id);
+                if (idx > -1) { this.users[idx] = JSON.parse(JSON.stringify(this.editData)); }
+                this.showEdit = false;
+                this.$dispatch('toast', { message: 'Data user berhasil diperbarui!', type: 'success' });
+            },
+        }));
+    });
+</script>
+
+<div x-data="manajemenUserData" class="space-y-6" style="font-family: 'Inter', sans-serif;">
 
     {{-- ─── HEADING ─── --}}
     <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
@@ -226,175 +219,216 @@ Administrator SIRAPI`;
                 </tr>
             </tbody>
         </table>
-        <div class="flex items-center justify-between border-t border-[#e2e8f0] px-6 py-3">
-            <p class="text-[12px] font-semibold text-[#64748b]">Menampilkan <span x-text="filtered.length"></span> dari <span x-text="users.length"></span> User</p>
+        <div class="border-t border-[#e2e8f0] px-6 py-4">
+            <nav class="flex items-center justify-between">
+                {{-- Left Side: Info --}}
+                <div class="flex items-center gap-4 text-[13px] text-[#64748b]">
+                    <div class="flex items-center gap-2">
+                        <span>Tampilkan</span>
+                        <select class="h-9 rounded-[10px] border border-[#e2e8f0] bg-white px-3 font-bold text-[#0f172a] outline-none transition focus:border-[#3b82f6]">
+                            <option>10</option>
+                            <option>25</option>
+                            <option>50</option>
+                        </select>
+                        <span>data</span>
+                    </div>
+                    <span class="text-[#cbd5e1]">•</span>
+                    <div>
+                        Menampilkan 
+                        <span class="font-bold text-[#0f172a]" x-text="filtered.length"></span> 
+                        dari 
+                        <span class="font-bold text-[#0f172a]" x-text="users.length"></span>
+                    </div>
+                </div>
+
+                {{-- Right Side: Navigation Buttons --}}
+                <div class="flex items-center gap-1">
+                    <button class="flex h-9 w-9 items-center justify-center rounded-[10px] text-[#cbd5e1] cursor-not-allowed">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="m11 17-5-5 5-5m7 10-5-5 5-5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                    </button>
+                    <button class="flex h-9 w-9 items-center justify-center rounded-[10px] text-[#cbd5e1] cursor-not-allowed">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                    </button>
+                    <span class="flex h-9 w-9 items-center justify-center rounded-[10px] bg-[#3b82f6] text-[13px] font-black text-white shadow-lg shadow-blue-500/30">1</span>
+                    <button class="flex h-9 w-9 items-center justify-center rounded-[10px] text-[#cbd5e1] cursor-not-allowed">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                    </button>
+                    <button class="flex h-9 w-9 items-center justify-center rounded-[10px] text-[#cbd5e1] cursor-not-allowed">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="m13 17 5-5-5-5M6 17l5-5-5-5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                    </button>
+                </div>
+            </nav>
         </div>
     </div>
 
     {{-- ═══ MODAL: Tambah User ═══ --}}
-    <div x-show="showAdd" class="fixed inset-0 z-[100] flex items-center justify-center bg-[#0f172a]/60 backdrop-blur-sm" style="display:none" x-transition @click.self="showAdd = false">
-        <div class="w-[90%] max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl bg-white shadow-2xl" @click.stop>
+    <template x-teleport="body">
+        <div x-show="showAdd" class="fixed inset-0 z-[100] flex items-center justify-center bg-[#0f172a]/60 backdrop-blur-sm" style="display:none" x-transition @click.self="showAdd = false">
+            <div class="w-[90%] max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl bg-white shadow-2xl" @click.stop>
 
-            <div class="sticky top-0 z-10 flex items-center justify-between border-b border-[#e2e8f0] bg-white px-6 py-4 rounded-t-2xl">
-                <h3 class="text-[18px] font-black text-[#0f172a]">Tambah User Baru</h3>
-                <button @click="showAdd = false" class="flex h-8 w-8 items-center justify-center rounded-lg text-[#94a3b8] hover:bg-[#f1f5f9]">
-                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-width="2" stroke-linecap="round"></path></svg>
-                </button>
-            </div>
-
-            <div class="space-y-4 px-6 py-5">
-
-                {{-- Nama & Username --}}
-                <div class="grid gap-4 sm:grid-cols-2">
-                    <div>
-                        <label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Nama lengkap</label>
-                        <input x-model="form.nama" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20" placeholder="Nama lengkap">
-                    </div>
-                    <div>
-                        <label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Username</label>
-                        <input x-model="form.username" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20" placeholder="username">
-                    </div>
+                <div class="sticky top-0 z-10 flex items-center justify-between border-b border-[#e2e8f0] bg-white px-6 py-4 rounded-t-2xl">
+                    <h3 class="text-[18px] font-black text-[#0f172a]">Tambah User Baru</h3>
+                    <button @click="showAdd = false" class="flex h-8 w-8 items-center justify-center rounded-lg text-[#94a3b8] hover:bg-[#f1f5f9]">
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-width="2" stroke-linecap="round"></path></svg>
+                    </button>
                 </div>
 
-                {{-- Email & NIP --}}
-                <div class="grid gap-4 sm:grid-cols-2">
-                    <div>
-                        <label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Email</label>
-                        <input x-model="form.email" type="email" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20" placeholder="email@sirapi.sch.id">
-                    </div>
-                    <div>
-                        <label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">NIP / NUPTK</label>
-                        <input x-model="form.nip" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20" placeholder="19XXXXXXXXXXXXXXX">
-                    </div>
-                </div>
+                <div class="space-y-4 px-6 py-5">
 
-                {{-- Password readonly dari NIP --}}
-                <div>
-                    <label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Password</label>
-                    <div class="relative mt-1">
-                        <input
-                            :value="form.nip || ''"
-                            readonly
-                            class="h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f1f5f9] px-4 pr-10 text-[14px] text-[#64748b] outline-none cursor-not-allowed"
-                            placeholder="Otomatis dari NIP/NUPTK"
-                        >
-                        <div class="absolute right-3 top-1/2 -translate-y-1/2">
-                            <svg class="h-4 w-4 text-[#94a3b8]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                    {{-- Nama & Username --}}
+                    <div class="grid gap-4 sm:grid-cols-2">
+                        <div>
+                            <label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Nama lengkap</label>
+                            <input x-model="form.nama" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20" placeholder="Nama lengkap">
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Username</label>
+                            <input x-model="form.username" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20" placeholder="username">
                         </div>
                     </div>
-                    <p class="mt-1.5 text-[11px] text-[#64748b]">Default menggunakan NIP/NUPTK. User dapat menggantinya setelah login pertama.</p>
-                </div>
 
-                {{-- Role / Peran --}}
-                <div>
-                    <label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Role / Peran</label>
-                    <div class="mt-2 flex flex-wrap gap-2">
-                        <template x-for="r in ['GURU MAPEL', 'WALI KELAS']">
-                            <label class="flex cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-1.5 text-[12px] font-semibold transition" :class="form.roles.includes(r) ? 'bg-[#0f172a] text-white border-[#0f172a]' : 'border-[#e2e8f0] text-[#475569] hover:bg-[#f1f5f9]'">
-                                <input type="checkbox" :value="r" x-model="form.roles" class="hidden"><span x-text="r"></span>
-                            </label>
-                        </template>
+                    {{-- Email & NIP --}}
+                    <div class="grid gap-4 sm:grid-cols-2">
+                        <div>
+                            <label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Email</label>
+                            <input x-model="form.email" type="email" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20" placeholder="email@sirapi.sch.id">
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">NIP / NUPTK</label>
+                            <input x-model="form.nip" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20" placeholder="19XXXXXXXXXXXXXXX">
+                        </div>
+                    </div>
+
+                    {{-- Password readonly dari NIP --}}
+                    <div>
+                        <label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Password</label>
+                        <div class="relative mt-1">
+                            <input
+                                :value="form.nip || ''"
+                                readonly
+                                class="h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f1f5f9] px-4 pr-10 text-[14px] text-[#64748b] outline-none cursor-not-allowed"
+                                placeholder="Otomatis dari NIP/NUPTK"
+                            >
+                            <div class="absolute right-3 top-1/2 -translate-y-1/2">
+                                <svg class="h-4 w-4 text-[#94a3b8]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                            </div>
+                        </div>
+                        <p class="mt-1.5 text-[11px] text-[#64748b]">Default menggunakan NIP/NUPTK. User dapat menggantinya setelah login pertama.</p>
+                    </div>
+
+                    {{-- Role / Peran --}}
+                    <div>
+                        <label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Role / Peran</label>
+                        <div class="mt-2 flex flex-wrap gap-2">
+                            <template x-for="r in ['GURU MAPEL', 'WALI KELAS']">
+                                <label class="flex cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-1.5 text-[12px] font-semibold transition" :class="form.roles.includes(r) ? 'bg-[#0f172a] text-white border-[#0f172a]' : 'border-[#e2e8f0] text-[#475569] hover:bg-[#f1f5f9]'">
+                                    <input type="checkbox" :value="r" x-model="form.roles" class="hidden"><span x-text="r"></span>
+                                </label>
+                            </template>
+                        </div>
+                    </div>
+
+                    {{-- Status --}}
+                    <div>
+                        <label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Status</label>
+                        <div class="mt-2 flex gap-4">
+                            <label class="flex items-center gap-2 text-[14px] font-medium cursor-pointer"><input type="radio" value="Aktif" x-model="form.status" class="accent-[#0f172a]"> Aktif</label>
+                            <label class="flex items-center gap-2 text-[14px] font-medium cursor-pointer"><input type="radio" value="Nonaktif" x-model="form.status" class="accent-[#0f172a]"> Nonaktif</label>
+                        </div>
+                    </div>
+
+                    {{-- WhatsApp --}}
+                    <div>
+                        <label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Nomor WhatsApp <span class="normal-case font-normal text-[#94a3b8]">(opsional)</span></label>
+                        <div class="relative mt-1">
+                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-[13px] font-semibold text-[#64748b] select-none">+62</span>
+                            <input x-model="form.whatsapp" type="tel" class="h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] pl-12 pr-4 text-[14px] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20" placeholder="8123456789">
+                        </div>
+                        <div class="mt-2 flex items-start gap-2 rounded-[6px] bg-[#eff6ff] px-3 py-2.5">
+                            <svg class="mt-0.5 h-4 w-4 flex-none text-[#1d4ed8]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke-width="2" stroke-linecap="round"></path></svg>
+                            <p class="text-[11px] leading-[1.6] text-[#1e40af]">Jika diisi, data akun (username & password) akan dikirimkan ke nomor ini via WhatsApp. Kosongkan jika ingin menyampaikan kredensial secara langsung.</p>
+                        </div>
                     </div>
                 </div>
 
-                {{-- Status --}}
-                <div>
-                    <label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Status</label>
-                    <div class="mt-2 flex gap-4">
-                        <label class="flex items-center gap-2 text-[14px] font-medium cursor-pointer"><input type="radio" value="Aktif" x-model="form.status" class="accent-[#0f172a]"> Aktif</label>
-                        <label class="flex items-center gap-2 text-[14px] font-medium cursor-pointer"><input type="radio" value="Nonaktif" x-model="form.status" class="accent-[#0f172a]"> Nonaktif</label>
-                    </div>
+                <div class="flex gap-3 border-t border-[#e2e8f0] bg-[#f8fafc] px-6 py-4 rounded-b-2xl">
+                    <button @click="showAdd = false" class="flex-1 rounded-lg border border-[#e2e8f0] bg-white py-2.5 text-[12px] font-bold text-[#475569] hover:bg-[#f1f5f9]">Batal</button>
+                    <button
+                        @click="submitAdd()"
+                        :disabled="!form.nama || !form.nip || !form.username || !form.email || !form.roles.length"
+                        class="flex-1 rounded-lg bg-[#1d4ed8] py-2.5 text-[12px] font-bold text-white hover:bg-[#1e40af] disabled:opacity-40 disabled:cursor-not-allowed transition"
+                    >
+                        Tambah User
+                    </button>
                 </div>
-
-                {{-- WhatsApp --}}
-                <div>
-                    <label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Nomor WhatsApp <span class="normal-case font-normal text-[#94a3b8]">(opsional)</span></label>
-                    <div class="relative mt-1">
-                        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-[13px] font-semibold text-[#64748b] select-none">+62</span>
-                        <input x-model="form.whatsapp" type="tel" class="h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] pl-12 pr-4 text-[14px] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20" placeholder="8123456789">
-                    </div>
-                    <div class="mt-2 flex items-start gap-2 rounded-[6px] bg-[#eff6ff] px-3 py-2.5">
-                        <svg class="mt-0.5 h-4 w-4 flex-none text-[#1d4ed8]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke-width="2" stroke-linecap="round"></path></svg>
-                        <p class="text-[11px] leading-[1.6] text-[#1e40af]">Jika diisi, data akun (username & password) akan dikirimkan ke nomor ini via WhatsApp. Kosongkan jika ingin menyampaikan kredensial secara langsung.</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="flex gap-3 border-t border-[#e2e8f0] bg-[#f8fafc] px-6 py-4 rounded-b-2xl">
-                <button @click="showAdd = false" class="flex-1 rounded-lg border border-[#e2e8f0] bg-white py-2.5 text-[12px] font-bold text-[#475569] hover:bg-[#f1f5f9]">Batal</button>
-                <button
-                    @click="submitAdd()"
-                    :disabled="!form.nama || !form.nip || !form.username || !form.email || !form.roles.length"
-                    class="flex-1 rounded-lg bg-[#1d4ed8] py-2.5 text-[12px] font-bold text-white hover:bg-[#1e40af] disabled:opacity-40 disabled:cursor-not-allowed transition"
-                >
-                    Tambah User
-                </button>
             </div>
         </div>
-    </div>
+    </template>
 
     {{-- ═══ MODAL: Edit User ═══ --}}
-    <div x-show="showEdit" class="fixed inset-0 z-[100] flex items-center justify-center bg-[#0f172a]/60 backdrop-blur-sm" style="display:none" x-transition @click.self="showEdit = false">
-        <div class="w-[90%] max-w-lg rounded-2xl bg-white shadow-2xl" @click.stop>
-            <div class="flex items-center justify-between border-b border-[#e2e8f0] px-6 py-4">
-                <h3 class="text-[18px] font-black text-[#0f172a]">Edit User</h3>
-                <button @click="showEdit = false" class="flex h-8 w-8 items-center justify-center rounded-lg text-[#94a3b8] hover:bg-[#f1f5f9]">
-                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-width="2" stroke-linecap="round"></path></svg>
-                </button>
-            </div>
-            <div class="space-y-4 px-6 py-5">
+    <template x-teleport="body">
+        <div x-show="showEdit" class="fixed inset-0 z-[100] flex items-center justify-center bg-[#0f172a]/60 backdrop-blur-sm" style="display:none" x-transition @click.self="showEdit = false">
+            <div class="w-[90%] max-w-lg rounded-2xl bg-white shadow-2xl" @click.stop>
+                <div class="flex items-center justify-between border-b border-[#e2e8f0] px-6 py-4">
+                    <h3 class="text-[18px] font-black text-[#0f172a]">Edit User</h3>
+                    <button @click="showEdit = false" class="flex h-8 w-8 items-center justify-center rounded-lg text-[#94a3b8] hover:bg-[#f1f5f9]">
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-width="2" stroke-linecap="round"></path></svg>
+                    </button>
+                </div>
+                <div class="space-y-4 px-6 py-5">
 
-                <div class="grid gap-4 sm:grid-cols-2">
-                    <div>
-                        <label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Nama lengkap</label>
-                        <input x-model="editData.name" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20">
+                    <div class="grid gap-4 sm:grid-cols-2">
+                        <div>
+                            <label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Nama lengkap</label>
+                            <input x-model="editData.name" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20">
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Email</label>
+                            <input x-model="editData.email" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20">
+                        </div>
                     </div>
+
+                    {{-- Password baru --}}
+                    <div class="grid gap-4 sm:grid-cols-2">
+                        <div>
+                            <label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Password baru</label>
+                            <input x-model="editData.password" type="password" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20" placeholder="Kosongkan jika tidak diubah">
+                            <p class="mt-1.5 text-[11px] text-[#64748b]">Kosongkan jika tidak ingin mengubah password.</p>
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Konfirmasi password</label>
+                            <input x-model="editData.password_confirm" type="password" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20" placeholder="Ulangi password baru">
+                        </div>
+                    </div>
+
+                    {{-- Role --}}
                     <div>
-                        <label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Email</label>
-                        <input x-model="editData.email" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20">
+                        <label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Role / Peran</label>
+                        <div class="mt-2 flex flex-wrap gap-2">
+                            <template x-for="r in ['GURU MAPEL', 'WALI KELAS']">
+                                <label class="flex cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-1.5 text-[12px] font-semibold transition" :class="editData.roles && editData.roles.includes(r) ? 'bg-[#0f172a] text-white border-[#0f172a]' : 'border-[#e2e8f0] text-[#475569] hover:bg-[#f1f5f9]'">
+                                    <input type="checkbox" :value="r" x-model="editData.roles" class="hidden"><span x-text="r"></span>
+                                </label>
+                            </template>
+                        </div>
+                    </div>
+
+                    {{-- Status --}}
+                    <div>
+                        <label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Status</label>
+                        <div class="mt-2 flex gap-4">
+                            <label class="flex items-center gap-2 text-[14px] font-medium cursor-pointer"><input type="radio" value="Aktif" x-model="editData.status" class="accent-[#0f172a]"> Aktif</label>
+                            <label class="flex items-center gap-2 text-[14px] font-medium cursor-pointer"><input type="radio" value="Nonaktif" x-model="editData.status" class="accent-[#0f172a]"> Nonaktif</label>
+                        </div>
                     </div>
                 </div>
-
-                {{-- Password baru --}}
-                <div class="grid gap-4 sm:grid-cols-2">
-                    <div>
-                        <label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Password baru</label>
-                        <input x-model="editData.password" type="password" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20" placeholder="Kosongkan jika tidak diubah">
-                        <p class="mt-1.5 text-[11px] text-[#64748b]">Kosongkan jika tidak ingin mengubah password.</p>
-                    </div>
-                    <div>
-                        <label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Konfirmasi password</label>
-                        <input x-model="editData.password_confirm" type="password" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20" placeholder="Ulangi password baru">
-                    </div>
+                <div class="flex gap-3 border-t border-[#e2e8f0] bg-[#f8fafc] px-6 py-4 rounded-b-2xl">
+                    <button @click="showEdit = false" class="flex-1 rounded-lg border border-[#e2e8f0] bg-white py-2.5 text-[12px] font-bold text-[#475569] hover:bg-[#f1f5f9]">Batal</button>
+                    <button @click="submitEdit()" class="flex-1 rounded-lg bg-[#1d4ed8] py-2.5 text-[12px] font-bold text-white hover:bg-[#1e40af]">Simpan Perubahan</button>
                 </div>
-
-                {{-- Role --}}
-                <div>
-                    <label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Role / Peran</label>
-                    <div class="mt-2 flex flex-wrap gap-2">
-                        <template x-for="r in ['GURU MAPEL', 'WALI KELAS']">
-                            <label class="flex cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-1.5 text-[12px] font-semibold transition" :class="editData.roles && editData.roles.includes(r) ? 'bg-[#0f172a] text-white border-[#0f172a]' : 'border-[#e2e8f0] text-[#475569] hover:bg-[#f1f5f9]'">
-                                <input type="checkbox" :value="r" x-model="editData.roles" class="hidden"><span x-text="r"></span>
-                            </label>
-                        </template>
-                    </div>
-                </div>
-
-                {{-- Status --}}
-                <div>
-                    <label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Status</label>
-                    <div class="mt-2 flex gap-4">
-                        <label class="flex items-center gap-2 text-[14px] font-medium cursor-pointer"><input type="radio" value="Aktif" x-model="editData.status" class="accent-[#0f172a]"> Aktif</label>
-                        <label class="flex items-center gap-2 text-[14px] font-medium cursor-pointer"><input type="radio" value="Nonaktif" x-model="editData.status" class="accent-[#0f172a]"> Nonaktif</label>
-                    </div>
-                </div>
-            </div>
-            <div class="flex gap-3 border-t border-[#e2e8f0] bg-[#f8fafc] px-6 py-4 rounded-b-2xl">
-                <button @click="showEdit = false" class="flex-1 rounded-lg border border-[#e2e8f0] bg-white py-2.5 text-[12px] font-bold text-[#475569] hover:bg-[#f1f5f9]">Batal</button>
-                <button @click="submitEdit()" class="flex-1 rounded-lg bg-[#1d4ed8] py-2.5 text-[12px] font-bold text-white hover:bg-[#1e40af]">Simpan Perubahan</button>
             </div>
         </div>
-    </div>
+    </template>
 
 </div>
 @endsection

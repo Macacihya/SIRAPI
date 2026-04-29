@@ -42,34 +42,36 @@
     };
 @endphp
 
-<div
-    x-show="{{ $alpineShow }}"
-    class="fixed inset-0 z-[100] flex items-center justify-center bg-[#0f172a]/60 backdrop-blur-sm"
-    style="display:none"
-    x-transition
-    @click.self="{{ $alpineShow }} = false"
->
-    <div class="w-[90%] {{ $maxWidthClass }} rounded-2xl bg-white shadow-2xl" @click.stop>
-        {{-- Header --}}
-        <div class="flex items-center justify-between border-b border-[#e2e8f0] px-6 py-4">
-            <h3 class="text-[18px] font-black text-[#0f172a]">{{ $title }}</h3>
-            <button @click="{{ $alpineShow }} = false" class="flex h-8 w-8 items-center justify-center rounded-lg text-[#94a3b8] hover:bg-[#f1f5f9]">
-                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path d="M6 18L18 6M6 6l12 12" stroke-width="2" stroke-linecap="round"></path>
-                </svg>
-            </button>
-        </div>
-
-        {{-- Body --}}
-        <div class="px-6 py-5">
-            {{ $slot }}
-        </div>
-
-        {{-- Footer --}}
-        @if (isset($footer))
-            <div class="flex gap-3 border-t border-[#e2e8f0] bg-[#f8fafc] px-6 py-4 rounded-b-2xl">
-                {{ $footer }}
+<template x-teleport="body">
+    <div
+        x-show="{{ $alpineShow }}"
+        class="fixed inset-0 z-[100] flex items-center justify-center bg-[#0f172a]/60 backdrop-blur-sm"
+        style="display:none"
+        x-transition
+        @click.self="{{ $alpineShow }} = false"
+    >
+        <div class="w-[90%] {{ $maxWidthClass }} rounded-2xl bg-white shadow-2xl" @click.stop>
+            {{-- Header --}}
+            <div class="flex items-center justify-between border-b border-[#e2e8f0] px-6 py-4">
+                <h3 class="text-[18px] font-black text-[#0f172a]">{{ $title }}</h3>
+                <button @click="{{ $alpineShow }} = false" class="flex h-8 w-8 items-center justify-center rounded-lg text-[#94a3b8] hover:bg-[#f1f5f9]">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path d="M6 18L18 6M6 6l12 12" stroke-width="2" stroke-linecap="round"></path>
+                    </svg>
+                </button>
             </div>
-        @endif
+
+            {{-- Body --}}
+            <div class="px-6 py-5">
+                {{ $slot }}
+            </div>
+
+            {{-- Footer --}}
+            @if (isset($footer))
+                <div class="flex gap-3 border-t border-[#e2e8f0] bg-[#f8fafc] px-6 py-4 rounded-b-2xl">
+                    {{ $footer }}
+                </div>
+            @endif
+        </div>
     </div>
-</div>
+</template>

@@ -13,7 +13,7 @@
 @section('content')
     @if(getUserRole() === 'admin')
         @include('pages.siswa.partials.admin')
-    @elseif(getUserRole() === 'guru')
+    @elseif(in_array(getUserRole(), ['guru', 'walikelas', 'wali_kelas']))
         @include('pages.siswa.partials.guru')
     @endif
 @endsection

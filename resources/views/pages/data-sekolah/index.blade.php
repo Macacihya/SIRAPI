@@ -4,13 +4,19 @@
 @section('active', 'data-sekolah')
 
 @section('content')
-<div x-data="{
-    showUploadLogo: false,
-    showUploadFoto: false,
-    showBatalkan: false,
-    logoUploaded: false,
-    fotoUploaded: false,
-}" class="space-y-6">
+<script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('dataSekolahData', () => ({
+            showUploadLogo: false,
+            showUploadFoto: false,
+            showBatalkan: false,
+            logoUploaded: false,
+            fotoUploaded: false,
+        }));
+    });
+</script>
+
+<div x-data="dataSekolahData" class="space-y-6">
 
     {{-- ─── HEADING ─────────────────────────────────────── --}}
     <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
