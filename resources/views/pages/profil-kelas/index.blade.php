@@ -167,7 +167,7 @@
         <div>
             <h1 class="text-[28px] font-black tracking-[-0.04em] text-[#0f172a] sm:text-[36px]">VI-A</h1>
             <p class="mt-3 max-w-[600px] text-[14px] leading-[1.8] text-[#475569] sm:text-[16px]">
-                Profil lengkap Kelas VI-A untuk tahun ajaran 2026/2027. Informasi mencakup detail struktural, data akademik, dan daftar siswa.
+                Profil lengkap Kelas VI-A untuk tahun ajaran 2025/2026. Informasi mencakup detail struktural, data akademik, dan daftar siswa.
             </p>
         </div>
 
@@ -181,8 +181,8 @@
                         <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                     </div>
                     <div>
-                        <p class="text-[15px] font-bold text-[#0f172a]">Budi Santoso, S.Pd.</p>
-                        <p class="text-[12px] text-[#64748b]">Fisika / Guru Senior</p>
+                        <p class="text-[15px] font-bold text-[#0f172a]">Heryanto Pratama S.pd.</p>
+                        <p class="text-[12px] text-[#64748b]">Matematika</p>
                     </div>
                 </div>
             </div>

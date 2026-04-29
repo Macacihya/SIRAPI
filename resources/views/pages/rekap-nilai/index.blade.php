@@ -27,7 +27,7 @@
         <div class="flex-1 min-w-[150px]">
             <label class="text-[11px] font-bold uppercase text-[#64748b]">Tahun Ajaran</label>
             <select class="w-full mt-1.5 border border-[#e2e8f0] rounded-lg px-3 py-2 text-[13px] font-medium outline-none focus:border-[#3b82f6]">
-                <option>2026/2027 Ganjil</option>
+                <option>2025/2026 Ganjil</option>
             </select>
         </div>
         <div class="flex-1 min-w-[150px]">
@@ -118,7 +118,7 @@
     {{-- Filter Data Scope --}}
     <div class="bg-white p-4 justify-between rounded-xl border border-[#e2e8f0] flex flex-wrap gap-4 items-center">
         <div class="flex gap-4">
-            <select class="bg-[#f8fafc] border border-[#e2e8f0] rounded-lg px-4 py-2 text-[13px] font-bold text-[#0f172a] outline-none"><option>Tahun Ajaran 2026/2027 Ganjil</option></select>
+            <select class="bg-[#f8fafc] border border-[#e2e8f0] rounded-lg px-4 py-2 text-[13px] font-bold text-[#0f172a] outline-none"><option>Tahun Ajaran 2025/2026 Ganjil</option></select>
             <select class="bg-[#f1f5f9] border border-[#e2e8f0] text-[#64748b] rounded-lg px-4 py-2 text-[13px] font-bold outline-none cursor-not-allowed" disabled>
                 <option>Hanya Kelas 4-A (Kelas Diampu)</option>
             </select>
@@ -205,7 +205,7 @@
     {{-- Filter Data Scope --}}
     <div class="bg-white p-4 justify-between rounded-xl border border-[#e2e8f0] flex flex-wrap gap-4 items-center">
         <div class="flex gap-4">
-            <select class="bg-[#f8fafc] border border-[#e2e8f0] rounded-lg px-4 py-2 text-[13px] font-bold text-[#0f172a] outline-none"><option>Tahun Ajaran 2026/2027 Ganjil</option></select>
+            <select class="bg-[#f8fafc] border border-[#e2e8f0] rounded-lg px-4 py-2 text-[13px] font-bold text-[#0f172a] outline-none"><option>Tahun Ajaran 2025/2026 Ganjil</option></select>
             <select class="bg-[#f1f5f9] border border-[#e2e8f0] text-[#64748b] rounded-lg px-4 py-2 text-[13px] font-bold outline-none cursor-not-allowed" disabled>
                 <option>Hanya Kelas 4-B (Kelas Binaan)</option>
             </select>

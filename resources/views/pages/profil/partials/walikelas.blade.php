@@ -102,7 +102,7 @@
                         </div>
                         <div class="flex items-center justify-between">
                             <span class="text-[13px] text-[#475569]">Tahun Ajaran</span>
-                            <span class="text-[13px] font-bold text-[#0f172a]">2026/2027 Genap</span>
+                            <span class="text-[13px] font-bold text-[#0f172a]">2025/2026 Genap</span>
                         </div>
                         <div class="flex items-center justify-between">
                             <span class="text-[13px] text-[#475569]">Login Terakhir</span>

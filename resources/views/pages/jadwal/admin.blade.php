@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('title', 'Jadwal Pelajaran')
 @section('subtitle', 'Manajemen jadwal pelajaran')
-@section('active', 'jadwal-pelajaran')
+@section('active', 'jadwal')
 
 @section('content')
 <div x-data="{

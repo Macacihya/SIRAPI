@@ -53,7 +53,7 @@
                 <p class="text-[10px] font-bold uppercase tracking-[0.18em] text-[#64748b]">Informasi Akun</p>
                 <div class="mt-4 space-y-3">
                     <div class="flex items-center justify-between text-[13px]"><span class="text-[#64748b]">Status Akun</span><span class="inline-flex items-center gap-1 rounded-md border border-[#a7f3d0] bg-[#ecfdf5] px-2 py-0.5 text-[10px] font-bold text-[#059669]">AKTIF</span></div>
-                    <div class="flex items-center justify-between text-[13px]"><span class="text-[#64748b]">Tahun Ajaran</span><span class="font-bold text-[#0f172a]">2026/2027 Genap</span></div>
+                    <div class="flex items-center justify-between text-[13px]"><span class="text-[#64748b]">Tahun Ajaran</span><span class="font-bold text-[#0f172a]">2025/2026 Genap</span></div>
                     <div class="flex items-center justify-between text-[13px]"><span class="text-[#64748b]">Login Terakhir</span><span class="font-bold text-[#0f172a]">Hari ini, 08:24</span></div>
                 </div>
             </div>

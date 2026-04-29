@@ -160,9 +160,9 @@
                     </div>
                     <div class="mt-6 space-y-6">
                         @foreach ([
-                            ['year' => 'TA 2026/2027', 'role' => 'Bahasa Indonesia (I, II, III, IV, V, VI)', 'desc' => 'Mengampu mata pelajaran Bahasa Indonesia untuk kelas atas maupun bawah sebagai implementasi Kurikulum Merdeka secara menyeluruh.', 'active' => true],
-                            ['year' => 'TA 2025/2026', 'role' => 'Bahasa Indonesia & Muatan Lokal', 'desc' => 'Menjadi guru inti dalam penyusunan RPP Bahasa Indonesia tingkat kota dan pengampu Muatan Lokal Kesenian.', 'active' => false],
-                            ['year' => 'TA 2020 - 2024', 'role' => 'Guru Kelas VI', 'desc' => 'Pernah menjabat sebagai Wali Kelas VI dan guru kelas borongan sebelum sistem Subject Teacher (Guru Mapel) diterapkan optimal.', 'active' => false],
+                            ['year' => 'TA 2025/2026', 'role' => 'Bahasa Indonesia (I, II, III, IV, V, VI)', 'desc' => 'Mengampu mata pelajaran Bahasa Indonesia untuk kelas atas maupun bawah sebagai implementasi Kurikulum Merdeka secara menyeluruh.', 'active' => true],
+                            ['year' => 'TA 2024/2025', 'role' => 'Bahasa Indonesia & Muatan Lokal', 'desc' => 'Menjadi guru inti dalam penyusunan RPP Bahasa Indonesia tingkat kota dan pengampu Muatan Lokal Kesenian.', 'active' => false],
+                            ['year' => 'TA 2020 - 2023', 'role' => 'Guru Kelas VI', 'desc' => 'Pernah menjabat sebagai Wali Kelas VI dan guru kelas borongan sebelum sistem Subject Teacher (Guru Mapel) diterapkan optimal.', 'active' => false],
                         ] as $r)
                             <div class="flex gap-4">
                                 <div class="flex flex-col items-center">

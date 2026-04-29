@@ -124,8 +124,8 @@
                 <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-[#64748b]">Pilih Semester</p>
                 <div class="mt-4">
                     <select x-model="filterSemester" class="h-10 w-full rounded-lg border border-[#e2e8f0] bg-[#f8fafc] px-3 text-[14px] font-bold text-[#0f172a] outline-none transition focus:border-[#3b82f6] focus:bg-white focus:ring-2 focus:ring-[#3b82f6]/20">
-                        <option value="Ganjil">Ganjil (2026/2027)</option>
-                        <option value="Genap">Genap (2026/2027)</option>
+                        <option value="Ganjil">Ganjil (2025/2026)</option>
+                        <option value="Genap">Genap (2025/2026)</option>
                     </select>
                 </div>
             </div>
@@ -371,7 +371,7 @@
         <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div>
                 <h1 class="text-[28px] font-black tracking-[-0.04em] text-[#0f172a] sm:text-[36px]">Penilaian Kelas</h1>
-                <p class="mt-1 text-[14px] text-[#475569]">Rekapitulasi capaian akademik siswa Kelas VI-A untuk Semester Ganjil 2026/2027.</p>
+                <p class="mt-1 text-[14px] text-[#475569]">Rekapitulasi capaian akademik siswa Kelas VI-A untuk Semester Ganjil 2025/2026.</p>
             </div>
             <div class="flex items-center gap-2 no-print">
                 <button @click="window.print()" class="flex items-center gap-2 rounded-lg border border-[#e2e8f0] bg-white px-4 py-2.5 text-[11px] font-extrabold uppercase tracking-wider text-[#475569] transition hover:bg-[#f1f5f9]">

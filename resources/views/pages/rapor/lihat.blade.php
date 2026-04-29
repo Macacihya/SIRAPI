@@ -247,7 +247,7 @@
                     </div>
                     <div class="id-row">
                         <span class="id-label">Tahun Ajaran</span>
-                        <span class="id-val">: 2026/2027</span>
+                        <span class="id-val">: 2025/2026</span>
                     </div>
                 </div>
             </div>

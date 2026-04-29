@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('title', 'Jadwal')
 @section('subtitle', 'Jadwal pelajaran')
-@section('active', 'jadwal-pelajaran')
+@section('active', 'jadwal')
 
 @section('content')
 
@@ -18,7 +18,7 @@
                 { waktu: '07:30 - 09:00', durasi: '90 Menit', mapel: 'Bahasa Indonesia', kelas: 'Kelas VI - A', ruangan: 'R. Teori 6A', type: 'jadwal', status: 'Selesai' },
                 { waktu: '09:00 - 10:30', durasi: '90 Menit', mapel: 'Bahasa Indonesia', kelas: 'Kelas V - A', ruangan: 'R. Teori 5A', type: 'jadwal', status: 'Menunggu' },
                 { durasi: '30 Menit', type: 'istirahat' },
-                { waktu: '11:00 - 12:30', durasi: '90 Menit', mapel: 'Karya Ilmiah (Ekskul)', kelas: 'Kelas Gabungan', ruangan: 'Perpustakaan', type: 'jadwal', status: 'Menunggu' }
+                { waktu: '11:00 - 12:30', durasi: '90 Menit', mapel: 'Bahasa Indonesia (Ekskul)', kelas: 'Kelas Gabungan', ruangan: 'Perpustakaan', type: 'jadwal', status: 'Menunggu' }
             ],
             'Selasa': [
                 { waktu: '07:30 - 09:00', durasi: '90 Menit', mapel: 'Bahasa Indonesia', kelas: 'Kelas IV - A', ruangan: 'R. Teori 4A', type: 'jadwal', status: 'Menunggu' },
@@ -28,6 +28,22 @@
             'Rabu': [],
             'Kamis': [],
             'Jumat': []
+        },
+        // Modal State
+        showStatusModal: false,
+        selectedItem: null,
+        newStatus: '',
+        openStatusModal(item, status) {
+            this.selectedItem = item;
+            this.newStatus = status;
+            this.showStatusModal = true;
+        },
+        confirmStatus() {
+            if(this.selectedItem) {
+                this.selectedItem.status = this.newStatus;
+            }
+            this.showStatusModal = false;
+            this.selectedItem = null;
         }
     }">
         {{-- Header Section --}}
@@ -36,10 +52,6 @@
                 <h1 class="text-[28px] font-black tracking-[-0.04em] text-[#0f172a] sm:text-[36px]">Jadwal Mengajar</h1>
                 <p class="mt-1 max-w-2xl text-[13px] text-[#64748b]">Tinjauan mingguan aktivitas instruksional Anda. Pastikan semua materi dan ruangan telah dipersiapkan sebelum jam pelajaran dimulai.</p>
             </div>
-            <button class="flex items-center gap-2 rounded-lg bg-[#0f172a] px-4 py-2.5 text-[12px] font-bold text-white transition hover:bg-[#1e293b]">
-                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2z"></path></svg>
-                Cetak Jadwal
-            </button>
         </div>
 
         <div class="grid gap-6 lg:grid-cols-[200px_1fr] xl:grid-cols-[240px_1fr]">
@@ -119,7 +131,7 @@
                                             <div class="flex justify-center text-center relative z-10" @click.stop>
                                                 <button 
                                                     x-show="item.status === 'Selesai'" 
-                                                    @click="item.status = 'Menunggu'"
+                                                    @click="openStatusModal(item, 'Menunggu')"
                                                     class="group flex items-center justify-center gap-1.5 rounded bg-[#f0fdf4] px-2.5 py-1 text-[10px] font-black tracking-wider text-[#16a34a] uppercase ring-1 ring-inset ring-[#86efac] transition hover:bg-[#dcfce7]"
                                                     title="Batalkan Status Selesai"
                                                 >
@@ -130,7 +142,7 @@
 
                                                 <button 
                                                     x-show="item.status === 'Menunggu'" 
-                                                    @click="item.status = 'Selesai'"
+                                                    @click="openStatusModal(item, 'Selesai')"
                                                     class="group flex items-center justify-center gap-1.5 rounded bg-white px-2.5 py-1 text-[10px] font-black tracking-wider text-[#64748b] uppercase ring-1 ring-inset ring-[#cbd5e1] transition hover:bg-[#eff6ff] hover:text-[#1d4ed8] hover:ring-[#bfdbfe]"
                                                     title="Tandai Kelas Selesai"
                                                 >
@@ -164,21 +176,34 @@
                     </div>
                 </div>
 
-                {{-- Banner Tahun Ajaran --}}
-                <div class="flex items-center gap-4 rounded-xl bg-white p-4 shadow-sm ring-1 ring-[#e2e8f0]">
-                    <div class="flex h-10 w-10 flex-none items-center justify-center rounded-lg bg-[#f1f5f9] text-[#64748b]">
-                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                    </div>
-                    <div>
-                        <p class="text-[13px] font-black tracking-tight text-[#0f172a]">TAHUN AJARAN 2026/2027</p>
-                        <p class="mt-0.5 text-[10px] font-bold uppercase tracking-[0.1em] text-[#64748b]">Semester Ganjil - Revisi Ke-2</p>
-                    </div>
-                </div>
-
             </div>
         </div>
 
+
+        {{-- ═══ MODAL: Konfirmasi Status ═══ --}}
+        <div x-show="showStatusModal" class="fixed inset-0 z-[100] flex items-center justify-center bg-[#0f172a]/60 backdrop-blur-sm" style="display:none" x-transition @click.self="showStatusModal = false">
+            <div class="w-[90%] max-w-sm rounded-2xl bg-white shadow-2xl" @click.stop>
+                <div class="flex items-center justify-between border-b border-[#e2e8f0] px-6 py-4">
+                    <h3 class="text-[18px] font-black text-[#0f172a]">Konfirmasi Status</h3>
+                    <button @click="showStatusModal = false" class="flex h-8 w-8 items-center justify-center rounded-lg text-[#94a3b8] hover:bg-[#f1f5f9]"><svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-width="2" stroke-linecap="round"></path></svg></button>
+                </div>
+                <div class="px-6 py-5">
+                    <p class="text-[14px] text-[#475569]">
+                        Apakah Anda yakin ingin <span x-text="newStatus === 'Selesai' ? 'menandai kelas ini selesai' : 'membatalkan status selesai'"></span> untuk mata pelajaran <strong class="text-[#0f172a]" x-text="selectedItem?.mapel"></strong>?
+                    </p>
+                </div>
+                <div class="flex gap-3 border-t border-[#e2e8f0] bg-[#f8fafc] px-6 py-4 rounded-b-2xl">
+                    <button @click="showStatusModal = false" class="flex-1 rounded-lg border border-[#e2e8f0] bg-white py-2.5 text-[12px] font-bold text-[#475569] hover:bg-[#f1f5f9]">Batal</button>
+                    <button @click="confirmStatus()" 
+                            :class="newStatus === 'Selesai' ? 'bg-[#16a34a] hover:bg-[#15803d]' : 'bg-[#dc2626] hover:bg-[#b91c1c]'" 
+                            class="flex-1 rounded-lg py-2.5 text-[12px] font-bold text-white transition">
+                        <span x-text="newStatus === 'Selesai' ? 'Ya, Tandai Selesai' : 'Ya, Batalkan'"></span>
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
+
     @elseif(getUserRole() === 'walikelas')
         {{-- Konten Walikelas: Jadwal Kelas --}}
 <div class="space-y-8" x-data="{
@@ -215,16 +240,6 @@
         <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
             <div>
                 <h1 class="text-[28px] font-black tracking-[-0.04em] text-[#0f172a] sm:text-[36px]">Jadwal Pelajaran Kelas</h1>
-                <div class="mt-2 flex flex-wrap gap-2">
-                    <span class="rounded-full border border-[#e2e8f0] px-3 py-1 text-[11px] font-bold text-[#475569]">VI-A</span>
-                    <span class="rounded-full border border-[#e2e8f0] px-3 py-1 text-[11px] font-bold text-[#475569]">T.A 2026/2027</span>
-                </div>
-            </div>
-            <div class="flex items-center gap-2">
-                <button @click="window.print()" class="flex items-center gap-2 rounded-lg border border-[#e2e8f0] bg-white px-4 py-2.5 text-[12px] font-bold text-[#475569] transition hover:bg-[#f1f5f9]">
-                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                    Cetak Jadwal
-                </button>
             </div>
         </div>
 

@@ -198,7 +198,7 @@
                 <div class="flex items-end justify-between">
                     <div>
                         <h2 class="text-[22px] font-black tracking-[-0.03em] text-[#0f172a]">Rekap Kehadiran Bulanan</h2>
-                        <p class="mt-1 text-[13px] text-[#64748b]">Ringkasan persentase kehadiran per bulan untuk Semester Ganjil 2026/2027</p>
+                        <p class="mt-1 text-[13px] text-[#64748b]">Ringkasan persentase kehadiran per bulan untuk Semester Ganjil 2025/2026</p>
                     </div>
                     <div class="flex items-center gap-2">
                         <button class="flex items-center gap-2 rounded-lg border border-[#e2e8f0] bg-white px-3 py-2 text-[11px] font-extrabold uppercase tracking-[0.12em] text-[#475569] transition hover:bg-[#f1f5f9]">
