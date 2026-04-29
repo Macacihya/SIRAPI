@@ -11,14 +11,17 @@
         toastMessage: '',
         
         userProfile: {
-            name: '{{ $user->name ?? 'Heryanto Pratama, S.Pd.' }}',
-            username: '{{ $user->username ?? 'heryanto' }}',
-            nip: '{{ $user->nip ?? '198501012010012001' }}',
-            email: 'heryanto@sekolah.sch.id',
-            phone: '+62 812-3456-7890'
+            nip: '{{ $user->guru->nip ?? '' }}',
+            nama: '{{ $user->nama ?? '' }}',
+            username: '{{ $user->username ?? '' }}',
+            jabatan: '{{ $user->jabatan ?? '' }}',
+            jenis_kelamin: '{{ $user->jenis_kelamin ?? '' }}',
+            no_hp: '{{ $user->no_hp ?? '' }}',
+            alamat: '{{ $user->alamat ?? '' }}',
+            email: '{{ $user->email ?? '' }}'
         },
         
-        formProfile: { name: '', username: '', nip: '', email: '', phone: '' },
+        formProfile: { nip: '', nama: '', username: '', jabatan: '', jenis_kelamin: '', no_hp: '', alamat: '', email: '' },
         formPassword: { old: '', new: '', confirm: '' },
 
         openEditProfile() {
@@ -79,8 +82,8 @@
                         </button>
                         <input type="file" x-ref="fileInput" class="hidden" accept="image/*" @change="handleFileUpload">
                     </div>
-                    <h2 class="mt-4 text-[20px] font-black text-[#0f172a]" x-text="userProfile.name"></h2>
-                    <p class="mt-0.5 text-[13px] text-[#64748b]">Wali Kelas VI-A</p>
+                    <h2 class="mt-4 text-[20px] font-black text-[#0f172a]" x-text="userProfile.nama"></h2>
+                    <p class="mt-0.5 text-[13px] text-[#64748b]" x-text="userProfile.jabatan"></p>
 
                     <button @click="openEditProfile()" class="mt-5 flex w-full items-center justify-center gap-2 rounded-lg bg-[#0f172a] py-2.5 text-[12px] font-bold text-white transition hover:bg-[#1e293b]">
                         <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -102,7 +105,7 @@
                         </div>
                         <div class="flex items-center justify-between">
                             <span class="text-[13px] text-[#475569]">Tahun Ajaran</span>
-                            <span class="text-[13px] font-bold text-[#0f172a]">2026/2027 Genap</span>
+                            <span class="text-[13px] font-bold text-[#0f172a]">2025/2026 Genap</span>
                         </div>
                         <div class="flex items-center justify-between">
                             <span class="text-[13px] text-[#475569]">Login Terakhir</span>
@@ -121,32 +124,36 @@
                     </div>
                     <div class="mt-5 grid gap-5 sm:grid-cols-2">
                         <div>
-                            <p class="text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b]">Nama Lengkap / Gelar</p>
-                            <p class="mt-1 text-[14px] font-semibold text-[#0f172a]" x-text="userProfile.name"></p>
-                        </div>
-                        <div>
                             <p class="text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b]">NIP / NUPTK</p>
                             <p class="mt-1 text-[14px] font-semibold text-[#0f172a]" x-text="userProfile.nip"></p>
                         </div>
                         <div>
-                            <p class="text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b]">Username Akun</p>
+                            <p class="text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b]">Nama</p>
+                            <p class="mt-1 text-[14px] font-semibold text-[#0f172a]" x-text="userProfile.nama"></p>
+                        </div>
+                        <div>
+                            <p class="text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b]">Username</p>
                             <p class="mt-1 text-[14px] font-semibold text-[#0f172a]" x-text="userProfile.username"></p>
                         </div>
                         <div>
-                            <p class="text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b]">Jabatan Kategori</p>
-                            <p class="mt-1 text-[14px] font-semibold text-[#0f172a]">Wali Kelas</p>
+                            <p class="text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b]">Jabatan</p>
+                            <p class="mt-1 text-[14px] font-semibold text-[#0f172a]" x-text="userProfile.jabatan"></p>
                         </div>
                         <div>
-                            <p class="text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b]">Nama Sekolah</p>
-                            <p class="mt-1 text-[14px] font-semibold text-[#0f172a]">SD Negeri 01 Indonesia</p>
+                            <p class="text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b]">Jenis Kelamin</p>
+                            <p class="mt-1 text-[14px] font-semibold text-[#0f172a]" x-text="userProfile.jenis_kelamin"></p>
                         </div>
                         <div>
-                            <p class="text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b]">Email Kontak</p>
+                            <p class="text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b]">No. HP</p>
+                            <p class="mt-1 text-[14px] font-semibold text-[#0f172a]" x-text="userProfile.no_hp"></p>
+                        </div>
+                        <div>
+                            <p class="text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b]">Alamat</p>
+                            <p class="mt-1 text-[14px] font-semibold text-[#0f172a]" x-text="userProfile.alamat"></p>
+                        </div>
+                        <div>
+                            <p class="text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b]">Email</p>
                             <p class="mt-1 text-[14px] font-semibold text-[#0f172a]" x-text="userProfile.email"></p>
-                        </div>
-                        <div>
-                            <p class="text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b]">Nomor WhatsApp/Telepon</p>
-                            <p class="mt-1 text-[14px] font-semibold text-[#0f172a]" x-text="userProfile.phone"></p>
                         </div>
                     </div>
                 </div>
@@ -204,27 +211,47 @@
                     </button>
                 </div>
                 <div class="p-6 space-y-4">
-                    <div>
-                        <label class="block text-[11px] font-bold uppercase tracking-[0.15em] text-[#64748b] mb-1">Nama Lengkap</label>
-                        <input type="text" x-model="formProfile.name" class="w-full h-11 rounded-lg border border-[#e2e8f0] px-3 font-semibold text-[13px] text-[#0f172a] focus:ring-2 focus:ring-[#3b82f6]/20 outline-none transition">
-                    </div>
                     <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-[11px] font-bold uppercase tracking-[0.15em] text-[#64748b] mb-1">Username Login</label>
-                            <input type="text" x-model="formProfile.username" class="w-full h-11 rounded-lg border border-[#e2e8f0] bg-[#f8fafc] px-3 font-semibold text-[13px] text-[#0f172a] outline-none" readonly>
-                        </div>
                         <div>
                             <label class="block text-[11px] font-bold uppercase tracking-[0.15em] text-[#64748b] mb-1">NIP</label>
                             <input type="text" x-model="formProfile.nip" class="w-full h-11 rounded-lg border border-[#e2e8f0] bg-[#f8fafc] px-3 font-semibold text-[13px] text-[#0f172a] outline-none" readonly>
                         </div>
+                        <div>
+                            <label class="block text-[11px] font-bold uppercase tracking-[0.15em] text-[#64748b] mb-1">Nama Lengkap</label>
+                            <input type="text" x-model="formProfile.nama" class="w-full h-11 rounded-lg border border-[#e2e8f0] px-3 font-semibold text-[13px] text-[#0f172a] focus:ring-2 focus:ring-[#3b82f6]/20 outline-none transition">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-[11px] font-bold uppercase tracking-[0.15em] text-[#64748b] mb-1">Username</label>
+                            <input type="text" x-model="formProfile.username" class="w-full h-11 rounded-lg border border-[#e2e8f0] bg-[#f8fafc] px-3 font-semibold text-[13px] text-[#0f172a] outline-none" readonly>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold uppercase tracking-[0.15em] text-[#64748b] mb-1">Jabatan</label>
+                            <input type="text" x-model="formProfile.jabatan" class="w-full h-11 rounded-lg border border-[#e2e8f0] px-3 font-semibold text-[13px] text-[#0f172a] focus:ring-2 focus:ring-[#3b82f6]/20 outline-none transition">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-[11px] font-bold uppercase tracking-[0.15em] text-[#64748b] mb-1">Jenis Kelamin</label>
+                            <select x-model="formProfile.jenis_kelamin" class="w-full h-11 rounded-lg border border-[#e2e8f0] px-3 font-semibold text-[13px] text-[#0f172a] focus:ring-2 focus:ring-[#3b82f6]/20 outline-none transition">
+                                <option value="">-- Pilih --</option>
+                                <option value="Laki-laki">Laki-laki</option>
+                                <option value="Perempuan">Perempuan</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold uppercase tracking-[0.15em] text-[#64748b] mb-1">No. HP</label>
+                            <input type="text" x-model="formProfile.no_hp" class="w-full h-11 rounded-lg border border-[#e2e8f0] px-3 font-semibold text-[13px] text-[#0f172a] focus:ring-2 focus:ring-[#3b82f6]/20 outline-none transition">
+                        </div>
                     </div>
                     <div>
-                        <label class="block text-[11px] font-bold uppercase tracking-[0.15em] text-[#64748b] mb-1">Email Instansi</label>
+                        <label class="block text-[11px] font-bold uppercase tracking-[0.15em] text-[#64748b] mb-1">Email Sekolah</label>
                         <input type="email" x-model="formProfile.email" class="w-full h-11 rounded-lg border border-[#e2e8f0] px-3 font-semibold text-[13px] text-[#0f172a] focus:ring-2 focus:ring-[#3b82f6]/20 outline-none transition">
                     </div>
                     <div>
-                        <label class="block text-[11px] font-bold uppercase tracking-[0.15em] text-[#64748b] mb-1">Nomor WhatsApp/Telepon</label>
-                        <input type="text" x-model="formProfile.phone" class="w-full h-11 rounded-lg border border-[#e2e8f0] px-3 font-semibold text-[13px] text-[#0f172a] focus:ring-2 focus:ring-[#3b82f6]/20 outline-none transition">
+                        <label class="block text-[11px] font-bold uppercase tracking-[0.15em] text-[#64748b] mb-1">Alamat</label>
+                        <textarea x-model="formProfile.alamat" rows="2" class="w-full rounded-lg border border-[#e2e8f0] p-3 font-semibold text-[13px] text-[#0f172a] focus:ring-2 focus:ring-[#3b82f6]/20 outline-none transition"></textarea>
                     </div>
                 </div>
                 <div class="px-6 py-4 bg-[#f8fafc] border-t border-[#e2e8f0] flex justify-end gap-3">

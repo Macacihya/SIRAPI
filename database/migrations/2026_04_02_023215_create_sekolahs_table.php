@@ -15,20 +15,10 @@ return new class extends Migration
             $table->string('telepon');
             $table->timestamps();
         });
-
-        Schema::create('gurus', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('sekolah_id')->constrained()->onDelete('cascade');
-            $table->string('nama');
-            $table->string('nip');
-            $table->string('mata_pelajaran');
-            $table->timestamps();
-        });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('gurus');
         Schema::dropIfExists('sekolahs');
     }
 };

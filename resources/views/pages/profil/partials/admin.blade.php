@@ -9,12 +9,13 @@
     showUploadFoto: false,
     fotoUploaded: false,
     profilForm: { 
-        nama: '{{ $user->name }}', 
-        username: '{{ $user->username ?? 'admin' }}',
-        jabatan: 'Admin TU', 
-        email: '{{ $user->email ?? 'admin@sekolah.sch.id' }}', 
-        telepon: '+62 812-3456-7890', 
-        unit: 'SD Negeri 01 Indonesia' 
+        nama: '{{ $user->nama }}', 
+        username: '{{ $user->username ?? '' }}',
+        jabatan: '{{ $user->jabatan ?? '' }}',
+        jenis_kelamin: '{{ $user->jenis_kelamin ?? '' }}',
+        no_hp: '{{ $user->no_hp ?? '' }}',
+        alamat: '{{ $user->alamat ?? '' }}',
+        email: '{{ $user->email ?? '' }}'
     },
     sandiForm: { lama: '', baru: '', konfirmasi: '' },
     submitProfil() { this.showEditProfil = false; $dispatch('toast',{message:'Profil berhasil diperbarui!',type:'success'}); },
@@ -36,7 +37,7 @@
                         <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" stroke-width="2"></path><circle cx="12" cy="13" r="3" stroke-width="2"></circle></svg>
                     </button>
                 </div>
-                <h2 class="mt-4 text-[18px] font-black text-[#0f172a]" x-text="profilForm.nama">{{ $user->name }}</h2>
+                <h2 class="mt-4 text-[18px] font-black text-[#0f172a]" x-text="profilForm.nama">{{ $user->nama }}</h2>
                 <p class="mt-0.5 text-[13px] text-[#64748b]" x-text="profilForm.jabatan">Admin TU</p>
 
                 <button @click="showEditProfil = true" class="mt-5 flex h-[42px] w-full items-center justify-center gap-2 rounded-[8px] bg-[#1d4ed8] text-[13px] font-bold text-white transition hover:bg-[#1e40af]">
@@ -53,7 +54,7 @@
                 <p class="text-[10px] font-bold uppercase tracking-[0.18em] text-[#64748b]">Informasi Akun</p>
                 <div class="mt-4 space-y-3">
                     <div class="flex items-center justify-between text-[13px]"><span class="text-[#64748b]">Status Akun</span><span class="inline-flex items-center gap-1 rounded-md border border-[#a7f3d0] bg-[#ecfdf5] px-2 py-0.5 text-[10px] font-bold text-[#059669]">AKTIF</span></div>
-                    <div class="flex items-center justify-between text-[13px]"><span class="text-[#64748b]">Tahun Ajaran</span><span class="font-bold text-[#0f172a]">2026/2027 Genap</span></div>
+                    <div class="flex items-center justify-between text-[13px]"><span class="text-[#64748b]">Tahun Ajaran</span><span class="font-bold text-[#0f172a]">2025/2026 Genap</span></div>
                     <div class="flex items-center justify-between text-[13px]"><span class="text-[#64748b]">Login Terakhir</span><span class="font-bold text-[#0f172a]">Hari ini, 08:24</span></div>
                 </div>
             </div>
@@ -64,11 +65,13 @@
             <div class="rounded-[14px] border border-[#e2e8f0] bg-white p-6">
                 <h3 class="flex items-center gap-2 text-[16px] font-bold text-[#0f172a]"><svg class="h-5 w-5 text-[#1d4ed8]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>Biodata Lengkap</h3>
                 <div class="mt-5 grid gap-x-8 gap-y-5 sm:grid-cols-2">
-                    <div><p class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Username Admin</p><p class="mt-1 text-[14px] font-bold text-[#0f172a]" x-text="profilForm.username"></p></div>
+                    <div><p class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Nama</p><p class="mt-1 text-[14px] font-bold text-[#0f172a]" x-text="profilForm.nama"></p></div>
+                    <div><p class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Username</p><p class="mt-1 text-[14px] font-bold text-[#0f172a]" x-text="profilForm.username"></p></div>
                     <div><p class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Jabatan</p><p class="mt-1 text-[14px] font-bold text-[#0f172a]" x-text="profilForm.jabatan"></p></div>
-                    <div><p class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Email Instansi</p><p class="mt-1 text-[14px] font-bold text-[#0f172a]" x-text="profilForm.email"></p></div>
-                    <div><p class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Nomor Telepon</p><p class="mt-1 text-[14px] font-bold text-[#0f172a]" x-text="profilForm.telepon"></p></div>
-                    <div><p class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Unit Kerja</p><p class="mt-1 text-[14px] font-bold text-[#0f172a]" x-text="profilForm.unit"></p></div>
+                    <div><p class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Jenis Kelamin</p><p class="mt-1 text-[14px] font-bold text-[#0f172a]" x-text="profilForm.jenis_kelamin"></p></div>
+                    <div><p class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">No. HP</p><p class="mt-1 text-[14px] font-bold text-[#0f172a]" x-text="profilForm.no_hp"></p></div>
+                    <div><p class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Email</p><p class="mt-1 text-[14px] font-bold text-[#0f172a]" x-text="profilForm.email"></p></div>
+                    <div class="sm:col-span-2"><p class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Alamat</p><p class="mt-1 text-[14px] font-bold text-[#0f172a]" x-text="profilForm.alamat"></p></div>
                 </div>
             </div>
 
@@ -104,11 +107,22 @@
                 </div>
                 <div class="grid gap-4 sm:grid-cols-2">
                     <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Jabatan</label><input x-model="profilForm.jabatan" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20"></div>
-                    <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Email</label><input x-model="profilForm.email" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20" type="email"></div>
+                    <div>
+                        <label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Gender</label>
+                        <select x-model="profilForm.jenis_kelamin" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20">
+                            <option value="">-- Pilih --</option>
+                            <option value="Laki-laki">Laki-laki</option>
+                            <option value="Perempuan">Perempuan</option>
+                        </select>
+                    </div>
                 </div>
                 <div class="grid gap-4 sm:grid-cols-2">
-                    <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Nomor Telepon</label><input x-model="profilForm.telepon" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20"></div>
-                    <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Unit Kerja</label><input x-model="profilForm.unit" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20"></div>
+                    <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">No. HP</label><input x-model="profilForm.no_hp" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20"></div>
+                    <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Email</label><input x-model="profilForm.email" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20" type="email"></div>
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Alamat</label>
+                    <textarea x-model="profilForm.alamat" rows="2" class="mt-1 flex w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] p-4 text-[14px] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20"></textarea>
                 </div>
             </div>
             <div class="flex gap-3 border-t border-[#e2e8f0] bg-[#f8fafc] px-6 py-4 rounded-b-2xl">

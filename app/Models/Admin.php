@@ -4,12 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Guru extends Model
+class Admin extends Model
 {
     protected $primaryKey = 'user_id';
     public $incrementing = false;
 
-    protected $fillable = ['user_id', 'nip'];
+    protected $fillable = ['user_id', 'jabatan_admin'];
 
     /**
      * Relasi ke tabel induk ISA: users

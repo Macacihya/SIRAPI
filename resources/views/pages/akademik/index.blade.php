@@ -51,7 +51,7 @@
     <div class="grid gap-6 xl:grid-cols-[minmax(0,1fr)_280px]">
         <div class="space-y-5">
             <div class="flex items-start justify-between">
-                <div><h1 class="text-[28px] font-black tracking-[-0.04em] text-[#0f172a]">Tahun Ajaran 2026/2027</h1><p class="mt-1 text-[14px] text-[#475569]">Linimasa kegiatan akademik berjalan.</p></div>
+                <div><h1 class="text-[28px] font-black tracking-[-0.04em] text-[#0f172a]">Tahun Ajaran 2025/2026</h1><p class="mt-1 text-[14px] text-[#475569]">Linimasa kegiatan akademik berjalan.</p></div>
                 <button @click="showUbahPeriode = true" class="flex h-[38px] items-center gap-2 rounded-[8px] border border-[#e2e8f0] bg-white px-4 text-[12px] font-bold uppercase tracking-[0.08em] text-[#334155] transition hover:bg-[#f1f5f9]">Ubah Periode</button>
             </div>
             <div class="rounded-[14px] border border-[#e2e8f0] bg-white p-6">

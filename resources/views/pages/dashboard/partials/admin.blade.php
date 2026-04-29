@@ -11,7 +11,7 @@
         </div>
         <div class="rounded-[14px] border border-[#e2e8f0] bg-white p-6">
             <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-[#64748b]">Tahun Ajaran Aktif</p>
-            <p class="mt-2 text-[28px] font-black tracking-[-0.04em] text-[#0f172a]">2026/2027 Ganjil</p>
+            <p class="mt-2 text-[28px] font-black tracking-[-0.04em] text-[#0f172a]">2025/2026 Ganjil</p>
             <span class="mt-2 inline-flex rounded-[4px] bg-[#f1f5f9] px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-[0.08em] text-[#64748b]">Status: Aktif & Berjalan</span>
         </div>
     </div>
@@ -85,7 +85,7 @@
             <div class="rounded-[14px] border border-[#e2e8f0] bg-white p-6">
                 <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-[#64748b]">Status Departemen</p>
                 <div class="mt-5 space-y-4">
-                    @foreach ([['name' => 'Kepegawaian (FR-03)', 'value' => 90, 'label' => '90% Lengkap'],['name' => 'Kesiswaan (FR-10)', 'value' => 75, 'label' => '75% Terverifikasi'],['name' => 'Sarana Prasarana', 'value' => 62, 'label' => '62% Terdata']] as $dept)
+                    @foreach ([['name' => 'Kepegawaian', 'value' => 90, 'label' => '90% Lengkap'],['name' => 'Kesiswaan', 'value' => 75, 'label' => '75% Terverifikasi'],['name' => 'Sarana Prasarana', 'value' => 62, 'label' => '62% Terdata']] as $dept)
                         <div>
                             <div class="flex items-center justify-between text-[12px]"><span class="font-semibold text-[#334155]">{{ $dept['name'] }}</span><span class="font-bold text-[#64748b]">{{ $dept['label'] }}</span></div>
                             <div class="mt-2 h-[6px] overflow-hidden rounded-full bg-[#e2e8f0]"><div class="h-full rounded-full bg-[#1d4ed8]" style="width: {{ $dept['value'] }}%"></div></div>

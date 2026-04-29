@@ -31,3 +31,17 @@ if (!function_exists('getUserRole')) {
         return in_array($role, ['admin', 'admin_tu']) ? 'admin' : $role;
     }
 }
+
+if (!function_exists('getGuruData')) {
+    /**
+     * Mengambil data spesialisasi Guru dari tabel ISA anak 'gurus'
+     * melalui relasi User → Guru.
+     */
+    function getGuruData()
+    {
+        if (auth()->check()) {
+            return auth()->user()->guru;
+        }
+        return null;
+    }
+}

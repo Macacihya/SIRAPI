@@ -27,7 +27,7 @@
         <div class="flex-1 min-w-[150px]">
             <label class="text-[11px] font-bold uppercase text-[#64748b]">Tahun Ajaran</label>
             <select class="w-full mt-1.5 border border-[#e2e8f0] rounded-lg px-3 py-2 text-[13px] font-medium outline-none focus:border-[#3b82f6]">
-                <option>2026/2027 Ganjil</option>
+                <option>2025/2026 Ganjil</option>
             </select>
         </div>
         <div class="flex-1 min-w-[150px]">
@@ -100,7 +100,29 @@
 </div>
     @elseif(getUserRole() === 'guru')
         {{-- Konten Guru: Rekap Nilai --}}
-<div class="space-y-6">
+<div class="space-y-6" x-data="{
+    filterKelas: 'VI-A',
+    siswa: [
+        { nama: 'ACHMAD ALBAR', kelas: 'VI-A', skor: 89 },
+        { nama: 'BELLA MONICA', kelas: 'VI-A', skor: 92 },
+        { nama: 'DANDI PRATAMA', kelas: 'VI-A', skor: 96 },
+        { nama: 'ENDAH KARTIKA', kelas: 'VI-A', skor: 85 },
+        { nama: 'FARHAN AZIS', kelas: 'VI-A', skor: 78 },
+        { nama: 'GITA ANANDA', kelas: 'VI-A', skor: 91 },
+        { nama: 'HENDRA YULIAN', kelas: 'VI-A', skor: 82 },
+        { nama: 'INTAN SARI', kelas: 'VI-A', skor: 88 },
+        { nama: 'BAMBANG WIDJAJANTO', kelas: 'VI-B', skor: 94 },
+        { nama: 'CINTA TANIA', kelas: 'VI-B', skor: 91 },
+        { nama: 'ANDI BUDIMAN', kelas: 'I-A', skor: 88 },
+        { nama: 'SITI AMINAH', kelas: 'I-A', skor: 95 }
+    ],
+    get rankedSiswa() {
+        return this.siswa
+            .filter(s => s.kelas === this.filterKelas)
+            .sort((a, b) => b.skor - a.skor)
+            .slice(0, 3);
+    }
+}">
     {{-- Header --}}
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
@@ -118,12 +140,14 @@
     {{-- Filter Data Scope --}}
     <div class="bg-white p-4 justify-between rounded-xl border border-[#e2e8f0] flex flex-wrap gap-4 items-center">
         <div class="flex gap-4">
-            <select class="bg-[#f8fafc] border border-[#e2e8f0] rounded-lg px-4 py-2 text-[13px] font-bold text-[#0f172a] outline-none"><option>Tahun Ajaran 2026/2027 Ganjil</option></select>
-            <select class="bg-[#f1f5f9] border border-[#e2e8f0] text-[#64748b] rounded-lg px-4 py-2 text-[13px] font-bold outline-none cursor-not-allowed" disabled>
-                <option>Hanya Kelas 4-A (Kelas Diampu)</option>
+            <select class="bg-[#f8fafc] border border-[#e2e8f0] rounded-lg px-4 py-2 text-[13px] font-bold text-[#0f172a] outline-none"><option>Tahun Ajaran 2025/2026 Ganjil</option></select>
+            <select x-model="filterKelas" class="bg-[#f8fafc] border border-[#e2e8f0] rounded-lg px-4 py-2 text-[13px] font-bold text-[#0f172a] outline-none">
+                <option value="I-A">Kelas 1-A</option>
+                <option value="VI-A">Kelas 6-A</option>
+                <option value="VI-B">Kelas 6-B</option>
             </select>
         </div>
-        <div class="text-[12px] font-medium text-[#64748b] bg-[#f8fafc] px-3 py-1.5 rounded-md border border-[#e2e8f0]">Mapel Terotorisasi: <span class="font-black text-[#1d4ed8]">PJOK (Pendidikan Jasmani)</span></div>
+        <div class="text-[12px] font-medium text-[#64748b] bg-[#f8fafc] px-3 py-1.5 rounded-md border border-[#e2e8f0]">Mapel Terotorisasi: <span class="font-black text-[#1d4ed8]">{{ getGuruData()->mata_pelajaran ?? 'Bahasa Indonesia' }}</span></div>
     </div>
 
     {{-- Class Leaderboard & Aggregate Stats --}}
@@ -153,7 +177,7 @@
         <div class="lg:col-span-2 bg-white rounded-2xl border border-[#e2e8f0] p-6 shadow-sm">
             <div class="flex justify-between items-end mb-4">
                 <div>
-                    <h3 class="text-[16px] font-black text-[#0f172a]">Peringkat Teratas (PJOK)</h3>
+                    <h3 class="text-[16px] font-black text-[#0f172a]">Peringkat Teratas {{ getGuruData()->mata_pelajaran ?? 'Bahasa Indonesia' }}</h3>
                     <p class="text-[11px] text-[#64748b]">Siswa dengan pencapaian tertinggi di mata pelajaran Anda.</p>
                 </div>
             </div>
@@ -161,21 +185,21 @@
             <div class="grid grid-cols-3 gap-4 h-[180px] items-end mt-8 relative">
                 {{-- Rank 2 --}}
                 <div class="flex flex-col items-center group">
-                    <p class="text-[14px] font-black text-[#0f172a] mb-1">Rani (92)</p>
+                    <p class="text-[12px] font-black text-[#0f172a] mb-1 text-center" x-text="rankedSiswa[1] ? rankedSiswa[1].nama + ' (' + rankedSiswa[1].skor + ')' : '-'"></p>
                     <div class="w-full bg-gradient-to-t from-[#e2e8f0] to-[#f1f5f9] h-[100px] rounded-t-xl border-t-4 border-[#94a3b8] flex justify-center pt-2 transition-all group-hover:h-[110px]">
                         <span class="w-6 h-6 rounded-full bg-[#94a3b8] text-white flex items-center justify-center text-[10px] font-black shadow-lg">2</span>
                     </div>
                 </div>
                 {{-- Rank 1 --}}
                 <div class="flex flex-col items-center group">
-                    <p class="text-[14px] font-black text-[#0f172a] mb-1">Dika (96)</p>
+                    <p class="text-[14px] font-black text-[#0f172a] mb-1 text-center" x-text="rankedSiswa[0] ? rankedSiswa[0].nama + ' (' + rankedSiswa[0].skor + ')' : '-'"></p>
                     <div class="w-full bg-gradient-to-t from-[#bfdbfe] to-[#eff6ff] h-[130px] rounded-t-xl border-t-4 border-[#3b82f6] flex justify-center pt-2 transition-all shadow-[0_-10px_20px_rgba(59,130,246,0.2)] group-hover:h-[140px]">
                         <span class="w-8 h-8 rounded-full bg-[#3b82f6] text-white flex items-center justify-center text-[14px] font-black shadow-lg ring-4 ring-[#dbeafe]">1</span>
                     </div>
                 </div>
                 {{-- Rank 3 --}}
                 <div class="flex flex-col items-center group">
-                    <p class="text-[14px] font-black text-[#0f172a] mb-1">Budi (89)</p>
+                    <p class="text-[12px] font-black text-[#0f172a] mb-1 text-center" x-text="rankedSiswa[2] ? rankedSiswa[2].nama + ' (' + rankedSiswa[2].skor + ')' : '-'"></p>
                     <div class="w-full bg-gradient-to-t from-[#ffedd5] to-[#fff7ed] h-[80px] rounded-t-xl border-t-4 border-[#fdba74] flex justify-center pt-2 transition-all group-hover:h-[90px]">
                         <span class="w-6 h-6 rounded-full bg-[#fdba74] text-white flex items-center justify-center text-[10px] font-black shadow-lg">3</span>
                     </div>
@@ -194,23 +218,17 @@
             <h1 class="text-[24px] font-black tracking-tight text-[#0f172a]">Rekap Lintas Mapel (Wali Kelas)</h1>
             <p class="text-[13px] text-[#64748b] mt-1">Data scope dibatasi kuerinya hanya pada siswa yang terdaftar di kelas binaan Anda.</p>
         </div>
-        <div class="flex gap-2">
-            <button class="bg-[#1d4ed8] hover:bg-[#1e40af] text-white px-4 py-2 rounded-lg text-[13px] font-bold flex items-center gap-2 transition">
-                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                Export PDF Wali
-            </button>
-        </div>
     </div>
 
     {{-- Filter Data Scope --}}
     <div class="bg-white p-4 justify-between rounded-xl border border-[#e2e8f0] flex flex-wrap gap-4 items-center">
         <div class="flex gap-4">
-            <select class="bg-[#f8fafc] border border-[#e2e8f0] rounded-lg px-4 py-2 text-[13px] font-bold text-[#0f172a] outline-none"><option>Tahun Ajaran 2026/2027 Ganjil</option></select>
+            <select class="bg-[#f8fafc] border border-[#e2e8f0] rounded-lg px-4 py-2 text-[13px] font-bold text-[#0f172a] outline-none"><option>Tahun Ajaran 2025/2026 Ganjil</option></select>
             <select class="bg-[#f1f5f9] border border-[#e2e8f0] text-[#64748b] rounded-lg px-4 py-2 text-[13px] font-bold outline-none cursor-not-allowed" disabled>
-                <option>Hanya Kelas 4-B (Kelas Binaan)</option>
+                <option>Hanya Kelas VI-A (Kelas Binaan)</option>
             </select>
         </div>
-        <div class="text-[12px] font-medium text-[#64748b]">Terkunci pada Siswa Rombel 4-B</div>
+        <div class="text-[12px] font-medium text-[#64748b]">Terkunci pada Siswa Rombel VI-A</div>
     </div>
 
     {{-- Class Leaderboard & Aggregate Stats --}}
