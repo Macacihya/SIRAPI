@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -18,12 +17,15 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
-        'name',
+        'nama',
         'username',
-        'nip',
         'email',
         'password',
         'role',
+        'jenis_kelamin',
+        'no_hp',
+        'alamat',
+        'jabatan',
     ];
 
     /**
@@ -47,5 +49,23 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    // ─── ISA Relations ───────────────────────────
+
+    /**
+     * Relasi ke tabel anak ISA: admins
+     */
+    public function admin()
+    {
+        return $this->hasOne(Admin::class, 'user_id');
+    }
+
+    /**
+     * Relasi ke tabel anak ISA: gurus
+     */
+    public function guru()
+    {
+        return $this->hasOne(Guru::class, 'user_id');
     }
 }

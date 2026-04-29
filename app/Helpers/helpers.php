@@ -34,14 +34,14 @@ if (!function_exists('getUserRole')) {
 
 if (!function_exists('getGuruData')) {
     /**
-     * Mengambil profil data Guru dari tabel 'gurus' berdasarkan NIP user yang login.
+     * Mengambil data spesialisasi Guru dari tabel ISA anak 'gurus'
+     * melalui relasi User → Guru.
      */
     function getGuruData()
     {
         if (auth()->check()) {
-            return \App\Models\Guru::where('nip', auth()->user()->nip)->first();
+            return auth()->user()->guru;
         }
         return null;
     }
 }
-

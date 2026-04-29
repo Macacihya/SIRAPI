@@ -163,7 +163,7 @@
             <a href="{{ route('profil') }}" class="ml-1 flex h-9 w-9 items-center justify-center rounded-lg bg-[#1e40af] text-[11px] font-bold text-white">
                 @php
                     $user = auth()->user();
-                    $initials = collect(explode(' ', trim($user->name ?? 'SIRAPI')))
+                    $initials = collect(explode(' ', trim($user->nama ?? 'SIRAPI')))
                         ->filter()->take(2)
                         ->map(fn ($p) => strtoupper(substr($p, 0, 1)))
                         ->implode('');
@@ -410,7 +410,7 @@
                         <p class="text-[#475569]">Kota Digital, {{ now()->translatedFormat('d F Y') }}</p>
                         <p class="font-bold text-[#475569]">Wali Kelas,</p>
                         <div class="mt-10">
-                            <p class="text-[13px] font-bold text-[#0f172a] underline underline-offset-4">{{ auth()->user()->name ?? 'Heryanto Pratama, S.Pd.' }}</p>
+                            <p class="text-[13px] font-bold text-[#0f172a] underline underline-offset-4">{{ auth()->user()->nama ?? 'Heryanto Pratama, S.Pd.' }}</p>
                             <p class="mt-0.5 text-[9px] text-[#64748b]">NIP. 198501012010012001</p>
                         </div>
                     </div>
