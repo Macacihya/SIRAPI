@@ -147,10 +147,14 @@
 
     {{-- STAT --}}
     <div class="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <div class="rounded-[14px] border border-[#e2e8f0] bg-white p-5"><p class="text-[11px] font-bold uppercase tracking-[0.18em] text-[#64748b]">Total Siswa</p><p class="mt-2 text-[36px] font-black leading-none tracking-[-0.06em] text-[#0f172a]">{{ $data->total() }}</p></div>
-        <div class="rounded-[14px] border border-[#e2e8f0] bg-white p-5"><p class="text-[11px] font-bold uppercase tracking-[0.18em] text-[#64748b]">Siswa Aktif</p><p class="mt-2 text-[36px] font-black leading-none tracking-[-0.06em] text-[#0f172a]">{{ $data->total() }}</p></div>
-        <div class="rounded-[14px] border border-[#e2e8f0] bg-white p-5"><p class="text-[11px] font-bold uppercase tracking-[0.18em] text-[#64748b]">Status Cuti</p><p class="mt-2 text-[36px] font-black leading-none tracking-[-0.06em] text-[#0f172a]">0</p></div>
-        <div class="rounded-[14px] border border-[#e2e8f0] bg-white p-5"><p class="text-[11px] font-bold uppercase tracking-[0.18em] text-[#64748b]">Dipilih</p><p class="mt-2 text-[36px] font-black leading-none tracking-[-0.06em] text-[#1d4ed8]" x-text="selectedCount"></p></div>
+        <x-card-stat title="Total Siswa" :value="$data->total()" />
+        <x-card-stat title="Siswa Aktif" :value="$data->total()" />
+        <x-card-stat title="Status Cuti" value="0" />
+        <x-card-stat title="Dipilih" value="0">
+            <x-slot:valueSlot>
+                <span class="text-[#1d4ed8]" x-text="selectedCount"></span>
+            </x-slot:valueSlot>
+        </x-card-stat>
     </div>
 
     {{-- FILTERS --}}

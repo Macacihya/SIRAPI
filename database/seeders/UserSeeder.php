@@ -53,7 +53,10 @@ class UserSeeder extends Seeder
         // ISA child: gurus
         Guru::updateOrCreate(
             ['user_id' => $guru->id],
-            ['nip' => '197805122005011004']
+            [
+                'nip' => '197805122005011004',
+                'mata_pelajaran' => 'Bahasa Indonesia'
+            ]
         );
 
         // ─── WALIKELAS ─────────────────────────────
@@ -75,7 +78,10 @@ class UserSeeder extends Seeder
         // ISA child: gurus (walikelas juga punya NIP)
         Guru::updateOrCreate(
             ['user_id' => $walikelas->id],
-            ['nip' => '198804122015031002']
+            [
+                'nip' => '198804122015031002',
+                'mata_pelajaran' => 'Matematika'
+            ]
         );
     }
 }

@@ -18,42 +18,43 @@
 
     {{-- ─── STAT CARDS + ABSENSI ────────────────────────── --}}
     <div class="grid gap-4 lg:grid-cols-[1fr_1fr_1fr_280px]">
-        <div class="rounded-[14px] border border-[#e2e8f0] bg-white p-6">
-            <div class="mb-4 flex h-10 w-10 items-center justify-center rounded-[8px] bg-[#f1f5f9] text-[#64748b]"><svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2" stroke-linecap="round" stroke-width="2"></path><circle cx="9.5" cy="7" r="3" stroke-width="2"></circle><path d="M20 21v-2a4 4 0 0 0-3-3.87" stroke-linecap="round" stroke-width="2"></path><path d="M16 4.13a3 3 0 0 1 0 5.74" stroke-linecap="round" stroke-width="2"></path></svg></div>
-            <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-[#64748b]">Siswa Aktif</p>
-            <p class="mt-2 text-[48px] font-black leading-none tracking-[-0.06em] text-[#0f172a]">1,248</p>
-        </div>
-        <div class="rounded-[14px] bg-[#1d4ed8] p-6 text-white">
-            <div class="mb-4 flex h-10 w-10 items-center justify-center rounded-[8px] bg-white/20"><svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></div>
-            <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-white/70">Guru</p>
-            <p class="mt-2 text-[48px] font-black leading-none tracking-[-0.06em]">94</p>
-        </div>
-        <div class="rounded-[14px] border border-[#e2e8f0] bg-white p-6">
-            <div class="mb-4 flex h-10 w-10 items-center justify-center rounded-[8px] bg-[#f1f5f9] text-[#64748b]"><svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11M8 14v3M12 14v3M16 14v3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></div>
-            <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-[#64748b]">Ruang Kelas</p>
-            <p class="mt-2 text-[48px] font-black leading-none tracking-[-0.06em] text-[#0f172a]">36</p>
-        </div>
-        <div class="rounded-[14px] border border-[#e2e8f0] bg-white p-6">
-            <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-[#64748b]">Absensi Hari Ini</p>
-            <p class="mt-2 text-[48px] font-black leading-none tracking-[-0.06em] text-[#0f172a]">98.2%</p>
+        <x-card-stat title="Siswa Aktif" value="1,248">
+            <x-slot:icon>
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2" stroke-linecap="round" stroke-width="2"></path><circle cx="9.5" cy="7" r="3" stroke-width="2"></circle><path d="M20 21v-2a4 4 0 0 0-3-3.87" stroke-linecap="round" stroke-width="2"></path><path d="M16 4.13a3 3 0 0 1 0 5.74" stroke-linecap="round" stroke-width="2"></path></svg>
+            </x-slot:icon>
+        </x-card-stat>
+
+        <x-card-stat title="Guru" value="94" variant="blue">
+            <x-slot:icon>
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+            </x-slot:icon>
+        </x-card-stat>
+
+        <x-card-stat title="Ruang Kelas" value="36">
+            <x-slot:icon>
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11M8 14v3M12 14v3M16 14v3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+            </x-slot:icon>
+        </x-card-stat>
+
+        <x-card-stat title="Absensi Hari Ini" value="98.2%">
             <div class="mt-4 flex items-end gap-[3px]">
                 @foreach ([65, 80, 55, 90, 75, 95, 85] as $h)
                     <div class="flex-1 rounded-sm bg-[#1d4ed8]" style="height: {{ $h * 0.4 }}px; opacity: {{ 0.4 + ($h / 100) * 0.6 }}"></div>
                 @endforeach
             </div>
-        </div>
+        </x-card-stat>
     </div>
 
     {{-- ─── AKTIVITAS + STATUS DEPARTEMEN ───────────────── --}}
     <div class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_300px]">
-        <div class="rounded-[14px] border border-[#e2e8f0] bg-white p-6">
-            <div class="flex items-start justify-between">
-                <div>
-                    <h3 class="text-[20px] font-black tracking-[-0.04em] text-[#0f172a]">Aktivitas Sistem Terkini</h3>
-                    <p class="mt-1 text-[13px] text-[#64748b]">Log transaksi data administrasi terbaru</p>
-                </div>
+        <x-section-card 
+            title="Aktivitas Sistem Terkini" 
+            subtitle="Log transaksi data administrasi terbaru"
+        >
+            <x-slot:action>
                 <button @click="showAllActivity = true" class="text-[11px] font-bold uppercase tracking-[0.12em] text-[#1d4ed8] hover:text-[#1e40af]">Lihat Semua</button>
-            </div>
+            </x-slot:action>
+
             <div class="mt-6 space-y-0 divide-y divide-[#f1f5f9]">
                 @foreach ([
                     ['icon' => 'user-plus', 'title' => 'Pendaftaran Siswa Baru', 'desc' => 'Admin TU-02 telah menambahkan 5 berkas siswa baru ke Database Siswa.', 'time' => '10 Menit Lalu'],
@@ -80,10 +81,10 @@
                     </div>
                 @endforeach
             </div>
-        </div>
+        </x-section-card>
+
         <div class="space-y-4">
-            <div class="rounded-[14px] border border-[#e2e8f0] bg-white p-6">
-                <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-[#64748b]">Status Departemen</p>
+            <x-section-card title="Status Departemen" padding="p-6">
                 <div class="mt-5 space-y-4">
                     @foreach ([['name' => 'Kepegawaian', 'value' => 90, 'label' => '90% Lengkap'],['name' => 'Kesiswaan', 'value' => 75, 'label' => '75% Terverifikasi'],['name' => 'Sarana Prasarana', 'value' => 62, 'label' => '62% Terdata']] as $dept)
                         <div>
@@ -92,13 +93,14 @@
                         </div>
                     @endforeach
                 </div>
-            </div>
-            <div class="rounded-[14px] border border-[#e2e8f0] bg-white p-6 text-center">
+            </x-section-card>
+
+            <x-section-card padding="p-6" class="text-center">
                 <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[#eff6ff] text-[#1d4ed8]"><svg class="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-width="2"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" stroke-width="2" stroke-linecap="round"></path><path d="M12 17h.01" stroke-width="2" stroke-linecap="round"></path></svg></div>
                 <h4 class="mt-3 text-[15px] font-bold text-[#0f172a]">Butuh Bantuan Teknis?</h4>
                 <p class="mt-1 text-[12px] leading-[1.7] text-[#64748b]">Hubungi departemen IT untuk masalah akses aplikasi SIRAPI.</p>
                 <button @click="showSupport = true" class="mt-4 flex h-[40px] w-full items-center justify-center rounded-[4px] bg-[#1d4ed8] text-[11px] font-bold uppercase tracking-[0.12em] text-white transition hover:bg-[#1e40af]">Support Center</button>
-            </div>
+            </x-section-card>
         </div>
     </div>
 
