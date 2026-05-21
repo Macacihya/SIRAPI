@@ -4,34 +4,12 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Guru;
-use App\Models\Sekolah;
+use App\Models\User;
+use App\Models\MataPelajaran;
+use Illuminate\Support\Facades\Hash;
 
 class GuruController extends Controller
 {
-    private function getMockGurus()
-    {
-        $firstNames = ['Budi', 'Siti', 'Ahmad', 'Dewi', 'Rudi', 'Hendra', 'Rina', 'Agus', 'Ratna', 'Cipto', 'Bambang', 'Endang'];
-        $lastNames = ['Santoso', 'Rahayu', 'Fauzi', 'Lestari', 'Hermawan', 'Gunawan', 'Sari', 'Salim', 'Kusuma', 'Wijaya'];
-        $subjects = ['Matematika', 'Bahasa Indonesia', 'IPA', 'IPS', 'PJOK', 'Bahasa Inggris', 'Seni Budaya', 'Prakarya', '-'];
-
-        $gurus = [];
-        for ($i = 1; $i <= 35; $i++) {
-            $name = $firstNames[array_rand($firstNames)] . ' ' . $lastNames[array_rand($lastNames)];
-            $email = strtolower(str_replace(' ', '.', $name)) . '@school.id';
-            $roles = (rand(1, 10) > 7) ? ['WALI KELAS XI IPA 1'] : ['GURU MAPEL'];
-            $mapel = in_array('GURU MAPEL', $roles) ? $subjects[array_rand($subjects)] : '-';
-
-            $gurus[] = (object)[
-                'name' => $name,
-                'email' => $email,
-                'nip' => '19' . rand(70, 95) . str_pad(rand(1, 12), 2, '0', STR_PAD_LEFT) . str_pad(rand(1, 28), 2, '0', STR_PAD_LEFT) . '20' . rand(10, 23) . str_pad(rand(1, 12), 2, '0', STR_PAD_LEFT) . '100' . rand(1, 9),
-                'roles' => $roles,
-                'mapel' => $mapel
-            ];
-        }
-        return collect($gurus);
-    }
-
     public function index(Request $request)
     {
         return $this->tampilkan($request);
@@ -39,36 +17,85 @@ class GuruController extends Controller
 
     public function tampilkan(Request $request)
     {
-        $allData = $this->getMockGurus();
-        $perPage = 10;
-        $currentPage = \Illuminate\Pagination\LengthAwarePaginator::resolveCurrentPage();
-        $currentPageItems = $allData->slice(($currentPage - 1) * $perPage, $perPage)->values();
+        $query = Guru::with(['user', 'guruPengampus.mataPelajaran']);
 
-        $gurus = new \Illuminate\Pagination\LengthAwarePaginator($currentPageItems, $allData->count(), $perPage, $currentPage, [
-            'path' => \Illuminate\Pagination\LengthAwarePaginator::resolveCurrentPath(),
-            'query' => $request->query(),
-        ]);
+        // Pencarian
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('nip', 'like', "%{$search}%")
+                  ->orWhereHas('user', function ($uq) use ($search) {
+                      $uq->where('nama', 'like', "%{$search}%")
+                         ->orWhere('email', 'like', "%{$search}%");
+                  });
+            });
+        }
 
-        return view('pages.guru-tendik.index', compact('gurus')); // Updated view path based on route Route::view('/guru-tendik', 'pages.guru-tendik.index')
+        $gurus = $query->paginate(10)->withQueryString();
+
+        // Daftar mapel untuk dropdown di form
+        $daftarMapel = MataPelajaran::pluck('nama_mapel', 'kode_mapel')->toArray();
+
+        return view('pages.guru-tendik.index', compact('gurus', 'daftarMapel'));
     }
 
     public function create()
     {
-        $sekolahs = Sekolah::all();
-        return view('pages.guru.create', compact('sekolahs'));
+        $daftarMapel = MataPelajaran::pluck('nama_mapel', 'kode_mapel')->toArray();
+        return view('pages.guru.create', compact('daftarMapel'));
     }
 
     public function store(Request $request)
     {
-        $request->validate([
-            'nama' => 'required',
-            'nip' => 'required',
-            'mata_pelajaran' => 'required',
-            'sekolah_id' => 'required'
+        $validated = $request->validate([
+            'nama'            => 'required|string|max:255',
+            'email'           => 'required|email|unique:users,email',
+            'username'        => 'required|string|unique:users,username',
+            'nip'             => 'required|string|unique:gurus,nip',
+            'role'            => 'required|in:guru,walikelas',
+            'mata_pelajaran'  => 'nullable|string',
         ]);
 
-        Guru::create($request->all());
+        $user = User::create([
+            'nama'     => $validated['nama'],
+            'email'    => $validated['email'],
+            'username' => $validated['username'],
+            'password' => Hash::make($validated['nip']), // Password default = NIP
+            'role'     => $validated['role'],
+        ]);
 
-        return redirect()->route('guru.index');
+        Guru::create([
+            'user_id'         => $user->id,
+            'nip'             => $validated['nip'],
+            'mata_pelajaran'  => $validated['mata_pelajaran'] ?? null,
+        ]);
+
+        return redirect()
+            ->route('guru-tendik')
+            ->with('success', 'Data guru berhasil ditambahkan.');
+    }
+
+    public function update(Request $request, $id)
+    {
+        $guru = Guru::with('user')->findOrFail($id);
+
+        $validated = $request->validate([
+            'nama'           => 'required|string|max:255',
+            'email'          => 'required|email|unique:users,email,' . $guru->user_id,
+            'mata_pelajaran' => 'nullable|string',
+        ]);
+
+        $guru->user->update([
+            'nama'  => $validated['nama'],
+            'email' => $validated['email'],
+        ]);
+
+        $guru->update([
+            'mata_pelajaran' => $validated['mata_pelajaran'] ?? null,
+        ]);
+
+        return redirect()
+            ->route('guru-tendik')
+            ->with('success', 'Data guru berhasil diperbarui.');
     }
 }

@@ -6,6 +6,10 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\SekolahController;
 use App\Http\Controllers\GuruController;
 use App\Http\Controllers\SiswaController;
+use App\Http\Controllers\KelasController;
+use App\Http\Controllers\MataPelajaranController;
+use App\Http\Controllers\AturanPenilaianController;
+use App\Http\Controllers\GuruPengampuController;
 use Illuminate\Support\Facades\Route;
 
 // ─── Guest Routes ────────────────────────────────────────────
@@ -35,17 +39,46 @@ Route::middleware('auth')->group(function () {
     Route::middleware('role:admin')->group(function () {
         Route::view('/manajemen-user', 'pages.manajemen-user.index')->name('manajemen-user');
         Route::view('/data-sekolah', 'pages.data-sekolah.index')->name('data-sekolah');
-        Route::get('/guru-tendik', [GuruController::class, 'index'])->name('guru-tendik');
         Route::view('/akademik', 'pages.akademik.index')->name('akademik');
-        Route::view('/kelas', 'pages.kelas.index')->name('kelas'); // Menambahkan route untuk data kelas
-        Route::view('/mata-pelajaran', 'pages.mata-pelajaran.index')->name('mata-pelajaran');
-        Route::view('/aturan-nilai', 'pages.aturan-nilai.index')->name('aturan-nilai');
 
-        // ⚠️ tampilkan HARUS sebelum resource
+        // Guru & Tendik
+        Route::get('/guru-tendik', [GuruController::class, 'index'])->name('guru-tendik');
         Route::get('/guru/tampilkan', [GuruController::class, 'tampilkan'])->name('guru.tampilkan');
-        Route::resource('sekolah', SekolahController::class);
         Route::resource('guru', GuruController::class);
+
+        // Sekolah
+        Route::resource('sekolah', SekolahController::class);
+
+        // Siswa (tampilkan harus sebelum resource)
         Route::get('/siswa/tampilkan', [SiswaController::class, 'tampilkan'])->name('siswa.tampilkan');
+        Route::post('/siswa', [SiswaController::class, 'store'])->name('siswa.store');
+        Route::put('/siswa/{siswa}', [SiswaController::class, 'update'])->name('siswa.update');
+        Route::delete('/siswa/{siswa}', [SiswaController::class, 'destroy'])->name('siswa.destroy');
+
+        // Kelas
+        Route::get('/kelas', [KelasController::class, 'index'])->name('kelas');
+        Route::post('/kelas', [KelasController::class, 'store'])->name('kelas.store');
+        Route::put('/kelas/{kela}', [KelasController::class, 'update'])->name('kelas.update');
+        Route::delete('/kelas/{kela}', [KelasController::class, 'destroy'])->name('kelas.destroy');
+
+        // Mata Pelajaran
+        Route::get('/mata-pelajaran', [MataPelajaranController::class, 'index'])->name('mata-pelajaran');
+        Route::post('/mata-pelajaran', [MataPelajaranController::class, 'store'])->name('mata-pelajaran.store');
+        Route::put('/mata-pelajaran/{kodeMapel}', [MataPelajaranController::class, 'update'])->name('mata-pelajaran.update');
+        Route::delete('/mata-pelajaran/{kodeMapel}', [MataPelajaranController::class, 'destroy'])->name('mata-pelajaran.destroy');
+
+        // Aturan Penilaian
+        Route::get('/aturan-nilai', [AturanPenilaianController::class, 'index'])->name('aturan-nilai');
+        Route::post('/aturan-nilai', [AturanPenilaianController::class, 'store'])->name('aturan-nilai.store');
+        Route::put('/aturan-nilai/{aturanPenilaian}', [AturanPenilaianController::class, 'update'])->name('aturan-nilai.update');
+        Route::delete('/aturan-nilai/{aturanPenilaian}', [AturanPenilaianController::class, 'destroy'])->name('aturan-nilai.destroy');
+
+        // Guru Pengampu
+        Route::post('/guru-pengampu', [GuruPengampuController::class, 'store'])->name('guru-pengampu.store');
+        Route::delete('/guru-pengampu/{guruPengampu}', [GuruPengampuController::class, 'destroy'])->name('guru-pengampu.destroy');
+
+        // Tahun Ajaran (sudah ada)
+        Route::resource('tahun-ajaran', \App\Http\Controllers\TahunAjaranController::class);
     });
 
     // ── Admin & Guru ─────────────────────────────────────────
