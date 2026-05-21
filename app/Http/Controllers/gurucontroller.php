@@ -57,7 +57,10 @@ class GuruController extends Controller
         $daftarMapel = MataPelajaran::pluck('nama_mapel', 'kode_mapel')->toArray();
         $sekolahs = Sekolah::all();
 
-        return view('pages.guru-tendik.index', compact('gurus', 'daftarMapel', 'sekolahs'));
+        // Riwayat status guru
+        $riwayatGuru = \App\Models\RiwayatStatusGuru::with('guru.user')->orderBy('tanggal_perubahan', 'desc')->take(20)->get();
+
+        return view('pages.guru-tendik.index', compact('gurus', 'daftarMapel', 'sekolahs', 'riwayatGuru'));
     }
 
     public function create()

@@ -21,6 +21,7 @@ class DashboardController extends Controller
         $totalKelas   = Kelas::count();
         $totalMapel   = MataPelajaran::count();
         $tahunAktif   = TahunAjaran::where('is_active', true)->first();
+        $logAktivitas = \App\Models\LogAktivitas::with('user')->orderBy('waktu', 'desc')->take(20)->get();
 
         return view('pages.dashboard.index', compact(
             'user',
@@ -28,7 +29,8 @@ class DashboardController extends Controller
             'totalGuru',
             'totalKelas',
             'totalMapel',
-            'tahunAktif'
+            'tahunAktif',
+            'logAktivitas'
         ));
     }
 }

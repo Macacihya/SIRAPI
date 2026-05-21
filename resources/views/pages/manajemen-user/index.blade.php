@@ -48,6 +48,7 @@
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
+                            'Accept': 'application/json',
                             'X-CSRF-TOKEN': '{{ csrf_token() }}'
                         },
                         body: JSON.stringify({
@@ -100,6 +101,7 @@
                         method: 'PUT',
                         headers: {
                             'Content-Type': 'application/json',
+                            'Accept': 'application/json',
                             'X-CSRF-TOKEN': '{{ csrf_token() }}'
                         },
                         body: JSON.stringify({
@@ -191,18 +193,7 @@
     </div>
 
     {{-- ─── TABLE ─── --}}
-    <div class="overflow-hidden rounded-[14px] border border-[#e2e8f0] bg-white">
-        <table class="w-full text-[13px]">
-            <thead>
-                <tr class="border-b border-[#e2e8f0] bg-[#f8fafc]">
-                    <th class="px-6 py-3 text-left text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">User</th>
-                    <th class="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Identitas</th>
-                    <th class="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Role / Peran</th>
-                    <th class="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Status</th>
-                    <th class="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Aksi</th>
-                </tr>
-            </thead>
-            <tbody>
+        <x-data-table :headers="['User', 'Identitas', 'Role / Peran', 'Status']">
                 <template x-for="u in filtered" :key="u.id">
                     <tr class="border-b border-[#f1f5f9] transition hover:bg-[#f8fafc]">
                         <td class="px-6 py-4">
@@ -246,8 +237,7 @@
                 <tr x-show="filtered.length === 0">
                     <td colspan="5" class="py-12 text-center text-[14px] text-[#94a3b8]">Tidak ada user ditemukan.</td>
                 </tr>
-            </tbody>
-        </table>
+        </x-data-table>
         <div class="border-t border-[#e2e8f0] px-6 py-4">
             <nav class="flex items-center justify-between">
                 {{-- Left Side: Info --}}

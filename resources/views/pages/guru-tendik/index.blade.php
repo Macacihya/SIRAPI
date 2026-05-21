@@ -226,18 +226,7 @@ document.addEventListener('alpine:init', () => {
         </div>
 
         {{-- ─── TABLE ─── --}}
-        <div class="overflow-hidden rounded-[14px] border border-[#e2e8f0] bg-white">
-            <table class="w-full text-[13px]">
-                <thead>
-                    <tr class="border-b border-[#e2e8f0] bg-[#f8fafc]">
-                        <th class="px-6 py-3 text-left text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Identitas</th>
-                        <th class="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">NIP / NUPTK</th>
-                        <th class="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Peran</th>
-                        <th class="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Mapel</th>
-                        <th class="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody>
+        <x-data-table :headers="['Identitas', 'NIP / NUPTK', 'Peran', 'Mapel']">
                     <template x-for="g in filtered" :key="g.nip">
                         <tr class="border-b border-[#f1f5f9] transition hover:bg-[#f8fafc]">
                             <td class="px-6 py-4">
@@ -278,11 +267,50 @@ document.addEventListener('alpine:init', () => {
                             <button @click="search = ''; roleFilter = 'Semua'" class="mt-4 rounded-lg border border-[#e2e8f0] px-4 py-2 text-[12px] font-bold text-[#475569] transition hover:bg-[#f1f5f9]">Reset Pencarian</button>
                         </td>
                     </tr>
-                </tbody>
-            </table>
+        </x-data-table>
             <div class="border-t border-[#e2e8f0] px-6 py-4">
                 {{ $gurus->links() }}
             </div>
+        </div>
+
+        {{-- ─── RIWAYAT STATUS GURU ─── --}}
+        <div class="mt-8">
+            <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between mb-4">
+                <div>
+                    <h2 class="text-[20px] font-black tracking-[-0.04em] text-[#0f172a]">Riwayat Status Mengajar</h2>
+                    <p class="text-[12px] text-[#64748b]">Data historis perubahan status guru.</p>
+                </div>
+            </div>
+            
+            <x-data-table :headers="['Tanggal', 'Guru', 'Status', 'Keterangan']">
+                @forelse ($riwayatGuru as $item)
+                    <tr class="border-b border-[#f1f5f9] transition hover:bg-[#f8fafc]">
+                        <td class="px-6 py-4 text-[#64748b] text-[13px] font-medium">
+                            {{ \Carbon\Carbon::parse($item->tanggal_perubahan)->format('d M Y') }}
+                        </td>
+                        <td class="px-6 py-4">
+                            <p class="font-bold text-[#0f172a]">{{ $item->guru->user->nama ?? '-' }}</p>
+                            <p class="text-[11px] text-[#64748b]">NIP: {{ $item->guru->nip ?? '-' }}</p>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-xs font-bold 
+                                {{ $item->status == 'Aktif' ? 'bg-[#d1fae5] text-[#065f46]' : 'bg-[#f1f5f9] text-[#475569]' }}">
+                                {{ $item->status }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 text-[#64748b] text-[13px]">
+                            {{ $item->keterangan ?? '-' }}
+                        </td>
+                        <td class="px-4 py-4 text-center">
+                            -
+                        </td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="5" class="px-6 py-8 text-center text-[#94a3b8] text-[13px]">Belum ada riwayat status guru.</td>
+                    </tr>
+                @endforelse
+            </x-data-table>
         </div>
 
     {{-- ═══ MODAL: Tambah Guru ═══ --}}

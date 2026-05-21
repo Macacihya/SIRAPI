@@ -27,7 +27,7 @@ class CheckRole
 
         // Normalisasi: admin_tu dianggap sama dengan admin
         $userRole = getUserRole();
-
+        
         if (!in_array($userRole, $roles)) {
             abort(403, 'Anda tidak memiliki akses ke halaman ini.');
         }

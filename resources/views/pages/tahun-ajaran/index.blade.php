@@ -21,36 +21,29 @@
         </div>
     @endif
 
-    <table class="w-full border rounded-lg overflow-hidden">
-        <thead class="bg-gray-200">
-            <tr>
-                <th class="p-3 text-left">Tahun Ajaran</th>
-                <th class="p-3 text-left">Semester</th>
-                <th class="p-3 text-left">Status</th>
-                <th class="p-3 text-left">Aksi</th>
-            </tr>
-        </thead>
-        <tbody>
+    <x-data-table :headers="['Tahun Ajaran', 'Semester', 'Status']">
             @forelse ($tahunAjarans as $tahunAjaran)
-                <tr class="border-t hover:bg-gray-50">
-                    <td class="p-3 font-medium">{{ $tahunAjaran->tahun_mulai }}/{{ $tahunAjaran->tahun_selesai }}</td>
-                    <td class="p-3">{{ $tahunAjaran->semester }}</td>
-                    <td class="p-3">
+                <tr class="border-b dark:border-gray-700 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-600">
+                    <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                        {{ $tahunAjaran->tahun_mulai }}/{{ $tahunAjaran->tahun_selesai }}
+                    </td>
+                    <td class="px-6 py-4">{{ $tahunAjaran->semester }}</td>
+                    <td class="px-6 py-4">
                         @if ($tahunAjaran->is_active)
-                            <span class="inline-flex rounded-full bg-green-100 px-3 py-1 text-sm font-medium text-green-700">Aktif</span>
+                            <span class="inline-flex rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-700">Aktif</span>
                         @else
-                            <span class="inline-flex rounded-full bg-gray-100 px-3 py-1 text-sm font-medium text-gray-600">Tidak aktif</span>
+                            <span class="inline-flex rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-600">Tidak aktif</span>
                         @endif
                     </td>
-                    <td class="p-3">
-                        <div class="flex gap-2">
-                            <a href="{{ route('tahun-ajaran.edit', $tahunAjaran->id) }}" class="rounded bg-yellow-500 px-3 py-1 text-white hover:bg-yellow-600">
+                    <td class="px-6 py-4 text-center">
+                        <div class="flex items-center justify-center gap-2">
+                            <a href="{{ route('tahun-ajaran.edit', $tahunAjaran->id) }}" class="font-medium text-yellow-600 dark:text-yellow-500 hover:underline">
                                 Edit
                             </a>
                             <form action="{{ route('tahun-ajaran.destroy', $tahunAjaran->id) }}" method="POST" onsubmit="return confirm('Hapus tahun ajaran ini?')">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="rounded bg-red-500 px-3 py-1 text-white hover:bg-red-600">
+                                <button type="submit" class="font-medium text-red-600 dark:text-red-500 hover:underline">
                                     Hapus
                                 </button>
                             </form>
@@ -59,10 +52,9 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="4" class="p-4 text-center text-gray-500">Belum ada data tahun ajaran.</td>
+                    <td colspan="4" class="px-6 py-4 text-center text-gray-500">Belum ada data tahun ajaran.</td>
                 </tr>
             @endforelse
-        </tbody>
-    </table>
+    </x-data-table>
 </div>
 @endsection

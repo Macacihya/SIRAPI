@@ -56,30 +56,22 @@
             </x-slot:action>
 
             <div class="mt-6 space-y-0 divide-y divide-[#f1f5f9]">
-                @foreach ([
-                    ['icon' => 'user-plus', 'title' => 'Pendaftaran Siswa Baru', 'desc' => 'Admin TU-02 telah menambahkan 5 berkas siswa baru ke Database Siswa.', 'time' => '10 Menit Lalu'],
-                    ['icon' => 'calendar', 'title' => 'Update Jadwal Akademik', 'desc' => 'Perubahan jadwal mata pelajaran Matematika Kelas XI-A oleh Kurikulum.', 'time' => '2 Jam Lalu'],
-                    ['icon' => 'check', 'title' => 'Validasi Nilai Akhir Semester', 'desc' => 'Sistem otomatis memproses laporan penilaian untuk 12 kelas di jenjang Kelas X.', 'time' => 'Dibuat Kemarin'],
-                ] as $log)
+                @forelse ($logAktivitas->take(3) as $log)
                     <div class="flex items-start gap-4 py-4">
                         <div class="flex h-10 w-10 flex-none items-center justify-center rounded-[8px] bg-[#eff6ff] text-[#1d4ed8]">
-                            @if ($log['icon'] === 'user-plus')
-                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" stroke-width="2" stroke-linecap="round"></path><circle cx="8.5" cy="7" r="4" stroke-width="2"></circle><path d="M20 8v6m3-3h-6" stroke-width="2" stroke-linecap="round"></path></svg>
-                            @elseif ($log['icon'] === 'calendar')
-                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" stroke-width="2"></rect><path d="M16 2v4M8 2v4M3 10h18" stroke-width="2" stroke-linecap="round"></path></svg>
-                            @else
-                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" stroke-width="2"></rect><path d="m9 12 2 2 4-4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
-                            @endif
+                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 6v6l4 2" stroke-width="2" stroke-linecap="round"></path><circle cx="12" cy="12" r="10" stroke-width="2"></circle></svg>
                         </div>
                         <div class="flex-1 min-w-0">
                             <div class="flex items-center justify-between gap-2">
-                                <p class="text-[14px] font-bold text-[#0f172a]">{{ $log['title'] }}</p>
-                                <span class="flex-none text-[10px] font-bold uppercase tracking-[0.08em] text-[#94a3b8]">{{ $log['time'] }}</span>
+                                <p class="text-[14px] font-bold text-[#0f172a]">{{ $log->judul }}</p>
+                                <span class="flex-none text-[10px] font-bold uppercase tracking-[0.08em] text-[#94a3b8]">{{ \Carbon\Carbon::parse($log->waktu)->diffForHumans() }}</span>
                             </div>
-                            <p class="mt-1 text-[13px] leading-[1.6] text-[#64748b]">{{ $log['desc'] }}</p>
+                            <p class="mt-1 text-[13px] leading-[1.6] text-[#64748b]">{{ $log->deskripsi }}</p>
                         </div>
                     </div>
-                @endforeach
+                @empty
+                    <div class="py-4 text-center text-[13px] text-[#64748b]">Belum ada aktivitas.</div>
+                @endforelse
             </div>
         </x-section-card>
 
@@ -106,25 +98,20 @@
 
     {{-- ═══ MODAL: Lihat Semua Aktivitas ═══ --}}
     <x-modal alpineShow="showAllActivity" title="Semua Aktivitas Sistem" maxWidth="2xl">
-        <div class="overflow-y-auto px-6 py-4 divide-y divide-[#f1f5f9] -mx-6 -my-5">
-            @foreach ([
-                ['title' => 'Pendaftaran Siswa Baru', 'desc' => 'Admin TU-02 menambahkan 5 berkas siswa baru.', 'time' => '10 Menit Lalu'],
-                ['title' => 'Update Jadwal Akademik', 'desc' => 'Perubahan jadwal Tematik Kelas 1-A.', 'time' => '2 Jam Lalu'],
-                ['title' => 'Validasi Nilai Akhir Semester', 'desc' => 'Sistem memproses laporan seluruh rombel Kelas 1-6.', 'time' => 'Kemarin'],
-                ['title' => 'Sinkronisasi Data DAPODIK', 'desc' => 'Berhasil sinkron 1,248 data siswa aktif.', 'time' => '2 Hari Lalu'],
-                ['title' => 'Perubahan Jadwal Mengajar', 'desc' => 'Guru B. Wijaya dipindahkan ke jadwal Kamis.', 'time' => '3 Hari Lalu'],
-                ['title' => 'Backup Database Triwulan', 'desc' => 'Backup otomatis berhasil (2.4GB).', 'time' => '1 Minggu Lalu'],
-            ] as $log)
+        <div class="overflow-y-auto px-6 py-4 divide-y divide-[#f1f5f9] -mx-6 -my-5 max-h-[70vh]">
+            @forelse ($logAktivitas as $log)
                 <div class="flex items-start gap-4 py-4 first:pt-0 last:pb-0">
                     <div class="flex h-9 w-9 flex-none items-center justify-center rounded-[8px] bg-[#eff6ff] text-[#1d4ed8]">
                         <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-width="2"></circle><path d="M12 6v6l4 2" stroke-width="2" stroke-linecap="round"></path></svg>
                     </div>
                     <div class="flex-1 min-w-0">
-                        <div class="flex items-center justify-between gap-2"><p class="text-[13px] font-bold text-[#0f172a]">{{ $log['title'] }}</p><span class="flex-none text-[10px] font-bold uppercase tracking-[0.08em] text-[#94a3b8]">{{ $log['time'] }}</span></div>
-                        <p class="mt-1 text-[12px] text-[#64748b]">{{ $log['desc'] }}</p>
+                        <div class="flex items-center justify-between gap-2"><p class="text-[13px] font-bold text-[#0f172a]">{{ $log->judul }}</p><span class="flex-none text-[10px] font-bold uppercase tracking-[0.08em] text-[#94a3b8]">{{ \Carbon\Carbon::parse($log->waktu)->format('d M Y H:i') }}</span></div>
+                        <p class="mt-1 text-[12px] text-[#64748b]">{{ $log->deskripsi }}</p>
                     </div>
                 </div>
-            @endforeach
+            @empty
+                <div class="py-4 text-center text-[13px] text-[#64748b]">Belum ada aktivitas.</div>
+            @endforelse
         </div>
     </x-modal>
 

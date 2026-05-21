@@ -23,6 +23,7 @@ class UserController extends Controller
             } elseif ($user->role === 'guru') {
                 $roles[] = 'GURU MAPEL';
             } elseif ($user->role === 'walikelas') {
+                $roles[] = 'GURU MAPEL';
                 $roles[] = 'WALI KELAS';
             }
 
@@ -81,6 +82,10 @@ class UserController extends Controller
             ]);
         });
 
+        if ($request->wantsJson()) {
+            return response()->json(['message' => 'User berhasil ditambahkan.']);
+        }
+
         return redirect()
             ->route('manajemen-user')
             ->with('success', 'User berhasil ditambahkan.');
@@ -97,7 +102,10 @@ class UserController extends Controller
             'roles'    => 'required|array',
         ]);
 
-        $role = in_array('WALI KELAS', $validated['roles']) ? 'walikelas' : 'guru';
+        $role = $user->role;
+        if ($user->role !== 'admin') {
+            $role = in_array('WALI KELAS', $validated['roles']) ? 'walikelas' : 'guru';
+        }
 
         DB::transaction(function () use ($user, $validated, $role) {
             $updateData = [
@@ -119,6 +127,10 @@ class UserController extends Controller
                 ]);
             }
         });
+
+        if ($request->wantsJson()) {
+            return response()->json(['message' => 'User berhasil diperbarui.']);
+        }
 
         return redirect()
             ->route('manajemen-user')
