@@ -2,15 +2,36 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Sekolah;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class SekolahController extends Controller
 {
+    /**
+     * Tampilkan profil sekolah pertama (karena SIRAPI biasanya untuk single sekolah).
+     */
     public function index()
     {
-        $sekolahs = Sekolah::all();
-        return view('pages.sekolah.index', compact('sekolahs'));
+        $sekolah = Sekolah::first();
+
+        // Jika belum ada data sekolah, buat data default kosong agar tidak error di view
+        if (!$sekolah) {
+            $sekolah = Sekolah::create([
+                'npsn'                => '00000000',
+                'nama_sekolah'        => 'Nama Sekolah Default',
+                'alamat'              => 'Alamat Default',
+                'kode_pos'            => '00000',
+                'telepon'             => '000-000000',
+                'email'               => 'sekolah@sirapi.sch.id',
+                'nip_kepsek'          => '-',
+                'status_sekolah'      => 'Negeri',
+                'nama_kepala_sekolah' => '-',
+                'bentuk_pendidikan'   => 'SD',
+            ]);
+        }
+
+        return view('pages.data-sekolah.index', compact('sekolah'));
     }
 
     public function create()
@@ -20,15 +41,30 @@ class SekolahController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
-            'nama_sekolah' => 'required',
-            'alamat' => 'required',
-            'telepon' => 'required'
+        $validated = $request->validate([
+            'npsn'                => 'required|string|max:20|unique:sekolahs,npsn',
+            'nama_sekolah'        => 'required|string|max:255',
+            'alamat'              => 'required|string',
+            'kode_pos'            => 'nullable|string|max:10',
+            'telepon'             => 'nullable|string|max:20',
+            'email'               => 'nullable|email|max:255',
+            'logo'                => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'nip_kepsek'          => 'nullable|string|max:50',
+            'status_sekolah'      => 'nullable|string|max:50',
+            'nama_kepala_sekolah' => 'nullable|string|max:255',
+            'bentuk_pendidikan'   => 'nullable|string|max:50',
         ]);
 
-        Sekolah::create($request->all());
+        if ($request->hasFile('logo')) {
+            $path = $request->file('logo')->store('logos', 'public');
+            $validated['logo'] = $path;
+        }
 
-        return redirect()->route('sekolah.index');
+        $sekolah = Sekolah::create($validated);
+
+        return redirect()
+            ->route('data-sekolah')
+            ->with('success', 'Data sekolah berhasil ditambahkan.');
     }
 
     public function edit($id)
@@ -41,22 +77,46 @@ class SekolahController extends Controller
     {
         $sekolah = Sekolah::findOrFail($id);
 
-        $request->validate([
-            'nama_sekolah' => 'required',
-            'alamat' => 'required',
-            'telepon' => 'required'
+        $validated = $request->validate([
+            'npsn'                => 'required|string|max:20|unique:sekolahs,npsn,' . $id,
+            'nama_sekolah'        => 'required|string|max:255',
+            'alamat'              => 'required|string',
+            'kode_pos'            => 'nullable|string|max:10',
+            'telepon'             => 'nullable|string|max:20',
+            'email'               => 'nullable|email|max:255',
+            'logo'                => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'nip_kepsek'          => 'nullable|string|max:50',
+            'status_sekolah'      => 'nullable|string|max:50',
+            'nama_kepala_sekolah' => 'nullable|string|max:255',
+            'bentuk_pendidikan'   => 'nullable|string|max:50',
         ]);
 
-        $sekolah->update($request->all());
+        if ($request->hasFile('logo')) {
+            // Hapus logo lama jika ada
+            if ($sekolah->logo) {
+                Storage::disk('public')->delete($sekolah->logo);
+            }
+            $path = $request->file('logo')->store('logos', 'public');
+            $validated['logo'] = $path;
+        }
 
-        return redirect()->route('sekolah.index');
+        $sekolah->update($validated);
+
+        return redirect()
+            ->route('data-sekolah')
+            ->with('success', 'Informasi sekolah berhasil diperbarui.');
     }
 
     public function destroy($id)
     {
         $sekolah = Sekolah::findOrFail($id);
+        if ($sekolah->logo) {
+            Storage::disk('public')->delete($sekolah->logo);
+        }
         $sekolah->delete();
 
-        return redirect()->route('sekolah.index');
+        return redirect()
+            ->route('data-sekolah')
+            ->with('success', 'Data sekolah berhasil dihapus.');
     }
 }

@@ -7,7 +7,6 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * Run the migrations.
      * Tabel induk ISA — menyimpan atribut umum semua pengguna.
      */
     public function up(): void
@@ -22,7 +21,6 @@ return new class extends Migration
             $table->string('jenis_kelamin')->nullable();
             $table->string('no_hp')->nullable();
             $table->text('alamat')->nullable();
-            $table->string('jabatan')->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->rememberToken();
             $table->timestamps();
@@ -44,13 +42,10 @@ return new class extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        Schema::dropIfExists('users');
-        Schema::dropIfExists('password_reset_tokens');
         Schema::dropIfExists('sessions');
+        Schema::dropIfExists('password_reset_tokens');
+        Schema::dropIfExists('users');
     }
 };

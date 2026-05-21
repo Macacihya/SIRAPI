@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\User;
 use App\Models\Admin;
 use App\Models\Guru;
+use App\Models\Sekolah;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
@@ -12,41 +13,51 @@ class UserSeeder extends Seeder
 {
     public function run(): void
     {
+        // ─── SEED SEKOLAH DEFAULT ───────────────────
+        $sekolah = Sekolah::updateOrCreate(
+            ['npsn' => '20304857'],
+            [
+                'nama_sekolah'        => 'SD Negeri 01 Indonesia',
+                'alamat'              => 'Jl. Teknologi Cerdas No. 45, Kebayoran Baru, Jakarta Selatan',
+                'kode_pos'            => '12110',
+                'telepon'             => '(021) 7654321',
+                'email'               => 'info@smk-tu.sch.id',
+                'nip_kepsek'          => '197508212003121002',
+                'status_sekolah'      => 'Negeri',
+                'nama_kepala_sekolah' => 'Dr. Budi Santoso, M.Pd.',
+                'bentuk_pendidikan'   => 'SD (Sekolah Dasar)',
+            ]
+        );
+
         // ─── ADMIN ─────────────────────────────────
         $admin = User::updateOrCreate(
             ['username' => 'admin'],
             [
-                'nama' => 'Administrator',
+                'nama'     => 'Administrator',
                 'username' => 'admin',
-                'email' => 'admin@sekolah.sch.id',
+                'email'    => 'admin@sekolah.sch.id',
                 'password' => Hash::make('lopolo9090'),
-                'role' => 'admin',
-                'jabatan' => 'Admin TU',
-                'jenis_kelamin' => 'Laki-laki',
-                'no_hp' => '+62 812-3456-7890',
-                'alamat' => 'Jl. Pendidikan No. 1, Jakarta',
+                'role'     => 'admin',
             ]
         );
 
         // ISA child: admins
         Admin::updateOrCreate(
             ['user_id' => $admin->id],
-            ['jabatan_admin' => 'Tata Usaha']
+            [
+                'jabatan_admin' => 'Admin TU',
+            ]
         );
 
         // ─── GURU ──────────────────────────────────
         $guru = User::updateOrCreate(
             ['username' => 'taufik'],
             [
-                'nama' => 'Drs. M. Taufik',
+                'nama'     => 'Drs. M. Taufik',
                 'username' => 'taufik',
-                'email' => 'taufik@sekolah.sch.id',
+                'email'    => 'taufik@sekolah.sch.id',
                 'password' => Hash::make('lopolo9090'),
-                'role' => 'guru',
-                'jabatan' => 'Guru Mata Pelajaran',
-                'jenis_kelamin' => 'Laki-laki',
-                'no_hp' => '+62 821-1234-5678',
-                'alamat' => 'Jl. Merdeka No. 45, Bandung',
+                'role'     => 'guru',
             ]
         );
 
@@ -54,8 +65,9 @@ class UserSeeder extends Seeder
         Guru::updateOrCreate(
             ['user_id' => $guru->id],
             [
-                'nip' => '197805122005011004',
-                'mata_pelajaran' => 'Bahasa Indonesia'
+                'nip'        => '197805122005011004',
+                'sekolah_id' => $sekolah->id,
+                'jabatan'    => 'Guru Mata Pelajaran',
             ]
         );
 
@@ -63,15 +75,11 @@ class UserSeeder extends Seeder
         $walikelas = User::updateOrCreate(
             ['username' => 'heryanto'],
             [
-                'nama' => 'Heryanto Pratama, S.Pd.',
+                'nama'     => 'Heryanto Pratama, S.Pd.',
                 'username' => 'heryanto',
-                'email' => 'heryanto@sekolah.sch.id',
+                'email'    => 'heryanto@sekolah.sch.id',
                 'password' => Hash::make('lopolo9090'),
-                'role' => 'walikelas',
-                'jabatan' => 'Wali Kelas 6-A',
-                'jenis_kelamin' => 'Laki-laki',
-                'no_hp' => '+62 852-9876-5432',
-                'alamat' => 'Jl. Pahlawan No. 99, Surabaya',
+                'role'     => 'walikelas',
             ]
         );
 
@@ -79,8 +87,9 @@ class UserSeeder extends Seeder
         Guru::updateOrCreate(
             ['user_id' => $walikelas->id],
             [
-                'nip' => '198804122015031002',
-                'mata_pelajaran' => 'Matematika'
+                'nip'        => '198804122015031002',
+                'sekolah_id' => $sekolah->id,
+                'jabatan'    => 'Wali Kelas 6-A',
             ]
         );
     }

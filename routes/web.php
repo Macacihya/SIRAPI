@@ -37,8 +37,12 @@ Route::middleware('auth')->group(function () {
 
     // ── Admin Only ───────────────────────────────────────────
     Route::middleware('role:admin')->group(function () {
-        Route::view('/manajemen-user', 'pages.manajemen-user.index')->name('manajemen-user');
-        Route::view('/data-sekolah', 'pages.data-sekolah.index')->name('data-sekolah');
+        Route::get('/manajemen-user', [App\Http\Controllers\UserController::class, 'index'])->name('manajemen-user');
+        Route::post('/manajemen-user', [App\Http\Controllers\UserController::class, 'store'])->name('manajemen-user.store');
+        Route::put('/manajemen-user/{id}', [App\Http\Controllers\UserController::class, 'update'])->name('manajemen-user.update');
+        Route::delete('/manajemen-user/{id}', [App\Http\Controllers\UserController::class, 'destroy'])->name('manajemen-user.destroy');
+
+        Route::get('/data-sekolah', [App\Http\Controllers\SekolahController::class, 'index'])->name('data-sekolah');
         Route::view('/akademik', 'pages.akademik.index')->name('akademik');
 
         // Guru & Tendik

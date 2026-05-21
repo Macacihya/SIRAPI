@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Guru;
 use App\Models\User;
+use App\Models\Sekolah;
 use App\Models\MataPelajaran;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 
 class GuruController extends Controller
 {
@@ -17,9 +19,9 @@ class GuruController extends Controller
 
     public function tampilkan(Request $request)
     {
-        $query = Guru::with(['user', 'guruPengampus.mataPelajaran']);
+        $query = Guru::with(['user', 'guruPengampus.mataPelajaran', 'sekolah']);
 
-        // Pencarian
+        // Pencarian berdasarkan nama, email, atau NIP
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
@@ -35,40 +37,56 @@ class GuruController extends Controller
 
         // Daftar mapel untuk dropdown di form
         $daftarMapel = MataPelajaran::pluck('nama_mapel', 'kode_mapel')->toArray();
+        $sekolahs = Sekolah::all();
 
-        return view('pages.guru-tendik.index', compact('gurus', 'daftarMapel'));
+        return view('pages.guru-tendik.index', compact('gurus', 'daftarMapel', 'sekolahs'));
     }
 
     public function create()
     {
         $daftarMapel = MataPelajaran::pluck('nama_mapel', 'kode_mapel')->toArray();
-        return view('pages.guru.create', compact('daftarMapel'));
+        $sekolahs = Sekolah::all();
+        return view('pages.guru.create', compact('daftarMapel', 'sekolahs'));
     }
 
     public function store(Request $request)
     {
+        // Validasi input
         $validated = $request->validate([
-            'nama'            => 'required|string|max:255',
-            'email'           => 'required|email|unique:users,email',
-            'username'        => 'required|string|unique:users,username',
-            'nip'             => 'required|string|unique:gurus,nip',
-            'role'            => 'required|in:guru,walikelas',
-            'mata_pelajaran'  => 'nullable|string',
+            'nama'       => 'required|string|max:255',
+            'email'      => 'required|email|unique:users,email',
+            'username'   => 'required|string|unique:users,username',
+            'nip'        => 'required|string|unique:gurus,nip',
+            'peran'      => 'required|in:GURU MAPEL,WALI KELAS',
+            'sekolah_id' => 'nullable|exists:sekolahs,id',
+            'jabatan'    => 'nullable|string|max:255',
         ]);
 
-        $user = User::create([
-            'nama'     => $validated['nama'],
-            'email'    => $validated['email'],
-            'username' => $validated['username'],
-            'password' => Hash::make($validated['nip']), // Password default = NIP
-            'role'     => $validated['role'],
-        ]);
+        $role = $validated['peran'] === 'WALI KELAS' ? 'walikelas' : 'guru';
+        
+        // Dapatkan sekolah_id default jika tidak diisi
+        $sekolahId = $validated['sekolah_id'] ?? (Sekolah::first()->id ?? null);
+        
+        if (!$sekolahId) {
+            return back()->withErrors(['sekolah_id' => 'Belum ada data sekolah terdaftar. Harap daftarkan sekolah terlebih dahulu.']);
+        }
 
-        Guru::create([
-            'user_id'         => $user->id,
-            'nip'             => $validated['nip'],
-            'mata_pelajaran'  => $validated['mata_pelajaran'] ?? null,
-        ]);
+        DB::transaction(function () use ($validated, $role, $sekolahId) {
+            $user = User::create([
+                'nama'     => $validated['nama'],
+                'email'    => $validated['email'],
+                'username' => $validated['username'],
+                'password' => Hash::make($validated['nip']), // Password default = NIP
+                'role'     => $role,
+            ]);
+
+            Guru::create([
+                'user_id'    => $user->id,
+                'nip'        => $validated['nip'],
+                'sekolah_id' => $sekolahId,
+                'jabatan'    => $validated['jabatan'] ?? ($validated['peran'] === 'WALI KELAS' ? 'Wali Kelas' : 'Guru Mapel'),
+            ]);
+        });
 
         return redirect()
             ->route('guru-tendik')
@@ -80,22 +98,46 @@ class GuruController extends Controller
         $guru = Guru::with('user')->findOrFail($id);
 
         $validated = $request->validate([
-            'nama'           => 'required|string|max:255',
-            'email'          => 'required|email|unique:users,email,' . $guru->user_id,
-            'mata_pelajaran' => 'nullable|string',
+            'nama'       => 'required|string|max:255',
+            'email'      => 'required|email|unique:users,email,' . $guru->user_id,
+            'sekolah_id' => 'nullable|exists:sekolahs,id',
+            'jabatan'    => 'nullable|string|max:255',
         ]);
 
-        $guru->user->update([
-            'nama'  => $validated['nama'],
-            'email' => $validated['email'],
-        ]);
+        DB::transaction(function () use ($guru, $validated) {
+            $guru->user->update([
+                'nama'  => $validated['nama'],
+                'email' => $validated['email'],
+            ]);
 
-        $guru->update([
-            'mata_pelajaran' => $validated['mata_pelajaran'] ?? null,
-        ]);
+            $updateData = [];
+            if (isset($validated['sekolah_id'])) {
+                $updateData['sekolah_id'] = $validated['sekolah_id'];
+            }
+            if (isset($validated['jabatan'])) {
+                $updateData['jabatan'] = $validated['jabatan'];
+            }
+
+            if (!empty($updateData)) {
+                $guru->update($updateData);
+            }
+        });
 
         return redirect()
             ->route('guru-tendik')
             ->with('success', 'Data guru berhasil diperbarui.');
+    }
+
+    public function destroy($id)
+    {
+        $guru = Guru::findOrFail($id);
+        
+        // Hapus user (akan cascade delete guru karena foreign key)
+        $user = User::findOrFail($guru->user_id);
+        $user->delete();
+
+        return redirect()
+            ->route('guru-tendik')
+            ->with('success', 'Data guru berhasil dihapus.');
     }
 }

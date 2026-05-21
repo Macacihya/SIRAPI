@@ -8,14 +8,8 @@ use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
     protected $fillable = [
         'nama',
         'username',
@@ -25,47 +19,37 @@ class User extends Authenticatable
         'jenis_kelamin',
         'no_hp',
         'alamat',
-        'jabatan',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
     protected function casts(): array
     {
         return [
             'email_verified_at' => 'datetime',
-            'password' => 'hashed',
+            'password'          => 'hashed',
         ];
     }
 
     // ─── ISA Relations ───────────────────────────
 
-    /**
-     * Relasi ke tabel anak ISA: admins
-     */
     public function admin()
     {
         return $this->hasOne(Admin::class, 'user_id');
     }
 
-    /**
-     * Relasi ke tabel anak ISA: gurus
-     */
     public function guru()
     {
         return $this->hasOne(Guru::class, 'user_id');
+    }
+
+    // ─── Log Aktivitas ───────────────────────────
+
+    public function logAktivitas()
+    {
+        return $this->hasMany(LogAktivitas::class, 'user_id');
     }
 }

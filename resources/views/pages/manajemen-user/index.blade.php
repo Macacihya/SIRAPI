@@ -20,13 +20,7 @@
 
             form: { nama: '', email: '', username: '', nip: '', roles: [], status: 'Aktif', whatsapp: '' },
 
-            users: [
-                { name: 'Budi Santoso',  email: 'budi.tu@sirapi.sch.id',  id: 'NIP: 19850312200501', roles: ['GURU MAPEL'],               status: 'Aktif' },
-                { name: 'Siti Aminah',   email: 'siti.guru@sirapi.sch.id', id: 'NUPTK: 7831002814',   roles: ['GURU MAPEL', 'WALI KELAS'], status: 'Aktif' },
-                { name: 'Andi Wijaya',   email: 'andi.std@sirapi.sch.id',  id: 'NIP: 0056123881',     roles: ['GURU MAPEL'],               status: 'Nonaktif' },
-                { name: 'Dewi Kusuma',   email: 'dewi.op@sirapi.sch.id',   id: 'NIP: 19900715200801', roles: ['WALI KELAS'],               status: 'Aktif' },
-                { name: 'Rizky Pratama', email: 'rizky.s@sirapi.sch.id',   id: 'NUPTK: 0062198411',   roles: ['GURU MAPEL'],               status: 'Aktif' },
-            ],
+            users: @json($usersData ?? []),
 
             get filtered() {
                 let r = this.users;
@@ -49,48 +43,83 @@
             openEdit(u) { this.editData = JSON.parse(JSON.stringify(u)); this.showEdit = true; },
 
             async submitAdd() {
-                this.users.unshift({
-                    name:   this.form.nama,
-                    email:  this.form.email,
-                    id:     'NIP: ' + this.form.nip,
-                    roles:  this.form.roles.length ? this.form.roles : ['GURU MAPEL'],
-                    status: this.form.status
-                });
+                try {
+                    let response = await fetch('{{ route("manajemen-user.store") }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify({
+                            nama: this.form.nama,
+                            email: this.form.email,
+                            username: this.form.username,
+                            nip: this.form.nip,
+                            roles: this.form.roles,
+                            whatsapp: this.form.whatsapp
+                        })
+                    });
 
-                if (this.form.whatsapp) {
-                    let jabatan = this.form.roles.join(', ') || 'GURU MAPEL';
-                    let pesan = `Yth. ${this.form.nama},\n\nBerikut adalah informasi akun Anda untuk mengakses sistem SIRAPI:\n\n- Nama        : ${this.form.nama}\n- NIP/NUPTK   : ${this.form.nip}\n- Jabatan     : ${jabatan}\n- Email       : ${this.form.email}\n- Username    : ${this.form.username}\n- Password    : ${this.form.nip}\n- URL Login   : https://sirapi.sch.id/login\n\nHarap segera login dan ganti password Anda setelah masuk pertama kali.\n\nApabila mengalami kendala, silakan hubungi Admin TU.\n\nHormat kami,\nAdministrator SIRAPI`;
-
-                    try {
-                        await fetch('https://api.fonnte.com/send', {
-                            method: 'POST',
-                            headers: {
-                                'Authorization': this.fonnte_token,
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({
-                                target: '62' + this.form.whatsapp.replace(/^0/, ''),
-                                message: pesan,
-                                countryCode: '62'
-                            })
-                        });
-                        this.$dispatch('toast', { message: 'User ditambahkan & kredensial dikirim via WhatsApp!', type: 'success' });
-                    } catch (e) {
-                        this.$dispatch('toast', { message: 'User tersimpan, namun pengiriman WhatsApp gagal.', type: 'warning' });
+                    if (!response.ok) {
+                        let err = await response.json();
+                        throw new Error(err.message || 'Gagal menyimpan user.');
                     }
-                } else {
-                    this.$dispatch('toast', { message: 'User baru berhasil ditambahkan!', type: 'success' });
-                }
 
-                this.form = { nama: '', email: '', username: '', nip: '', roles: [], status: 'Aktif', whatsapp: '' };
-                this.showAdd = false;
+                    if (this.form.whatsapp) {
+                        let jabatan = this.form.roles.join(', ') || 'GURU MAPEL';
+                        let pesan = `Yth. ${this.form.nama},\n\nBerikut adalah informasi akun Anda untuk mengakses sistem SIRAPI:\n\n- Nama        : ${this.form.nama}\n- NIP/NUPTK   : ${this.form.nip}\n- Jabatan     : ${jabatan}\n- Email       : ${this.form.email}\n- Username    : ${this.form.username}\n- Password    : ${this.form.nip}\n- URL Login   : https://sirapi.sch.id/login\n\nHarap segera login dan ganti password Anda setelah masuk pertama kali.\n\nApabila mengalami kendala, silakan hubungi Admin TU.\n\nHormat kami,\nAdministrator SIRAPI`;
+
+                        try {
+                            await fetch('https://api.fonnte.com/send', {
+                                method: 'POST',
+                                headers: {
+                                    'Authorization': this.fonnte_token,
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({
+                                    target: '62' + this.form.whatsapp.replace(/^0/, ''),
+                                    message: pesan,
+                                    countryCode: '62'
+                                })
+                            });
+                        } catch (e) {
+                            console.error('Pengiriman WA gagal:', e);
+                        }
+                    }
+
+                    this.showAdd = false;
+                    window.location.reload();
+                } catch (e) {
+                    this.$dispatch('toast', { message: e.message, type: 'error' });
+                }
             },
 
-            submitEdit() {
-                let idx = this.users.findIndex(u => u.id === this.editData.id);
-                if (idx > -1) { this.users[idx] = JSON.parse(JSON.stringify(this.editData)); }
-                this.showEdit = false;
-                this.$dispatch('toast', { message: 'Data user berhasil diperbarui!', type: 'success' });
+            async submitEdit() {
+                try {
+                    let response = await fetch(`/manajemen-user/${this.editData.id_db}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify({
+                            nama: this.editData.name,
+                            email: this.editData.email,
+                            password: this.editData.password,
+                            roles: this.editData.roles
+                        })
+                    });
+
+                    if (!response.ok) {
+                        let err = await response.json();
+                        throw new Error(err.message || 'Gagal memperbarui user.');
+                    }
+
+                    this.showEdit = false;
+                    window.location.reload();
+                } catch (e) {
+                    this.$dispatch('toast', { message: e.message, type: 'error' });
+                }
             },
         }));
     });

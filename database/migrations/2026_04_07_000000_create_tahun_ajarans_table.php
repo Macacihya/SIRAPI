@@ -6,6 +6,9 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    /**
+     * Tabel periode tahun ajaran aktif dan semester.
+     */
     public function up(): void
     {
         Schema::create('tahun_ajarans', function (Blueprint $table) {
