@@ -35,6 +35,24 @@ class GuruController extends Controller
 
         $gurus = $query->paginate(10)->withQueryString();
 
+        // Transform agar field sesuai dengan yg dipakai di view Alpine.js
+        $gurus->getCollection()->transform(function ($guru) {
+            $mapels = $guru->guruPengampus
+                ->map(fn($gp) => $gp->mataPelajaran->nama_mapel ?? '-')
+                ->unique()
+                ->implode(', ');
+
+            return (object)[
+                'id'    => $guru->user_id,
+                'name'  => $guru->user->nama ?? '-',
+                'nama'  => $guru->user->nama ?? '-',
+                'email' => $guru->user->email ?? '-',
+                'nip'   => $guru->nip,
+                'roles' => [($guru->user->role ?? 'guru') === 'walikelas' ? 'WALI KELAS' : 'GURU MAPEL'],
+                'mapel' => $mapels ?: ($guru->mata_pelajaran ?? '-'),
+            ];
+        });
+
         // Daftar mapel untuk dropdown di form
         $daftarMapel = MataPelajaran::pluck('nama_mapel', 'kode_mapel')->toArray();
         $sekolahs = Sekolah::all();
@@ -131,10 +149,11 @@ class GuruController extends Controller
     public function destroy($id)
     {
         $guru = Guru::findOrFail($id);
-        
-        // Hapus user (akan cascade delete guru karena foreign key)
-        $user = User::findOrFail($guru->user_id);
-        $user->delete();
+        $user = $guru->user;
+        $guru->delete();
+        if ($user) {
+            $user->delete();
+        }
 
         return redirect()
             ->route('guru-tendik')

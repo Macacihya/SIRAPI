@@ -9,7 +9,10 @@ class MataPelajaranController extends Controller
 {
     public function index()
     {
-        $mapels = MataPelajaran::orderBy('kode_mapel')->get();
+        $mapels = MataPelajaran::orderBy('kode_mapel')->get()->map(fn($m) => [
+            'kode_mapel' => $m->kode_mapel,
+            'nama_mapel' => $m->nama_mapel,
+        ]);
 
         return view('pages.mata-pelajaran.index', compact('mapels'));
     }

@@ -37,8 +37,27 @@ class SiswaController extends Controller
 
         $data = $query->paginate(10)->withQueryString();
 
-        // Ambil daftar kelas untuk filter dropdown
-        $daftarKelas = Kelas::pluck('nama_kelas')->toArray();
+        // Transform agar field sesuai dengan yg dipakai di view Alpine.js
+        $data->getCollection()->transform(function ($siswa) {
+            $latestStatus = $siswa->riwayatStatus->sortByDesc('id')->first();
+            return (object)[
+                'id'             => $siswa->id,
+                'nama'           => $siswa->nama_siswa,
+                'nisn'           => $siswa->nisn,
+                'nis'            => $siswa->nisn,
+                'kelas'          => $siswa->kelas ? 'Kelas ' . $siswa->kelas->nama_kelas : '-',
+                'kelas_id'       => $siswa->kelas_id,
+                'jenis_kelamin'  => '-',
+                'status'         => strtoupper($latestStatus?->status ?? 'AKTIF'),
+                'selected'       => false,
+            ];
+        });
+
+        // Ambil daftar kelas untuk filter dropdown dan form
+        $daftarKelas = Kelas::all()->map(fn($k) => (object)[
+            'id'   => $k->id,
+            'nama' => 'Kelas ' . $k->nama_kelas,
+        ])->toArray();
 
         // Statistik
         $totalSiswa = Siswa::count();

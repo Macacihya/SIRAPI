@@ -13,10 +13,12 @@ document.addEventListener('alpine:init', () => {
         roleFilter: 'Semua',
         showAdd: false,
         showEdit: false,
+        showDelete: false,
+        deleteTarget: null,
         showImport: false,
         loadingImport: false,
         importFile: null,
-        editData: {},
+        editData: { id: '', name: '', email: '', nip: '', roles: [], mapel: '' },
         allUsers: [
             { name: 'Budi Santoso',  email: 'budi.tu@sirapi.sch.id',   nip: '19850312200501',  roles: ['GURU MAPEL'] },
             { name: 'Siti Aminah',   email: 'siti.guru@sirapi.sch.id',  nip: '7831002814',      roles: ['GURU MAPEL', 'WALI KELAS'] },
@@ -33,23 +35,11 @@ document.addEventListener('alpine:init', () => {
             username: '', whatsapp: ''
         },
         fonnte_token: 'weHNunUCikrC3YnBmvrf',
-        daftarMapel: ['Pendidikan Agama', 'Pendidikan Pancasila', 'Bahasa Indonesia', 'Matematika', 'Tematik', 'IPAS', 'PJOK', 'Seni Budaya', 'Bahasa Inggris', 'Bahasa Daerah'],
+        daftarMapel: @json(array_values($daftarMapel)),
         gurus: @json($gurus->items()),
 
         init() {
-            // Tambahkan data dummy untuk demo jika belum ada
-            const dummyNips = ['19780512200301', '19920822201502', '19800101200501', '19750315200001'];
-            dummyNips.forEach((nip, i) => {
-                if (!this.gurus.find(g => g.nip === nip)) {
-                    const dummies = [
-                        { name: 'Drs. Bambang Heru, S.Pd', email: 'bambang@sirapi.sch.id', nip: '19780512200301', roles: ['GURU MAPEL'], mapel: 'Matematika' },
-                        { name: 'Larasati, S.Sn', email: 'larasati@sirapi.sch.id', nip: '19920822201502', roles: ['GURU MAPEL'], mapel: 'Seni Budaya' },
-                        { name: 'H. Syamsul Maarif, Lc', email: 'syamsul@sirapi.sch.id', nip: '19800101200501', roles: ['GURU MAPEL'], mapel: 'Pendidikan Agama' },
-                        { name: 'Dr. Heru Prasetyo', email: 'heru@sirapi.sch.id', nip: '19750315200001', roles: ['WALI KELAS'], mapel: '-' }
-                    ];
-                    this.gurus.push(dummies[i]);
-                }
-            });
+            // Data sudah dari database via controller
         },
 
         get usedMapels() {
@@ -86,32 +76,40 @@ document.addEventListener('alpine:init', () => {
         },
         clearUser() { this.form.user_name = ''; this.form.user_email = ''; this.form.user_nip = ''; this.userSearch = ''; },
         toggleManual() { this.manualMode = !this.manualMode; this.clearUser(); this.form.username = ''; this.form.whatsapp = ''; },
-        async submitAdd() {
-            let namaFinal = this.manualMode ? this.form.user_name : this.form.user_name + (this.form.gelar ? ', ' + this.form.gelar : '');
-            let nipFinal = this.form.user_nip;
-            let mapelFinal = this.form.peran === 'WALI KELAS' ? '-' : (this.form.mapel || '-');
-            this.gurus.unshift({ name: namaFinal, email: this.form.user_email, nip: nipFinal, roles: [this.form.peran], mapel: mapelFinal });
-
-            if (this.manualMode && this.form.whatsapp) {
-                let pesan = `Yth. ${namaFinal},\n\nBerikut adalah informasi akun Anda untuk mengakses sistem SIRAPI:\n\n- Nama : ${namaFinal}\n- NIP/NUPTK : ${nipFinal}\n- Jabatan : ${this.form.peran}\n- Email : ${this.form.user_email}\n- Username : ${this.form.username}\n- Password : ${nipFinal}\n- URL Login : https://sirapi.sch.id/login\n\nHarap segera login dan ganti password Anda setelah masuk pertama kali.\n\nHormat kami,\nAdministrator SIRAPI`;
-                try {
-                    await fetch('https://api.fonnte.com/send', { method: 'POST', headers: { 'Authorization': this.fonnte_token, 'Content-Type': 'application/json' }, body: JSON.stringify({ target: '62' + this.form.whatsapp.replace(/^0/, ''), message: pesan, countryCode: '62' }) });
-                    this.$dispatch('toast', { message: 'Data guru ditambahkan & kredensial dikirim via WhatsApp!', type: 'success' });
-                } catch (e) {
-                    this.$dispatch('toast', { message: 'Data tersimpan, namun pengiriman WhatsApp gagal.', type: 'warning' });
-                }
-            } else {
-                this.$dispatch('toast', { message: 'Data guru berhasil ditambahkan!', type: 'success' });
-            }
-            this.form = { user_name: '', user_email: '', user_nip: '', peran: 'GURU MAPEL', mapel: '', gelar: '', username: '', whatsapp: '' };
-            this.userSearch = ''; this.manualMode = false; this.showAdd = false;
+        submitAdd() {
+            document.getElementById('tambahNamaGuru').value = this.form.user_name;
+            document.getElementById('tambahEmailGuru').value = this.form.user_email;
+            document.getElementById('tambahUsernameGuru').value = this.form.username || this.form.user_email.split('@')[0];
+            document.getElementById('tambahNipGuru').value = this.form.user_nip;
+            document.getElementById('tambahRoleGuru').value = this.form.peran === 'WALI KELAS' ? 'walikelas' : 'guru';
+            document.getElementById('tambahMapelGuru').value = this.form.peran === 'WALI KELAS' ? '' : (this.form.mapel || '');
+            document.getElementById('formTambahGuru').submit();
         },
-        openEdit(g) { this.editData = JSON.parse(JSON.stringify(g)); this.showEdit = true; },
+        openEdit(g) {
+            this.editData = {
+                id: g.id,
+                name: g.nama || g.name,
+                email: g.email,
+                nip: g.nip,
+                roles: g.roles,
+                mapel: g.mapel !== '-' ? g.mapel : ''
+            };
+            this.showEdit = true;
+        },
         submitEdit() {
-            let idx = this.gurus.findIndex(g => g.nip === this.editData.nip);
-            if (idx > -1) { this.gurus[idx] = JSON.parse(JSON.stringify(this.editData)); }
-            this.showEdit = false;
-            this.$dispatch('toast', { message: 'Data guru berhasil diperbarui!', type: 'success' });
+            document.getElementById('formEditGuru').action = '/guru/' + this.editData.id;
+            document.getElementById('editNamaGuru').value = this.editData.name;
+            document.getElementById('editEmailGuru').value = this.editData.email;
+            document.getElementById('editMapelGuru').value = this.editData.mapel || '';
+            document.getElementById('formEditGuru').submit();
+        },
+        confirmDelete(g) {
+            this.deleteTarget = g;
+            this.showDelete = true;
+        },
+        doDelete() {
+            document.getElementById('formHapusGuru').action = '/guru/' + this.deleteTarget.id;
+            document.getElementById('formHapusGuru').submit();
         },
         downloadTemplate() {
             let csv = 'Nama,Email,NIP_NUPTK,Peran,Mata_Pelajaran\n';
@@ -150,6 +148,26 @@ document.addEventListener('alpine:init', () => {
     }));
 });
 </script>
+
+{{-- Hidden forms for server submission --}}
+<form id="formTambahGuru" method="POST" action="{{ route('guru.store') }}" class="hidden">
+    @csrf
+    <input type="hidden" name="nama" id="tambahNamaGuru">
+    <input type="hidden" name="email" id="tambahEmailGuru">
+    <input type="hidden" name="username" id="tambahUsernameGuru">
+    <input type="hidden" name="nip" id="tambahNipGuru">
+    <input type="hidden" name="role" id="tambahRoleGuru">
+    <input type="hidden" name="mata_pelajaran" id="tambahMapelGuru">
+</form>
+<form id="formEditGuru" method="POST" action="" class="hidden">
+    @csrf @method('PUT')
+    <input type="hidden" name="nama" id="editNamaGuru">
+    <input type="hidden" name="email" id="editEmailGuru">
+    <input type="hidden" name="mata_pelajaran" id="editMapelGuru">
+</form>
+<form id="formHapusGuru" method="POST" action="" class="hidden">
+    @csrf @method('DELETE')
+</form>
 
     <div x-data="guruTendik" class="space-y-6" style="font-family: 'Inter', sans-serif;">
 
@@ -239,11 +257,18 @@ document.addEventListener('alpine:init', () => {
                             </td>
                             <td class="px-4 py-4 text-[#475569]" x-text="g.mapel"></td>
                             <td class="px-4 py-4">
-                                <button @click="openEdit(g)" class="rounded-lg p-1.5 text-[#64748b] transition hover:bg-[#f1f5f9] hover:text-[#1d4ed8]">
-                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" stroke-width="2"></path>
-                                    </svg>
-                                </button>
+                                <div class="flex items-center gap-1">
+                                    <button @click="openEdit(g)" class="rounded-lg p-1.5 text-[#64748b] transition hover:bg-[#f1f5f9] hover:text-[#1d4ed8]">
+                                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" stroke-width="2"></path>
+                                        </svg>
+                                    </button>
+                                    <button @click="confirmDelete(g)" class="rounded-lg p-1.5 text-[#64748b] transition hover:bg-[#fef2f2] hover:text-[#dc2626]">
+                                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                                        </svg>
+                                    </button>
+                                </div>
                             </td>
                         </tr>
                     </template>
@@ -329,6 +354,16 @@ document.addEventListener('alpine:init', () => {
                         <label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Nama lengkap & gelar</label>
                         <input x-model="form.user_name" class="mt-1 h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6]" placeholder="Drs. Nama, S.Pd.">
                     </div>
+                    <div class="grid gap-4 sm:grid-cols-2">
+                        <div>
+                            <label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Email</label>
+                            <input x-model="form.user_email" class="mt-1 h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6]" placeholder="email@guru.sch.id">
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Username</label>
+                            <input x-model="form.username" class="mt-1 h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6]" placeholder="username123">
+                        </div>
+                    </div>
                 </div>
 
                 <div class="grid gap-4 sm:grid-cols-2">
@@ -363,10 +398,6 @@ document.addEventListener('alpine:init', () => {
                 <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">NIP / NUPTK</label><input x-model="editData.nip" readonly class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f1f5f9] px-4 text-[14px] outline-none cursor-not-allowed text-[#64748b]"></div>
             </div>
             <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Email</label><input x-model="editData.email" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6]"></div>
-            <div class="grid gap-4 sm:grid-cols-2">
-                <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Password baru</label><input x-model="editData.password" type="password" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6]" placeholder="Kosongkan jika tidak diubah"></div>
-                <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Konfirmasi password</label><input x-model="editData.password_confirm" type="password" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6]" placeholder="Ulangi password baru"></div>
-            </div>
             <div x-show="!editData.roles || !editData.roles.some(r => r.includes('WALI'))">
                 <label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Mata pelajaran</label>
                 <select x-model="editData.mapel" class="mt-1 h-[42px] w-full appearance-none rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6]">
@@ -376,7 +407,7 @@ document.addEventListener('alpine:init', () => {
         </div>
         <x-slot:footer>
             <button @click="showEdit = false" class="flex-1 rounded-lg border border-[#e2e8f0] bg-white py-2.5 text-[12px] font-bold text-[#475569] hover:bg-[#f1f5f9]">Batal</button>
-            <button @click="submitEdit()" class="flex-1 rounded-lg bg-[#1d4ed8] py-2.5 text-[12px] font-bold text-white hover:bg-[#1e40af]">Simpan</button>
+            <button @click="submitEdit()" :disabled="!editData.name || !editData.email" class="flex-1 rounded-lg bg-[#1d4ed8] py-2.5 text-[12px] font-bold text-white hover:bg-[#1e40af] transition">Simpan</button>
         </x-slot:footer>
     </x-modal>
 
@@ -415,6 +446,16 @@ document.addEventListener('alpine:init', () => {
             </button>
         </x-slot:footer>
     </x-modal>
+
+    {{-- ═══ MODAL: Hapus Guru ═══ --}}
+    <x-confirm-dialog
+        alpineShow="showDelete"
+        type="danger"
+        title="Hapus Data Guru?"
+        message="Data guru <strong x-text='deleteTarget?.name || deleteTarget?.nama'></strong> beserta akun user terkait akan dihapus secara permanen."
+        confirmText="Ya, Hapus"
+        confirmAction="doDelete()"
+    />
 
     </div>
 @endsection
