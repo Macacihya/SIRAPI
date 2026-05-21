@@ -21,4 +21,12 @@ class TahunAjaran extends Model
     {
         return "{$this->tahun_mulai}/{$this->tahun_selesai} - {$this->semester}";
     }
+
+    /**
+     * Relasi ke kelas-kelas di tahun ajaran ini
+     */
+    public function kelas()
+    {
+        return $this->hasMany(Kelas::class);
+    }
 }

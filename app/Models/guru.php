@@ -18,4 +18,12 @@ class Guru extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    /**
+     * Relasi ke guru pengampu (kelas & mapel yang diampu)
+     */
+    public function guruPengampus()
+    {
+        return $this->hasMany(GuruPengampu::class, 'guru_id', 'user_id');
+    }
 }
