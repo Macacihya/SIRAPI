@@ -52,7 +52,7 @@ class UserController extends Controller
             'nama'     => 'required|string|max:255',
             'email'    => 'required|email|unique:users,email',
             'username' => 'required|string|unique:users,username',
-            'nip'      => 'required|string',
+            'nip'      => 'required|numeric|digits_between:1,18',
             'roles'    => 'required|array',
             'whatsapp' => 'nullable|string',
         ]);

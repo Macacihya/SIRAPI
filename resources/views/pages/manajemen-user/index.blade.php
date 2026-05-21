@@ -324,7 +324,7 @@
                         </div>
                         <div>
                             <label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">NIP / NUPTK</label>
-                            <input x-model="form.nip" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20" placeholder="19XXXXXXXXXXXXXXX">
+                            <input x-model="form.nip" @input="form.nip = form.nip.replace(/[^0-9]/g, '').slice(0, 18)" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20" placeholder="19XXXXXXXXXXXXXXX">
                         </div>
                     </div>
 

@@ -56,7 +56,7 @@ class GuruController extends Controller
             'nama'       => 'required|string|max:255',
             'email'      => 'required|email|unique:users,email',
             'username'   => 'required|string|unique:users,username',
-            'nip'        => 'required|string|unique:gurus,nip',
+            'nip'        => 'required|numeric|digits_between:1,18|unique:gurus,nip',
             'peran'      => 'required|in:GURU MAPEL,WALI KELAS',
             'sekolah_id' => 'nullable|exists:sekolahs,id',
             'jabatan'    => 'nullable|string|max:255',

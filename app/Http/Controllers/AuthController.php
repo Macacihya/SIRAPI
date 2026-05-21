@@ -26,16 +26,26 @@ class AuthController extends Controller
         $input = $request->input('username');
         $role = $request->input('role', 'admin');
         
-        // Tentukan field login berdasarkan Role
-        if ($role === 'admin') {
-            // Admin login pakai Email atau Username
-            $loginField = filter_var($input, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
+        $loginCredentials = ['password' => $request->input('password')];
+
+        if (filter_var($input, FILTER_VALIDATE_EMAIL)) {
+            $loginCredentials['email'] = $input;
         } else {
-            // Guru & Walikelas login pakai Email atau NIP
-            $loginField = filter_var($input, FILTER_VALIDATE_EMAIL) ? 'email' : 'nip';
+            if ($role === 'admin') {
+                $loginCredentials['username'] = $input;
+            } else {
+                // Cari NIP guru di tabel gurus
+                $guru = \App\Models\Guru::with('user')->where('nip', $input)->first();
+                if ($guru && $guru->user) {
+                    $loginCredentials['username'] = $guru->user->username;
+                } else {
+                    // Fallback ke username jika NIP tidak ditemukan
+                    $loginCredentials['username'] = $input;
+                }
+            }
         }
 
-        if (Auth::attempt([$loginField => $request->input('username'), 'password' => $request->input('password')], $request->boolean('remember'))) {
+        if (Auth::attempt($loginCredentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
 
             $user = Auth::user();
