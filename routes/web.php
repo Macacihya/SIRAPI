@@ -10,6 +10,13 @@ use App\Http\Controllers\KelasController;
 use App\Http\Controllers\MataPelajaranController;
 use App\Http\Controllers\AturanPenilaianController;
 use App\Http\Controllers\GuruPengampuController;
+use App\Http\Controllers\RaportController;
+use App\Http\Controllers\NilaiController;
+use App\Http\Controllers\CapaianKompetensiController;
+use App\Http\Controllers\RekapKehadiranController;
+use App\Http\Controllers\NilaiSikapController;
+use App\Http\Controllers\EkstrakurikulerController;
+use App\Http\Controllers\RaportEkskulController;
 use Illuminate\Support\Facades\Route;
 
 // ─── Guest Routes ────────────────────────────────────────────
@@ -33,7 +40,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::view('/profil', 'pages.profil.index')->name('profil');
     Route::view('/laporan-nilai', 'pages.laporan-nilai.index')->name('laporan-nilai');
-    Route::view('/rekap-nilai', 'pages.rekap-nilai.index')->name('rekap-nilai');
+    Route::get('/rekap-nilai', [NilaiController::class, 'index'])->name('rekap-nilai');
 
     // ── Admin Only ───────────────────────────────────────────
     Route::middleware('role:admin')->group(function () {
@@ -94,18 +101,46 @@ Route::middleware('auth')->group(function () {
     Route::middleware('role:admin,guru,walikelas')->group(function () {
         Route::view('/jadwal', 'pages.jadwal.index')->name('jadwal');
         Route::view('/penilaian', 'pages.penilaian.index')->name('penilaian');
+
+        // Nilai
+        Route::post('/nilai', [NilaiController::class, 'store'])->name('nilai.store');
+        Route::put('/nilai/{nilai}', [NilaiController::class, 'update'])->name('nilai.update');
+        Route::delete('/nilai/{nilai}', [NilaiController::class, 'destroy'])->name('nilai.destroy');
     });
 
     // ── Guru Only ────────────────────────────────────────────
     Route::middleware('role:guru')->group(function () {
-        Route::view('/capaian-kompetensi', 'pages.capaian-kompetensi.index')->name('capaian-kompetensi');
+        Route::get('/capaian-kompetensi', [CapaianKompetensiController::class, 'index'])->name('capaian-kompetensi');
+        Route::post('/capaian-kompetensi', [CapaianKompetensiController::class, 'store'])->name('capaian-kompetensi.store');
+        Route::put('/capaian-kompetensi/{capaianKompetensi}', [CapaianKompetensiController::class, 'update'])->name('capaian-kompetensi.update');
+        Route::delete('/capaian-kompetensi/{capaianKompetensi}', [CapaianKompetensiController::class, 'destroy'])->name('capaian-kompetensi.destroy');
     });
 
     // ── Walikelas Only ───────────────────────────────────────
     Route::middleware('role:walikelas')->group(function () {
         Route::view('/profil-kelas', 'pages.profil-kelas.index')->name('profil-kelas');
-        Route::view('/kehadiran', 'pages.kehadiran.index')->name('kehadiran');
-        Route::view('/rapor', 'pages.rapor.index')->name('rapor');
+        Route::get('/kehadiran', [RekapKehadiranController::class, 'index'])->name('kehadiran');
+        Route::post('/kehadiran', [RekapKehadiranController::class, 'store'])->name('kehadiran.store');
+        Route::put('/kehadiran/{rekapKehadiran}', [RekapKehadiranController::class, 'update'])->name('kehadiran.update');
+        Route::delete('/kehadiran/{rekapKehadiran}', [RekapKehadiranController::class, 'destroy'])->name('kehadiran.destroy');
+
+        Route::get('/rapor', [RaportController::class, 'index'])->name('rapor');
+        Route::post('/rapor', [RaportController::class, 'store'])->name('rapor.store');
+        Route::put('/rapor/{raport}', [RaportController::class, 'update'])->name('rapor.update');
+        Route::delete('/rapor/{raport}', [RaportController::class, 'destroy'])->name('rapor.destroy');
+
+        Route::post('/nilai-sikap', [NilaiSikapController::class, 'store'])->name('nilai-sikap.store');
+        Route::put('/nilai-sikap/{nilaiSikap}', [NilaiSikapController::class, 'update'])->name('nilai-sikap.update');
+        Route::delete('/nilai-sikap/{nilaiSikap}', [NilaiSikapController::class, 'destroy'])->name('nilai-sikap.destroy');
+
+        Route::post('/ekstrakurikuler', [EkstrakurikulerController::class, 'store'])->name('ekstrakurikuler.store');
+        Route::put('/ekstrakurikuler/{ekstrakurikuler}', [EkstrakurikulerController::class, 'update'])->name('ekstrakurikuler.update');
+        Route::delete('/ekstrakurikuler/{ekstrakurikuler}', [EkstrakurikulerController::class, 'destroy'])->name('ekstrakurikuler.destroy');
+
+        Route::post('/rapor-ekskul', [RaportEkskulController::class, 'store'])->name('rapor-ekskul.store');
+        Route::put('/rapor-ekskul/{raportEkskul}', [RaportEkskulController::class, 'update'])->name('rapor-ekskul.update');
+        Route::delete('/rapor-ekskul/{raportEkskul}', [RaportEkskulController::class, 'destroy'])->name('rapor-ekskul.destroy');
+
         Route::view('/rapor/lihat', 'pages.rapor.lihat')->name('rapor.lihat');
     });
 });
