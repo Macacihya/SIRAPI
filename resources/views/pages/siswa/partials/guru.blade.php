@@ -20,15 +20,7 @@ document.addEventListener('alpine:init', () => {
         filterOpen: false,
         siswa: @json($data->items()),
         init() {
-            // Mapping data SMA ke SD untuk demo (Mapping otomatis)
-            this.siswa.forEach(s => {
-                if (s.kelas && (s.kelas.includes('X') || s.kelas.includes('XI') || s.kelas.includes('XII'))) {
-                    let k = s.kelas.toUpperCase();
-                    let level = k.includes('XII') ? '6' : (k.includes('XI') ? '4' : '1');
-                    let section = k.includes('IPA') ? 'A' : 'B';
-                    s.kelas = `Kelas ${level}-${section}`;
-                }
-            });
+            // Data sudah dari database, tidak perlu mapping
         },
         get filteredSiswa() {
             let result = this.siswa.map((s, i) => ({...s, _idx: i}));
@@ -75,13 +67,9 @@ document.addEventListener('alpine:init', () => {
             <div class="mt-4">
                 <select x-model="filterKelas" class="h-12 w-full rounded-lg border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[15px] font-bold text-[#0f172a] outline-none transition focus:border-[#3b82f6] focus:bg-white focus:ring-2 focus:ring-[#3b82f6]/20">
                     <option value="">Semua Kelas</option>
-                    <option value="Kelas 1-A">Kelas 1-A</option>
-                    <option value="Kelas 1-B">Kelas 1-B</option>
-                    <option value="Kelas 2-A">Kelas 2-A</option>
-                    <option value="Kelas 3-A">Kelas 3-A</option>
-                    <option value="Kelas 4-A">Kelas 4-A</option>
-                    <option value="Kelas 5-A">Kelas 5-A</option>
-                    <option value="Kelas 6-A">Kelas 6-A</option>
+                    @foreach($daftarKelas as $kls)
+                        <option value="{{ $kls }}">{{ $kls }}</option>
+                    @endforeach
                 </select>
             </div>
         </div>

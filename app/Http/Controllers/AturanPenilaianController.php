@@ -10,7 +10,14 @@ class AturanPenilaianController extends Controller
 {
     public function index()
     {
-        $komponen = AturanPenilaian::with('mataPelajaran')->get();
+        $komponen = AturanPenilaian::with('mataPelajaran')->get()->map(fn($k) => [
+            'id' => $k->id,
+            'nama' => $k->nama_komponen,
+            'bobot' => 0,
+            'kode' => $k->nama_komponen,
+            'mapel' => $k->mataPelajaran->nama_mapel ?? '-',
+            'mapel_id' => $k->mapel_id,
+        ])->unique('nama')->values();
         $mapels = MataPelajaran::orderBy('kode_mapel')->get();
 
         return view('pages.aturan-nilai.index', compact('komponen', 'mapels'));

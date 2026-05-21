@@ -11,7 +11,13 @@ class KelasController extends Controller
 {
     public function index()
     {
-        $kelas = Kelas::with(['tahunAjaran', 'siswas'])->get();
+        $kelas = Kelas::with(['tahunAjaran', 'siswas'])->get()->map(fn($k) => [
+            'id' => $k->id,
+            'nama' => $k->nama_kelas,
+            'tahun_ajaran_id' => $k->tahun_ajaran_id,
+            'tahun_ajaran' => $k->tahunAjaran ? $k->tahunAjaran->tahun_mulai.'/'.$k->tahunAjaran->tahun_selesai.' - '.$k->tahunAjaran->semester : '-',
+            'terisi' => $k->siswas->count(),
+        ]);
         $tahunAjarans = TahunAjaran::orderByDesc('tahun_mulai')->get();
 
         return view('pages.kelas.index', compact('kelas', 'tahunAjarans'));

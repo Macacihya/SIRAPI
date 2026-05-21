@@ -10,13 +10,15 @@
             kelasFilter: 'Semua',
             statusFilter: 'Semua',
             showAdd: false,
+            showEdit: false,
             showImport: false,
             showDelete: false,
             deleteTarget: null,
             selectAll: false,
             showDeleteAll: false,
-            daftarKelas: ['Kelas 1-A', 'Kelas 1-B', 'Kelas 2-A', 'Kelas 3-A', 'Kelas 4-A', 'Kelas 5-A', 'Kelas 6-A'],
-            form: { nama: '', nisn: '', kelas: 'Kelas 1-A', gender: 'Laki-laki', status: 'AKTIF' },
+            daftarKelas: @json($daftarKelas),
+            form: { nama: '', nisn: '', kelas_id: '' },
+            editData: { id: '', nama: '', nisn: '', kelas_id: '' },
             importFile: null,
             isImporting: false,
             importProgress: 0,
@@ -24,24 +26,7 @@
             siswa: @json($data->items()),
             
             init() {
-                // Mapping data SMA ke SD untuk demo (Mapping otomatis)
-                this.siswa.forEach(s => {
-                    if (s.kelas && (s.kelas.includes('X') || s.kelas.includes('XI') || s.kelas.includes('XII'))) {
-                        let k = s.kelas.toUpperCase();
-                        let level = k.includes('XII') ? '6' : (k.includes('XI') ? '4' : '1');
-                        let section = k.includes('IPA') ? 'A' : 'B';
-                        s.kelas = `Kelas ${level}-${section}`;
-                    }
-                });
-
-                if (this.siswa.length < 5) {
-                    this.siswa.push(
-                        { id: 1, nama: 'Aditya Pratama', nis: '12001', nisn: '0012345601', kelas: 'Kelas 1-A', jenis_kelamin: 'Laki-laki', status: 'AKTIF', selected: false },
-                        { id: 2, nama: 'Bella Safira', nis: '12002', nisn: '0012345602', kelas: 'Kelas 1-A', jenis_kelamin: 'Perempuan', status: 'AKTIF', selected: false },
-                        { id: 3, nama: 'Citra Kirana', nis: '12003', nisn: '0012345603', kelas: 'Kelas 2-A', jenis_kelamin: 'Perempuan', status: 'AKTIF', selected: false },
-                        { id: 4, nama: 'Dimas Seto', nis: '12004', nisn: '0012345604', kelas: 'Kelas 3-A', jenis_kelamin: 'Laki-laki', status: 'AKTIF', selected: false }
-                    );
-                }
+                // Data sudah dari database, tidak perlu mapping/dummy
             },
             
             openedMenu: null,
@@ -64,16 +49,31 @@
             get selectedCount() { return this.siswa.filter(s => s.selected).length; },
             toggleAll() { this.selectAll = !this.selectAll; this.filtered.forEach(s => s.selected = this.selectAll); },
             submitAdd() {
-                this.siswa.unshift({ id: Date.now(), nama: this.form.nama, nis: this.form.nisn, kelas: this.form.kelas, jenis_kelamin: this.form.gender, status: this.form.status, selected: false });
-                this.form = { nama:'', nisn:'', kelas:'X IPA 1', gender:'Laki-laki', status:'AKTIF' };
-                this.showAdd = false;
-                this.$dispatch('toast', { message: 'Siswa berhasil ditambahkan!', type: 'success' });
+                document.getElementById('tambahNamaSiswa').value = this.form.nama;
+                document.getElementById('tambahNisn').value = this.form.nisn;
+                document.getElementById('tambahKelasId').value = this.form.kelas_id;
+                document.getElementById('formTambahSiswa').submit();
+            },
+            openEdit(s) {
+                this.editData = {
+                    id: s.id,
+                    nama: s.nama,
+                    nisn: s.nisn,
+                    kelas_id: s.kelas_id
+                };
+                this.showEdit = true;
+            },
+            submitEdit() {
+                document.getElementById('formEditSiswa').action = '/siswa/' + this.editData.id;
+                document.getElementById('editNamaSiswa').value = this.editData.nama;
+                document.getElementById('editNisn').value = this.editData.nisn;
+                document.getElementById('editKelasId').value = this.editData.kelas_id;
+                document.getElementById('formEditSiswa').submit();
             },
             confirmDelete(s) { this.deleteTarget = s; this.showDelete = true; },
             doDelete() {
-                this.siswa = this.siswa.filter(s => s.id !== this.deleteTarget.id);
-                this.showDelete = false; this.deleteTarget = null; this.selectAll = false;
-                this.$dispatch('toast', { message: 'Data siswa berhasil dihapus.', type: 'error' });
+                document.getElementById('formHapusSiswa').action = '/siswa/' + this.deleteTarget.id;
+                document.getElementById('formHapusSiswa').submit();
             },
             doDeleteAll() {
                 this.siswa = this.siswa.filter(s => !s.selected);
@@ -128,6 +128,23 @@
     });
 </script>
 
+{{-- Hidden forms for server submission --}}
+<form id="formTambahSiswa" method="POST" action="{{ route('siswa.store') }}" class="hidden">
+    @csrf
+    <input type="hidden" name="nama_siswa" id="tambahNamaSiswa">
+    <input type="hidden" name="nisn" id="tambahNisn">
+    <input type="hidden" name="kelas_id" id="tambahKelasId">
+</form>
+<form id="formEditSiswa" method="POST" action="" class="hidden">
+    @csrf @method('PUT')
+    <input type="hidden" name="nama_siswa" id="editNamaSiswa">
+    <input type="hidden" name="nisn" id="editNisn">
+    <input type="hidden" name="kelas_id" id="editKelasId">
+</form>
+<form id="formHapusSiswa" method="POST" action="" class="hidden">
+    @csrf @method('DELETE')
+</form>
+
 <div x-data="siswaAdmin" class="space-y-6">
 
     {{-- HEADING --}}
@@ -147,9 +164,9 @@
 
     {{-- STAT --}}
     <div class="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <x-card-stat title="Total Siswa" :value="$data->total()" />
-        <x-card-stat title="Siswa Aktif" :value="$data->total()" />
-        <x-card-stat title="Status Cuti" value="0" />
+        <x-card-stat title="Total Siswa" :value="$totalSiswa" />
+        <x-card-stat title="Siswa Aktif" :value="$siswaAktif" />
+        <x-card-stat title="Status Cuti" :value="$siswaCuti" />
         <x-card-stat title="Dipilih" value="0">
             <x-slot:valueSlot>
                 <span class="text-[#1d4ed8]" x-text="selectedCount"></span>
@@ -164,7 +181,12 @@
                 <svg class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#94a3b8]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8" stroke-width="2"/><path d="m21 21-4.35-4.35" stroke-width="2" stroke-linecap="round"/></svg>
                 <input type="text" x-model="searchQuery" placeholder="Cari siswa..." class="h-[38px] w-64 rounded-[8px] border border-[#e2e8f0] bg-white pl-9 pr-4 text-[13px] outline-none focus:border-[#3b82f6]">
             </div>
-            <select x-model="kelasFilter" class="h-[38px] appearance-none rounded-[8px] border border-[#e2e8f0] bg-white px-4 pr-10 text-[13px] font-medium outline-none focus:border-[#3b82f6]"><option>Semua</option><template x-for="k in daftarKelas" :key="k"><option :value="k" x-text="k"></option></template></select>
+            <select x-model="kelasFilter" class="h-[38px] appearance-none rounded-[8px] border border-[#e2e8f0] bg-white px-4 pr-10 text-[13px] font-medium outline-none focus:border-[#3b82f6]">
+                <option>Semua</option>
+                <template x-for="k in daftarKelas" :key="k.id">
+                    <option :value="k.nama" x-text="k.nama"></option>
+                </template>
+            </select>
             <select x-model="statusFilter" class="h-[38px] appearance-none rounded-[8px] border border-[#e2e8f0] bg-white px-4 pr-10 text-[13px] font-medium outline-none focus:border-[#3b82f6]"><option>Semua</option><option>AKTIF</option><option>LEAVE</option></select>
         </div>
         <div class="flex items-center gap-3">
@@ -180,7 +202,6 @@
                 <th class="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Siswa</th>
                 <th class="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">NISN</th>
                 <th class="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Kelas</th>
-                <th class="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Gender</th>
                 <th class="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Status</th>
                 <th class="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Aksi</th>
             </tr></thead>
@@ -191,13 +212,11 @@
                         <td class="px-4 py-3.5"><div class="flex items-center gap-3"><div class="flex h-8 w-8 flex-none items-center justify-center rounded-full bg-[#e2e8f0] text-[11px] font-bold text-[#475569] uppercase" x-text="(s.nama || s.name || '?').charAt(0)"></div><span class="font-bold text-[#0f172a]" x-text="s.nama || s.name"></span></div></td>
                         <td class="px-4 py-3.5"><span class="rounded bg-[#fef3c7] px-2 py-0.5 font-mono text-[11px] font-semibold text-[#92400e]" x-text="s.nis || s.nisn"></span></td>
                         <td class="px-4 py-3.5 font-semibold text-[#0f172a]" x-text="s.kelas"></td>
-                        <td class="px-4 py-3.5 text-[#475569]" x-text="s.jenis_kelamin || s.gender"></td>
                         <td class="px-4 py-3.5"><span class="inline-flex rounded-md border px-2 py-0.5 text-[10px] font-bold" :class="(s.status || 'AKTIF') === 'AKTIF' ? 'border-[#a7f3d0] bg-[#ecfdf5] text-[#059669]' : 'border-[#fed7aa] bg-[#fff7ed] text-[#ea580c]'" x-text="s.status || 'AKTIF'"></span></td>
                         <td class="px-4 py-3.5 relative">
                             <button @click="openedMenu = openedMenu === s.id ? null : s.id" class="rounded-lg p-1.5 text-[#64748b] transition hover:bg-[#f1f5f9]"><svg class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.5"></circle><circle cx="12" cy="12" r="1.5"></circle><circle cx="12" cy="19" r="1.5"></circle></svg></button>
                             <div x-show="openedMenu === s.id" @click.outside="openedMenu = null" class="absolute right-0 top-full mt-1 w-40 rounded-xl border border-[#e2e8f0] bg-white p-1.5 shadow-lg z-50" style="display:none" x-transition>
-                                <button @click="openedMenu = null; $dispatch('toast',{message:'Detail siswa: '+(s.nama || s.name), type:'info'})" class="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-[12px] font-medium text-[#334155] hover:bg-[#f1f5f9]"><svg class="h-3.5 w-3.5 text-[#64748b]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-width="2"></path><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" stroke-width="2"></path></svg>Lihat Detail</button>
-                                <button @click="openedMenu = null; $dispatch('toast',{message:'Mode edit untuk: '+(s.nama || s.name), type:'info'})" class="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-[12px] font-medium text-[#334155] hover:bg-[#f1f5f9]"><svg class="h-3.5 w-3.5 text-[#64748b]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" stroke-width="2"></path></svg>Edit Data</button>
+                                <button @click="openedMenu = null; openEdit(s)" class="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-[12px] font-medium text-[#334155] hover:bg-[#f1f5f9]"><svg class="h-3.5 w-3.5 text-[#64748b]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" stroke-width="2"></path></svg>Edit Data</button>
                                 <button @click="openedMenu = null; confirmDelete(s)" class="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-[12px] font-medium text-[#dc2626] hover:bg-[#fef2f2]"><svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>Hapus</button>
                             </div>
                         </td>
@@ -253,17 +272,57 @@
     <x-modal alpineShow="showAdd" title="Tambah Data Siswa" maxWidth="lg">
         <div class="space-y-4">
             <div class="grid gap-4 sm:grid-cols-2">
-                <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Nama Lengkap</label><input x-model="form.nama" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20" placeholder="Nama siswa"></div>
-                <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">NISN</label><input x-model="form.nisn" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20" placeholder="00XXXXXXXX"></div>
+                <div>
+                    <label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Nama Lengkap</label>
+                    <input x-model="form.nama" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20" placeholder="Nama siswa">
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">NISN</label>
+                    <input x-model="form.nisn" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20" placeholder="00XXXXXXXX">
+                </div>
             </div>
-            <div class="grid gap-4 sm:grid-cols-2">
-                <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Kelas</label><select x-model="form.kelas" class="mt-1 h-[42px] w-full appearance-none rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6]"><template x-for="k in daftarKelas" :key="k"><option :value="k" x-text="k"></option></template></select></div>
-                <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Jenis Kelamin</label><div class="mt-2 flex gap-4"><label class="flex items-center gap-2 text-[14px] font-medium cursor-pointer"><input type="radio" value="Laki-laki" x-model="form.gender" class="accent-[#0f172a]"> Laki-laki</label><label class="flex items-center gap-2 text-[14px] font-medium cursor-pointer"><input type="radio" value="Perempuan" x-model="form.gender" class="accent-[#0f172a]"> Perempuan</label></div></div>
+            <div>
+                <label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Kelas / Rombel</label>
+                <select x-model="form.kelas_id" class="mt-1 h-[42px] w-full appearance-none rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6]">
+                    <option value="" disabled selected>-- Pilih Rombel --</option>
+                    <template x-for="k in daftarKelas" :key="k.id">
+                        <option :value="k.id" x-text="k.nama"></option>
+                    </template>
+                </select>
             </div>
         </div>
         <x-slot:footer>
             <button @click="showAdd = false" class="flex-1 rounded-lg border border-[#e2e8f0] bg-white py-2.5 text-[12px] font-bold text-[#475569]">Batal</button>
-            <button @click="submitAdd()" class="flex-1 rounded-lg bg-[#1d4ed8] py-2.5 text-[12px] font-bold text-white">Tambah Siswa</button>
+            <button @click="submitAdd()" :disabled="!form.nama || !form.nisn || !form.kelas_id" class="flex-1 rounded-lg bg-[#1d4ed8] py-2.5 text-[12px] font-bold text-white disabled:opacity-40 transition">Tambah Siswa</button>
+        </x-slot:footer>
+    </x-modal>
+
+    {{-- ═══ MODAL: Edit Siswa ═══ --}}
+    <x-modal alpineShow="showEdit" title="Edit Data Siswa" maxWidth="lg">
+        <div class="space-y-4">
+            <div class="grid gap-4 sm:grid-cols-2">
+                <div>
+                    <label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Nama Lengkap</label>
+                    <input x-model="editData.nama" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20">
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">NISN</label>
+                    <input x-model="editData.nisn" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20">
+                </div>
+            </div>
+            <div>
+                <label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Kelas / Rombel</label>
+                <select x-model="editData.kelas_id" class="mt-1 h-[42px] w-full appearance-none rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6]">
+                    <option value="" disabled>-- Pilih Rombel --</option>
+                    <template x-for="k in daftarKelas" :key="k.id">
+                        <option :value="k.id" :selected="k.id == editData.kelas_id" x-text="k.nama"></option>
+                    </template>
+                </select>
+            </div>
+        </div>
+        <x-slot:footer>
+            <button @click="showEdit = false" class="flex-1 rounded-lg border border-[#e2e8f0] bg-white py-2.5 text-[12px] font-bold text-[#475569]">Batal</button>
+            <button @click="submitEdit()" :disabled="!editData.nama || !editData.nisn" class="flex-1 rounded-lg bg-[#1d4ed8] py-2.5 text-[12px] font-bold text-white disabled:opacity-40 transition">Simpan Perubahan</button>
         </x-slot:footer>
     </x-modal>
 

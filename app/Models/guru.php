@@ -13,8 +13,9 @@ class Guru extends Model
     protected $fillable = [
         'user_id',
         'nip',
-        'jabatan',
         'sekolah_id',
+        'jabatan',
+        'mata_pelajaran',
     ];
 
     protected $appends = [

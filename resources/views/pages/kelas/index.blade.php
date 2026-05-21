@@ -12,53 +12,53 @@
             showDelete: false,
             deleteTarget: null,
             editData: {},
-            form: { nama: '', kapasitas: 32, wali: '' },
-            daftarGuru: [
-                'Drs. Ahmad Subagja, M.Pd.',
-                'Siti Rahmawati, S.Pd.',
-                'Bambang Wijaya',
-                'Rina Permata, M.Si.',
-                'Dr. Agus Salim',
-                'Ir. Hendra Gunawan',
-                'Budi Setiawan',
-                'Dewi Kusuma, S.Sos',
-                'Rina Sari, S.E',
-                'Siti Aminah, M.Pd',
-            ],
-            kelas: [
-                { id:1, nama:'Kelas 1-A', kapasitas:32, terisi:32, wali:'Drs. Ahmad Subagja, M.Pd.' },
-                { id:2, nama:'Kelas 1-B', kapasitas:32, terisi:30, wali:'Siti Rahmawati, S.Pd.' },
-                { id:3, nama:'Kelas 2-A', kapasitas:32, terisi:28, wali:'Bambang Wijaya' },
-                { id:4, nama:'Kelas 3-A', kapasitas:32, terisi:32, wali:'Rina Permata, M.Si.' },
-                { id:5, nama:'Kelas 4-A', kapasitas:32, terisi:30, wali:'Dr. Agus Salim' },
-                { id:6, nama:'Kelas 5-A', kapasitas:32, terisi:31, wali:'Ir. Hendra Gunawan' },
-                { id:7, nama:'Kelas 6-A', kapasitas:32, terisi:29, wali:'Budi Setiawan' },
-            ],
+            form: { nama_kelas: '', tahun_ajaran_id: '' },
+            tahunAjarans: @json($tahunAjarans),
+            kelas: @json($kelas),
             get totalSiswa() { return this.kelas.reduce((a,k) => a + k.terisi, 0); },
-            get totalKapasitas() { return this.kelas.reduce((a,k) => a + k.kapasitas, 0); },
-            pct(k) { return Math.round((k.terisi / k.kapasitas) * 100); },
             addKelas() {
-                this.kelas.push({ id: Date.now(), nama: this.form.nama, kapasitas: parseInt(this.form.kapasitas), terisi: 0, wali: this.form.wali });
-                this.form = { nama:'', kapasitas:32, wali:'' };
-                this.showTambah = false;
-                this.$dispatch('toast',{message:'Kelas baru berhasil ditambahkan!',type:'success'});
+                // Client-side preview (submit via form untuk persist ke DB)
+                let ta = this.tahunAjarans.find(t => t.id == this.form.tahun_ajaran_id);
+                this.kelas.push({
+                    id: Date.now(),
+                    nama: this.form.nama_kelas,
+                    tahun_ajaran_id: this.form.tahun_ajaran_id,
+                    tahun_ajaran: ta ? ta.tahun_mulai+'/'+ta.tahun_selesai+' - '+ta.semester : '-',
+                    terisi: 0,
+                });
+                // Submit form ke server
+                document.getElementById('formTambahKelas').submit();
             },
             openEdit(k) { this.editData = JSON.parse(JSON.stringify(k)); this.showEdit = true; },
             submitEdit() {
-                let idx = this.kelas.findIndex(k => k.id === this.editData.id);
-                if (idx > -1) this.kelas[idx] = JSON.parse(JSON.stringify(this.editData));
-                this.showEdit = false;
-                this.$dispatch('toast',{message:'Data kelas berhasil diperbarui!',type:'success'});
+                document.getElementById('formEditKelas').action = '/kelas/' + this.editData.id;
+                document.getElementById('editNamaKelas').value = this.editData.nama;
+                document.getElementById('editTahunAjaranId').value = this.editData.tahun_ajaran_id;
+                document.getElementById('formEditKelas').submit();
             },
             confirmDelete(k) { this.deleteTarget = k; this.showDelete = true; },
             doDelete() {
-                this.kelas = this.kelas.filter(k => k.id !== this.deleteTarget.id);
-                this.showDelete = false; this.deleteTarget = null;
-                this.$dispatch('toast',{message:'Kelas berhasil dihapus.',type:'error'});
+                document.getElementById('formHapusKelas').action = '/kelas/' + this.deleteTarget.id;
+                document.getElementById('formHapusKelas').submit();
             },
         }));
     });
 </script>
+
+{{-- Hidden forms for server submission --}}
+<form id="formTambahKelas" method="POST" action="{{ route('kelas.store') }}" class="hidden">
+    @csrf
+    <input type="hidden" name="nama_kelas" x-bind:value="form.nama_kelas">
+    <input type="hidden" name="tahun_ajaran_id" x-bind:value="form.tahun_ajaran_id">
+</form>
+<form id="formEditKelas" method="POST" action="" class="hidden">
+    @csrf @method('PUT')
+    <input type="hidden" name="nama_kelas" id="editNamaKelas">
+    <input type="hidden" name="tahun_ajaran_id" id="editTahunAjaranId">
+</form>
+<form id="formHapusKelas" method="POST" action="" class="hidden">
+    @csrf @method('DELETE')
+</form>
 
 <div x-data="dataKelasData" class="space-y-6">
 
@@ -75,7 +75,7 @@
     </div>
 
     {{-- STAT CARDS --}}
-    <div class="grid grid-cols-2 gap-4 lg:grid-cols-4">
+    <div class="grid grid-cols-2 gap-4 lg:grid-cols-3">
         <div class="rounded-[14px] border border-[#e2e8f0] bg-white p-5">
             <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-[#64748b]">Total Kelas</p>
             <p class="mt-2 text-[36px] font-black leading-none tracking-[-0.06em] text-[#0f172a]" x-text="kelas.length"></p>
@@ -85,14 +85,16 @@
             <p class="mt-2 text-[36px] font-black leading-none tracking-[-0.06em] text-[#0f172a]" x-text="totalSiswa"></p>
         </div>
         <div class="rounded-[14px] border border-[#e2e8f0] bg-white p-5">
-            <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-[#64748b]">Total Kapasitas</p>
-            <p class="mt-2 text-[36px] font-black leading-none tracking-[-0.06em] text-[#0f172a]" x-text="totalKapasitas"></p>
-        </div>
-        <div class="rounded-[14px] border border-[#e2e8f0] bg-white p-5">
-            <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-[#64748b]">Kelas Penuh</p>
-            <p class="mt-2 text-[36px] font-black leading-none tracking-[-0.06em] text-[#dc2626]" x-text="kelas.filter(k => k.terisi >= k.kapasitas).length"></p>
+            <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-[#64748b]">Kelas Kosong</p>
+            <p class="mt-2 text-[36px] font-black leading-none tracking-[-0.06em] text-[#dc2626]" x-text="kelas.filter(k => k.terisi === 0).length"></p>
         </div>
     </div>
+
+    @if(session('success'))
+    <div class="rounded-[10px] border border-[#a7f3d0] bg-[#ecfdf5] px-4 py-3 text-[13px] font-semibold text-[#059669]">
+        {{ session('success') }}
+    </div>
+    @endif
 
     {{-- TABLE --}}
     <div class="overflow-hidden rounded-[14px] border border-[#e2e8f0] bg-white">
@@ -100,8 +102,8 @@
             <thead>
                 <tr class="border-b border-[#e2e8f0] bg-[#f8fafc]">
                     <th class="px-6 py-3 text-left text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Nama Kelas</th>
-                    <th class="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Wali Kelas</th>
-                    <th class="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Kapasitas</th>
+                    <th class="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Tahun Ajaran</th>
+                    <th class="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Jumlah Siswa</th>
                     <th class="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Aksi</th>
                 </tr>
             </thead>
@@ -111,14 +113,11 @@
                         <td class="px-6 py-4">
                             <p class="font-black text-[15px] tracking-[-0.02em] text-[#0f172a]" x-text="k.nama"></p>
                         </td>
-                        <td class="px-4 py-4 font-semibold text-[#334155]" x-text="k.wali || '-'"></td>
                         <td class="px-4 py-4">
-                            <div class="flex items-center gap-3">
-                                <div class="w-24 h-1.5 overflow-hidden rounded-full bg-[#e2e8f0]">
-                                    <div class="h-full rounded-full transition-all" :class="pct(k) >= 100 ? 'bg-[#dc2626]' : 'bg-[#1d4ed8]'" :style="'width:'+Math.min(pct(k),100)+'%'"></div>
-                                </div>
-                                <span class="text-[11px] font-bold text-[#0f172a]" x-text="k.terisi + ' / ' + k.kapasitas"></span>
-                            </div>
+                            <span class="rounded bg-[#eff6ff] px-2.5 py-1 text-[11px] font-bold text-[#1d4ed8]" x-text="k.tahun_ajaran"></span>
+                        </td>
+                        <td class="px-4 py-4">
+                            <span class="text-[14px] font-bold text-[#0f172a]" x-text="k.terisi + ' siswa'"></span>
                         </td>
                         <td class="px-4 py-4">
                             <div class="flex items-center gap-1">
@@ -132,75 +131,51 @@
                         </td>
                     </tr>
                 </template>
+                <tr x-show="kelas.length === 0">
+                    <td colspan="4" class="py-12 text-center text-[14px] text-[#94a3b8]">Belum ada data kelas.</td>
+                </tr>
             </tbody>
         </table>
-        
-        {{-- PAGINATION --}}
-        <div class="border-t border-[#e2e8f0] px-6 py-4">
-            <nav class="flex items-center justify-between">
-                {{-- Left Side: Info --}}
-                <div class="flex items-center gap-4 text-[13px] text-[#64748b]">
-                    <div class="flex items-center gap-2">
-                        <span>Tampilkan</span>
-                        <select class="h-9 rounded-[10px] border border-[#e2e8f0] bg-white px-3 font-bold text-[#0f172a] outline-none transition focus:border-[#3b82f6]">
-                            <option>10</option>
-                            <option>25</option>
-                            <option>50</option>
-                        </select>
-                        <span>data</span>
-                    </div>
-                    <span class="text-[#cbd5e1]">•</span>
-                    <div>
-                        Menampilkan 
-                        <span class="font-bold text-[#0f172a]">1-7</span> 
-                        dari 
-                        <span class="font-bold text-[#0f172a]" x-text="kelas.length"></span>
-                    </div>
-                </div>
-
-                {{-- Right Side: Navigation Buttons --}}
-                <div class="flex items-center gap-1">
-                    <button class="flex h-9 w-9 items-center justify-center rounded-[10px] text-[#cbd5e1] cursor-not-allowed">
-                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="m11 17-5-5 5-5m7 10-5-5 5-5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-                    </button>
-                    <button class="flex h-9 w-9 items-center justify-center rounded-[10px] text-[#cbd5e1] cursor-not-allowed">
-                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-                    </button>
-                    <span class="flex h-9 w-9 items-center justify-center rounded-[10px] bg-[#3b82f6] text-[13px] font-black text-white shadow-lg shadow-blue-500/30">1</span>
-                    <button class="flex h-9 w-9 items-center justify-center rounded-[10px] text-[#cbd5e1] cursor-not-allowed">
-                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-                    </button>
-                    <button class="flex h-9 w-9 items-center justify-center rounded-[10px] text-[#cbd5e1] cursor-not-allowed">
-                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="m13 17 5-5-5-5M6 17l5-5-5-5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-                    </button>
-                </div>
-            </nav>
-        </div>
     </div>
 
     {{-- ═══ MODAL: Tambah Kelas ═══ --}}
     <x-modal alpineShow="showTambah" title="Tambah Kelas Baru" maxWidth="md">
         <div class="space-y-4">
-            <div class="grid gap-4 sm:grid-cols-2">
-                <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Nama Kelas</label><input x-model="form.nama" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20" placeholder="XII IPA 2"></div>
-                <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Kapasitas</label><input x-model="form.kapasitas" type="number" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20"></div>
+            <div>
+                <label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Nama Kelas</label>
+                <input x-model="form.nama_kelas" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20" placeholder="Contoh: 6-A">
             </div>
-            <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Wali Kelas</label><select x-model="form.wali" class="mt-1 h-[42px] w-full appearance-none rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6]"><option value="" disabled selected>-- Pilih Guru --</option><template x-for="g in daftarGuru" :key="g"><option :value="g" x-text="g"></option></template></select></div>
+            <div>
+                <label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Tahun Ajaran</label>
+                <select x-model="form.tahun_ajaran_id" class="mt-1 h-[42px] w-full appearance-none rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6]">
+                    <option value="" disabled selected>-- Pilih Tahun Ajaran --</option>
+                    <template x-for="ta in tahunAjarans" :key="ta.id">
+                        <option :value="ta.id" x-text="ta.tahun_mulai+'/'+ta.tahun_selesai+' - '+ta.semester"></option>
+                    </template>
+                </select>
+            </div>
         </div>
         <x-slot:footer>
             <button @click="showTambah = false" class="flex-1 rounded-lg border border-[#e2e8f0] bg-white py-2.5 text-[12px] font-bold text-[#475569]">Batal</button>
-            <button @click="addKelas()" :disabled="!form.nama" class="flex-1 rounded-lg bg-[#1d4ed8] py-2.5 text-[12px] font-bold text-white disabled:opacity-40">Tambah Kelas</button>
+            <button @click="addKelas()" :disabled="!form.nama_kelas || !form.tahun_ajaran_id" class="flex-1 rounded-lg bg-[#1d4ed8] py-2.5 text-[12px] font-bold text-white disabled:opacity-40">Tambah Kelas</button>
         </x-slot:footer>
     </x-modal>
 
     {{-- ═══ MODAL: Edit Kelas ═══ --}}
     <x-modal alpineShow="showEdit" title="Edit Data Kelas" maxWidth="md">
         <div class="space-y-4">
-            <div class="grid gap-4 sm:grid-cols-2">
-                <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Nama Kelas</label><input x-model="editData.nama" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20"></div>
-                <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Kapasitas</label><input x-model="editData.kapasitas" type="number" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20"></div>
+            <div>
+                <label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Nama Kelas</label>
+                <input x-model="editData.nama" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20">
             </div>
-            <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Wali Kelas</label><select x-model="editData.wali" class="mt-1 h-[42px] w-full appearance-none rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6]"><option value="">-- Pilih Guru --</option><template x-for="g in daftarGuru" :key="g"><option :value="g" x-text="g"></option></template></select></div>
+            <div>
+                <label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Tahun Ajaran</label>
+                <select x-model="editData.tahun_ajaran_id" class="mt-1 h-[42px] w-full appearance-none rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6]">
+                    <template x-for="ta in tahunAjarans" :key="ta.id">
+                        <option :value="ta.id" x-text="ta.tahun_mulai+'/'+ta.tahun_selesai+' - '+ta.semester"></option>
+                    </template>
+                </select>
+            </div>
         </div>
         <x-slot:footer>
             <button @click="showEdit = false" class="flex-1 rounded-lg border border-[#e2e8f0] bg-white py-2.5 text-[12px] font-bold text-[#475569]">Batal</button>

@@ -11,26 +11,26 @@
         </div>
         <div class="rounded-[14px] border border-[#e2e8f0] bg-white p-6">
             <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-[#64748b]">Tahun Ajaran Aktif</p>
-            <p class="mt-2 text-[28px] font-black tracking-[-0.04em] text-[#0f172a]">2025/2026 Ganjil</p>
-            <span class="mt-2 inline-flex rounded-[4px] bg-[#f1f5f9] px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-[0.08em] text-[#64748b]">Status: Aktif & Berjalan</span>
+            <p class="mt-2 text-[28px] font-black tracking-[-0.04em] text-[#0f172a]">{{ $tahunAktif ? $tahunAktif->tahun_mulai.'/'.$tahunAktif->tahun_selesai.' '.$tahunAktif->semester : 'Belum diatur' }}</p>
+            <span class="mt-2 inline-flex rounded-[4px] bg-[#f1f5f9] px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-[0.08em] text-[#64748b]">{{ $tahunAktif ? 'Status: Aktif & Berjalan' : 'Belum ada tahun ajaran aktif' }}</span>
         </div>
     </div>
 
     {{-- ─── STAT CARDS + ABSENSI ────────────────────────── --}}
     <div class="grid gap-4 lg:grid-cols-[1fr_1fr_1fr_280px]">
-        <x-card-stat title="Siswa Aktif" value="1,248">
+        <x-card-stat title="Siswa Aktif" :value="$totalSiswa">
             <x-slot:icon>
                 <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2" stroke-linecap="round" stroke-width="2"></path><circle cx="9.5" cy="7" r="3" stroke-width="2"></circle><path d="M20 21v-2a4 4 0 0 0-3-3.87" stroke-linecap="round" stroke-width="2"></path><path d="M16 4.13a3 3 0 0 1 0 5.74" stroke-linecap="round" stroke-width="2"></path></svg>
             </x-slot:icon>
         </x-card-stat>
 
-        <x-card-stat title="Guru" value="94" variant="blue">
+        <x-card-stat title="Guru" :value="$totalGuru" variant="blue">
             <x-slot:icon>
                 <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
             </x-slot:icon>
         </x-card-stat>
 
-        <x-card-stat title="Ruang Kelas" value="36">
+        <x-card-stat title="Ruang Kelas" :value="$totalKelas">
             <x-slot:icon>
                 <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11M8 14v3M12 14v3M16 14v3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
             </x-slot:icon>
