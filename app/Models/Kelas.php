@@ -3,9 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\LogsActivity;
 
 class Kelas extends Model
 {
+    use LogsActivity;
     protected $table = 'kelas';
 
     protected $fillable = [

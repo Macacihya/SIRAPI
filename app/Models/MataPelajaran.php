@@ -3,9 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\LogsActivity;
 
 class MataPelajaran extends Model
 {
+    use LogsActivity;
     protected $primaryKey = 'kode_mapel';
     public $incrementing = false;
     protected $keyType = 'string';

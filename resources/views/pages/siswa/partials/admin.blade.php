@@ -208,7 +208,7 @@
     <div class="overflow-hidden rounded-[14px] border border-[#e2e8f0] bg-white">
         <table class="w-full text-[13px]">
             <thead><tr class="border-b border-[#e2e8f0] bg-[#f8fafc]">
-                <th class="w-10 px-4 py-3"><x-checkbox @change="toggleAll()" :checked="selectAll" /></th>
+                <th class="w-10 px-4 py-3"><x-checkbox @change="toggleAll()" x-bind:checked="selectAll" /></th>
                 <th class="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">No</th>
                 <th class="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Siswa</th>
                 <th class="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">NISN</th>

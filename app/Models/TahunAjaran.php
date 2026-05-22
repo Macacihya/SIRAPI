@@ -3,9 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\LogsActivity;
 
 class TahunAjaran extends Model
 {
+    use LogsActivity;
     protected $fillable = [
         'tahun_mulai',
         'tahun_selesai',

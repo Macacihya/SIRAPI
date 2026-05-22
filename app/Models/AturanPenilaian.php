@@ -3,9 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\LogsActivity;
 
 class AturanPenilaian extends Model
 {
+    use LogsActivity;
     protected $fillable = [
         'nama_komponen',
         'bobot',

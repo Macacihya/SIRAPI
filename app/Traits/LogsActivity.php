@@ -38,7 +38,7 @@ trait LogsActivity
         $modelName = class_basename($model);
         
         // Coba dapatkan field unik sebagai pengenal (nama, title, dll)
-        $identifier = $model->nama ?? $model->name ?? $model->judul ?? $model->id;
+        $identifier = $model->nama ?? $model->name ?? $model->judul ?? $model->nama_kelas ?? $model->nama_mapel ?? $model->nama_komponen ?? $model->id;
 
         LogAktivitas::create([
             'user_id' => auth()->id(),
