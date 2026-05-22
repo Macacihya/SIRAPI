@@ -13,7 +13,7 @@
             showDelete: false,    
             editData: {},
             deleteData: {},
-            form: { kode_mapel: '', nama_mapel: '' },
+            form: { kode_mapel: '', nama_mapel: '', kkm: 70 },
             mapel: @json($mapels),
             currentPage: 1,
             perPage: 10,
@@ -46,6 +46,7 @@
             submitEdit() { 
                 document.getElementById('formEditMapel').action = '/mata-pelajaran/' + this.editData.kode_mapel;
                 document.getElementById('editNamaMapel').value = this.editData.nama_mapel;
+                document.getElementById('editKkm').value = this.editData.kkm;
                 document.getElementById('formEditMapel').submit();
             },
             openDelete(m) {
@@ -61,14 +62,10 @@
 </script>
 
 {{-- Hidden forms for server submission --}}
-<form id="formTambahMapel" method="POST" action="{{ route('mata-pelajaran.store') }}" class="hidden" x-data>
-    @csrf
-    <input type="hidden" name="kode_mapel" x-bind:value="$store?.mapelForm?.kode ?? document.querySelector('[x-model=\'form.kode_mapel\']')?.value">
-    <input type="hidden" name="nama_mapel" x-bind:value="$store?.mapelForm?.nama ?? document.querySelector('[x-model=\'form.nama_mapel\']')?.value">
-</form>
 <form id="formEditMapel" method="POST" action="" class="hidden">
     @csrf @method('PUT')
     <input type="hidden" name="nama_mapel" id="editNamaMapel">
+    <input type="hidden" name="kkm" id="editKkm">
 </form>
 <form id="formHapusMapel" method="POST" action="" class="hidden">
     @csrf @method('DELETE')
@@ -98,13 +95,24 @@
     {{-- TABLE --}}
     <div class="overflow-hidden rounded-[14px] border border-[#e2e8f0] bg-white">
         <table class="w-full text-[13px]">
-            <thead><tr class="border-b border-[#e2e8f0] bg-[#f8fafc]"><th class="px-6 py-3 text-left text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">No</th><th class="px-6 py-3 text-left text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Kode Mapel</th><th class="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Nama Mata Pelajaran</th><th class="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Aksi</th></tr></thead>
+            <thead><tr class="border-b border-[#e2e8f0] bg-[#f8fafc]">
+                <th class="px-6 py-3 text-left text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">No</th>
+                <th class="px-6 py-3 text-left text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Kode Mapel</th>
+                <th class="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Nama Mata Pelajaran</th>
+                <th class="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">KKM</th>
+                <th class="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Aksi</th>
+            </tr></thead>
             <tbody>
                 <template x-for="(m, index) in paginated" :key="m.kode_mapel">
                     <tr class="border-b border-[#f1f5f9] transition hover:bg-[#f8fafc]">
                         <td class="px-6 py-4 font-semibold text-[#64748b]" x-text="((currentPage - 1) * perPage) + index + 1"></td>
                         <td class="px-6 py-4"><span class="rounded bg-[#f1f5f9] px-2 py-1 font-mono text-[11px] font-semibold text-[#0f172a]" x-text="m.kode_mapel"></span></td>
                         <td class="px-4 py-4"><p class="font-bold text-[#0f172a]" x-text="m.nama_mapel"></p></td>
+                        <td class="px-4 py-4">
+                            <span class="inline-flex items-center rounded-md border px-2.5 py-0.5 text-[11px] font-bold"
+                                  :class="m.kkm >= 75 ? 'border-[#a7f3d0] bg-[#ecfdf5] text-[#059669]' : 'border-[#fed7aa] bg-[#fff7ed] text-[#ea580c]'"
+                                  x-text="m.kkm"></span>
+                        </td>
                         <td class="px-4 py-4">
                             <div class="flex items-center gap-2">
                                 <button @click="openEdit(m)" class="rounded-lg p-1.5 text-[#64748b] transition hover:bg-[#eff6ff] hover:text-[#1d4ed8]"><svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" stroke-width="2"></path></svg></button>
@@ -145,6 +153,7 @@
             <div class="space-y-4">
                 <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Kode Mapel</label><input name="kode_mapel" x-model="form.kode_mapel" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6]" placeholder="Contoh: BIN"></div>
                 <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Nama Mata Pelajaran</label><input name="nama_mapel" x-model="form.nama_mapel" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6]" placeholder="Contoh: Bahasa Indonesia"></div>
+                <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">KKM</label><input name="kkm" x-model="form.kkm" type="number" min="0" max="100" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6]" placeholder="Default: 70"></div>
             </div>
             <div class="mt-6 flex gap-3">
                 <button type="button" @click="showAdd = false" class="flex-1 rounded-lg border border-[#e2e8f0] bg-white py-2.5 text-[12px] font-bold text-[#475569]">Batal</button>
@@ -158,6 +167,7 @@
         <div class="space-y-4">
             <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Kode Mapel (readonly)</label><input x-model="editData.kode_mapel" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#e2e8f0] px-4 text-[14px] text-[#475569] outline-none" readonly></div>
             <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Nama Mata Pelajaran</label><input x-model="editData.nama_mapel" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6]"></div>
+            <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">KKM</label><input x-model="editData.kkm" type="number" min="0" max="100" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6]"></div>
         </div>
         <x-slot:footer>
             <button @click="showEdit = false" class="flex-1 rounded-lg border border-[#e2e8f0] bg-white py-2.5 text-[12px] font-bold text-[#475569]">Batal</button>

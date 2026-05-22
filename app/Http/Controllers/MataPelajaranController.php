@@ -12,6 +12,7 @@ class MataPelajaranController extends Controller
         $mapels = MataPelajaran::orderBy('kode_mapel')->get()->map(fn($m) => [
             'kode_mapel' => $m->kode_mapel,
             'nama_mapel' => $m->nama_mapel,
+            'kkm'        => $m->kkm,
         ]);
 
         return view('pages.mata-pelajaran.index', compact('mapels'));
@@ -22,7 +23,13 @@ class MataPelajaranController extends Controller
         $validated = $request->validate([
             'kode_mapel' => 'required|string|max:20|unique:mata_pelajarans,kode_mapel',
             'nama_mapel' => 'required|string|max:100',
+            'kkm'        => 'nullable|integer|min:0|max:100',
         ]);
+
+        // Default KKM jika tidak diisi
+        if (!isset($validated['kkm'])) {
+            $validated['kkm'] = 70;
+        }
 
         MataPelajaran::create($validated);
 
@@ -37,6 +44,7 @@ class MataPelajaranController extends Controller
 
         $validated = $request->validate([
             'nama_mapel' => 'required|string|max:100',
+            'kkm'        => 'nullable|integer|min:0|max:100',
         ]);
 
         $mapel->update($validated);

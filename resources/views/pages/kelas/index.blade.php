@@ -12,11 +12,12 @@
             showDelete: false,
             deleteTarget: null,
             editData: {},
-            form: { nama_kelas: '', tahun_ajaran_id: '' },
+            form: { nama_kelas: '', tingkat: '', tahun_ajaran_id: '' },
             tahunAjarans: @json($tahunAjarans),
             kelas: @json($kelas),
             currentPage: 1,
             perPage: 10,
+            tingkatOptions: ['1','2','3','4','5','6'],
             get totalSiswa() { return this.kelas.reduce((a,k) => a + k.terisi, 0); },
             get totalPages() { return Math.ceil(this.kelas.length / this.perPage) || 1; },
             get paginatedKelas() {
@@ -33,22 +34,16 @@
             goToPage(page) { if (page >= 1 && page <= this.totalPages) this.currentPage = page; },
             resetPage() { this.currentPage = 1; },
             addKelas() {
-                // Client-side preview (submit via form untuk persist ke DB)
-                let ta = this.tahunAjarans.find(t => t.id == this.form.tahun_ajaran_id);
-                this.kelas.push({
-                    id: Date.now(),
-                    nama: this.form.nama_kelas,
-                    tahun_ajaran_id: this.form.tahun_ajaran_id,
-                    tahun_ajaran: ta ? ta.tahun_mulai+'/'+ta.tahun_selesai+' - '+ta.semester : '-',
-                    terisi: 0,
-                });
-                // Submit form ke server
+                document.getElementById('tambahNamaKelas').value = this.form.nama_kelas;
+                document.getElementById('tambahTingkat').value = this.form.tingkat;
+                document.getElementById('tambahTahunAjaranId').value = this.form.tahun_ajaran_id;
                 document.getElementById('formTambahKelas').submit();
             },
             openEdit(k) { this.editData = JSON.parse(JSON.stringify(k)); this.showEdit = true; },
             submitEdit() {
                 document.getElementById('formEditKelas').action = '/kelas/' + this.editData.id;
                 document.getElementById('editNamaKelas').value = this.editData.nama;
+                document.getElementById('editTingkat').value = this.editData.tingkat;
                 document.getElementById('editTahunAjaranId').value = this.editData.tahun_ajaran_id;
                 document.getElementById('formEditKelas').submit();
             },
@@ -64,12 +59,14 @@
 {{-- Hidden forms for server submission --}}
 <form id="formTambahKelas" method="POST" action="{{ route('kelas.store') }}" class="hidden">
     @csrf
-    <input type="hidden" name="nama_kelas" x-bind:value="form.nama_kelas">
-    <input type="hidden" name="tahun_ajaran_id" x-bind:value="form.tahun_ajaran_id">
+    <input type="hidden" name="nama_kelas" id="tambahNamaKelas">
+    <input type="hidden" name="tingkat" id="tambahTingkat">
+    <input type="hidden" name="tahun_ajaran_id" id="tambahTahunAjaranId">
 </form>
 <form id="formEditKelas" method="POST" action="" class="hidden">
     @csrf @method('PUT')
     <input type="hidden" name="nama_kelas" id="editNamaKelas">
+    <input type="hidden" name="tingkat" id="editTingkat">
     <input type="hidden" name="tahun_ajaran_id" id="editTahunAjaranId">
 </form>
 <form id="formHapusKelas" method="POST" action="" class="hidden">
@@ -119,6 +116,7 @@
                 <tr class="border-b border-[#e2e8f0] bg-[#f8fafc]">
                     <th class="px-6 py-3 text-left text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">No</th>
                     <th class="px-6 py-3 text-left text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Nama Kelas</th>
+                    <th class="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Tingkat</th>
                     <th class="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Tahun Ajaran</th>
                     <th class="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Jumlah Siswa</th>
                     <th class="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Aksi</th>
@@ -130,6 +128,9 @@
                         <td class="px-6 py-4 font-semibold text-[#64748b]" x-text="((currentPage - 1) * perPage) + index + 1"></td>
                         <td class="px-6 py-4">
                             <p class="font-black text-[15px] tracking-[-0.02em] text-[#0f172a]" x-text="k.nama"></p>
+                        </td>
+                        <td class="px-4 py-4">
+                            <span class="inline-flex items-center justify-center h-7 w-7 rounded-full bg-[#f1f5f9] text-[12px] font-black text-[#475569]" x-text="k.tingkat || '-'"></span>
                         </td>
                         <td class="px-4 py-4">
                             <span class="rounded bg-[#eff6ff] px-2.5 py-1 text-[11px] font-bold text-[#1d4ed8]" x-text="k.tahun_ajaran"></span>
@@ -188,6 +189,15 @@
                 <input x-model="form.nama_kelas" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20" placeholder="Contoh: 6-A">
             </div>
             <div>
+                <label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Tingkat</label>
+                <select x-model="form.tingkat" class="mt-1 h-[42px] w-full appearance-none rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6]">
+                    <option value="" disabled selected>-- Pilih Tingkat --</option>
+                    <template x-for="t in tingkatOptions" :key="t">
+                        <option :value="t" x-text="'Kelas ' + t"></option>
+                    </template>
+                </select>
+            </div>
+            <div>
                 <label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Tahun Ajaran</label>
                 <select x-model="form.tahun_ajaran_id" class="mt-1 h-[42px] w-full appearance-none rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6]">
                     <option value="" disabled selected>-- Pilih Tahun Ajaran --</option>
@@ -199,7 +209,7 @@
         </div>
         <x-slot:footer>
             <button @click="showTambah = false" class="flex-1 rounded-lg border border-[#e2e8f0] bg-white py-2.5 text-[12px] font-bold text-[#475569]">Batal</button>
-            <button @click="addKelas()" :disabled="!form.nama_kelas || !form.tahun_ajaran_id" class="flex-1 rounded-lg bg-[#1d4ed8] py-2.5 text-[12px] font-bold text-white disabled:opacity-40">Tambah Kelas</button>
+            <button @click="addKelas()" :disabled="!form.nama_kelas || !form.tingkat || !form.tahun_ajaran_id" class="flex-1 rounded-lg bg-[#1d4ed8] py-2.5 text-[12px] font-bold text-white disabled:opacity-40">Tambah Kelas</button>
         </x-slot:footer>
     </x-modal>
 
@@ -209,6 +219,14 @@
             <div>
                 <label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Nama Kelas</label>
                 <input x-model="editData.nama" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20">
+            </div>
+            <div>
+                <label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Tingkat</label>
+                <select x-model="editData.tingkat" class="mt-1 h-[42px] w-full appearance-none rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6]">
+                    <template x-for="t in tingkatOptions" :key="t">
+                        <option :value="t" x-text="'Kelas ' + t"></option>
+                    </template>
+                </select>
             </div>
             <div>
                 <label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Tahun Ajaran</label>

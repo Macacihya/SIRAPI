@@ -12,8 +12,21 @@ class Siswa extends Model
 
     protected $fillable = [
         'nisn',
+        'nis',
         'nama_siswa',
+        'tempat_lahir',
+        'tgl_lahir',
+        'jenis_kelamin',
+        'alamat',
+        'status_aktif',
+        'jabatan_kelas',
+        'sekolah_id',
         'kelas_id',
+    ];
+
+    protected $casts = [
+        'tgl_lahir'    => 'date',
+        'status_aktif' => 'boolean',
     ];
 
     /**
@@ -22,6 +35,14 @@ class Siswa extends Model
     public function kelas()
     {
         return $this->belongsTo(Kelas::class);
+    }
+
+    /**
+     * Relasi ke sekolah
+     */
+    public function sekolah()
+    {
+        return $this->belongsTo(Sekolah::class);
     }
 
     /**

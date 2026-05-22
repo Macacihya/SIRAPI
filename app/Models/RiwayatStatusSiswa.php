@@ -9,6 +9,8 @@ class RiwayatStatusSiswa extends Model
     protected $fillable = [
         'siswa_id',
         'status',
+        'keterangan',
+        'tanggal_perubahan',
     ];
 
     /**

@@ -17,8 +17,8 @@
             selectAll: false,
             showDeleteAll: false,
             daftarKelas: @json($daftarKelas),
-            form: { nama: '', nisn: '', kelas_id: '' },
-            editData: { id: '', nama: '', nisn: '', kelas_id: '' },
+            form: { nama: '', nisn: '', nis: '', kelas_id: '', jenis_kelamin: '', tempat_lahir: '', tgl_lahir: '', alamat: '' },
+            editData: { id: '', nama: '', nisn: '', nis: '', kelas_id: '', jenis_kelamin: '', tempat_lahir: '', tgl_lahir: '', alamat: '' },
             importFile: null,
             isImporting: false,
             importProgress: 0,
@@ -39,7 +39,6 @@
                     const q = this.searchQuery.toLowerCase();
                     r = r.filter(s =>
                         (s.nama && s.nama.toLowerCase().includes(q)) ||
-                        (s.name && s.name.toLowerCase().includes(q)) ||
                         (s.nis && s.nis.toString().toLowerCase().includes(q)) ||
                         (s.nisn && s.nisn.toString().toLowerCase().includes(q))
                     );
@@ -51,7 +50,12 @@
             submitAdd() {
                 document.getElementById('tambahNamaSiswa').value = this.form.nama;
                 document.getElementById('tambahNisn').value = this.form.nisn;
+                document.getElementById('tambahNis').value = this.form.nis;
                 document.getElementById('tambahKelasId').value = this.form.kelas_id;
+                document.getElementById('tambahJenisKelamin').value = this.form.jenis_kelamin;
+                document.getElementById('tambahTempatLahir').value = this.form.tempat_lahir;
+                document.getElementById('tambahTglLahir').value = this.form.tgl_lahir;
+                document.getElementById('tambahAlamat').value = this.form.alamat;
                 document.getElementById('formTambahSiswa').submit();
             },
             openEdit(s) {
@@ -59,7 +63,12 @@
                     id: s.id,
                     nama: s.nama,
                     nisn: s.nisn,
-                    kelas_id: s.kelas_id
+                    nis: s.nis || '',
+                    kelas_id: s.kelas_id,
+                    jenis_kelamin: s.jk_raw || '',
+                    tempat_lahir: s.tempat_lahir || '',
+                    tgl_lahir: s.tgl_lahir || '',
+                    alamat: s.alamat || '',
                 };
                 this.showEdit = true;
             },
@@ -67,7 +76,12 @@
                 document.getElementById('formEditSiswa').action = '/siswa/' + this.editData.id;
                 document.getElementById('editNamaSiswa').value = this.editData.nama;
                 document.getElementById('editNisn').value = this.editData.nisn;
+                document.getElementById('editNis').value = this.editData.nis;
                 document.getElementById('editKelasId').value = this.editData.kelas_id;
+                document.getElementById('editJenisKelamin').value = this.editData.jenis_kelamin;
+                document.getElementById('editTempatLahir').value = this.editData.tempat_lahir;
+                document.getElementById('editTglLahir').value = this.editData.tgl_lahir;
+                document.getElementById('editAlamat').value = this.editData.alamat;
                 document.getElementById('formEditSiswa').submit();
             },
             confirmDelete(s) { this.deleteTarget = s; this.showDelete = true; },
@@ -93,15 +107,6 @@
                         this.importProgress = 100;
                         clearInterval(interval);
                         setTimeout(() => {
-                            this.siswa.unshift({ 
-                                id: Date.now(), 
-                                nama: 'Siswa Baru (Import)', 
-                                nis: '12999', 
-                                kelas: 'X IPA 1', 
-                                jenis_kelamin: 'Laki-laki', 
-                                status: 'AKTIF', 
-                                selected: false 
-                            });
                             this.isImporting = false;
                             this.showImport = false;
                             this.importFile = null;
@@ -111,9 +116,9 @@
                 }, 300);
             },
             downloadTemplate() {
-                let csv = 'Nama,NIS,NISN,Kelas,Jenis_Kelamin\n';
-                csv += 'Ahmad Albar,12001,0012345601,X IPA 1,Laki-laki\n';
-                csv += 'Bella Monica,12002,0012345602,X IPA 2,Perempuan\n';
+                let csv = 'Nama,NISN,NIS,Kelas,Jenis_Kelamin,Tempat_Lahir,Tanggal_Lahir,Alamat\n';
+                csv += 'Ahmad Albar,0012345601,12001,1-A,L,Jakarta,2018-05-15,Jl. Merdeka No 1\n';
+                csv += 'Bella Monica,0012345602,12002,1-B,P,Bandung,2018-08-20,Jl. Sudirman No 2\n';
                 const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
@@ -133,13 +138,23 @@
     @csrf
     <input type="hidden" name="nama_siswa" id="tambahNamaSiswa">
     <input type="hidden" name="nisn" id="tambahNisn">
+    <input type="hidden" name="nis" id="tambahNis">
     <input type="hidden" name="kelas_id" id="tambahKelasId">
+    <input type="hidden" name="jenis_kelamin" id="tambahJenisKelamin">
+    <input type="hidden" name="tempat_lahir" id="tambahTempatLahir">
+    <input type="hidden" name="tgl_lahir" id="tambahTglLahir">
+    <input type="hidden" name="alamat" id="tambahAlamat">
 </form>
 <form id="formEditSiswa" method="POST" action="" class="hidden">
     @csrf @method('PUT')
     <input type="hidden" name="nama_siswa" id="editNamaSiswa">
     <input type="hidden" name="nisn" id="editNisn">
+    <input type="hidden" name="nis" id="editNis">
     <input type="hidden" name="kelas_id" id="editKelasId">
+    <input type="hidden" name="jenis_kelamin" id="editJenisKelamin">
+    <input type="hidden" name="tempat_lahir" id="editTempatLahir">
+    <input type="hidden" name="tgl_lahir" id="editTglLahir">
+    <input type="hidden" name="alamat" id="editAlamat">
 </form>
 <form id="formHapusSiswa" method="POST" action="" class="hidden">
     @csrf @method('DELETE')
@@ -182,7 +197,7 @@
                     <option :value="k.nama" x-text="k.nama"></option>
                 </template>
             </select>
-            <select x-model="statusFilter" class="h-[38px] appearance-none rounded-[8px] border border-[#e2e8f0] bg-white px-4 pr-10 text-[13px] font-medium outline-none focus:border-[#3b82f6]"><option>Semua</option><option>AKTIF</option><option>LEAVE</option></select>
+            <select x-model="statusFilter" class="h-[38px] appearance-none rounded-[8px] border border-[#e2e8f0] bg-white px-4 pr-10 text-[13px] font-medium outline-none focus:border-[#3b82f6]"><option>Semua</option><option>AKTIF</option><option>NONAKTIF</option><option>CUTI</option></select>
         </div>
         <div class="flex items-center gap-3">
             <button x-show="selectedCount > 1" @click="showDeleteAll = true" x-transition class="flex h-[38px] items-center gap-2 rounded-[8px] bg-[#dc2626] px-4 text-[12px] font-bold text-white transition hover:bg-[#b91c1c]"><svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>Hapus Semua (<span x-text="selectedCount"></span>)</button>
@@ -197,7 +212,9 @@
                 <th class="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">No</th>
                 <th class="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Siswa</th>
                 <th class="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">NISN</th>
+                <th class="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">NIS</th>
                 <th class="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Kelas</th>
+                <th class="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">J.K.</th>
                 <th class="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Status</th>
                 <th class="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Aksi</th>
             </tr></thead>
@@ -206,9 +223,11 @@
                     <tr class="border-b border-[#f1f5f9] transition hover:bg-[#f8fafc]">
                         <td class="px-4 py-3.5"><input type="checkbox" x-model="s.selected" class="rounded border-[#cbd5e1] cursor-pointer"></td>
                         <td class="px-4 py-3.5 font-semibold text-[#64748b]" x-text="{{ $data->firstItem() ?? 1 }} + index"></td>
-                        <td class="px-4 py-3.5"><div class="flex items-center gap-3"><div class="flex h-8 w-8 flex-none items-center justify-center rounded-full bg-[#e2e8f0] text-[11px] font-bold text-[#475569] uppercase" x-text="(s.nama || s.name || '?').charAt(0)"></div><span class="font-bold text-[#0f172a]" x-text="s.nama || s.name"></span></div></td>
-                        <td class="px-4 py-3.5"><span class="rounded bg-[#fef3c7] px-2 py-0.5 font-mono text-[11px] font-semibold text-[#92400e]" x-text="s.nis || s.nisn"></span></td>
+                        <td class="px-4 py-3.5"><div class="flex items-center gap-3"><div class="flex h-8 w-8 flex-none items-center justify-center rounded-full bg-[#e2e8f0] text-[11px] font-bold text-[#475569] uppercase" x-text="(s.nama || '?').charAt(0)"></div><span class="font-bold text-[#0f172a]" x-text="s.nama"></span></div></td>
+                        <td class="px-4 py-3.5"><span class="rounded bg-[#fef3c7] px-2 py-0.5 font-mono text-[11px] font-semibold text-[#92400e]" x-text="s.nisn"></span></td>
+                        <td class="px-4 py-3.5"><span class="rounded bg-[#f1f5f9] px-2 py-0.5 font-mono text-[11px] font-semibold text-[#475569]" x-text="s.nis || '-'"></span></td>
                         <td class="px-4 py-3.5 font-semibold text-[#0f172a]" x-text="s.kelas"></td>
+                        <td class="px-4 py-3.5"><span class="text-[12px] font-semibold" x-text="s.jenis_kelamin"></span></td>
                         <td class="px-4 py-3.5"><span class="inline-flex rounded-md border px-2 py-0.5 text-[10px] font-bold" :class="(s.status || 'AKTIF') === 'AKTIF' ? 'border-[#a7f3d0] bg-[#ecfdf5] text-[#059669]' : 'border-[#fed7aa] bg-[#fff7ed] text-[#ea580c]'" x-text="s.status || 'AKTIF'"></span></td>
                         <td class="px-4 py-3.5 relative">
                             <button @click="openedMenu = openedMenu === s.id ? null : s.id" class="rounded-lg p-1.5 text-[#64748b] transition hover:bg-[#f1f5f9]"><svg class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.5"></circle><circle cx="12" cy="12" r="1.5"></circle><circle cx="12" cy="19" r="1.5"></circle></svg></button>
@@ -276,6 +295,30 @@
                     <input x-model="form.nisn" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20" placeholder="00XXXXXXXX">
                 </div>
             </div>
+            <div class="grid gap-4 sm:grid-cols-2">
+                <div>
+                    <label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">NIS</label>
+                    <input x-model="form.nis" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20" placeholder="Opsional">
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Jenis Kelamin</label>
+                    <select x-model="form.jenis_kelamin" class="mt-1 h-[42px] w-full appearance-none rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6]">
+                        <option value="" disabled selected>-- Pilih --</option>
+                        <option value="L">Laki-laki</option>
+                        <option value="P">Perempuan</option>
+                    </select>
+                </div>
+            </div>
+            <div class="grid gap-4 sm:grid-cols-2">
+                <div>
+                    <label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Tempat Lahir</label>
+                    <input x-model="form.tempat_lahir" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20" placeholder="Contoh: Jakarta">
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Tanggal Lahir</label>
+                    <input x-model="form.tgl_lahir" type="date" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20">
+                </div>
+            </div>
             <div>
                 <label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Kelas / Rombel</label>
                 <select x-model="form.kelas_id" class="mt-1 h-[42px] w-full appearance-none rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6]">
@@ -285,10 +328,14 @@
                     </template>
                 </select>
             </div>
+            <div>
+                <label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Alamat</label>
+                <textarea x-model="form.alamat" rows="2" class="mt-1 w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 py-2 text-[14px] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20" placeholder="Alamat lengkap siswa"></textarea>
+            </div>
         </div>
         <x-slot:footer>
             <button @click="showAdd = false" class="flex-1 rounded-lg border border-[#e2e8f0] bg-white py-2.5 text-[12px] font-bold text-[#475569]">Batal</button>
-            <button @click="submitAdd()" :disabled="!form.nama || !form.nisn || !form.kelas_id" class="flex-1 rounded-lg bg-[#1d4ed8] py-2.5 text-[12px] font-bold text-white disabled:opacity-40 transition">Tambah Siswa</button>
+            <button @click="submitAdd()" :disabled="!form.nama || !form.nisn" class="flex-1 rounded-lg bg-[#1d4ed8] py-2.5 text-[12px] font-bold text-white disabled:opacity-40 transition">Tambah Siswa</button>
         </x-slot:footer>
     </x-modal>
 
@@ -305,6 +352,30 @@
                     <input x-model="editData.nisn" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20">
                 </div>
             </div>
+            <div class="grid gap-4 sm:grid-cols-2">
+                <div>
+                    <label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">NIS</label>
+                    <input x-model="editData.nis" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20">
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Jenis Kelamin</label>
+                    <select x-model="editData.jenis_kelamin" class="mt-1 h-[42px] w-full appearance-none rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6]">
+                        <option value="">-- Pilih --</option>
+                        <option value="L">Laki-laki</option>
+                        <option value="P">Perempuan</option>
+                    </select>
+                </div>
+            </div>
+            <div class="grid gap-4 sm:grid-cols-2">
+                <div>
+                    <label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Tempat Lahir</label>
+                    <input x-model="editData.tempat_lahir" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20">
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Tanggal Lahir</label>
+                    <input x-model="editData.tgl_lahir" type="date" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20">
+                </div>
+            </div>
             <div>
                 <label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Kelas / Rombel</label>
                 <select x-model="editData.kelas_id" class="mt-1 h-[42px] w-full appearance-none rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6]">
@@ -313,6 +384,10 @@
                         <option :value="k.id" :selected="k.id == editData.kelas_id" x-text="k.nama"></option>
                     </template>
                 </select>
+            </div>
+            <div>
+                <label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Alamat</label>
+                <textarea x-model="editData.alamat" rows="2" class="mt-1 w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 py-2 text-[14px] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20"></textarea>
             </div>
         </div>
         <x-slot:footer>
@@ -326,7 +401,7 @@
         alpineShow="showDelete"
         type="danger"
         title="Hapus Data Siswa?"
-        message="Data siswa <strong x-text='deleteTarget?.nama || deleteTarget?.name'></strong> akan dihapus permanen."
+        message="Data siswa <strong x-text='deleteTarget?.nama'></strong> akan dihapus permanen."
         confirmText="Ya, Hapus"
         confirmAction="doDelete()"
     />

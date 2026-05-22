@@ -14,6 +14,7 @@ class KelasController extends Controller
         $kelas = Kelas::with(['tahunAjaran', 'siswas'])->get()->map(fn($k) => [
             'id' => $k->id,
             'nama' => $k->nama_kelas,
+            'tingkat' => $k->tingkat,
             'tahun_ajaran_id' => $k->tahun_ajaran_id,
             'tahun_ajaran' => $k->tahunAjaran ? $k->tahunAjaran->tahun_mulai.'/'.$k->tahunAjaran->tahun_selesai.' - '.$k->tahunAjaran->semester : '-',
             'terisi' => $k->siswas->count(),
@@ -27,6 +28,7 @@ class KelasController extends Controller
     {
         $validated = $request->validate([
             'nama_kelas'      => 'required|string|max:50',
+            'tingkat'         => 'required|string|max:10',
             'tahun_ajaran_id' => 'required|exists:tahun_ajarans,id',
         ]);
 
@@ -37,23 +39,27 @@ class KelasController extends Controller
             ->with('success', 'Kelas berhasil ditambahkan.');
     }
 
-    public function update(Request $request, Kelas $kela)
+    public function update(Request $request, $id)
     {
+        $kelas = Kelas::findOrFail($id);
+
         $validated = $request->validate([
             'nama_kelas'      => 'required|string|max:50',
+            'tingkat'         => 'required|string|max:10',
             'tahun_ajaran_id' => 'required|exists:tahun_ajarans,id',
         ]);
 
-        $kela->update($validated);
+        $kelas->update($validated);
 
         return redirect()
             ->route('kelas')
             ->with('success', 'Data kelas berhasil diperbarui.');
     }
 
-    public function destroy(Kelas $kela)
+    public function destroy($id)
     {
-        $kela->delete();
+        $kelas = Kelas::findOrFail($id);
+        $kelas->delete();
 
         return redirect()
             ->route('kelas')

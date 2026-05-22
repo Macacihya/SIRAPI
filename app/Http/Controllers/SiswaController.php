@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Models\Siswa;
 use App\Models\Kelas;
+use App\Models\Sekolah;
 use App\Models\RiwayatStatusSiswa;
 use Illuminate\Http\Request;
 
@@ -31,7 +32,8 @@ class SiswaController extends Controller
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('nama_siswa', 'like', "%{$search}%")
-                  ->orWhere('nisn', 'like', "%{$search}%");
+                  ->orWhere('nisn', 'like', "%{$search}%")
+                  ->orWhere('nis', 'like', "%{$search}%");
             });
         }
 
@@ -44,11 +46,15 @@ class SiswaController extends Controller
                 'id'             => $siswa->id,
                 'nama'           => $siswa->nama_siswa,
                 'nisn'           => $siswa->nisn,
-                'nis'            => $siswa->nisn,
+                'nis'            => $siswa->nis,
                 'kelas'          => $siswa->kelas ? 'Kelas ' . $siswa->kelas->nama_kelas : '-',
                 'kelas_id'       => $siswa->kelas_id,
-                'jenis_kelamin'  => '-',
-                'status'         => strtoupper($latestStatus?->status ?? 'AKTIF'),
+                'jenis_kelamin'  => $siswa->jenis_kelamin === 'L' ? 'Laki-laki' : ($siswa->jenis_kelamin === 'P' ? 'Perempuan' : '-'),
+                'jk_raw'         => $siswa->jenis_kelamin,
+                'tempat_lahir'   => $siswa->tempat_lahir ?? '-',
+                'tgl_lahir'      => $siswa->tgl_lahir ? $siswa->tgl_lahir->format('Y-m-d') : '',
+                'alamat'         => $siswa->alamat ?? '',
+                'status'         => strtoupper($latestStatus?->status ?? ($siswa->status_aktif ? 'AKTIF' : 'NONAKTIF')),
                 'selected'       => false,
             ];
         });
@@ -61,9 +67,7 @@ class SiswaController extends Controller
 
         // Statistik
         $totalSiswa = Siswa::count();
-        $siswaAktif = Siswa::whereHas('riwayatStatus', function ($q) {
-            $q->where('status', 'Aktif');
-        })->count();
+        $siswaAktif = Siswa::where('status_aktif', true)->count();
         $siswaCuti = Siswa::whereHas('riwayatStatus', function ($q) {
             $q->where('status', 'Cuti');
         })->count();
@@ -76,17 +80,29 @@ class SiswaController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'nama_siswa' => 'required|string|max:255',
-            'nisn'       => 'required|string|max:20',
-            'kelas_id'   => 'nullable|exists:kelas,id',
+            'nama_siswa'    => 'required|string|max:255',
+            'nisn'          => 'required|string|max:20|unique:siswas,nisn',
+            'nis'           => 'nullable|string|max:20|unique:siswas,nis',
+            'kelas_id'      => 'nullable|exists:kelas,id',
+            'tempat_lahir'  => 'nullable|string|max:100',
+            'tgl_lahir'     => 'nullable|date',
+            'jenis_kelamin' => 'nullable|in:L,P',
+            'alamat'        => 'nullable|string',
         ]);
+
+        // Otomatis set sekolah_id ke sekolah pertama
+        $sekolah = Sekolah::first();
+        $validated['sekolah_id'] = $sekolah?->id;
+        $validated['status_aktif'] = true;
 
         $siswa = Siswa::create($validated);
 
         // Buat riwayat status awal
         RiwayatStatusSiswa::create([
-            'siswa_id' => $siswa->id,
-            'status'   => 'Aktif',
+            'siswa_id'           => $siswa->id,
+            'status'             => 'Aktif',
+            'keterangan'         => 'Pendaftaran siswa baru',
+            'tanggal_perubahan'  => now()->toDateString(),
         ]);
 
         return redirect()
@@ -97,9 +113,14 @@ class SiswaController extends Controller
     public function update(Request $request, Siswa $siswa)
     {
         $validated = $request->validate([
-            'nama_siswa' => 'required|string|max:255',
-            'nisn'       => 'required|string|max:20',
-            'kelas_id'   => 'nullable|exists:kelas,id',
+            'nama_siswa'    => 'required|string|max:255',
+            'nisn'          => 'required|string|max:20|unique:siswas,nisn,' . $siswa->id,
+            'nis'           => 'nullable|string|max:20|unique:siswas,nis,' . $siswa->id,
+            'kelas_id'      => 'nullable|exists:kelas,id',
+            'tempat_lahir'  => 'nullable|string|max:100',
+            'tgl_lahir'     => 'nullable|date',
+            'jenis_kelamin' => 'nullable|in:L,P',
+            'alamat'        => 'nullable|string',
         ]);
 
         $siswa->update($validated);

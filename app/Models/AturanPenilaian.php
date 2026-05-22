@@ -8,6 +8,7 @@ class AturanPenilaian extends Model
 {
     protected $fillable = [
         'nama_komponen',
+        'bobot',
         'mapel_id',
     ];
 

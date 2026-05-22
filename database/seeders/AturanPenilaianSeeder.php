@@ -11,18 +11,18 @@ class AturanPenilaianSeeder extends Seeder
     public function run(): void
     {
         $komponenDefault = [
-            'Tugas Harian',
-            'Ulangan Harian',
-            'UTS',
-            'UAS',
+            'Ulangan Harian' => 30,
+            'UTS' => 30,
+            'UAS' => 40,
         ];
 
         $mapels = MataPelajaran::all();
 
         foreach ($mapels as $mapel) {
-            foreach ($komponenDefault as $komponen) {
+            foreach ($komponenDefault as $komponen => $bobot) {
                 AturanPenilaian::updateOrCreate(
                     ['nama_komponen' => $komponen, 'mapel_id' => $mapel->kode_mapel],
+                    ['bobot' => $bobot]
                 );
             }
         }

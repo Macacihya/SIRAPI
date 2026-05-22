@@ -11,13 +11,12 @@ class AturanPenilaianController extends Controller
     public function index()
     {
         $komponen = AturanPenilaian::with('mataPelajaran')->get()->map(fn($k) => [
-            'id' => $k->id,
-            'nama' => $k->nama_komponen,
-            'bobot' => 0,
-            'kode' => $k->nama_komponen,
-            'mapel' => $k->mataPelajaran->nama_mapel ?? '-',
+            'id'       => $k->id,
+            'nama'     => $k->nama_komponen,
+            'bobot'    => (float) $k->bobot,
+            'mapel'    => $k->mataPelajaran->nama_mapel ?? '-',
             'mapel_id' => $k->mapel_id,
-        ])->unique('nama')->values();
+        ])->values();
         $mapels = MataPelajaran::orderBy('kode_mapel')->get();
 
         return view('pages.aturan-nilai.index', compact('komponen', 'mapels'));
@@ -27,6 +26,7 @@ class AturanPenilaianController extends Controller
     {
         $validated = $request->validate([
             'nama_komponen' => 'required|string|max:100',
+            'bobot'         => 'required|numeric|min:0|max:100',
             'mapel_id'      => 'required|exists:mata_pelajarans,kode_mapel',
         ]);
 
@@ -41,6 +41,7 @@ class AturanPenilaianController extends Controller
     {
         $validated = $request->validate([
             'nama_komponen' => 'required|string|max:100',
+            'bobot'         => 'required|numeric|min:0|max:100',
             'mapel_id'      => 'required|exists:mata_pelajarans,kode_mapel',
         ]);
 
@@ -58,5 +59,14 @@ class AturanPenilaianController extends Controller
         return redirect()
             ->route('aturan-nilai')
             ->with('success', 'Komponen penilaian berhasil dihapus.');
+    }
+
+    public function destroyAll()
+    {
+        AturanPenilaian::truncate();
+
+        return redirect()
+            ->route('aturan-nilai')
+            ->with('success', 'Semua komponen penilaian berhasil dihapus.');
     }
 }
