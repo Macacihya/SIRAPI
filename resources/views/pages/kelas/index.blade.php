@@ -18,11 +18,26 @@
             currentPage: 1,
             perPage: 10,
             tingkatOptions: ['1','2','3','4','5','6'],
-            get totalSiswa() { return this.kelas.reduce((a,k) => a + k.terisi, 0); },
-            get totalPages() { return Math.ceil(this.kelas.length / this.perPage) || 1; },
+            searchQuery: '',
+            tingkatFilter: 'Semua',
+            selectAll: false,
+            showDeleteAll: false,
+            get filtered() {
+                let r = this.kelas;
+                if (this.tingkatFilter !== 'Semua') r = r.filter(k => k.tingkat == this.tingkatFilter);
+                if (this.searchQuery) {
+                    const q = this.searchQuery.toLowerCase();
+                    r = r.filter(k => (k.nama && k.nama.toLowerCase().includes(q)));
+                }
+                return r;
+            },
+            get selectedCount() { return this.kelas.filter(k => k.selected).length; },
+            toggleAll() { this.selectAll = !this.selectAll; this.filtered.forEach(k => k.selected = this.selectAll); },
+            get totalSiswa() { return this.filtered.reduce((a,k) => a + k.terisi, 0); },
+            get totalPages() { return Math.ceil(this.filtered.length / this.perPage) || 1; },
             get paginatedKelas() {
                 const start = (this.currentPage - 1) * this.perPage;
-                return this.kelas.slice(start, start + Number(this.perPage));
+                return this.filtered.slice(start, start + Number(this.perPage));
             },
             get pageNumbers() {
                 const total = this.totalPages;
@@ -51,6 +66,11 @@
             doDelete() {
                 document.getElementById('formHapusKelas').action = '/kelas/' + this.deleteTarget.id;
                 document.getElementById('formHapusKelas').submit();
+            },
+            doDeleteAll() {
+                this.kelas = this.kelas.filter(k => !k.selected);
+                this.showDeleteAll = false; this.selectAll = false;
+                this.$dispatch('toast', { message: 'Semua data kelas yang dipilih berhasil dihapus.', type: 'error' });
             },
         }));
     });
@@ -109,11 +129,31 @@
     </div>
     @endif
 
+    {{-- FILTERS --}}
+    <div class="flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center gap-2">
+            <div class="relative">
+                <svg class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#94a3b8]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8" stroke-width="2"/><path d="m21 21-4.35-4.35" stroke-width="2" stroke-linecap="round"/></svg>
+                <input type="text" x-model="searchQuery" @input="resetPage()" placeholder="Cari kelas..." class="h-[38px] w-64 rounded-[8px] border border-[#e2e8f0] bg-white pl-9 pr-4 text-[13px] outline-none focus:border-[#3b82f6]">
+            </div>
+            <select x-model="tingkatFilter" @change="resetPage()" class="h-[38px] appearance-none rounded-[8px] border border-[#e2e8f0] bg-white px-4 pr-10 text-[13px] font-medium outline-none focus:border-[#3b82f6]">
+                <option>Semua</option>
+                <template x-for="t in tingkatOptions" :key="t">
+                    <option :value="t" x-text="'Kelas ' + t"></option>
+                </template>
+            </select>
+        </div>
+        <div class="flex items-center gap-3">
+            <x-btn-delete-all />
+        </div>
+    </div>
+
     {{-- TABLE --}}
     <div class="overflow-hidden rounded-[14px] border border-[#e2e8f0] bg-white">
         <table class="w-full text-[13px]">
             <thead>
                 <tr class="border-b border-[#e2e8f0] bg-[#f8fafc]">
+                    <th class="w-10 px-4 py-3"><x-checkbox @change="toggleAll()" :checked="selectAll" /></th>
                     <th class="px-6 py-3 text-left text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">No</th>
                     <th class="px-6 py-3 text-left text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Nama Kelas</th>
                     <th class="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Tingkat</th>
@@ -125,6 +165,7 @@
             <tbody>
                 <template x-for="(k, index) in paginatedKelas" :key="k.id">
                     <tr class="border-b border-[#f1f5f9] transition hover:bg-[#f8fafc]">
+                        <td class="px-4 py-3.5"><x-checkbox x-model="k.selected" /></td>
                         <td class="px-6 py-4 font-semibold text-[#64748b]" x-text="((currentPage - 1) * perPage) + index + 1"></td>
                         <td class="px-6 py-4">
                             <p class="font-black text-[15px] tracking-[-0.02em] text-[#0f172a]" x-text="k.nama"></p>
@@ -150,8 +191,8 @@
                         </td>
                     </tr>
                 </template>
-                <tr x-show="kelas.length === 0">
-                    <td colspan="5" class="py-12 text-center text-[14px] text-[#94a3b8]">Belum ada data kelas.</td>
+                <tr x-show="filtered.length === 0">
+                    <td colspan="6" class="py-12 text-center text-[14px] text-[#94a3b8]">Belum ada data kelas.</td>
                 </tr>
             </tbody>
         </table>
@@ -168,7 +209,7 @@
                         <span>data</span>
                     </div>
                     <span class="hidden text-[#cbd5e1] sm:inline">&bull;</span>
-                    <div>Menampilkan <span class="font-bold text-[#0f172a]" x-text="kelas.length ? (((currentPage - 1) * perPage) + 1) + '-' + (((currentPage - 1) * perPage) + paginatedKelas.length) : '0'"></span> dari <span class="font-bold text-[#0f172a]" x-text="kelas.length"></span></div>
+                    <div>Menampilkan <span class="font-bold text-[#0f172a]" x-text="filtered.length ? (((currentPage - 1) * perPage) + 1) + '-' + (((currentPage - 1) * perPage) + paginatedKelas.length) : '0'"></span> dari <span class="font-bold text-[#0f172a]" x-text="filtered.length"></span></div>
                 </div>
                 <div class="flex items-center gap-1">
                     <button @click="goToPage(1)" :disabled="currentPage <= 1" class="flex h-9 w-9 items-center justify-center rounded-[10px] text-[#64748b] transition hover:bg-[#f1f5f9] disabled:cursor-not-allowed disabled:text-[#cbd5e1] disabled:hover:bg-transparent"><svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="m11 17-5-5 5-5m7 10-5-5 5-5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></button>
@@ -251,6 +292,16 @@
         message="Kelas <strong x-text='deleteTarget?.nama'></strong> akan dihapus permanen beserta semua data terkait."
         confirmText="Ya, Hapus"
         confirmAction="doDelete()"
+    />
+
+    {{-- ═══ MODAL: Hapus Semua ═══ --}}
+    <x-confirm-dialog
+        alpineShow="showDeleteAll"
+        type="danger"
+        title="Hapus Semua Data Terpilih?"
+        message="Sebanyak <strong x-text='selectedCount'></strong> data kelas akan dihapus secara permanen. Anda yakin?"
+        confirmText="Ya, Hapus Semua"
+        confirmAction="doDeleteAll()"
     />
 
 </div>
