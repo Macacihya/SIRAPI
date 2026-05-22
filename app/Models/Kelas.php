@@ -11,6 +11,7 @@ class Kelas extends Model
     protected $fillable = [
         'nama_kelas',
         'tahun_ajaran_id',
+        'wali_guru_id',
     ];
 
     /**
@@ -35,5 +36,10 @@ class Kelas extends Model
     public function guruPengampus()
     {
         return $this->hasMany(GuruPengampu::class);
+    }
+
+    public function waliGuru()
+    {
+        return $this->belongsTo(Guru::class, 'wali_guru_id', 'user_id');
     }
 }

@@ -18,33 +18,28 @@ document.addEventListener('alpine:init', () => {
         showImport: false,
         loadingImport: false,
         importFile: null,
-        editData: { id: '', name: '', email: '', nip: '', roles: [], mapel: '' },
-        allUsers: [
-            { name: 'Budi Santoso',  email: 'budi.tu@sirapi.sch.id',   nip: '19850312200501',  roles: ['GURU MAPEL'] },
-            { name: 'Siti Aminah',   email: 'siti.guru@sirapi.sch.id',  nip: '7831002814',      roles: ['GURU MAPEL', 'WALI KELAS'] },
-            { name: 'Dewi Kusuma',   email: 'dewi.op@sirapi.sch.id',    nip: '19900715200801',  roles: ['WALI KELAS'] },
-            { name: 'Fajar Nugroho', email: 'fajar.g@sirapi.sch.id',    nip: '0062198411',      roles: ['GURU MAPEL'] },
-            { name: 'Rina Marlina',  email: 'rina.wk@sirapi.sch.id',    nip: '0056123881',      roles: ['WALI KELAS'] },
-        ],
+        editData: {
+            id: '', name: '', email: '', nip: '', roles: [], peran: 'GURU MAPEL',
+            mapel_ids: [], kelas_pengampu_ids: [], kelas_wali_id: '', mapel_search: '', kelas_search: ''
+        },
+        allUsers: @json($daftarUserGuru),
         userSearch: '',
         dropdownOpen: false,
         manualMode: false,
         form: {
-            user_name: '', user_email: '', user_nip: '',
-            peran: 'GURU MAPEL', mapel: '', gelar: '',
-            username: '', whatsapp: ''
+            user_id: '', user_name: '', user_email: '', user_nip: '',
+            peran: 'GURU MAPEL', mapel_ids: [], kelas_pengampu_ids: [], kelas_wali_id: '', gelar: '',
+            username: '', whatsapp: '', mapel_search: '', kelas_search: ''
         },
         fonnte_token: 'weHNunUCikrC3YnBmvrf',
-        daftarMapel: @json(array_values($daftarMapel)),
+        daftarMapel: @json($daftarMapel),
+        daftarKelas: @json($daftarKelas),
         gurus: @json($gurus->items()),
 
         init() {
             // Data sudah dari database via controller
         },
 
-        get usedMapels() {
-            return this.gurus.filter(g => g && g.roles && g.roles.some(r => r === 'GURU MAPEL')).map(g => g.mapel).filter(m => m && m !== '-');
-        },
         get eligibleUsers() {
             let guruEmails = this.gurus.map(g => g.email);
             let q = this.userSearch.toLowerCase();
@@ -54,7 +49,38 @@ document.addEventListener('alpine:init', () => {
                 (u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q))
             );
         },
-        get availableMapels() { return this.daftarMapel.filter(m => !this.usedMapels.includes(m)); },
+        get availableKelasWali() {
+            return this.daftarKelas.filter(k => !k.wali_guru_id);
+        },
+        get filteredMapelOptions() {
+            let q = (this.form.mapel_search || '').toLowerCase();
+            return this.daftarMapel.filter(m => !q || m.nama.toLowerCase().includes(q) || m.id.toLowerCase().includes(q));
+        },
+        get filteredKelasOptions() {
+            let q = (this.form.kelas_search || '').toLowerCase();
+            return this.daftarKelas.filter(k => !q || k.nama.toLowerCase().includes(q));
+        },
+        get filteredEditMapelOptions() {
+            let q = (this.editData.mapel_search || '').toLowerCase();
+            return this.daftarMapel.filter(m => !q || m.nama.toLowerCase().includes(q) || m.id.toLowerCase().includes(q));
+        },
+        get filteredEditKelasOptions() {
+            let q = (this.editData.kelas_search || '').toLowerCase();
+            return this.daftarKelas.filter(k => !q || k.nama.toLowerCase().includes(q));
+        },
+        kelasWaliOptionsFor(selectedId) {
+            return this.daftarKelas.filter(k => !k.wali_guru_id || String(k.id) === String(selectedId));
+        },
+        toggleSelection(values, value) {
+            const stringValue = String(value);
+            const current = (values || []).map(v => String(v));
+            return current.includes(stringValue)
+                ? current.filter(v => v !== stringValue)
+                : [...current, stringValue];
+        },
+        isSelected(values, value) {
+            return (values || []).map(v => String(v)).includes(String(value));
+        },
         get filtered() {
             let r = this.gurus;
             if (this.search) { 
@@ -71,18 +97,32 @@ document.addEventListener('alpine:init', () => {
             return r;
         },
         selectUser(u) {
-            this.form.user_name = u.name; this.form.user_email = u.email; this.form.user_nip = u.nip;
+            this.form.user_id = u.id; this.form.user_name = u.name; this.form.user_email = u.email; this.form.username = u.username || '';
             this.userSearch = u.name; this.dropdownOpen = false;
         },
-        clearUser() { this.form.user_name = ''; this.form.user_email = ''; this.form.user_nip = ''; this.userSearch = ''; },
+        clearUser() { this.form.user_id = ''; this.form.user_name = ''; this.form.user_email = ''; this.form.user_nip = ''; this.userSearch = ''; },
         toggleManual() { this.manualMode = !this.manualMode; this.clearUser(); this.form.username = ''; this.form.whatsapp = ''; },
+        syncArrayInputs(containerId, name, values) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            (values || []).forEach(value => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = name;
+                input.value = value;
+                container.appendChild(input);
+            });
+        },
         submitAdd() {
             document.getElementById('tambahNamaGuru').value = this.form.user_name;
+            document.getElementById('tambahUserIdGuru').value = this.form.user_id || '';
             document.getElementById('tambahEmailGuru').value = this.form.user_email;
             document.getElementById('tambahUsernameGuru').value = this.form.username || this.form.user_email.split('@')[0];
             document.getElementById('tambahNipGuru').value = this.form.user_nip;
-            document.getElementById('tambahRoleGuru').value = this.form.peran === 'WALI KELAS' ? 'walikelas' : 'guru';
-            document.getElementById('tambahMapelGuru').value = this.form.peran === 'WALI KELAS' ? '' : (this.form.mapel || '');
+            document.getElementById('tambahPeranGuru').value = this.form.peran;
+            document.getElementById('tambahKelasWaliGuru').value = this.form.peran.includes('WALI KELAS') ? (this.form.kelas_wali_id || '') : '';
+            this.syncArrayInputs('tambahMapelGuruInputs', 'mapel_ids[]', this.form.mapel_ids);
+            this.syncArrayInputs('tambahKelasPengampuGuruInputs', 'kelas_pengampu_ids[]', this.form.kelas_pengampu_ids);
             document.getElementById('formTambahGuru').submit();
         },
         openEdit(g) {
@@ -92,7 +132,12 @@ document.addEventListener('alpine:init', () => {
                 email: g.email,
                 nip: g.nip,
                 roles: g.roles,
-                mapel: g.mapel !== '-' ? g.mapel : ''
+                peran: (g.roles && g.roles.some(r => r.includes('WALI'))) ? 'GURU MAPEL & WALI KELAS' : 'GURU MAPEL',
+                mapel_ids: g.mapel_ids || [],
+                kelas_pengampu_ids: g.kelas_pengampu_ids || [],
+                kelas_wali_id: g.kelas_wali_id || '',
+                mapel_search: '',
+                kelas_search: ''
             };
             this.showEdit = true;
         },
@@ -100,7 +145,10 @@ document.addEventListener('alpine:init', () => {
             document.getElementById('formEditGuru').action = '/guru/' + this.editData.id;
             document.getElementById('editNamaGuru').value = this.editData.name;
             document.getElementById('editEmailGuru').value = this.editData.email;
-            document.getElementById('editMapelGuru').value = this.editData.mapel || '';
+            document.getElementById('editPeranGuru').value = this.editData.peran;
+            document.getElementById('editKelasWaliGuru').value = this.editData.peran.includes('WALI KELAS') ? (this.editData.kelas_wali_id || '') : '';
+            this.syncArrayInputs('editMapelGuruInputs', 'mapel_ids[]', this.editData.mapel_ids);
+            this.syncArrayInputs('editKelasPengampuGuruInputs', 'kelas_pengampu_ids[]', this.editData.kelas_pengampu_ids);
             document.getElementById('formEditGuru').submit();
         },
         confirmDelete(g) {
@@ -112,9 +160,7 @@ document.addEventListener('alpine:init', () => {
             document.getElementById('formHapusGuru').submit();
         },
         downloadTemplate() {
-            let csv = 'Nama,Email,NIP_NUPTK,Peran,Mata_Pelajaran\n';
-            csv += 'Budi Santoso,budi@guru.sch.id,19850312200501,GURU MAPEL,Matematika\n';
-            csv += 'Siti Aminah,siti@guru.sch.id,7831002814,WALI KELAS,-\n';
+            let csv = 'Nama,Email,NIP_NUPTK,Peran,Mapel_Diampu,Kelas_Diampu,Kelas_Walikelas\n';
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -131,19 +177,7 @@ document.addEventListener('alpine:init', () => {
                 return;
             }
             this.loadingImport = true;
-            setTimeout(() => {
-                this.gurus.unshift({ 
-                    name: 'Guru Baru (Import)', 
-                    email: 'import@guru.sch.id', 
-                    nip: '99999' + Date.now().toString().slice(-5), 
-                    roles: ['GURU MAPEL'], 
-                    mapel: 'Bahasa Indonesia' 
-                });
-                this.loadingImport = false;
-                this.showImport = false;
-                this.importFile = null;
-                this.$dispatch('toast', { message: 'Data guru berhasil di-import!', type: 'success' });
-            }, 2000);
+            document.getElementById('formImportGuru').submit();
         },
     }));
 });
@@ -153,20 +187,29 @@ document.addEventListener('alpine:init', () => {
 <form id="formTambahGuru" method="POST" action="{{ route('guru.store') }}" class="hidden">
     @csrf
     <input type="hidden" name="nama" id="tambahNamaGuru">
+    <input type="hidden" name="user_id" id="tambahUserIdGuru">
     <input type="hidden" name="email" id="tambahEmailGuru">
     <input type="hidden" name="username" id="tambahUsernameGuru">
     <input type="hidden" name="nip" id="tambahNipGuru">
-    <input type="hidden" name="role" id="tambahRoleGuru">
-    <input type="hidden" name="mata_pelajaran" id="tambahMapelGuru">
+    <input type="hidden" name="peran" id="tambahPeranGuru">
+    <input type="hidden" name="kelas_wali_id" id="tambahKelasWaliGuru">
+    <div id="tambahMapelGuruInputs"></div>
+    <div id="tambahKelasPengampuGuruInputs"></div>
 </form>
 <form id="formEditGuru" method="POST" action="" class="hidden">
     @csrf @method('PUT')
     <input type="hidden" name="nama" id="editNamaGuru">
     <input type="hidden" name="email" id="editEmailGuru">
-    <input type="hidden" name="mata_pelajaran" id="editMapelGuru">
+    <input type="hidden" name="peran" id="editPeranGuru">
+    <input type="hidden" name="kelas_wali_id" id="editKelasWaliGuru">
+    <div id="editMapelGuruInputs"></div>
+    <div id="editKelasPengampuGuruInputs"></div>
 </form>
 <form id="formHapusGuru" method="POST" action="" class="hidden">
     @csrf @method('DELETE')
+</form>
+<form id="formImportGuru" method="POST" action="{{ route('guru.import') }}" enctype="multipart/form-data" class="hidden">
+    @csrf
 </form>
 
     <div x-data="guruTendik" class="space-y-6" style="font-family: 'Inter', sans-serif;">
@@ -178,12 +221,12 @@ document.addEventListener('alpine:init', () => {
                 <h1 class="mt-1 text-[32px] font-black tracking-[-0.04em] text-[#0f172a]">Guru</h1>
             </div>
             <div class="flex items-center gap-2">
-                <button @click="$dispatch('toast', {message: 'Data berhasil diexport!', type: 'success'})" class="flex h-[42px] items-center gap-2 rounded-[8px] border border-[#e2e8f0] bg-white px-5 text-[13px] font-bold text-[#475569] transition hover:bg-[#f1f5f9]">
+                <a href="{{ route('guru.export') }}" class="flex h-[42px] items-center gap-2 rounded-[8px] border border-[#e2e8f0] bg-white px-5 text-[13px] font-bold text-[#475569] transition hover:bg-[#f1f5f9]">
                     <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
                     </svg>
                     Export Data
-                </button>
+                </a>
                 <button @click="showImport = true" class="flex h-[42px] items-center gap-2 rounded-[8px] border border-[#e2e8f0] bg-white px-5 text-[13px] font-bold text-[#475569] transition hover:bg-[#f8fafc]">
                     <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
                     Import Data
@@ -226,7 +269,24 @@ document.addEventListener('alpine:init', () => {
         </div>
 
         {{-- ─── TABLE ─── --}}
+<<<<<<< Updated upstream
         <x-data-table :headers="['Identitas', 'NIP / NUPTK', 'Peran', 'Mapel']">
+=======
+        <div class="overflow-hidden rounded-[14px] border border-[#e2e8f0] bg-white">
+            <table class="w-full text-[13px]">
+                <thead>
+                    <tr class="border-b border-[#e2e8f0] bg-[#f8fafc]">
+                        <th class="px-6 py-3 text-left text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Identitas</th>
+                        <th class="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">NIP / NUPTK</th>
+                        <th class="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Peran</th>
+                        <th class="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Mapel Diampu</th>
+                        <th class="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Kelas Diampu</th>
+                        <th class="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Kelas Walikelas</th>
+                        <th class="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+>>>>>>> Stashed changes
                     <template x-for="g in filtered" :key="g.nip">
                         <tr class="border-b border-[#f1f5f9] transition hover:bg-[#f8fafc]">
                             <td class="px-6 py-4">
@@ -244,7 +304,9 @@ document.addEventListener('alpine:init', () => {
                                     <template x-for="role in g.roles"><span class="rounded bg-[#1d4ed8] px-2 py-0.5 text-[10px] font-bold text-white" x-text="role"></span></template>
                                 </div>
                             </td>
-                            <td class="px-4 py-4 text-[#475569]" x-text="g.mapel"></td>
+                            <td class="px-4 py-4 text-[#475569]" x-text="g.mapel || '-'"></td>
+                            <td class="px-4 py-4 text-[#475569]" x-text="g.kelas_diampu || '-'"></td>
+                            <td class="px-4 py-4 text-[#475569]" x-text="g.kelas_walikelas || '-'"></td>
                             <td class="px-4 py-4">
                                 <div class="flex items-center gap-1">
                                     <button @click="openEdit(g)" class="rounded-lg p-1.5 text-[#64748b] transition hover:bg-[#f1f5f9] hover:text-[#1d4ed8]">
@@ -262,7 +324,7 @@ document.addEventListener('alpine:init', () => {
                         </tr>
                     </template>
                     <tr x-show="filtered.length === 0">
-                        <td colspan="5" class="py-12 text-center">
+                        <td colspan="7" class="py-12 text-center">
                             <p class="text-[14px] text-[#94a3b8]">Tidak ada data guru ditemukan.</p>
                             <button @click="search = ''; roleFilter = 'Semua'" class="mt-4 rounded-lg border border-[#e2e8f0] px-4 py-2 text-[12px] font-bold text-[#475569] transition hover:bg-[#f1f5f9]">Reset Pencarian</button>
                         </td>
@@ -314,7 +376,7 @@ document.addEventListener('alpine:init', () => {
         </div>
 
     {{-- ═══ MODAL: Tambah Guru ═══ --}}
-    <x-modal alpineShow="showAdd" title="Tambah Data Guru Baru" maxWidth="lg">
+    <x-modal alpineShow="showAdd" title="Tambah Data Guru Baru" maxWidth="3xl">
         <div class="space-y-5">
             <div class="flex items-center gap-3 rounded-xl bg-[#eff6ff] p-4 ring-1 ring-[#dbeafe]">
                 <div class="flex h-10 w-10 flex-none items-center justify-center rounded-lg bg-[#1d4ed8] text-white">
@@ -362,9 +424,9 @@ document.addEventListener('alpine:init', () => {
                         </div>
                     </div>
 
-                    <div x-show="form.user_nip" x-transition>
+                    <div x-show="form.user_id" x-transition>
                         <label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">NIP / NUPTK</label>
-                        <input :value="form.user_nip" readonly class="mt-1 h-[42px] w-full rounded-[8px] border border-[#059669] bg-[#f0fdf4] px-4 font-mono text-[14px] text-[#065f46] outline-none cursor-not-allowed">
+                        <input x-model="form.user_nip" @input="form.user_nip = form.user_nip.replace(/[^0-9]/g, '').slice(0, 18)" class="mt-1 h-[42px] w-full rounded-[8px] border border-[#059669] bg-[#f0fdf4] px-4 font-mono text-[14px] text-[#065f46] outline-none focus:border-[#3b82f6]" placeholder="19XXXXXXXXXXXXXXX">
                     </div>
 
                     <div>
@@ -397,45 +459,120 @@ document.addEventListener('alpine:init', () => {
                 <div class="grid gap-4 sm:grid-cols-2">
                     <div>
                         <label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Peran / jabatan</label>
-                        <select x-model="form.peran" class="mt-1 h-[42px] w-full appearance-none rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6]">
+                        <select x-model="form.peran" @change="if (form.peran !== 'GURU MAPEL & WALI KELAS') form.kelas_wali_id = ''" class="mt-1 h-[42px] w-full appearance-none rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6]">
                             <option>GURU MAPEL</option>
-                            <option>WALI KELAS</option>
+                            <option>GURU MAPEL & WALI KELAS</option>
                         </select>
                     </div>
-                    <div x-show="form.peran === 'GURU MAPEL'" x-transition>
-                        <label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Mata pelajaran</label>
-                        <select x-model="form.mapel" class="mt-1 h-[42px] w-full appearance-none rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6]">
-                            <option value="" disabled selected>-- Pilih mapel --</option>
-                            <template x-for="m in availableMapels" :key="m"><option :value="m" x-text="m"></option></template>
+                    <div x-show="form.peran === 'GURU MAPEL & WALI KELAS'" x-transition>
+                        <label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Kelas walikelas</label>
+                        <select x-model="form.kelas_wali_id" class="mt-1 h-[42px] w-full appearance-none rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6]">
+                            <option value="">-- Pilih kelas kosong --</option>
+                            <template x-for="k in availableKelasWali" :key="k.id"><option :value="k.id" x-text="k.nama"></option></template>
                         </select>
+                    </div>
+                </div>
+
+                <div class="grid gap-4 sm:grid-cols-2">
+                    <div>
+                        <label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Mapel diampu</label>
+                        <div class="mt-1 rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] p-3">
+                            <input x-model="form.mapel_search" class="h-[36px] w-full rounded-[8px] border border-[#e2e8f0] bg-white px-3 text-[13px] outline-none focus:border-[#3b82f6]" placeholder="Cari mapel...">
+                            <div class="mt-3 max-h-[170px] space-y-2 overflow-y-auto pr-1">
+                                <template x-for="m in filteredMapelOptions" :key="m.id">
+                                    <label class="flex cursor-pointer items-center gap-2 rounded-[8px] px-2 py-1.5 transition hover:bg-white">
+                                        <input type="checkbox" :checked="isSelected(form.mapel_ids, m.id)" @change="form.mapel_ids = toggleSelection(form.mapel_ids, m.id)" class="h-4 w-4 rounded border-[#cbd5e1] text-[#1d4ed8] focus:ring-[#3b82f6]">
+                                        <span class="text-[13px] font-medium text-[#334155]" x-text="m.nama"></span>
+                                    </label>
+                                </template>
+                                <p x-show="filteredMapelOptions.length === 0" class="py-3 text-center text-[12px] text-[#94a3b8]">Mapel tidak ditemukan.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Kelas diampu</label>
+                        <div class="mt-1 rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] p-3">
+                            <input x-model="form.kelas_search" class="h-[36px] w-full rounded-[8px] border border-[#e2e8f0] bg-white px-3 text-[13px] outline-none focus:border-[#3b82f6]" placeholder="Cari kelas...">
+                            <div class="mt-3 grid max-h-[170px] grid-cols-2 gap-2 overflow-y-auto pr-1">
+                                <template x-for="k in filteredKelasOptions" :key="k.id">
+                                    <label class="flex cursor-pointer items-center gap-2 rounded-[8px] px-2 py-1.5 transition hover:bg-white">
+                                        <input type="checkbox" :checked="isSelected(form.kelas_pengampu_ids, k.id)" @change="form.kelas_pengampu_ids = toggleSelection(form.kelas_pengampu_ids, k.id)" class="h-4 w-4 rounded border-[#cbd5e1] text-[#1d4ed8] focus:ring-[#3b82f6]">
+                                        <span class="text-[13px] font-medium text-[#334155]" x-text="k.nama"></span>
+                                    </label>
+                                </template>
+                                <p x-show="filteredKelasOptions.length === 0" class="col-span-2 py-3 text-center text-[12px] text-[#94a3b8]">Kelas tidak ditemukan.</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
         <x-slot:footer>
             <button @click="showAdd = false; clearUser(); manualMode = false" class="flex-1 rounded-lg border border-[#e2e8f0] bg-white py-2.5 text-[12px] font-bold text-[#475569] hover:bg-[#f1f5f9]">Batal</button>
-            <button @click="submitAdd()" :disabled="!form.user_name || !form.user_nip || (form.peran === 'GURU MAPEL' && !form.mapel)" class="flex-1 rounded-lg bg-[#1d4ed8] py-2.5 text-[12px] font-bold text-white hover:bg-[#1e40af] disabled:opacity-40 disabled:cursor-not-allowed transition">Tambah Guru</button>
+            <button @click="submitAdd()" :disabled="!form.user_name || !form.user_nip || !form.mapel_ids.length || !form.kelas_pengampu_ids.length || (form.peran.includes('WALI KELAS') && !form.kelas_wali_id)" class="flex-1 rounded-lg bg-[#1d4ed8] py-2.5 text-[12px] font-bold text-white hover:bg-[#1e40af] disabled:opacity-40 disabled:cursor-not-allowed transition">Tambah Guru</button>
         </x-slot:footer>
     </x-modal>
 
     {{-- ═══ MODAL: Edit Guru ═══ --}}
-    <x-modal alpineShow="showEdit" title="Edit Data Guru" maxWidth="lg">
+    <x-modal alpineShow="showEdit" title="Edit Data Guru" maxWidth="3xl">
         <div class="space-y-4">
             <div class="grid gap-4 sm:grid-cols-2">
                 <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Nama lengkap</label><input x-model="editData.name" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6]"></div>
                 <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">NIP / NUPTK</label><input x-model="editData.nip" readonly class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f1f5f9] px-4 text-[14px] outline-none cursor-not-allowed text-[#64748b]"></div>
             </div>
             <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Email</label><input x-model="editData.email" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6]"></div>
-            <div x-show="!editData.roles || !editData.roles.some(r => r.includes('WALI'))">
-                <label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Mata pelajaran</label>
-                <select x-model="editData.mapel" class="mt-1 h-[42px] w-full appearance-none rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6]">
-                    <template x-for="m in daftarMapel" :key="m"><option :value="m" x-text="m"></option></template>
-                </select>
+            <div class="grid gap-4 sm:grid-cols-2">
+                <div>
+                    <label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Peran / jabatan</label>
+                    <select x-model="editData.peran" @change="if (editData.peran !== 'GURU MAPEL & WALI KELAS') editData.kelas_wali_id = ''" class="mt-1 h-[42px] w-full appearance-none rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6]">
+                        <option>GURU MAPEL</option>
+                        <option>GURU MAPEL & WALI KELAS</option>
+                    </select>
+                </div>
+                <div x-show="editData.peran === 'GURU MAPEL & WALI KELAS'" x-transition>
+                    <label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Kelas walikelas</label>
+                    <select x-model="editData.kelas_wali_id" class="mt-1 h-[42px] w-full appearance-none rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6]">
+                        <option value="">-- Pilih kelas kosong --</option>
+                        <template x-for="k in kelasWaliOptionsFor(editData.kelas_wali_id)" :key="k.id"><option :value="k.id" x-text="k.nama"></option></template>
+                    </select>
+                </div>
+            </div>
+            <div class="grid gap-4 sm:grid-cols-2">
+                <div>
+                    <label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Mapel diampu</label>
+                    <div class="mt-1 rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] p-3">
+                        <input x-model="editData.mapel_search" class="h-[36px] w-full rounded-[8px] border border-[#e2e8f0] bg-white px-3 text-[13px] outline-none focus:border-[#3b82f6]" placeholder="Cari mapel...">
+                        <div class="mt-3 max-h-[170px] space-y-2 overflow-y-auto pr-1">
+                            <template x-for="m in filteredEditMapelOptions" :key="m.id">
+                                <label class="flex cursor-pointer items-center gap-2 rounded-[8px] px-2 py-1.5 transition hover:bg-white">
+                                    <input type="checkbox" :checked="isSelected(editData.mapel_ids, m.id)" @change="editData.mapel_ids = toggleSelection(editData.mapel_ids, m.id)" class="h-4 w-4 rounded border-[#cbd5e1] text-[#1d4ed8] focus:ring-[#3b82f6]">
+                                    <span class="text-[13px] font-medium text-[#334155]" x-text="m.nama"></span>
+                                </label>
+                            </template>
+                            <p x-show="filteredEditMapelOptions.length === 0" class="py-3 text-center text-[12px] text-[#94a3b8]">Mapel tidak ditemukan.</p>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Kelas diampu</label>
+                    <div class="mt-1 rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] p-3">
+                        <input x-model="editData.kelas_search" class="h-[36px] w-full rounded-[8px] border border-[#e2e8f0] bg-white px-3 text-[13px] outline-none focus:border-[#3b82f6]" placeholder="Cari kelas...">
+                        <div class="mt-3 grid max-h-[170px] grid-cols-2 gap-2 overflow-y-auto pr-1">
+                            <template x-for="k in filteredEditKelasOptions" :key="k.id">
+                                <label class="flex cursor-pointer items-center gap-2 rounded-[8px] px-2 py-1.5 transition hover:bg-white">
+                                    <input type="checkbox" :checked="isSelected(editData.kelas_pengampu_ids, k.id)" @change="editData.kelas_pengampu_ids = toggleSelection(editData.kelas_pengampu_ids, k.id)" class="h-4 w-4 rounded border-[#cbd5e1] text-[#1d4ed8] focus:ring-[#3b82f6]">
+                                    <span class="text-[13px] font-medium text-[#334155]" x-text="k.nama"></span>
+                                </label>
+                            </template>
+                            <p x-show="filteredEditKelasOptions.length === 0" class="col-span-2 py-3 text-center text-[12px] text-[#94a3b8]">Kelas tidak ditemukan.</p>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
         <x-slot:footer>
             <button @click="showEdit = false" class="flex-1 rounded-lg border border-[#e2e8f0] bg-white py-2.5 text-[12px] font-bold text-[#475569] hover:bg-[#f1f5f9]">Batal</button>
-            <button @click="submitEdit()" :disabled="!editData.name || !editData.email" class="flex-1 rounded-lg bg-[#1d4ed8] py-2.5 text-[12px] font-bold text-white hover:bg-[#1e40af] transition">Simpan</button>
+            <button @click="submitEdit()" :disabled="!editData.name || !editData.email || !editData.mapel_ids.length || !editData.kelas_pengampu_ids.length || (editData.peran.includes('WALI KELAS') && !editData.kelas_wali_id)" class="flex-1 rounded-lg bg-[#1d4ed8] py-2.5 text-[12px] font-bold text-white hover:bg-[#1e40af] transition disabled:opacity-40 disabled:cursor-not-allowed">Simpan</button>
         </x-slot:footer>
     </x-modal>
 
@@ -444,13 +581,13 @@ document.addEventListener('alpine:init', () => {
         <div class="space-y-4">
             {{-- Dropzone Area --}}
             <div class="relative group">
-                <input type="file" @change="importFile = $event.target.files[0]" accept=".csv,.xlsx,.xls" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                <input type="file" name="file" form="formImportGuru" @change="importFile = $event.target.files[0]" accept=".csv" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
                 <div class="border-2 border-dashed border-[#e2e8f0] rounded-2xl p-8 text-center transition group-hover:border-[#3b82f6] group-hover:bg-[#eff6ff]/50" :class="importFile ? 'border-[#3b82f6] bg-[#eff6ff]/50' : ''">
                     <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#eff6ff] text-[#3b82f6] mb-4">
                         <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
                     </div>
                     <h4 class="text-[14px] font-bold text-[#0f172a]" x-text="importFile ? importFile.name : 'Upload File Excel'">Upload File Excel</h4>
-                    <p class="mt-1 text-[12px] text-[#64748b]">Format: .xlsx, .xls, .csv</p>
+                    <p class="mt-1 text-[12px] text-[#64748b]">Format: .csv</p>
                 </div>
             </div>
 

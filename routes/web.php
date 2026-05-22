@@ -55,6 +55,8 @@ Route::middleware('auth')->group(function () {
         // Guru & Tendik
         Route::get('/guru-tendik', [GuruController::class, 'index'])->name('guru-tendik');
         Route::get('/guru/tampilkan', [GuruController::class, 'tampilkan'])->name('guru.tampilkan');
+        Route::get('/guru/export', [GuruController::class, 'export'])->name('guru.export');
+        Route::post('/guru/import', [GuruController::class, 'import'])->name('guru.import');
         Route::resource('guru', GuruController::class);
 
         // Sekolah

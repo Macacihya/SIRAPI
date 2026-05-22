@@ -38,6 +38,8 @@
         'md'  => 'max-w-md',
         'lg'  => 'max-w-lg',
         'xl'  => 'max-w-xl',
+        '2xl' => 'max-w-2xl',
+        '3xl' => 'max-w-3xl',
         default => 'max-w-sm',
     };
 @endphp
@@ -45,14 +47,14 @@
 <template x-teleport="body">
     <div
         x-show="{{ $alpineShow }}"
-        class="fixed inset-0 z-[100] flex items-center justify-center bg-[#0f172a]/60 backdrop-blur-sm"
+        class="fixed inset-0 z-[100] flex items-start justify-center overflow-y-auto bg-[#0f172a]/60 p-4 backdrop-blur-sm sm:items-center"
         style="display:none"
         x-transition
         @click.self="{{ $alpineShow }} = false"
     >
-        <div class="w-[90%] {{ $maxWidthClass }} rounded-2xl bg-white shadow-2xl" @click.stop>
+        <div class="flex max-h-[calc(100vh-2rem)] w-full {{ $maxWidthClass }} flex-col rounded-2xl bg-white shadow-2xl" @click.stop>
             {{-- Header --}}
-            <div class="flex items-center justify-between border-b border-[#e2e8f0] px-6 py-4">
+            <div class="flex flex-none items-center justify-between border-b border-[#e2e8f0] px-6 py-4">
                 <h3 class="text-[18px] font-black text-[#0f172a]">{{ $title }}</h3>
                 <button @click="{{ $alpineShow }} = false" class="flex h-8 w-8 items-center justify-center rounded-lg text-[#94a3b8] hover:bg-[#f1f5f9]">
                     <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -62,13 +64,13 @@
             </div>
 
             {{-- Body --}}
-            <div class="px-6 py-5">
+            <div class="min-h-0 flex-1 overflow-y-auto px-6 py-5">
                 {{ $slot }}
             </div>
 
             {{-- Footer --}}
             @if (isset($footer))
-                <div class="flex gap-3 border-t border-[#e2e8f0] bg-[#f8fafc] px-6 py-4 rounded-b-2xl">
+                <div class="flex flex-none gap-3 border-t border-[#e2e8f0] bg-[#f8fafc] px-6 py-4 rounded-b-2xl">
                     {{ $footer }}
                 </div>
             @endif

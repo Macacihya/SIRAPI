@@ -9,17 +9,30 @@ use App\Models\Sekolah;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class UserController extends Controller
 {
     public function index()
     {
-        $users = User::with('guru', 'admin')->get();
+        $users = User::with(['guru.guruPengampus', 'guru.kelasWali', 'admin'])->get();
 
         $usersData = $users->map(function ($user) {
             $roles = [];
             if ($user->role === 'admin') {
                 $roles[] = 'ADMIN';
+            } elseif ($user->guru) {
+                if ($user->guru->guruPengampus->isNotEmpty()) {
+                    $roles[] = 'GURU MAPEL';
+                }
+                if ($user->guru->kelasWali->isNotEmpty()) {
+                    $roles[] = 'WALI KELAS';
+                }
+                if (empty($roles)) {
+                    $roles = $user->role === 'walikelas'
+                        ? ['GURU MAPEL', 'WALI KELAS']
+                        : ['GURU MAPEL'];
+                }
             } elseif ($user->role === 'guru') {
                 $roles[] = 'GURU MAPEL';
             } elseif ($user->role === 'walikelas') {
@@ -55,11 +68,11 @@ class UserController extends Controller
             'username' => 'required|string|unique:users,username',
             'nip'      => 'required|numeric|digits_between:1,18',
             'roles'    => 'required|array',
+            'roles.*'  => 'in:GURU MAPEL,WALI KELAS',
             'whatsapp' => 'nullable|string',
         ]);
 
-        // Tentukan role Laravel berdasarkan checkbox
-        // Jika ada WALI KELAS, prioritaskan walikelas, jika tidak guru
+        $validated['roles'] = $this->normalizeGuruRoles($validated['roles']);
         $role = in_array('WALI KELAS', $validated['roles']) ? 'walikelas' : 'guru';
 
         DB::transaction(function () use ($validated, $role) {
@@ -74,12 +87,16 @@ class UserController extends Controller
             // Ambil sekolah_id default untuk guru
             $sekolahId = Sekolah::first()->id ?? 1;
 
-            Guru::create([
+            $guruData = [
                 'user_id'    => $user->id,
                 'nip'        => $validated['nip'],
                 'sekolah_id' => $sekolahId,
-                'jabatan'    => $role === 'walikelas' ? 'Wali Kelas' : 'Guru Mapel',
-            ]);
+            ];
+            if (Schema::hasColumn('gurus', 'jabatan')) {
+                $guruData['jabatan'] = $role === 'walikelas' ? 'Guru Mapel & Wali Kelas' : 'Guru Mapel';
+            }
+
+            Guru::create($guruData);
         });
 
         if ($request->wantsJson()) {
@@ -100,12 +117,18 @@ class UserController extends Controller
             'email'    => 'required|email|unique:users,email,' . $user->id,
             'password' => 'nullable|string|min:6',
             'roles'    => 'required|array',
+            'roles.*'  => 'in:GURU MAPEL,WALI KELAS',
         ]);
 
+<<<<<<< Updated upstream
         $role = $user->role;
         if ($user->role !== 'admin') {
             $role = in_array('WALI KELAS', $validated['roles']) ? 'walikelas' : 'guru';
         }
+=======
+        $validated['roles'] = $this->normalizeGuruRoles($validated['roles']);
+        $role = in_array('WALI KELAS', $validated['roles']) ? 'walikelas' : 'guru';
+>>>>>>> Stashed changes
 
         DB::transaction(function () use ($user, $validated, $role) {
             $updateData = [
@@ -121,9 +144,9 @@ class UserController extends Controller
             $user->update($updateData);
 
             // Update role/jabatan di tabel guru jika ada
-            if ($user->guru) {
+            if ($user->guru && Schema::hasColumn('gurus', 'jabatan')) {
                 $user->guru->update([
-                    'jabatan' => $role === 'walikelas' ? 'Wali Kelas' : 'Guru Mapel',
+                    'jabatan' => $role === 'walikelas' ? 'Guru Mapel & Wali Kelas' : 'Guru Mapel',
                 ]);
             }
         });
@@ -145,5 +168,20 @@ class UserController extends Controller
         return redirect()
             ->route('manajemen-user')
             ->with('success', 'User berhasil dihapus.');
+    }
+
+    private function normalizeGuruRoles(array $roles): array
+    {
+        $roles = collect($roles)
+            ->filter(fn($role) => in_array($role, ['GURU MAPEL', 'WALI KELAS'], true))
+            ->unique()
+            ->values()
+            ->all();
+
+        if (in_array('WALI KELAS', $roles, true) && !in_array('GURU MAPEL', $roles, true)) {
+            array_unshift($roles, 'GURU MAPEL');
+        }
+
+        return $roles ?: ['GURU MAPEL'];
     }
 }

@@ -18,7 +18,7 @@
             editData: {},
             fonnte_token: 'weHNunUCikrC3YnBmvrf',
 
-            form: { nama: '', email: '', username: '', nip: '', roles: [], status: 'Aktif', whatsapp: '' },
+            form: { nama: '', email: '', username: '', nip: '', roles: ['GURU MAPEL'], status: 'Aktif', whatsapp: '' },
 
             users: @json($usersData ?? []),
 
@@ -40,7 +40,33 @@
                 return r;
             },
 
-            openEdit(u) { this.editData = JSON.parse(JSON.stringify(u)); this.showEdit = true; },
+            normalizeRoles(target) {
+                if (!target.roles || !target.roles.length) {
+                    target.roles = ['GURU MAPEL'];
+                }
+                if (target.roles.includes('WALI KELAS') && !target.roles.includes('GURU MAPEL')) {
+                    target.roles.unshift('GURU MAPEL');
+                }
+            },
+
+            toggleRole(target, role) {
+                target.roles = target.roles || [];
+                if (role === 'GURU MAPEL' && target.roles.includes('WALI KELAS')) {
+                    return;
+                }
+
+                target.roles = target.roles.includes(role)
+                    ? target.roles.filter(r => r !== role)
+                    : [...target.roles, role];
+
+                this.normalizeRoles(target);
+            },
+
+            openEdit(u) {
+                this.editData = JSON.parse(JSON.stringify(u));
+                this.normalizeRoles(this.editData);
+                this.showEdit = true;
+            },
 
             async submitAdd() {
                 try {
@@ -340,8 +366,11 @@
                         <label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Role / Peran</label>
                         <div class="mt-2 flex flex-wrap gap-2">
                             <template x-for="r in ['GURU MAPEL', 'WALI KELAS']">
-                                <label class="flex cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-1.5 text-[12px] font-semibold transition" :class="form.roles.includes(r) ? 'bg-[#0f172a] text-white border-[#0f172a]' : 'border-[#e2e8f0] text-[#475569] hover:bg-[#f1f5f9]'">
-                                    <input type="checkbox" :value="r" x-model="form.roles" class="hidden"><span x-text="r"></span>
+                                <label class="flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-[12px] font-semibold transition" :class="[
+                                    form.roles.includes(r) ? 'bg-[#0f172a] text-white border-[#0f172a]' : 'border-[#e2e8f0] text-[#475569] hover:bg-[#f1f5f9]',
+                                    r === 'GURU MAPEL' && form.roles.includes('WALI KELAS') ? 'cursor-not-allowed opacity-75' : 'cursor-pointer'
+                                ]">
+                                    <input type="checkbox" :checked="form.roles.includes(r)" @change="toggleRole(form, r)" class="hidden"><span x-text="r"></span>
                                 </label>
                             </template>
                         </div>
@@ -374,7 +403,7 @@
                     <button @click="showAdd = false" class="flex-1 rounded-lg border border-[#e2e8f0] bg-white py-2.5 text-[12px] font-bold text-[#475569] hover:bg-[#f1f5f9]">Batal</button>
                     <button
                         @click="submitAdd()"
-                        :disabled="!form.nama || !form.nip || !form.username || !form.email || !form.roles.length"
+                        :disabled="!form.nama || !form.nip || !form.username || !form.email || !form.roles.includes('GURU MAPEL')"
                         class="flex-1 rounded-lg bg-[#1d4ed8] py-2.5 text-[12px] font-bold text-white hover:bg-[#1e40af] disabled:opacity-40 disabled:cursor-not-allowed transition"
                     >
                         Tambah User
@@ -425,8 +454,11 @@
                         <label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Role / Peran</label>
                         <div class="mt-2 flex flex-wrap gap-2">
                             <template x-for="r in ['GURU MAPEL', 'WALI KELAS']">
-                                <label class="flex cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-1.5 text-[12px] font-semibold transition" :class="editData.roles && editData.roles.includes(r) ? 'bg-[#0f172a] text-white border-[#0f172a]' : 'border-[#e2e8f0] text-[#475569] hover:bg-[#f1f5f9]'">
-                                    <input type="checkbox" :value="r" x-model="editData.roles" class="hidden"><span x-text="r"></span>
+                                <label class="flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-[12px] font-semibold transition" :class="[
+                                    editData.roles && editData.roles.includes(r) ? 'bg-[#0f172a] text-white border-[#0f172a]' : 'border-[#e2e8f0] text-[#475569] hover:bg-[#f1f5f9]',
+                                    r === 'GURU MAPEL' && editData.roles && editData.roles.includes('WALI KELAS') ? 'cursor-not-allowed opacity-75' : 'cursor-pointer'
+                                ]">
+                                    <input type="checkbox" :checked="editData.roles && editData.roles.includes(r)" @change="toggleRole(editData, r)" class="hidden"><span x-text="r"></span>
                                 </label>
                             </template>
                         </div>
