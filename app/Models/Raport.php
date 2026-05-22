@@ -31,9 +31,16 @@ class Raport extends Model
         return $this->hasOne(RekapKehadiran::class);
     }
 
-    public function nilaiSikap()
+    public function nilaiSikaps()
     {
-        return $this->hasOne(NilaiSikap::class);
+        return $this->hasMany(NilaiSikap::class);
+    }
+
+    public function sikaps()
+    {
+        return $this->belongsToMany(Sikap::class, 'raport_sikaps')
+            ->withPivot(['id', 'predikat', 'deskripsi'])
+            ->withTimestamps();
     }
 
     public function raportEkskuls()

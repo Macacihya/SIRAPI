@@ -16,8 +16,8 @@
                     sikap_so: 'A (Sangat Baik)', 
                     desc_so: 'Sangat baik dalam sikap disiplin, jujur, dan tanggung jawab.', 
                     eskul: [
-                        { id: 1, nama: 'Pramuka', ket: 'Sangat aktif dalam kegiatan perkemahan.' },
-                        { id: 2, nama: 'Seni Tari', ket: 'Mampu memperagakan gerak dasar tari daerah.' }
+                        { id: 1, nama: 'Pramuka', deskripsi: 'Sangat aktif dalam kegiatan perkemahan.' },
+                        { id: 2, nama: 'Seni Tari', deskripsi: 'Mampu memperagakan gerak dasar tari daerah.' }
                     ],
                     catatan: 'Tingkatkan terus prestasimu, pertahankan semangat belajarnya!',
                     sakit: 2, izin: 0, alpha: 1
@@ -25,7 +25,7 @@
             },
             { 
                 id: 14, nis: '12014', nisn: '0012345614', name: 'Oscar Permana', avatar: 'OP', status: 'Belum',
-                form: { sikap_sp: '', desc_sp: '', sikap_so: '', desc_so: '', eskul: [], catatan: '', sakit: 0, izin: 0, alpha: 0 }
+                form: { sikap_sp: '', desc_sp: '', sikap_so: '', desc_so: '', eskul: [{ id: 1, nama: 'Pramuka', deskripsi: '' }, { id: 2, nama: 'Seni Tari', deskripsi: '' }], catatan: '', sakit: 0, izin: 0, alpha: 0 }
             },
             { 
                 id: 3, nis: '12003', nisn: '0012345603', name: 'Dandi Pratama', avatar: 'DP', status: 'Draft',
@@ -35,7 +35,8 @@
                     sikap_so: 'B (Baik)', 
                     desc_so: 'Cukup disiplin namun perlu ditingkatkan lagi tanggung jawabnya.', 
                     eskul: [
-                        { id: 1, nama: 'Pramuka', ket: 'Aktif mengikuti latihan rutin.' }
+                        { id: 1, nama: 'Pramuka', deskripsi: 'Aktif mengikuti latihan rutin.' },
+                        { id: 2, nama: 'Seni Tari', deskripsi: '' }
                     ],
                     catatan: 'Cukup bagus, ayo semangat lagi belajarnya!'
                 }
@@ -43,7 +44,7 @@
             // ... siswa lainnya didefinisikan dengan struktur form: { ... } yang sama
             { 
                 id: 5, nis: '12005', nisn: '0012345605', name: 'Farhan Azis', avatar: 'FA', status: 'Belum',
-                form: { sikap_sp: '', desc_sp: '', sikap_so: '', desc_so: '', eskul: [], catatan: '' }
+                form: { sikap_sp: '', desc_sp: '', sikap_so: '', desc_so: '', eskul: [{ id: 1, nama: 'Pramuka', deskripsi: '' }, { id: 2, nama: 'Seni Tari', deskripsi: '' }], catatan: '' }
             },
             { 
                 id: 7, nis: '12007', nisn: '0012345607', name: 'Hendra Yulian', avatar: 'HY', status: 'Selesai',
@@ -52,13 +53,13 @@
                     desc_sp: 'Sikap spiritual sangat menonjol terutama dalam hal toleransi antar umat beragama.', 
                     sikap_so: 'B (Baik)', 
                     desc_so: 'Sangat aktif dalam kegiatan sosial sekolah.', 
-                    eskul: [],
+                    eskul: [{ id: 1, nama: 'Pramuka', deskripsi: '' }, { id: 2, nama: 'Seni Tari', deskripsi: '' }],
                     catatan: 'Lanjutkan progres positif ini di semester depan.'
                 }
             },
             { 
                 id: 8, nis: '12008', nisn: '0012345608', name: 'Intan Sari', avatar: 'IS', status: 'Belum',
-                form: { sikap_sp: '', desc_sp: '', sikap_so: '', desc_so: '', eskul: [], catatan: '' }
+                form: { sikap_sp: '', desc_sp: '', sikap_so: '', desc_so: '', eskul: [{ id: 1, nama: 'Pramuka', deskripsi: '' }, { id: 2, nama: 'Seni Tari', deskripsi: '' }], catatan: '' }
             },
             { 
                 id: 9, nis: '12009', nisn: '0012345609', name: 'Joko Wibowo', avatar: 'JW', status: 'Draft',
@@ -67,13 +68,13 @@
                     desc_sp: 'Baik dalam ibadah harian.', 
                     sikap_so: 'B (Baik)', 
                     desc_so: 'Perlu lebih aktif berkomunikasi dengan teman.', 
-                    eskul: [],
+                    eskul: [{ id: 1, nama: 'Pramuka', deskripsi: '' }, { id: 2, nama: 'Seni Tari', deskripsi: '' }],
                     catatan: 'Tingkatkan kepercayaan diri dalam bergaul.'
                 }
             },
             { 
                 id: 10, nis: '12010', nisn: '0012345610', name: 'Kirana Rahma', avatar: 'KR', status: 'Belum',
-                form: { sikap_sp: '', desc_sp: '', sikap_so: '', desc_so: '', eskul: [], catatan: '' }
+                form: { sikap_sp: '', desc_sp: '', sikap_so: '', desc_so: '', eskul: [{ id: 1, nama: 'Pramuka', deskripsi: '' }, { id: 2, nama: 'Seni Tari', deskripsi: '' }], catatan: '' }
             },
             { 
                 id: 11, nis: '12011', nisn: '0012345611', name: 'Lukman Putra', avatar: 'LP', status: 'Selesai',
@@ -82,13 +83,13 @@
                     desc_sp: 'Sangat tekun dan rajin beribadah.', 
                     sikap_so: 'A (Sangat Baik)', 
                     desc_so: 'Disiplin dan sopan santun sangat baik.', 
-                    eskul: [],
+                    eskul: [{ id: 1, nama: 'Pramuka', deskripsi: '' }, { id: 2, nama: 'Seni Tari', deskripsi: '' }],
                     catatan: 'Anak yang cerdas dan berbudi luhur.'
                 }
             },
             { 
                 id: 12, nis: '12012', nisn: '0012345612', name: 'Maya Nurhaliza', avatar: 'MN', status: 'Belum',
-                form: { sikap_sp: '', desc_sp: '', sikap_so: '', desc_so: '', eskul: [], catatan: '' }
+                form: { sikap_sp: '', desc_sp: '', sikap_so: '', desc_so: '', eskul: [{ id: 1, nama: 'Pramuka', deskripsi: '' }, { id: 2, nama: 'Seni Tari', deskripsi: '' }], catatan: '' }
             },
             { 
                 id: 13, nis: '12013', nisn: '0012345613', name: 'Nanda Rizky', avatar: 'NR', status: 'Draft',
@@ -97,13 +98,13 @@
                     desc_sp: 'Ibadah teratur.', 
                     sikap_so: 'C (Cukup)', 
                     desc_so: 'Tingkatkan kedisiplinan mengumpulkan tugas.', 
-                    eskul: [],
+                    eskul: [{ id: 1, nama: 'Pramuka', deskripsi: '' }, { id: 2, nama: 'Seni Tari', deskripsi: '' }],
                     catatan: 'Jangan malas mencatat materi pembelajaran.'
                 }
             },
             { 
                 id: 15, nis: '12015', nisn: '0012345615', name: 'Putri Setiawan', avatar: 'PS', status: 'Belum',
-                form: { sikap_sp: '', desc_sp: '', sikap_so: '', desc_so: '', eskul: [], catatan: '' }
+                form: { sikap_sp: '', desc_sp: '', sikap_so: '', desc_so: '', eskul: [{ id: 1, nama: 'Pramuka', deskripsi: '' }, { id: 2, nama: 'Seni Tari', deskripsi: '' }], catatan: '' }
             },
             { 
                 id: 16, nis: '12016', nisn: '0012345616', name: 'Qiyamul Haq', avatar: 'QH', status: 'Selesai',
@@ -112,29 +113,20 @@
                     desc_sp: 'Nama mencerminkan sikap spiritualnya yang sangat kuat.', 
                     sikap_so: 'A (Sangat Baik)', 
                     desc_so: 'Kepemimpinan dan tanggung jawab luar biasa.', 
-                    eskul: [],
+                    eskul: [{ id: 1, nama: 'Pramuka', deskripsi: '' }, { id: 2, nama: 'Seni Tari', deskripsi: '' }],
                     catatan: 'Calon pemimpin masa depan.'
                 }
             },
             { 
                 id: 18, nis: '12018', nisn: '0012345618', name: 'Surya Bagaskara', avatar: 'SB', status: 'Belum',
-                form: { sikap_sp: '', desc_sp: '', sikap_so: '', desc_so: '', eskul: [], catatan: '' }
+                form: { sikap_sp: '', desc_sp: '', sikap_so: '', desc_so: '', eskul: [{ id: 1, nama: 'Pramuka', deskripsi: '' }, { id: 2, nama: 'Seni Tari', deskripsi: '' }], catatan: '' }
             },
         ],
         draftModalOpen: false,
         saveModalOpen: false,
         previewModalOpen: false,
-        eskulToDelete: null,
         deleteConfirmOpen: false,
         prestasiToDelete: null,
-        
-        addEskul() {
-            this.selectedStudent.form.eskul.push({ id: Date.now(), nama: '', ket: '' });
-        },
-
-        removeEskul(id) {
-            this.selectedStudent.form.eskul = this.selectedStudent.form.eskul.filter(e => e.id !== id);
-        },
 
         prestasiList: [
             { id: 1, jenis: 'Akademik', keterangan: 'Juara 1 Olimpiade Matematika Tingkat Kota' }
@@ -308,12 +300,9 @@
 
                     <!-- Section 2: Ekstrakurikuler -->
                     <div class="bg-white rounded-xl border border-[#e2e8f0] shadow-sm overflow-hidden">
-                        <div class="px-5 py-3 border-b border-[#e2e8f0] bg-[#f8fafc] flex items-center justify-between">
+                        <div class="px-5 py-3 border-b border-[#e2e8f0] bg-[#f8fafc]">
                             <h3 class="text-[14px] font-bold text-[#0f172a]">2. Ekstrakurikuler</h3>
-                            <button @click="addEskul()" :disabled="selectedStudent.status === 'Selesai'" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#eff6ff] text-[11px] font-bold text-[#1d4ed8] hover:bg-[#dbeafe] transition disabled:opacity-50">
-                                <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
-                                Tambah Eskul
-                            </button>
+                            <p class="mt-1 text-[12px] text-[#64748b]">Kegiatan sudah ditentukan sekolah. Wali kelas hanya mengisi deskripsi capaian siswa.</p>
                         </div>
                         <div class="p-5">
                             <div class="overflow-x-auto">
@@ -322,8 +311,7 @@
                                         <tr class="text-[11px] font-bold text-[#64748b] uppercase tracking-wider">
                                             <th class="text-left pb-3 w-[40px]">No</th>
                                             <th class="text-left pb-3">Kegiatan Ekstrakurikuler</th>
-                                            <th class="text-left pb-3 pl-4">Keterangan / Capaian</th>
-                                            <th class="pb-3 w-[40px]"></th>
+                                            <th class="text-left pb-3 pl-4">Deskripsi Capaian</th>
                                         </tr>
                                     </thead>
                                     <tbody class="divide-y divide-[#f1f5f9]">
@@ -331,21 +319,13 @@
                                             <tr>
                                                 <td class="py-3 text-[13px] font-medium text-[#64748b]" x-text="index + 1"></td>
                                                 <td class="py-3">
-                                                    <input type="text" x-model="e.nama" :readonly="selectedStudent.status === 'Selesai'" class="w-full h-9 rounded-lg border border-[#e2e8f0] px-3 text-[13px] focus:ring-2 focus:ring-[#3b82f6]/20 focus:border-[#3b82f6] outline-none transition readonly:bg-[#f8fafc]">
+                                                    <div class="flex h-10 items-center rounded-lg border border-[#e2e8f0] bg-[#f8fafc] px-3 text-[13px] font-semibold text-[#0f172a]">
+                                                        <span x-text="e.nama"></span>
+                                                    </div>
                                                 </td>
                                                 <td class="py-3 pl-4">
-                                                    <input type="text" x-model="e.ket" :readonly="selectedStudent.status === 'Selesai'" class="w-full h-9 rounded-lg border border-[#e2e8f0] px-3 text-[13px] focus:ring-2 focus:ring-[#3b82f6]/20 focus:border-[#3b82f6] outline-none transition readonly:bg-[#f8fafc]" placeholder="Cth: Sangat aktif dalam kegiatan perkemahan...">
+                                                    <textarea x-model="e.deskripsi" :readonly="selectedStudent.status === 'Selesai'" rows="2" class="w-full rounded-lg border border-[#e2e8f0] p-3 text-[13px] focus:ring-2 focus:ring-[#3b82f6]/20 focus:border-[#3b82f6] outline-none resize-none transition readonly:bg-[#f8fafc] readonly:text-[#94a3b8]" placeholder="Cth: Aktif mengikuti latihan rutin dan menunjukkan kerja sama yang baik..."></textarea>
                                                 </td>
-                                                <td class="py-3 text-right">
-                                                    <button @click="removeEskul(e.id)" :disabled="selectedStudent.status === 'Selesai'" class="p-1.5 text-[#94a3b8] hover:text-[#dc2626] transition disabled:hidden">
-                                                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        </template>
-                                        <template x-if="selectedStudent.form.eskul.length === 0">
-                                            <tr>
-                                                <td colspan="4" class="py-6 text-center text-[12px] text-[#94a3b8] italic">Belum ada data ekstrakurikuler yang ditambahkan.</td>
                                             </tr>
                                         </template>
                                     </tbody>

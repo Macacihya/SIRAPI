@@ -2,18 +2,18 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\RekapKehadiran;
+use Illuminate\Database\Seeder;
 
 class RekapKehadiranSeeder extends Seeder
 {
     public function run(): void
     {
-        // 2 hari sakit
-        RekapKehadiran::create(['raport_id' => 1, 'status' => 'sakit', 'keterangan' => 'Demam Berdarah']);
-        RekapKehadiran::create(['raport_id' => 1, 'status' => 'sakit', 'keterangan' => 'Masih tahap pemulihan']);
-        
-        // 1 hari izin
-        RekapKehadiran::create(['raport_id' => 1, 'status' => 'izin', 'keterangan' => 'Acara keluarga']);
+        RekapKehadiran::create([
+            'raport_id' => 1,
+            'sakit' => 2,
+            'izin' => 1,
+            'alpha' => 0,
+        ]);
     }
 }

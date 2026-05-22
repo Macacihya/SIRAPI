@@ -29,8 +29,7 @@ class RaportEkskulController extends Controller
                 Rule::unique('raport_ekskuls', 'ekstrakurikuler_id')
                     ->where('raport_id', $request->input('raport_id')),
             ],
-            'predikat' => 'nullable|in:A,B,C,D',
-            'keterangan' => 'nullable|string',
+            'deskripsi' => 'nullable|string',
         ]);
 
         RaportEkskul::create($validated);
@@ -51,8 +50,7 @@ class RaportEkskulController extends Controller
                     ->where('raport_id', $request->input('raport_id'))
                     ->ignore($raportEkskul->id),
             ],
-            'predikat' => 'nullable|in:A,B,C,D',
-            'keterangan' => 'nullable|string',
+            'deskripsi' => 'nullable|string',
         ]);
 
         $raportEkskul->update($validated);

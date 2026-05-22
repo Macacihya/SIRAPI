@@ -16,7 +16,8 @@ class RaportController extends Controller
             'tahunAjaran',
             'nilais.capaianKompetensis',
             'rekapKehadiran',
-            'nilaiSikap',
+            'nilaiSikaps.sikap',
+            'sikaps',
             'raportEkskuls.ekstrakurikuler',
         ])->latest()->get();
         $siswas = Siswa::with('kelas')->orderBy('nama_siswa')->get();

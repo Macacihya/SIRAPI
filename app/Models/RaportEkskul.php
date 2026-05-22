@@ -9,8 +9,7 @@ class RaportEkskul extends Model
     protected $fillable = [
         'raport_id',
         'ekstrakurikuler_id',
-        'predikat',
-        'keterangan',
+        'deskripsi',
     ];
 
     public function raport()

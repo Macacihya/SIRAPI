@@ -28,7 +28,7 @@
                 border-radius: 0 !important;
                 width: 210mm !important;
                 min-height: 297mm !important;
-                padding: 15mm 20mm !important;
+                padding: 16mm 24mm !important;
                 page-break-after: always;
                 display: flex;
                 flex-direction: column;
@@ -69,7 +69,7 @@
         }
         .rapor-table th {
             background: #f8fafc;
-            font-weight: 700;
+            font-weight: 400;
             text-align: center;
             font-size: 11px;
         }
@@ -94,7 +94,7 @@
         }
         .kehadiran-table th {
             background: #f8fafc;
-            font-weight: 600;
+            font-weight: 400;
         }
 
         .catatan-box {
@@ -105,8 +105,8 @@
         /* Identity Alignment Helpers */
         .id-row { display: flex; gap: 8px; }
         .id-label { width: 100px; flex-shrink: 0; color: #475569; }
-        .id-val { font-weight: 600; color: #0f172a; }
-        .id-val-main { font-weight: 800; text-transform: uppercase; }
+        .id-val { font-weight: 400; color: #0f172a; }
+        .id-val-main { font-weight: 400; text-transform: uppercase; }
     </style>
 </head>
 
@@ -180,39 +180,16 @@
     <div class="print-container mx-auto py-8">
         
         {{-- ──── HALAMAN 1 ──── --}}
-        <div class="rapor-page mb-8 rounded-lg bg-white p-8 shadow-xl sm:p-12 md:p-16">
+        <div class="rapor-page mb-8 rounded-lg bg-white px-10 py-8 shadow-xl sm:px-14 sm:py-12 md:px-24 md:py-16">
 
             {{-- ──── KOP SURAT (OFFICIAL SCHOOL ADMINISTRATION STANDARD) ──── --}}
-            <div class="header-font flex items-center justify-between border-b-[3px] border-double border-[#000] pb-3 mb-6">
-                <!-- Logo Kiri: Logo Daerah (Tut Wuri / Pemko) -->
-                <div class="flex-shrink-0 flex items-center">
-                    <img src="{{ asset('images/tutwuri.png') }}" alt="Logo Tut Wuri" class="h-[85px] w-auto">
-                </div>
-
-                <!-- Teks Tengah: Hirarki Administrasi -->
-                <div class="flex-1 text-center px-4">
-                    <h3 class="text-[15px] font-bold uppercase leading-tight">Pemerintah Kota Batam</h3>
-                    <h3 class="text-[15px] font-bold uppercase leading-tight">Dinas Pendidikan</h3>
-                    <h2 class="text-[20px] font-black uppercase tracking-wide mt-1">SD NEGERI 01 INDONESIA</h2>
-                    <div class="mt-2 text-[10px] leading-tight font-medium">
-                        <p>Alamat: Jl. Imajinasi No. 42, Kel. Digital, Kec. Batam Kota, Batam, 29461</p>
-                        <p>Telepon: (0778) 469856, Faks: (0778) 463620</p>
-                        <p>Laman: www.sdn01indonesia.sch.id, Surel: info@sdn01indonesia.sch.id</p>
-                    </div>
-                </div>
-
-                <!-- Logo Kanan: Logo Sekolah / Sertifikasi -->
-                <div class="flex-shrink-0 flex items-center">
-                    <img src="{{ asset('images/logo-sekolah.png') }}" alt="Logo Sekolah" class="h-[85px] w-auto">
-                </div>
-            </div>
+            
 
             {{-- ──── JUDUL DOKUMEN ──── --}}
-            <div class="text-center mb-8">
-                <h2 class="text-[18px] font-black uppercase tracking-[0.05em] text-[#0f172a]">Laporan Hasil Belajar (Rapor)</h2>
-            </div>
-
             {{-- ──── IDENTITAS SISWA (DATA DINAMIS) ──── --}}
+            <div class="mt-10 text-center mb-20">
+                <h3 class="text-[22px] font-bold uppercase tracking-[0.05em] text-[#0f172a]">Laporan Hasil Belajar (Rapor)</h3>
+            </div>
             <div class="grid grid-cols-2 gap-x-12 text-[12px]">
                 <div class="space-y-1">
                     <div class="id-row">
@@ -254,7 +231,7 @@
 
             {{-- ──── A. PENGETAHUAN & KETERAMPILAN ──── --}}
             <div class="mt-10">
-                <h3 class="text-[13px] font-black uppercase text-[#0f172a]">A. Pengetahuan & Keterampilan</h3>
+                <h3 class="text-[13px] font-bold uppercase text-[#0f172a]">A. Pengetahuan & Keterampilan</h3>
                 <div class="mt-3 overflow-x-auto">
                     <table class="rapor-table">
                         <thead>
@@ -268,9 +245,9 @@
                         <tbody>
                             @foreach ($mapel as $m)
                                 <tr>
-                                    <td class="text-center font-semibold">{{ $m['no'] }}</td>
-                                    <td class="font-semibold">{{ $m['nama'] }}</td>
-                                    <td class="text-center font-black text-[14px]">{{ $m['nilai'] }}</td>
+                                    <td class="text-center">{{ $m['no'] }}</td>
+                                    <td>{{ $m['nama'] }}</td>
+                                    <td class="text-center text-[14px]">{{ $m['nilai'] }}</td>
                                     <td class="text-[11px] leading-[1.6] text-[#334155]">
                                         {{ $m['capaian'] }}
                                     </td>
@@ -279,8 +256,8 @@
                         </tbody>
                         <tfoot>
                             <tr>
-                                <td colspan="2" class="text-right font-bold">Nilai Rata-rata</td>
-                                <td class="text-center font-black text-[14px]">{{ number_format($rataRata, 2) }}</td>
+                                <td colspan="2" class="text-right">Nilai Rata-rata</td>
+                                <td class="text-center text-[14px]">{{ number_format($rataRata, 2) }}</td>
                                 <td></td>
                             </tr>
                         </tfoot>
@@ -290,12 +267,12 @@
                 {{-- Peringkat & Jumlah Siswa --}}
                 <div class="mt-2 flex items-center gap-6 rounded bg-[#f8fafc] px-4 py-2.5 text-[12px] ring-1 ring-[#1e293b]">
                     <div class="flex items-center gap-2">
-                        <span class="font-semibold text-[#475569]">Peringkat:</span>
-                        <span class="font-black text-[#0f172a]">3</span>
+                        <span class="text-[#475569]">Peringkat:</span>
+                        <span class="text-[#0f172a]">3</span>
                     </div>
                     <div class="flex items-center gap-2">
-                        <span class="font-semibold text-[#475569]">Jumlah Siswa:</span>
-                        <span class="font-black text-[#0f172a]">32</span>
+                        <span class="text-[#475569]">Jumlah Siswa:</span>
+                        <span class="text-[#0f172a]">32</span>
                     </div>
                 </div>
             </div>
@@ -307,11 +284,12 @@
         </div>
 
         {{-- ──── HALAMAN 2 ──── --}}
-        <div class="rapor-page page-break rounded-lg bg-white p-8 shadow-xl sm:p-12 md:p-16">
+        <div class="rapor-page page-break rounded-lg bg-white px-10 py-8 shadow-xl sm:px-14 sm:py-12 md:px-24 md:py-16">
 
-            {{-- ──── B. EKSTRAKURIKULER ──── --}}
-            <div class="mb-10">
-                <h3 class="text-[13px] font-black uppercase text-[#0f172a]">B. Ekstrakurikuler</h3>
+
+            {{-- ──── C. SIKAP & D. KEHADIRAN ──── --}}
+            <div class="mt-4">
+                <h3 class="text-[13px] font-bold uppercase text-[#0f172a]">B. Ekstrakurikuler</h3>
                 <div class="mt-3">
                     <table class="rapor-table">
                         <thead>
@@ -325,8 +303,8 @@
                             @forelse ($eskul as $index => $e)
                                 <tr>
                                     <td class="text-center">{{ $index + 1 }}</td>
-                                    <td class="font-semibold">{{ $e['nama'] }}</td>
-                                    <td class="text-[11px]">{{ $e['ket'] ?: '—' }}</td>
+                                    <td>{{ $e['nama'] }}</td>
+                                    <td class="text-[11px]">{{ $e['ket'] ?: '-' }}</td>
                                 </tr>
                             @empty
                                 <tr>
@@ -338,17 +316,16 @@
                 </div>
             </div>
 
-            {{-- ──── C. SIKAP & D. KEHADIRAN ──── --}}
-            <div class="grid gap-6 sm:grid-cols-2">
+            <div class="mt-8 grid gap-6 sm:grid-cols-2">
                 {{-- C. Sikap --}}
                 <div>
-                    <h3 class="text-[13px] font-black uppercase text-[#0f172a]">C. Sikap</h3>
+                    <h3 class="text-[13px] font-bold uppercase text-[#0f172a]">C. Sikap</h3>
                     <div class="mt-3 space-y-3">
                         {{-- Sikap Spiritual --}}
                         <div class="sikap-box rounded">
                             <div class="flex items-center justify-between">
-                                <p class="text-[11px] font-bold text-[#475569]">1. SIKAP SPIRITUAL</p>
-                                <p class="text-[11px] font-black text-[#0f172a]">A (SANGAT BAIK)</p>
+                                <p class="text-[11px] text-[#475569]">1. SIKAP SPIRITUAL</p>
+                                <p class="text-[11px] text-[#0f172a]">A (SANGAT BAIK)</p>
                             </div>
                             <p class="mt-2 text-[11px] italic leading-[1.7] text-[#334155]">"Ananda <strong>{{ $studentFirstName }}</strong> sangat baik dalam ketaatan beribadah, berperilaku syukur, dan selalu berdoa."</p>
                         </div>
@@ -356,8 +333,8 @@
                         {{-- Sikap Sosial --}}
                         <div class="sikap-box rounded">
                             <div class="flex items-center justify-between">
-                                <p class="text-[11px] font-bold text-[#475569]">2. SIKAP SOSIAL</p>
-                                <p class="text-[11px] font-black text-[#0f172a]">A (SANGAT BAIK)</p>
+                                <p class="text-[11px] text-[#475569]">2. SIKAP SOSIAL</p>
+                                <p class="text-[11px] text-[#0f172a]">A (SANGAT BAIK)</p>
                             </div>
                             <p class="mt-2 text-[11px] italic leading-[1.7] text-[#334155]">"Menunjukkan sikap jujur, disiplin, dan tanggung jawab yang sangat baik dalam berinteraksi."</p>
                         </div>
@@ -366,21 +343,21 @@
 
                 {{-- D. Kehadiran --}}
                 <div>
-                    <h3 class="text-[13px] font-black uppercase text-[#0f172a]">D. Kehadiran</h3>
+                    <h3 class="text-[13px] font-bold uppercase text-[#0f172a]">D. Kehadiran</h3>
                     <div class="mt-3">
                         <table class="kehadiran-table w-full">
                             <tbody>
                                 <tr>
-                                    <td class="font-semibold text-[#475569]">Sakit</td>
-                                    <td class="text-center font-black text-[#0f172a] w-[80px]">1 Hari</td>
+                                    <td class="text-[#475569]">Sakit</td>
+                                    <td class="text-center text-[#0f172a] w-[80px]">1 Hari</td>
                                 </tr>
                                 <tr>
-                                    <td class="font-semibold text-[#475569]">Izin</td>
-                                    <td class="text-center font-black text-[#0f172a]">0 Hari</td>
+                                    <td class="text-[#475569]">Izin</td>
+                                    <td class="text-center text-[#0f172a]">0 Hari</td>
                                 </tr>
                                 <tr>
-                                    <td class="font-semibold text-[#475569]">Tanpa Keterangan</td>
-                                    <td class="text-center font-black text-[#0f172a]">0 Hari</td>
+                                    <td class="text-[#475569]">Tanpa Keterangan</td>
+                                    <td class="text-center text-[#0f172a]">0 Hari</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -389,28 +366,28 @@
             </div>
 
             {{-- ──── E. CATATAN WALI KELAS ──── --}}
-            <div class="mt-10">
-                <h3 class="text-[13px] font-black uppercase text-[#0f172a]">E. Catatan Wali Kelas</h3>
+            <div class="mt-8">
+                <h3 class="text-[13px] font-bold uppercase text-[#0f172a]">E. Catatan Wali Kelas</h3>
                 <div class="catatan-box mt-3 rounded">
                     <p class="text-[12px] italic leading-[1.8] text-[#334155]">"Selamat <strong>{{ $studentFirstName }}</strong>! Pertahankan semangat belajarmu, terutama pada mata pelajaran Matematika. Sikap kemandirianmu di kelas patut dicontoh oleh teman-teman lainnya."</p>
                 </div>
             </div>
 
             {{-- ──── TANDA TANGAN (Triangular Layout) ──── --}}
-            <div class="mt-6 pt-4">
+            <div class="mt-8 pt-4">
                 <div class="grid grid-cols-2 gap-8 text-center text-[11px]">
                     {{-- Baris 1: Kiri & Kanan --}}
                     <div>
                         <p class="text-[#475569]">Mengetahui</p>
-                        <p class="font-bold text-[#475569]">Orang Tua/Wali,</p>
+                        <p class="text-[#475569]">Orang Tua/Wali,</p>
                         <div class="mt-12 border-b border-[#1e293b] mx-auto w-[160px]"></div>
                     </div>
 
                     <div>
                         <p class="text-[#475569]">Kota Digital, {{ now()->translatedFormat('d F Y') }}</p>
-                        <p class="font-bold text-[#475569]">Wali Kelas,</p>
+                        <p class="text-[#475569]">Wali Kelas,</p>
                         <div class="mt-10">
-                            <p class="text-[13px] font-bold text-[#0f172a] underline underline-offset-4">{{ auth()->user()->nama ?? 'Heryanto Pratama, S.Pd.' }}</p>
+                            <p class="text-[13px] text-[#0f172a] underline underline-offset-4">{{ auth()->user()->nama ?? 'Heryanto Pratama, S.Pd.' }}</p>
                             <p class="mt-0.5 text-[9px] text-[#64748b]">NIP. 198501012010012001</p>
                         </div>
                     </div>
@@ -419,9 +396,9 @@
                 {{-- Baris 2: Tengah (Kepala Sekolah) --}}
                 <div class="mt-8 text-center text-[11px]">
                     <p class="text-[#475569]">Mengetahui,</p>
-                    <p class="font-bold text-[#475569]">Kepala Sekolah,</p>
+                    <p class="text-[#475569]">Kepala Sekolah,</p>
                     <div class="mt-12">
-                        <p class="text-[13px] font-bold text-[#0f172a] underline underline-offset-4">Dr. Ahmad Hidayat, M.Pd.</p>
+                        <p class="text-[13px] text-[#0f172a] underline underline-offset-4">Dr. Ahmad Hidayat, M.Pd.</p>
                         <p class="mt-0.5 text-[9px] text-[#64748b]">NIP. 197003121995031002</p>
                     </div>
                 </div>
@@ -437,3 +414,4 @@
 
 </body>
 </html>
+
