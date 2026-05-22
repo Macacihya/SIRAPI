@@ -11,6 +11,8 @@
             showAdd: false,
             showEdit: false,
             showDelete: false,    
+            showDeleteAll: false,
+            selectAll: false,
             editData: {},
             deleteData: {},
             form: { kode_mapel: '', nama_mapel: '', kkm: 70 },
@@ -22,6 +24,8 @@
                 let s = this.search.toLowerCase();
                 return this.mapel.filter(m => m.nama_mapel.toLowerCase().includes(s) || m.kode_mapel.toLowerCase().includes(s));
             },
+            get selectedCount() { return this.mapel.filter(m => m.selected).length; },
+            toggleAll() { this.selectAll = !this.selectAll; this.filtered.forEach(m => m.selected = this.selectAll); },
             get totalPages() { return Math.ceil(this.filtered.length / this.perPage) || 1; },
             get paginated() {
                 const start = (this.currentPage - 1) * this.perPage;
@@ -56,6 +60,11 @@
             confirmDelete() {
                 document.getElementById('formHapusMapel').action = '/mata-pelajaran/' + this.deleteData.kode_mapel;
                 document.getElementById('formHapusMapel').submit();
+            },
+            doDeleteAll() {
+                this.mapel = this.mapel.filter(m => !m.selected);
+                this.showDeleteAll = false; this.selectAll = false;
+                this.$dispatch('toast', { message: 'Semua mata pelajaran yang dipilih berhasil dihapus.', type: 'error' });
             }
         }));
     });
@@ -87,15 +96,19 @@
     </div>
     @endif
 
-    {{-- SEARCH --}}
-    <div class="flex flex-wrap items-center gap-3">
-        <div class="relative flex-1 min-w-[240px]"><svg class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#94a3b8]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8" stroke-width="2"></circle><path d="m21 21-4.35-4.35" stroke-width="2" stroke-linecap="round"></path></svg><input x-model="search" @input="resetPage()" class="h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-white pl-10 pr-4 text-[13px] placeholder-[#94a3b8] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20" placeholder="Cari kode atau nama mapel..."></div>
+    {{-- SEARCH & ACTIONS --}}
+    <div class="flex flex-wrap items-center justify-between gap-3">
+        <div class="relative flex-1 min-w-[240px] max-w-sm"><svg class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#94a3b8]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8" stroke-width="2"></circle><path d="m21 21-4.35-4.35" stroke-width="2" stroke-linecap="round"></path></svg><input x-model="search" @input="resetPage()" class="h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-white pl-10 pr-4 text-[13px] placeholder-[#94a3b8] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20" placeholder="Cari kode atau nama mapel..."></div>
+        <div class="flex items-center gap-3">
+            <x-btn-delete-all />
+        </div>
     </div>
 
     {{-- TABLE --}}
     <div class="overflow-hidden rounded-[14px] border border-[#e2e8f0] bg-white">
         <table class="w-full text-[13px]">
             <thead><tr class="border-b border-[#e2e8f0] bg-[#f8fafc]">
+                <th class="w-10 px-4 py-3"><x-checkbox @change="toggleAll()" :checked="selectAll" /></th>
                 <th class="px-6 py-3 text-left text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">No</th>
                 <th class="px-6 py-3 text-left text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Kode Mapel</th>
                 <th class="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Nama Mata Pelajaran</th>
@@ -105,6 +118,7 @@
             <tbody>
                 <template x-for="(m, index) in paginated" :key="m.kode_mapel">
                     <tr class="border-b border-[#f1f5f9] transition hover:bg-[#f8fafc]">
+                        <td class="px-4 py-3.5"><x-checkbox x-model="m.selected" /></td>
                         <td class="px-6 py-4 font-semibold text-[#64748b]" x-text="((currentPage - 1) * perPage) + index + 1"></td>
                         <td class="px-6 py-4"><span class="rounded bg-[#f1f5f9] px-2 py-1 font-mono text-[11px] font-semibold text-[#0f172a]" x-text="m.kode_mapel"></span></td>
                         <td class="px-4 py-4"><p class="font-bold text-[#0f172a]" x-text="m.nama_mapel"></p></td>
@@ -121,7 +135,7 @@
                         </td>
                     </tr>
                 </template>
-                <tr x-show="filtered.length === 0"><td colspan="4" class="py-12 text-center text-[14px] text-[#94a3b8]">Tidak ada data mapel ditemukan.</td></tr>
+                <tr x-show="filtered.length === 0"><td colspan="6" class="py-12 text-center text-[14px] text-[#94a3b8]">Tidak ada data mapel ditemukan.</td></tr>
             </tbody>
         </table>
         <div class="flex items-center justify-between border-t border-[#e2e8f0] px-6 py-3">
@@ -183,6 +197,16 @@
         message="Apakah Anda yakin ingin menghapus <strong x-text='deleteData.nama_mapel'></strong> dari daftar sistem?"
         confirmText="Ya, Hapus"
         confirmAction="confirmDelete()"
+    />
+
+    {{-- ═══ MODAL: Hapus Semua ═══ --}}
+    <x-confirm-dialog
+        alpineShow="showDeleteAll"
+        type="danger"
+        title="Hapus Semua Data Terpilih?"
+        message="Sebanyak <strong x-text='selectedCount'></strong> data mapel akan dihapus secara permanen. Anda yakin?"
+        confirmText="Ya, Hapus Semua"
+        confirmAction="doDeleteAll()"
     />
 
 </div>

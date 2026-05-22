@@ -14,6 +14,8 @@ document.addEventListener('alpine:init', () => {
         showAdd: false,
         showEdit: false,
         showDelete: false,
+        showDeleteAll: false,
+        selectAll: false,
         deleteTarget: null,
         showImport: false,
         loadingImport: false,
@@ -96,6 +98,8 @@ document.addEventListener('alpine:init', () => {
             }
             return r;
         },
+        get selectedCount() { return this.gurus.filter(g => g.selected).length; },
+        toggleAll() { this.selectAll = !this.selectAll; this.filtered.forEach(g => g.selected = this.selectAll); },
         selectUser(u) {
             this.form.user_id = u.id; this.form.user_name = u.name; this.form.user_email = u.email; this.form.username = u.username || '';
             this.userSearch = u.name; this.dropdownOpen = false;
@@ -158,6 +162,11 @@ document.addEventListener('alpine:init', () => {
         doDelete() {
             document.getElementById('formHapusGuru').action = '/guru/' + this.deleteTarget.id;
             document.getElementById('formHapusGuru').submit();
+        },
+        doDeleteAll() {
+            this.gurus = this.gurus.filter(g => !g.selected);
+            this.showDeleteAll = false; this.selectAll = false;
+            this.$dispatch('toast', { message: 'Semua guru yang dipilih berhasil dihapus.', type: 'error' });
         },
         downloadTemplate() {
             let csv = 'Nama,Email,NIP_NUPTK,Peran,Mapel_Diampu,Kelas_Diampu,Kelas_Walikelas\n';
@@ -252,20 +261,25 @@ document.addEventListener('alpine:init', () => {
             </div>
         </div>
 
-        {{-- ─── SEARCH & FILTER ─── --}}
-        <div class="flex flex-wrap items-center gap-3">
-            <div class="relative flex-1 min-w-[240px]">
-                <svg class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#94a3b8]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <circle cx="11" cy="11" r="8" stroke-width="2"></circle>
-                    <path d="m21 21-4.35-4.35" stroke-width="2" stroke-linecap="round"></path>
-                </svg>
-                <input x-model="search" class="h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-white pl-10 pr-4 text-[13px] placeholder-[#94a3b8] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20" placeholder="Cari nama atau NIP...">
+        {{-- ─── SEARCH & FILTER & ACTIONS ─── --}}
+        <div class="flex flex-wrap items-center justify-between gap-3">
+            <div class="flex flex-wrap items-center gap-3">
+                <div class="relative flex-1 min-w-[240px]">
+                    <svg class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#94a3b8]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <circle cx="11" cy="11" r="8" stroke-width="2"></circle>
+                        <path d="m21 21-4.35-4.35" stroke-width="2" stroke-linecap="round"></path>
+                    </svg>
+                    <input x-model="search" class="h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-white pl-10 pr-4 text-[13px] placeholder-[#94a3b8] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20" placeholder="Cari nama atau NIP...">
+                </div>
+                <select x-model="roleFilter" class="h-[42px] appearance-none rounded-[8px] border border-[#e2e8f0] bg-white px-4 pr-10 text-[13px] font-medium text-[#334155] outline-none focus:border-[#3b82f6]">
+                    <option>Semua</option>
+                    <option>Guru Mapel</option>
+                    <option>Wali Kelas</option>
+                </select>
             </div>
-            <select x-model="roleFilter" class="h-[42px] appearance-none rounded-[8px] border border-[#e2e8f0] bg-white px-4 pr-10 text-[13px] font-medium text-[#334155] outline-none focus:border-[#3b82f6]">
-                <option>Semua</option>
-                <option>Guru Mapel</option>
-                <option>Wali Kelas</option>
-            </select>
+            <div class="flex items-center gap-3">
+                <x-btn-delete-all />
+            </div>
         </div>
 
         {{-- ─── TABLE ─── --}}
@@ -273,6 +287,7 @@ document.addEventListener('alpine:init', () => {
             <table class="w-full text-[13px]">
                 <thead>
                     <tr class="border-b border-[#e2e8f0] bg-[#f8fafc]">
+                        <th class="w-10 px-4 py-3"><x-checkbox @change="toggleAll()" :checked="selectAll" /></th>
                         <th class="px-6 py-3 text-left text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">No</th>
                         <th class="px-6 py-3 text-left text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Identitas</th>
                         <th class="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">NIP / NUPTK</th>
@@ -286,6 +301,7 @@ document.addEventListener('alpine:init', () => {
                 <tbody>
                     <template x-for="(g, index) in filtered" :key="g.nip">
                         <tr class="border-b border-[#f1f5f9] transition hover:bg-[#f8fafc]">
+                            <td class="px-4 py-3.5"><x-checkbox x-model="g.selected" /></td>
                             <td class="px-6 py-4 font-semibold text-[#64748b]" x-text="{{ $gurus->firstItem() ?? 1 }} + index"></td>
                             <td class="px-6 py-4">
                                 <div class="flex items-center gap-3">
@@ -322,7 +338,7 @@ document.addEventListener('alpine:init', () => {
                         </tr>
                     </template>
                     <tr x-show="filtered.length === 0">
-                        <td colspan="8" class="py-12 text-center">
+                        <td colspan="9" class="py-12 text-center">
                             <p class="text-[14px] text-[#94a3b8]">Tidak ada data guru ditemukan.</p>
                             <button @click="search = ''; roleFilter = 'Semua'" class="mt-4 rounded-lg border border-[#e2e8f0] px-4 py-2 text-[12px] font-bold text-[#475569] transition hover:bg-[#f1f5f9]">Reset Pencarian</button>
                         </td>
@@ -620,6 +636,16 @@ document.addEventListener('alpine:init', () => {
         message="Data guru <strong x-text='deleteTarget?.name || deleteTarget?.nama'></strong> beserta akun user terkait akan dihapus secara permanen."
         confirmText="Ya, Hapus"
         confirmAction="doDelete()"
+    />
+
+    {{-- ═══ MODAL: Hapus Semua ═══ --}}
+    <x-confirm-dialog
+        alpineShow="showDeleteAll"
+        type="danger"
+        title="Hapus Semua Data Terpilih?"
+        message="Sebanyak <strong x-text='selectedCount'></strong> data guru akan dihapus secara permanen. Anda yakin?"
+        confirmText="Ya, Hapus Semua"
+        confirmAction="doDeleteAll()"
     />
 
     </div>
