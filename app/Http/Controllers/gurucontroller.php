@@ -114,14 +114,10 @@ class GuruController extends Controller
             ->values();
         $sekolahs = Sekolah::all();
 
-<<<<<<< Updated upstream
         // Riwayat status guru
         $riwayatGuru = \App\Models\RiwayatStatusGuru::with('guru.user')->orderBy('tanggal_perubahan', 'desc')->take(20)->get();
 
-        return view('pages.guru-tendik.index', compact('gurus', 'daftarMapel', 'sekolahs', 'riwayatGuru'));
-=======
-        return view('pages.guru-tendik.index', compact('gurus', 'daftarMapel', 'daftarKelas', 'daftarUserGuru', 'sekolahs'));
->>>>>>> Stashed changes
+        return view('pages.guru-tendik.index', compact('gurus', 'daftarMapel', 'daftarKelas', 'daftarUserGuru', 'sekolahs', 'riwayatGuru'));
     }
 
     public function create()

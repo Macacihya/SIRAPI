@@ -5,6 +5,8 @@ namespace Tests\Feature\Auth;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use App\Models\User;
+use App\Models\Guru;
+use App\Models\Sekolah;
 
 class LoginRoleTest extends TestCase
 {
@@ -15,7 +17,7 @@ class LoginRoleTest extends TestCase
         $response = $this->get('/login');
 
         $response->assertStatus(200);
-        $response->assertSee('Sistem Informasi');
+        $response->assertSee('SIRAPI');
     }
 
     public function test_admin_bisa_login_dan_masuk_dashboard(): void
@@ -57,9 +59,18 @@ class LoginRoleTest extends TestCase
     public function test_walikelas_bisa_login_menggunakan_nip(): void
     {
         $walikelas = User::factory()->create([
-            'nip' => '198001012010011001',
             'password' => bcrypt('password123'),
             'role' => 'walikelas',
+        ]);
+        $sekolah = Sekolah::create([
+            'npsn' => '12345678',
+            'nama_sekolah' => 'Sekolah Test',
+            'alamat' => 'Alamat Test',
+        ]);
+        Guru::create([
+            'user_id' => $walikelas->id,
+            'nip' => '198001012010011001',
+            'sekolah_id' => $sekolah->id,
         ]);
 
         $response = $this->post('/login', [

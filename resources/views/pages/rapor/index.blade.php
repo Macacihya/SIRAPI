@@ -425,7 +425,7 @@
                 message="Rapor <strong x-text='selectedStudent.name'></strong> akan dikunci. Data yang sudah final tidak dapat diubah lagi dan siap untuk dicetak."
                 confirmText="Ya, Finalisasi"
                 confirmAction="submitToBackend()"
-                :disabledCondition="`hasMissingSubjectGrades || isFormIncomplete`"
+                disabledCondition="hasMissingSubjectGrades || isFormIncomplete"
                 disabledText="Belum Lengkap"
             />
 

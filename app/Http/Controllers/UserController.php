@@ -120,15 +120,11 @@ class UserController extends Controller
             'roles.*'  => 'in:GURU MAPEL,WALI KELAS',
         ]);
 
-<<<<<<< Updated upstream
         $role = $user->role;
         if ($user->role !== 'admin') {
+            $validated['roles'] = $this->normalizeGuruRoles($validated['roles']);
             $role = in_array('WALI KELAS', $validated['roles']) ? 'walikelas' : 'guru';
         }
-=======
-        $validated['roles'] = $this->normalizeGuruRoles($validated['roles']);
-        $role = in_array('WALI KELAS', $validated['roles']) ? 'walikelas' : 'guru';
->>>>>>> Stashed changes
 
         DB::transaction(function () use ($user, $validated, $role) {
             $updateData = [

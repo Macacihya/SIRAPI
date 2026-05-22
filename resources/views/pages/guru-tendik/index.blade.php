@@ -269,9 +269,6 @@ document.addEventListener('alpine:init', () => {
         </div>
 
         {{-- ─── TABLE ─── --}}
-<<<<<<< Updated upstream
-        <x-data-table :headers="['Identitas', 'NIP / NUPTK', 'Peran', 'Mapel']">
-=======
         <div class="overflow-hidden rounded-[14px] border border-[#e2e8f0] bg-white">
             <table class="w-full text-[13px]">
                 <thead>
@@ -286,7 +283,6 @@ document.addEventListener('alpine:init', () => {
                     </tr>
                 </thead>
                 <tbody>
->>>>>>> Stashed changes
                     <template x-for="g in filtered" :key="g.nip">
                         <tr class="border-b border-[#f1f5f9] transition hover:bg-[#f8fafc]">
                             <td class="px-6 py-4">
@@ -329,7 +325,8 @@ document.addEventListener('alpine:init', () => {
                             <button @click="search = ''; roleFilter = 'Semua'" class="mt-4 rounded-lg border border-[#e2e8f0] px-4 py-2 text-[12px] font-bold text-[#475569] transition hover:bg-[#f1f5f9]">Reset Pencarian</button>
                         </td>
                     </tr>
-        </x-data-table>
+                </tbody>
+            </table>
             <div class="border-t border-[#e2e8f0] px-6 py-4">
                 {{ $gurus->links() }}
             </div>

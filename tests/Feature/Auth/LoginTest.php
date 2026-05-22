@@ -31,7 +31,7 @@ class LoginTest extends TestCase
 
         $this->get(route('dashboard'))
             ->assertOk()
-            ->assertSeeText('Selamat datang, Administrator!');
+            ->assertSeeText('Selamat datang di SIRAPI');
     }
 
     public function test_user_cannot_login_with_wrong_role(): void
@@ -56,7 +56,7 @@ class LoginTest extends TestCase
     public function test_guest_is_redirected_to_login_when_opening_dashboard(): void
     {
         $this->get(route('dashboard'))
-            ->assertRedirect(route('login'));
+            ->assertRedirect('/');
     }
 
     public function test_authenticated_user_is_redirected_from_login_page(): void

@@ -23,6 +23,8 @@
     'confirmText'   => 'Ya, Hapus',
     'confirmAction' => '',
     'confirmColor'  => '',
+    'disabledCondition' => '',
+    'disabledText' => 'Tidak Tersedia',
 ])
 
 @php
@@ -60,7 +62,17 @@
             </div>
             <div class="flex gap-3 border-t border-[#e2e8f0] bg-[#f8fafc] px-6 py-4 rounded-b-2xl">
                 <button @click="{{ $alpineShow }} = false" class="flex-1 rounded-lg border border-[#e2e8f0] bg-white py-2.5 text-[12px] font-bold text-[#475569]">Batal</button>
-                <button @click="{{ $confirmAction }}" class="flex-1 rounded-lg {{ $btnColor }} py-2.5 text-[12px] font-bold text-white">{{ $confirmText }}</button>
+                <button
+                    @click="{{ $confirmAction }}"
+                    @if($disabledCondition) :disabled="{{ $disabledCondition }}" @endif
+                    class="flex-1 rounded-lg {{ $btnColor }} py-2.5 text-[12px] font-bold text-white disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                    @if($disabledCondition)
+                        <span x-text="({{ $disabledCondition }}) ? '{{ $disabledText }}' : '{{ $confirmText }}'"></span>
+                    @else
+                        {{ $confirmText }}
+                    @endif
+                </button>
             </div>
         </div>
     </div>

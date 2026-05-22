@@ -39,6 +39,16 @@ class User extends Authenticatable
 
     // ─── ISA Relations ───────────────────────────
 
+    public function getNameAttribute(): ?string
+    {
+        return $this->attributes['nama'] ?? null;
+    }
+
+    public function setNameAttribute(?string $value): void
+    {
+        $this->attributes['nama'] = $value;
+    }
+
     public function admin()
     {
         return $this->hasOne(Admin::class, 'user_id');
