@@ -8,15 +8,8 @@ class RekapKehadiran extends Model
 {
     protected $fillable = [
         'raport_id',
-        'sakit',
-        'izin',
-        'alpha',
-    ];
-
-    protected $casts = [
-        'sakit' => 'integer',
-        'izin' => 'integer',
-        'alpha' => 'integer',
+        'status',       // sakit | izin | alpha
+        'keterangan',   // opsional
     ];
 
     public function raport()
@@ -24,3 +17,4 @@ class RekapKehadiran extends Model
         return $this->belongsTo(Raport::class);
     }
 }
+

@@ -2,63 +2,62 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Raport;
 use App\Models\RekapKehadiran;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 
 class RekapKehadiranController extends Controller
 {
-    public function index()
-    {
-        $rekapKehadirans = RekapKehadiran::with('raport.siswa.kelas')->latest()->get();
-        $raports = Raport::with(['siswa', 'tahunAjaran'])->latest()->get();
-
-        return view('pages.kehadiran.index', compact('rekapKehadirans', 'raports'));
-    }
-
-    public function store(Request $request)
+    /**
+     * Sinkronisasi rekap kehadiran.
+     * Mengkonversi UI input (sakit: 2, izin: 0, alpha: 1) 
+     * menjadi multiple row di tabel rekap_kehadirans (1 baris per absen).
+     */
+    public function sync(Request $request)
     {
         $validated = $request->validate([
-            'raport_id' => 'required|exists:raports,id|unique:rekap_kehadirans,raport_id',
-            'sakit' => 'required|integer|min:0',
-            'izin' => 'required|integer|min:0',
-            'alpha' => 'required|integer|min:0',
+            'raport_id' => 'required|exists:raports,id',
+            'sakit'     => 'required|integer|min:0',
+            'ket_sakit' => 'nullable|string|max:255',
+            'izin'      => 'required|integer|min:0',
+            'ket_izin'  => 'nullable|string|max:255',
+            'alpha'     => 'required|integer|min:0',
+            'ket_alpha' => 'nullable|string|max:255',
         ]);
 
-        RekapKehadiran::create($validated);
+        // Hapus data absen lama untuk raport ini
+        RekapKehadiran::where('raport_id', $validated['raport_id'])->delete();
 
-        return redirect()
-            ->route('kehadiran')
-            ->with('success', 'Rekap kehadiran berhasil ditambahkan.');
-    }
+        // Insert row sesuai jumlah sakit
+        for ($i = 0; $i < $validated['sakit']; $i++) {
+            RekapKehadiran::create([
+                'raport_id'  => $validated['raport_id'],
+                'status'     => 'sakit',
+                'keterangan' => $validated['ket_sakit']
+            ]);
+        }
 
-    public function update(Request $request, RekapKehadiran $rekapKehadiran)
-    {
-        $validated = $request->validate([
-            'raport_id' => [
-                'required',
-                'exists:raports,id',
-                Rule::unique('rekap_kehadirans', 'raport_id')->ignore($rekapKehadiran->id),
-            ],
-            'sakit' => 'required|integer|min:0',
-            'izin' => 'required|integer|min:0',
-            'alpha' => 'required|integer|min:0',
+        // Insert row sesuai jumlah izin
+        for ($i = 0; $i < $validated['izin']; $i++) {
+            RekapKehadiran::create([
+                'raport_id'  => $validated['raport_id'],
+                'status'     => 'izin',
+                'keterangan' => $validated['ket_izin']
+            ]);
+        }
+
+        // Insert row sesuai jumlah alpha
+        for ($i = 0; $i < $validated['alpha']; $i++) {
+            RekapKehadiran::create([
+                'raport_id'  => $validated['raport_id'],
+                'status'     => 'alpha',
+                'keterangan' => $validated['ket_alpha']
+            ]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Kehadiran berhasil disimpan.'
         ]);
-
-        $rekapKehadiran->update($validated);
-
-        return redirect()
-            ->route('kehadiran')
-            ->with('success', 'Rekap kehadiran berhasil diperbarui.');
-    }
-
-    public function destroy(RekapKehadiran $rekapKehadiran)
-    {
-        $rekapKehadiran->delete();
-
-        return redirect()
-            ->route('kehadiran')
-            ->with('success', 'Rekap kehadiran berhasil dihapus.');
     }
 }
+

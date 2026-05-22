@@ -19,12 +19,13 @@
                         { id: 1, nama: 'Pramuka', ket: 'Sangat aktif dalam kegiatan perkemahan.' },
                         { id: 2, nama: 'Seni Tari', ket: 'Mampu memperagakan gerak dasar tari daerah.' }
                     ],
-                    catatan: 'Tingkatkan terus prestasimu, pertahankan semangat belajarnya!'
+                    catatan: 'Tingkatkan terus prestasimu, pertahankan semangat belajarnya!',
+                    sakit: 2, izin: 0, alpha: 1
                 }
             },
             { 
                 id: 14, nis: '12014', nisn: '0012345614', name: 'Oscar Permana', avatar: 'OP', status: 'Belum',
-                form: { sikap_sp: '', desc_sp: '', sikap_so: '', desc_so: '', eskul: [], catatan: '' }
+                form: { sikap_sp: '', desc_sp: '', sikap_so: '', desc_so: '', eskul: [], catatan: '', sakit: 0, izin: 0, alpha: 0 }
             },
             { 
                 id: 3, nis: '12003', nisn: '0012345603', name: 'Dandi Pratama', avatar: 'DP', status: 'Draft',
@@ -353,27 +354,143 @@
                         </div>
                     </div>
 
-                    <!-- Section 3: Kehadiran Siswa -->
+                    <!-- Section 3: Rekap Kehadiran Siswa -->
                     <div class="bg-white rounded-xl border border-[#e2e8f0] shadow-sm overflow-hidden">
-                        <div class="px-5 py-3 border-b border-[#e2e8f0] bg-[#f8fafc]">
-                            <h3 class="text-[14px] font-bold text-[#0f172a]">3. Kehadiran Siswa</h3>
+                        <div class="px-6 py-4 border-b border-[#e2e8f0] bg-[#f8fafc] flex items-center justify-between">
+                            <div>
+                                <h3 class="text-[14px] font-bold text-[#0f172a]">3. Rekap Kehadiran Siswa</h3>
+                                <p class="text-[12px] text-[#64748b] mt-0.5">Gunakan tombol + / − untuk menentukan jumlah hari. Keterangan bersifat opsional.</p>
+                            </div>
+                            <!-- Total badge -->
+                            <div x-show="((selectedStudent.form.sakit||0) + (selectedStudent.form.izin||0) + (selectedStudent.form.alpha||0)) > 0"
+                                 x-transition
+                                 class="flex-shrink-0 px-4 py-1.5 rounded-full bg-[#f8fafc] border border-[#e2e8f0] text-[12px] font-bold text-[#475569]">
+                                Total tidak hadir: <span x-text="(selectedStudent.form.sakit||0) + (selectedStudent.form.izin||0) + (selectedStudent.form.alpha||0)"></span> hari
+                            </div>
                         </div>
-                        <div class="p-5">
-                            <div class="grid grid-cols-3 gap-4 text-center">
-                                <div class="bg-[#f8fafc] border border-[#e2e8f0] rounded-xl p-3 shadow-sm">
-                                    <span class="block text-[11px] font-bold text-[#64748b] uppercase tracking-wider">Sakit</span>
-                                    <span class="block text-[22px] font-black text-[#0f172a] mt-1">2 <span class="text-[13px] font-bold text-[#64748b]">Hari</span></span>
+                        <div class="p-6">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+
+                                {{-- Card SAKIT --}}
+                                <div class="rounded-xl border border-[#e2e8f0] bg-white transition flex flex-col"
+                                     :class="(selectedStudent.form.sakit||0) > 0 ? 'border-[#94a3b8] shadow-sm' : ''">
+                                    <div class="px-5 py-6 text-center flex-1 flex flex-col items-center justify-center relative">
+                                        <div class="flex items-center justify-center gap-1.5 text-[#64748b] mb-3">
+                                            <span class="text-[12px] font-bold uppercase tracking-widest text-[#475569]">Sakit</span>
+                                        </div>
+                                        <div class="text-[48px] font-black leading-none text-[#0f172a]" x-text="selectedStudent.form.sakit || 0"></div>
+                                        <div class="text-[12px] font-medium text-[#94a3b8] mt-1">hari</div>
+                                        
+                                        <!-- Controls -->
+                                        <div class="flex items-center gap-3 mt-6">
+                                            <button @click="if((selectedStudent.form.sakit||0) > 0) selectedStudent.form.sakit = (selectedStudent.form.sakit||0) - 1"
+                                                    :disabled="selectedStudent.status === 'Selesai' || (selectedStudent.form.sakit||0) === 0"
+                                                    class="w-9 h-9 rounded-full border border-[#e2e8f0] bg-white text-[#475569] hover:bg-[#f1f5f9] disabled:opacity-30 disabled:cursor-not-allowed transition flex items-center justify-center">
+                                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/></svg>
+                                            </button>
+                                            <button @click="selectedStudent.form.sakit = (selectedStudent.form.sakit||0) + 1"
+                                                    :disabled="selectedStudent.status === 'Selesai'"
+                                                    class="w-9 h-9 rounded-full border border-[#e2e8f0] bg-white text-[#0f172a] hover:bg-[#f8fafc] disabled:opacity-30 disabled:cursor-not-allowed transition flex items-center justify-center shadow-sm">
+                                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <!-- Keterangan -->
+                                    <div x-show="(selectedStudent.form.sakit||0) > 0"
+                                         x-transition:enter="transition ease-out duration-200"
+                                         x-transition:enter-start="opacity-0 translate-y-2"
+                                         x-transition:enter-end="opacity-100 translate-y-0"
+                                         class="p-4 border-t border-[#e2e8f0] bg-[#f8fafc] rounded-b-xl">
+                                        <label class="block text-[10px] font-bold text-[#475569] uppercase tracking-wider mb-2">Keterangan Opsional</label>
+                                        <input type="text"
+                                               x-model="selectedStudent.form.ket_sakit"
+                                               :readonly="selectedStudent.status === 'Selesai'"
+                                               maxlength="255"
+                                               placeholder="Cth: sakit perut, demam..."
+                                               class="w-full text-[12px] rounded-lg border border-[#e2e8f0] bg-white px-3 py-2 text-[#0f172a] focus:ring-2 focus:ring-[#94a3b8]/30 focus:border-[#94a3b8] outline-none transition placeholder:text-[#cbd5e1] readonly:bg-[#f1f5f9] readonly:text-[#94a3b8]">
+                                    </div>
                                 </div>
-                                <div class="bg-[#f8fafc] border border-[#e2e8f0] rounded-xl p-3 shadow-sm">
-                                    <span class="block text-[11px] font-bold text-[#64748b] uppercase tracking-wider">Izin</span>
-                                    <span class="block text-[22px] font-black text-[#0f172a] mt-1">0 <span class="text-[13px] font-bold text-[#64748b]">Hari</span></span>
+
+                                {{-- Card IZIN --}}
+                                <div class="rounded-xl border border-[#e2e8f0] bg-white transition flex flex-col"
+                                     :class="(selectedStudent.form.izin||0) > 0 ? 'border-[#94a3b8] shadow-sm' : ''">
+                                    <div class="px-5 py-6 text-center flex-1 flex flex-col items-center justify-center relative">
+                                        <div class="flex items-center justify-center gap-1.5 text-[#64748b] mb-3">
+                                            <span class="text-[12px] font-bold uppercase tracking-widest text-[#475569]">Izin</span>
+                                        </div>
+                                        <div class="text-[48px] font-black leading-none text-[#0f172a]" x-text="selectedStudent.form.izin || 0"></div>
+                                        <div class="text-[12px] font-medium text-[#94a3b8] mt-1">hari</div>
+                                        
+                                        <!-- Controls -->
+                                        <div class="flex items-center gap-3 mt-6">
+                                            <button @click="if((selectedStudent.form.izin||0) > 0) selectedStudent.form.izin = (selectedStudent.form.izin||0) - 1"
+                                                    :disabled="selectedStudent.status === 'Selesai' || (selectedStudent.form.izin||0) === 0"
+                                                    class="w-9 h-9 rounded-full border border-[#e2e8f0] bg-white text-[#475569] hover:bg-[#f1f5f9] disabled:opacity-30 disabled:cursor-not-allowed transition flex items-center justify-center">
+                                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/></svg>
+                                            </button>
+                                            <button @click="selectedStudent.form.izin = (selectedStudent.form.izin||0) + 1"
+                                                    :disabled="selectedStudent.status === 'Selesai'"
+                                                    class="w-9 h-9 rounded-full border border-[#e2e8f0] bg-white text-[#0f172a] hover:bg-[#f8fafc] disabled:opacity-30 disabled:cursor-not-allowed transition flex items-center justify-center shadow-sm">
+                                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <!-- Keterangan -->
+                                    <div x-show="(selectedStudent.form.izin||0) > 0"
+                                         x-transition:enter="transition ease-out duration-200"
+                                         x-transition:enter-start="opacity-0 translate-y-2"
+                                         x-transition:enter-end="opacity-100 translate-y-0"
+                                         class="p-4 border-t border-[#e2e8f0] bg-[#f8fafc] rounded-b-xl">
+                                        <label class="block text-[10px] font-bold text-[#475569] uppercase tracking-wider mb-2">Keterangan Opsional</label>
+                                        <input type="text"
+                                               x-model="selectedStudent.form.ket_izin"
+                                               :readonly="selectedStudent.status === 'Selesai'"
+                                               maxlength="255"
+                                               placeholder="Cth: acara keluarga, keperluan..."
+                                               class="w-full text-[12px] rounded-lg border border-[#e2e8f0] bg-white px-3 py-2 text-[#0f172a] focus:ring-2 focus:ring-[#94a3b8]/30 focus:border-[#94a3b8] outline-none transition placeholder:text-[#cbd5e1] readonly:bg-[#f1f5f9] readonly:text-[#94a3b8]">
+                                    </div>
                                 </div>
-                                <div class="bg-[#fef2f2] border border-[#fca5a5] rounded-xl p-3 shadow-sm">
-                                    <span class="block text-[11px] font-bold text-[#dc2626] uppercase tracking-wider">Tanpa Keterangan</span>
-                                    <span class="block text-[22px] font-black text-[#dc2626] mt-1">1 <span class="text-[13px] font-bold text-[#dc2626]">Hari</span></span>
+
+                                {{-- Card ALPHA --}}
+                                <div class="rounded-xl border border-[#e2e8f0] bg-white transition flex flex-col"
+                                     :class="(selectedStudent.form.alpha||0) > 0 ? 'border-[#94a3b8] shadow-sm' : ''">
+                                    <div class="px-5 py-6 text-center flex-1 flex flex-col items-center justify-center relative">
+                                        <div class="flex items-center justify-center gap-1.5 text-[#64748b] mb-3">
+                                            <span class="text-[12px] font-bold uppercase tracking-widest text-[#475569]">Alpha</span>
+                                        </div>
+                                        <div class="text-[48px] font-black leading-none text-[#0f172a]" x-text="selectedStudent.form.alpha || 0"></div>
+                                        <div class="text-[12px] font-medium text-[#94a3b8] mt-1">hari</div>
+                                        
+                                        <!-- Controls -->
+                                        <div class="flex items-center gap-3 mt-6">
+                                            <button @click="if((selectedStudent.form.alpha||0) > 0) selectedStudent.form.alpha = (selectedStudent.form.alpha||0) - 1"
+                                                    :disabled="selectedStudent.status === 'Selesai' || (selectedStudent.form.alpha||0) === 0"
+                                                    class="w-9 h-9 rounded-full border border-[#e2e8f0] bg-white text-[#475569] hover:bg-[#f1f5f9] disabled:opacity-30 disabled:cursor-not-allowed transition flex items-center justify-center">
+                                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/></svg>
+                                            </button>
+                                            <button @click="selectedStudent.form.alpha = (selectedStudent.form.alpha||0) + 1"
+                                                    :disabled="selectedStudent.status === 'Selesai'"
+                                                    class="w-9 h-9 rounded-full border border-[#e2e8f0] bg-white text-[#0f172a] hover:bg-[#f8fafc] disabled:opacity-30 disabled:cursor-not-allowed transition flex items-center justify-center shadow-sm">
+                                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <!-- Keterangan -->
+                                    <div x-show="(selectedStudent.form.alpha||0) > 0"
+                                         x-transition:enter="transition ease-out duration-200"
+                                         x-transition:enter-start="opacity-0 translate-y-2"
+                                         x-transition:enter-end="opacity-100 translate-y-0"
+                                         class="p-4 border-t border-[#e2e8f0] bg-[#f8fafc] rounded-b-xl">
+                                        <label class="block text-[10px] font-bold text-[#475569] uppercase tracking-wider mb-2">Keterangan Opsional</label>
+                                        <input type="text"
+                                               x-model="selectedStudent.form.ket_alpha"
+                                               :readonly="selectedStudent.status === 'Selesai'"
+                                               maxlength="255"
+                                               placeholder="Cth: tanpa keterangan..."
+                                               class="w-full text-[12px] rounded-lg border border-[#e2e8f0] bg-white px-3 py-2 text-[#0f172a] focus:ring-2 focus:ring-[#94a3b8]/30 focus:border-[#94a3b8] outline-none transition placeholder:text-[#cbd5e1] readonly:bg-[#f1f5f9] readonly:text-[#94a3b8]">
+                                    </div>
                                 </div>
                             </div>
-                            <p class="text-[11px] text-[#94a3b8] mt-4 font-semibold italic text-center">* Data kehadiran diambil secara otomatis dari rekapitulasi modul Kehadiran Siswa.</p>
                         </div>
                     </div>
 
