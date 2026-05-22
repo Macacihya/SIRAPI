@@ -273,6 +273,7 @@ document.addEventListener('alpine:init', () => {
             <table class="w-full text-[13px]">
                 <thead>
                     <tr class="border-b border-[#e2e8f0] bg-[#f8fafc]">
+                        <th class="px-6 py-3 text-left text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">No</th>
                         <th class="px-6 py-3 text-left text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Identitas</th>
                         <th class="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">NIP / NUPTK</th>
                         <th class="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Peran</th>
@@ -283,8 +284,9 @@ document.addEventListener('alpine:init', () => {
                     </tr>
                 </thead>
                 <tbody>
-                    <template x-for="g in filtered" :key="g.nip">
+                    <template x-for="(g, index) in filtered" :key="g.nip">
                         <tr class="border-b border-[#f1f5f9] transition hover:bg-[#f8fafc]">
+                            <td class="px-6 py-4 font-semibold text-[#64748b]" x-text="{{ $gurus->firstItem() ?? 1 }} + index"></td>
                             <td class="px-6 py-4">
                                 <div class="flex items-center gap-3">
                                     <div class="flex h-9 w-9 flex-none items-center justify-center rounded-full bg-[#e2e8f0] text-[11px] font-bold text-[#475569]" x-text="g.name.charAt(0).toUpperCase()"></div>
@@ -320,16 +322,14 @@ document.addEventListener('alpine:init', () => {
                         </tr>
                     </template>
                     <tr x-show="filtered.length === 0">
-                        <td colspan="7" class="py-12 text-center">
+                        <td colspan="8" class="py-12 text-center">
                             <p class="text-[14px] text-[#94a3b8]">Tidak ada data guru ditemukan.</p>
                             <button @click="search = ''; roleFilter = 'Semua'" class="mt-4 rounded-lg border border-[#e2e8f0] px-4 py-2 text-[12px] font-bold text-[#475569] transition hover:bg-[#f1f5f9]">Reset Pencarian</button>
                         </td>
                     </tr>
                 </tbody>
             </table>
-            <div class="border-t border-[#e2e8f0] px-6 py-4">
-                {{ $gurus->links() }}
-            </div>
+            <x-table-pagination :paginator="$gurus" />
         </div>
 
         {{-- ─── RIWAYAT STATUS GURU ─── --}}
@@ -341,9 +341,12 @@ document.addEventListener('alpine:init', () => {
                 </div>
             </div>
             
-            <x-data-table :headers="['Tanggal', 'Guru', 'Status', 'Keterangan']">
+            <x-data-table :headers="['No', 'Tanggal', 'Guru', 'Status', 'Keterangan']">
                 @forelse ($riwayatGuru as $item)
                     <tr class="border-b border-[#f1f5f9] transition hover:bg-[#f8fafc]">
+                        <td class="px-6 py-4 text-[#64748b] text-[13px] font-semibold">
+                            {{ $loop->iteration }}
+                        </td>
                         <td class="px-6 py-4 text-[#64748b] text-[13px] font-medium">
                             {{ \Carbon\Carbon::parse($item->tanggal_perubahan)->format('d M Y') }}
                         </td>
@@ -366,7 +369,7 @@ document.addEventListener('alpine:init', () => {
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="5" class="px-6 py-8 text-center text-[#94a3b8] text-[13px]">Belum ada riwayat status guru.</td>
+                        <td colspan="6" class="px-6 py-8 text-center text-[#94a3b8] text-[13px]">Belum ada riwayat status guru.</td>
                     </tr>
                 @endforelse
             </x-data-table>

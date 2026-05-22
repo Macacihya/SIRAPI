@@ -163,15 +163,10 @@
     </div>
 
     {{-- STAT --}}
-    <div class="grid grid-cols-2 gap-4 lg:grid-cols-4">
+    <div class="grid grid-cols-2 gap-4 lg:grid-cols-3">
         <x-card-stat title="Total Siswa" :value="$totalSiswa" />
         <x-card-stat title="Siswa Aktif" :value="$siswaAktif" />
         <x-card-stat title="Status Cuti" :value="$siswaCuti" />
-        <x-card-stat title="Dipilih" value="0">
-            <x-slot:valueSlot>
-                <span class="text-[#1d4ed8]" x-text="selectedCount"></span>
-            </x-slot:valueSlot>
-        </x-card-stat>
     </div>
 
     {{-- FILTERS --}}
@@ -190,7 +185,7 @@
             <select x-model="statusFilter" class="h-[38px] appearance-none rounded-[8px] border border-[#e2e8f0] bg-white px-4 pr-10 text-[13px] font-medium outline-none focus:border-[#3b82f6]"><option>Semua</option><option>AKTIF</option><option>LEAVE</option></select>
         </div>
         <div class="flex items-center gap-3">
-            <button x-show="selectedCount === filtered.length && filtered.length > 0" @click="showDeleteAll = true" x-transition class="flex h-[38px] items-center gap-2 rounded-[8px] bg-[#dc2626] px-4 text-[12px] font-bold text-white transition hover:bg-[#b91c1c]"><svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>Hapus Semua (<span x-text="selectedCount"></span>)</button>
+            <button x-show="selectedCount > 1" @click="showDeleteAll = true" x-transition class="flex h-[38px] items-center gap-2 rounded-[8px] bg-[#dc2626] px-4 text-[12px] font-bold text-white transition hover:bg-[#b91c1c]"><svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>Hapus Semua (<span x-text="selectedCount"></span>)</button>
         </div>
     </div>
 
@@ -199,6 +194,7 @@
         <table class="w-full text-[13px]">
             <thead><tr class="border-b border-[#e2e8f0] bg-[#f8fafc]">
                 <th class="w-10 px-4 py-3"><input type="checkbox" @change="toggleAll()" :checked="selectAll" class="rounded border-[#cbd5e1] cursor-pointer"></th>
+                <th class="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">No</th>
                 <th class="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Siswa</th>
                 <th class="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">NISN</th>
                 <th class="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Kelas</th>
@@ -206,9 +202,10 @@
                 <th class="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Aksi</th>
             </tr></thead>
             <tbody>
-                <template x-for="s in filtered" :key="s.id">
+                <template x-for="(s, index) in filtered" :key="s.id">
                     <tr class="border-b border-[#f1f5f9] transition hover:bg-[#f8fafc]">
                         <td class="px-4 py-3.5"><input type="checkbox" x-model="s.selected" class="rounded border-[#cbd5e1] cursor-pointer"></td>
+                        <td class="px-4 py-3.5 font-semibold text-[#64748b]" x-text="{{ $data->firstItem() ?? 1 }} + index"></td>
                         <td class="px-4 py-3.5"><div class="flex items-center gap-3"><div class="flex h-8 w-8 flex-none items-center justify-center rounded-full bg-[#e2e8f0] text-[11px] font-bold text-[#475569] uppercase" x-text="(s.nama || s.name || '?').charAt(0)"></div><span class="font-bold text-[#0f172a]" x-text="s.nama || s.name"></span></div></td>
                         <td class="px-4 py-3.5"><span class="rounded bg-[#fef3c7] px-2 py-0.5 font-mono text-[11px] font-semibold text-[#92400e]" x-text="s.nis || s.nisn"></span></td>
                         <td class="px-4 py-3.5 font-semibold text-[#0f172a]" x-text="s.kelas"></td>
@@ -224,9 +221,7 @@
                 </template>
             </tbody>
         </table>
-        <div class="border-t border-[#e2e8f0] px-6 py-4">
-            {{ $data->links() }}
-        </div>
+        <x-table-pagination :paginator="$data" />
     </div>
 
 

@@ -9,9 +9,11 @@
             showAssign: false,
             showDetail: false,
             detailData: null,
-            tambahForm: { hari:'Senin', mulai:'07:00', selesai:'08:30', mapel:'', guru:'', ruang:'' },
+            tambahForm: { hari:'Senin', mulai:'07:00', selesai:'08:30', mapel:'', guru:'', ruang:'', kelas:'Umum' },
             assignForm: { mapel:'', guru:'', ruang:'' },
             konflikResolved: false,
+            assignedSlot: null,
+            customJadwal: [],
             daftarMapel: ['Pendidikan Agama', 'Pendidikan Pancasila', 'Bahasa Indonesia', 'Matematika', 'IPAS', 'PJOK', 'Seni Budaya', 'Fisika', 'Kimia', 'Biologi', 'Sosiologi', 'Sejarah', 'Bahasa Inggris'],
             daftarGuru: [
                 'Drs. Ahmad Subagja, M.Pd.',
@@ -25,10 +27,53 @@
                 'Rina Sari, S.E',
                 'Siti Aminah, M.Pd',
             ],
-            submitTambah() { this.showTambah = false; this.tambahForm = {hari:'Senin',mulai:'07:00',selesai:'08:30',mapel:'',guru:'',ruang:''}; this.$dispatch('toast',{message:'Jadwal baru berhasil ditambahkan!',type:'success'}); },
-            submitAssign() { this.showAssign = false; this.assignForm = {mapel:'',guru:'',ruang:''}; this.$dispatch('toast',{message:'Guru berhasil ditugaskan ke slot jadwal!',type:'success'}); },
-            resolveKonflik(method) { this.konflikResolved = true; this.showKonflik = false; this.$dispatch('toast',{message:'Konflik berhasil diselesaikan: ' + method,type:'success'}); },
-            openDetail(mapel,guru,ruang) { this.detailData = {mapel,guru,ruang}; this.showDetail = true; },
+            init() {
+                const saved = JSON.parse(localStorage.getItem('sirapi-jadwal-admin') || 'null');
+                if (saved) {
+                    this.customJadwal = saved.customJadwal || [];
+                    this.assignedSlot = saved.assignedSlot || null;
+                    this.konflikResolved = Boolean(saved.konflikResolved);
+                }
+            },
+            persist() {
+                localStorage.setItem('sirapi-jadwal-admin', JSON.stringify({
+                    customJadwal: this.customJadwal,
+                    assignedSlot: this.assignedSlot,
+                    konflikResolved: this.konflikResolved,
+                }));
+            },
+            submitTambah() {
+                if (!this.tambahForm.mapel || !this.tambahForm.guru || !this.tambahForm.ruang) {
+                    this.$dispatch('toast',{message:'Lengkapi mapel, guru, dan ruangan.',type:'error'});
+                    return;
+                }
+                this.customJadwal.push({...this.tambahForm, id: Date.now()});
+                this.showTambah = false;
+                this.tambahForm = {hari:'Senin',mulai:'07:00',selesai:'08:30',mapel:'',guru:'',ruang:'',kelas:'Umum'};
+                this.persist();
+                this.$dispatch('toast',{message:'Jadwal baru berhasil ditambahkan!',type:'success'});
+            },
+            submitAssign() {
+                if (!this.assignForm.mapel || !this.assignForm.guru || !this.assignForm.ruang) {
+                    this.$dispatch('toast',{message:'Lengkapi mapel, guru, dan ruangan.',type:'error'});
+                    return;
+                }
+                this.assignedSlot = {...this.assignForm};
+                this.showAssign = false;
+                this.assignForm = {mapel:'',guru:'',ruang:''};
+                this.persist();
+                this.$dispatch('toast',{message:'Guru berhasil ditugaskan ke slot jadwal!',type:'success'});
+            },
+            resolveKonflik(method) { this.konflikResolved = true; this.showKonflik = false; this.persist(); this.$dispatch('toast',{message:'Konflik berhasil diselesaikan: ' + method,type:'success'}); },
+            openDetail(mapel,guru,ruang,id = null) { this.detailData = {mapel,guru,ruang,id}; this.showDetail = true; },
+            deleteDetail() {
+                if (this.detailData?.id) {
+                    this.customJadwal = this.customJadwal.filter(j => j.id !== this.detailData.id);
+                    this.persist();
+                }
+                this.showDetail = false;
+                this.$dispatch('toast',{message:'Jadwal berhasil dihapus',type:'error'});
+            },
         }));
     });
 </script>
@@ -75,12 +120,32 @@
                     </td>
                     <td @click="openDetail('Sejarah Indonesia','Drs. Bambang Wijaya','R. 104')" class="border-r border-[#e2e8f0] px-3 py-3 align-top cursor-pointer hover:bg-[#f8fafc] transition"><p class="font-bold text-[#0f172a]">Sejarah Indonesia</p><p class="text-[11px] text-[#64748b]">Drs. Bambang Wijaya</p><p class="mt-1 text-[10px] text-[#94a3b8]">R. 104</p></td>
                     <td @click="openDetail('Matematika Wajib','Drs. Bambang Wijaya','Lab 02')" class="border-r border-[#e2e8f0] px-3 py-3 align-top cursor-pointer hover:bg-[#f8fafc] transition"><p class="font-bold text-[#0f172a]">Matematika Wajib</p><p class="text-[11px] text-[#64748b]">Drs. Bambang Wijaya</p><p class="mt-1 text-[10px] text-[#94a3b8]">Lab 02</p></td>
-                    <td class="border-r border-[#e2e8f0] px-3 py-3 align-top"><div @click="showAssign = true" class="flex flex-col items-center justify-center py-2 cursor-pointer"><div class="flex h-8 w-8 items-center justify-center rounded-full border-2 border-dashed border-[#cbd5e1] text-[#94a3b8] hover:border-[#3b82f6] hover:text-[#3b82f6] transition"><svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4" stroke-width="2" stroke-linecap="round"></path></svg></div><p class="mt-1 text-[10px] font-bold uppercase text-[#94a3b8]">Assign</p></div></td>
+                    <td class="border-r border-[#e2e8f0] px-3 py-3 align-top">
+                        <template x-if="!assignedSlot"><div @click="showAssign = true" class="flex flex-col items-center justify-center py-2 cursor-pointer"><div class="flex h-8 w-8 items-center justify-center rounded-full border-2 border-dashed border-[#cbd5e1] text-[#94a3b8] hover:border-[#3b82f6] hover:text-[#3b82f6] transition"><svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4" stroke-width="2" stroke-linecap="round"></path></svg></div><p class="mt-1 text-[10px] font-bold uppercase text-[#94a3b8]">Assign</p></div></template>
+                        <template x-if="assignedSlot"><div @click="openDetail(assignedSlot.mapel, assignedSlot.guru, assignedSlot.ruang)" class="cursor-pointer"><p class="font-bold text-[#0f172a]" x-text="assignedSlot.mapel"></p><p class="text-[11px] text-[#64748b]" x-text="assignedSlot.guru"></p><p class="mt-1 text-[10px] text-[#94a3b8]" x-text="assignedSlot.ruang"></p></div></template>
+                    </td>
                     <td @click="openDetail('Sosiologi','Dewi Kusuma, S.Sos','R. 302')" class="border-r border-[#e2e8f0] px-3 py-3 align-top cursor-pointer hover:bg-[#f8fafc] transition"><p class="font-bold text-[#0f172a]">Sosiologi</p><p class="text-[11px] text-[#64748b]">Dewi Kusuma, S.Sos</p><p class="mt-1 text-[10px] text-[#94a3b8]">R. 302</p></td>
                     <td class="px-3 py-3 align-top text-center text-[#94a3b8] italic">Libur</td>
                 </tr>
             </tbody>
         </table>
+    </div>
+
+    {{-- JADWAL TAMBAHAN DARI FORM --}}
+    <div x-show="customJadwal.length" class="rounded-[14px] border border-[#e2e8f0] bg-white overflow-hidden" style="display:none">
+        <div class="border-b border-[#e2e8f0] px-6 py-4">
+            <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-[#64748b]">Jadwal Tambahan</p>
+        </div>
+        <div class="divide-y divide-[#f1f5f9]">
+            <template x-for="j in customJadwal" :key="j.id">
+                <button @click="openDetail(j.mapel, j.guru, j.ruang, j.id)" class="grid w-full grid-cols-[120px_1fr_180px_140px] items-center gap-4 px-6 py-4 text-left transition hover:bg-[#f8fafc]">
+                    <div><p class="text-[13px] font-black text-[#0f172a]" x-text="j.mulai + ' - ' + j.selesai"></p><p class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]" x-text="j.hari"></p></div>
+                    <div><p class="text-[14px] font-bold text-[#0f172a]" x-text="j.mapel"></p><p class="text-[11px] text-[#64748b]" x-text="j.guru"></p></div>
+                    <span class="rounded bg-[#eff6ff] px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-[#1d4ed8]" x-text="j.kelas"></span>
+                    <span class="text-[12px] font-semibold text-[#475569]" x-text="j.ruang"></span>
+                </button>
+            </template>
+        </div>
     </div>
 
     {{-- DAILY VIEW --}}
@@ -112,6 +177,7 @@
                     <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Guru Pengampu</label><select x-model="tambahForm.guru" class="mt-1 h-[42px] w-full appearance-none rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6]"><option value="" disabled selected>-- Pilih Guru --</option><template x-for="g in daftarGuru" :key="g"><option :value="g" x-text="g"></option></template></select></div>
                     <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Ruangan</label><input x-model="tambahForm.ruang" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20" placeholder="R. 201"></div>
                 </div>
+                <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Kelas</label><input x-model="tambahForm.kelas" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20" placeholder="Contoh: Kelas 6-A"></div>
             </div>
             <div class="flex gap-3 border-t border-[#e2e8f0] bg-[#f8fafc] px-6 py-4 rounded-b-2xl">
                 <button @click="showTambah = false" class="flex-1 rounded-lg border border-[#e2e8f0] bg-white py-2.5 text-[12px] font-bold text-[#475569]">Batal</button>
@@ -163,8 +229,8 @@
                 <div><p class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Ruangan</p><p class="mt-1 text-[14px] font-bold text-[#0f172a]" x-text="detailData?.ruang"></p></div>
             </div>
             <div class="flex gap-3 border-t border-[#e2e8f0] bg-[#f8fafc] px-6 py-4 rounded-b-2xl">
-                <button @click="showDetail = false; $dispatch('toast',{message:'Mode edit jadwal aktif',type:'info'})" class="flex-1 rounded-lg bg-[#1d4ed8] py-2.5 text-[12px] font-bold text-white">Edit</button>
-                <button @click="showDetail = false; $dispatch('toast',{message:'Jadwal berhasil dihapus',type:'error'})" class="flex-1 rounded-lg bg-[#dc2626] py-2.5 text-[12px] font-bold text-white">Hapus</button>
+                <button @click="showDetail = false; showTambah = true; $dispatch('toast',{message:'Silakan tambahkan perubahan sebagai jadwal baru.',type:'info'})" class="flex-1 rounded-lg bg-[#1d4ed8] py-2.5 text-[12px] font-bold text-white">Edit</button>
+                <button @click="deleteDetail()" class="flex-1 rounded-lg bg-[#dc2626] py-2.5 text-[12px] font-bold text-white">Hapus</button>
             </div>
         </div>
     </div>

@@ -176,7 +176,8 @@
             <table class="w-full text-[13px]">
                 <thead>
                     <tr class="border-b border-[#e2e8f0] bg-[#f8fafc]">
-                        <th class="sticky left-0 z-10 bg-[#f8fafc] border-r border-[#e2e8f0] px-5 py-4 text-left text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b]">Siswa (NIS)</th>
+                        <th class="sticky left-0 z-20 bg-[#f8fafc] border-r border-[#e2e8f0] px-5 py-4 text-left text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b]">No</th>
+                        <th class="sticky left-[72px] z-10 bg-[#f8fafc] border-r border-[#e2e8f0] px-5 py-4 text-left text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b]">Siswa (NIS)</th>
                         <th class="px-5 py-4 text-center text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b]">Nilai UH (50%)</th>
                         <th class="px-5 py-4 text-center text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b]">Nilai UTS (25%)</th>
                         <th class="px-5 py-4 text-center text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b]">Nilai UAS (25%)</th>
@@ -185,9 +186,10 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <template x-for="g in filteredGrades" :key="g.id">
+                    <template x-for="(g, index) in filteredGrades" :key="g.id">
                         <tr class="border-b border-[#f1f5f9] transition hover:bg-[#f8fafc]">
-                            <td class="sticky left-0 z-10 bg-white border-r border-[#f1f5f9] px-5 py-3 group-hover:bg-[#f8fafc]">
+                            <td class="sticky left-0 z-20 bg-white border-r border-[#f1f5f9] px-5 py-3 font-semibold text-[#64748b] group-hover:bg-[#f8fafc]" x-text="index + 1"></td>
+                            <td class="sticky left-[72px] z-10 bg-white border-r border-[#f1f5f9] px-5 py-3 group-hover:bg-[#f8fafc]">
                                 <div class="flex items-center gap-3">
                                     <div class="flex h-8 w-8 items-center justify-center flex-shrink-0 rounded-md bg-[#1e40af] text-[10px] font-bold text-white" x-text="g.init"></div>
                                     <div class="flex flex-col">
@@ -220,7 +222,7 @@
                     </template>
                     <template x-if="filteredGrades.length === 0">
                         <tr>
-                            <td colspan="6" class="px-5 py-12 text-center text-[#64748b]">
+                            <td colspan="7" class="px-5 py-12 text-center text-[#64748b]">
                                 Tidak ada siswa di kelas ini.
                             </td>
                         </tr>
@@ -457,7 +459,8 @@
             <table class="w-full text-[13px] whitespace-nowrap">
                 <thead>
                     <tr class="border-b border-[#e2e8f0] bg-[#f8fafc]">
-                        <th class="sticky left-0 z-10 bg-[#f8fafc] border-r border-[#e2e8f0] px-5 py-4 text-left text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b] min-w-[200px]">Nama Siswa</th>
+                        <th class="sticky left-0 z-20 bg-[#f8fafc] border-r border-[#e2e8f0] px-5 py-4 text-left text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b] min-w-[72px]">No</th>
+                        <th class="sticky left-[72px] z-10 bg-[#f8fafc] border-r border-[#e2e8f0] px-5 py-4 text-left text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b] min-w-[200px]">Nama Siswa</th>
                         <th class="px-5 py-4 text-center text-[10px] font-bold uppercase tracking-[0.15em] min-w-[140px]" :class="selectedMapel === 'agm' ? 'text-[#1d4ed8]' : 'text-[#64748b]'">Pendidikan Agama</th>
                         <th class="px-5 py-4 text-center text-[10px] font-bold uppercase tracking-[0.15em] min-w-[120px]" :class="selectedMapel === 'pan' ? 'text-[#1d4ed8]' : 'text-[#64748b]'">Pendidikan Pancasila</th>
                         <th class="px-5 py-4 text-center text-[10px] font-bold uppercase tracking-[0.15em] min-w-[150px]" :class="selectedMapel === 'bi' ? 'text-[#1d4ed8]' : 'text-[#64748b]'">Bahasa Indonesia</th>
@@ -470,9 +473,10 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <template x-for="g in paginatedGrades" :key="g.nama">
+                    <template x-for="(g, index) in paginatedGrades" :key="g.nama">
                         <tr class="border-b border-[#f1f5f9] transition hover:bg-[#f8fafc]">
-                            <td class="sticky left-0 z-10 bg-white border-r border-[#f1f5f9] px-5 py-4 group-hover:bg-[#f8fafc]">
+                            <td class="sticky left-0 z-20 bg-white border-r border-[#f1f5f9] px-5 py-4 font-semibold text-[#64748b] group-hover:bg-[#f8fafc]" x-text="((currentPage - 1) * perPage) + index + 1"></td>
+                            <td class="sticky left-[72px] z-10 bg-white border-r border-[#f1f5f9] px-5 py-4 group-hover:bg-[#f8fafc]">
                                 <div class="flex items-center gap-3">
                                     <div class="flex h-8 w-8 items-center justify-center flex-shrink-0 rounded-md bg-[#1e40af] text-[10px] font-bold text-white" x-text="g.init"></div>
                                     <div class="flex flex-col">
@@ -497,7 +501,7 @@
                     </template>
                     <template x-if="paginatedGrades.length === 0">
                         <tr>
-                            <td colspan="7" class="px-5 py-12 text-center">
+                            <td colspan="11" class="px-5 py-12 text-center">
                                 <svg class="mx-auto h-10 w-10 text-[#cbd5e1]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2" stroke-linecap="round"/></svg>
                                 <p class="mt-3 text-[14px] font-bold text-[#64748b]">Tidak ada data ditemukan</p>
                                 <button @click="resetFilters()" class="mt-4 rounded-lg border border-[#e2e8f0] px-4 py-2 text-[12px] font-bold text-[#475569] transition hover:bg-[#f1f5f9]">Reset Filter</button>

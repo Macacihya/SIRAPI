@@ -15,7 +15,9 @@ class UserController extends Controller
 {
     public function index()
     {
-        $users = User::with(['guru.guruPengampus', 'guru.kelasWali', 'admin'])->get();
+        $users = User::with(['guru.guruPengampus', 'guru.kelasWali', 'admin'])
+            ->where('role', '!=', 'admin')
+            ->get();
 
         $usersData = $users->map(function ($user) {
             $roles = [];

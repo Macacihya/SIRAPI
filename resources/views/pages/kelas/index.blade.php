@@ -15,7 +15,23 @@
             form: { nama_kelas: '', tahun_ajaran_id: '' },
             tahunAjarans: @json($tahunAjarans),
             kelas: @json($kelas),
+            currentPage: 1,
+            perPage: 10,
             get totalSiswa() { return this.kelas.reduce((a,k) => a + k.terisi, 0); },
+            get totalPages() { return Math.ceil(this.kelas.length / this.perPage) || 1; },
+            get paginatedKelas() {
+                const start = (this.currentPage - 1) * this.perPage;
+                return this.kelas.slice(start, start + Number(this.perPage));
+            },
+            get pageNumbers() {
+                const total = this.totalPages;
+                const current = Math.min(this.currentPage, total);
+                const start = Math.max(1, Math.min(current - 2, total - 4));
+                const end = Math.min(total, start + 4);
+                return Array.from({ length: end - start + 1 }, (_, i) => start + i);
+            },
+            goToPage(page) { if (page >= 1 && page <= this.totalPages) this.currentPage = page; },
+            resetPage() { this.currentPage = 1; },
             addKelas() {
                 // Client-side preview (submit via form untuk persist ke DB)
                 let ta = this.tahunAjarans.find(t => t.id == this.form.tahun_ajaran_id);
@@ -101,6 +117,7 @@
         <table class="w-full text-[13px]">
             <thead>
                 <tr class="border-b border-[#e2e8f0] bg-[#f8fafc]">
+                    <th class="px-6 py-3 text-left text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">No</th>
                     <th class="px-6 py-3 text-left text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Nama Kelas</th>
                     <th class="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Tahun Ajaran</th>
                     <th class="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Jumlah Siswa</th>
@@ -108,8 +125,9 @@
                 </tr>
             </thead>
             <tbody>
-                <template x-for="k in kelas" :key="k.id">
+                <template x-for="(k, index) in paginatedKelas" :key="k.id">
                     <tr class="border-b border-[#f1f5f9] transition hover:bg-[#f8fafc]">
+                        <td class="px-6 py-4 font-semibold text-[#64748b]" x-text="((currentPage - 1) * perPage) + index + 1"></td>
                         <td class="px-6 py-4">
                             <p class="font-black text-[15px] tracking-[-0.02em] text-[#0f172a]" x-text="k.nama"></p>
                         </td>
@@ -132,10 +150,34 @@
                     </tr>
                 </template>
                 <tr x-show="kelas.length === 0">
-                    <td colspan="4" class="py-12 text-center text-[14px] text-[#94a3b8]">Belum ada data kelas.</td>
+                    <td colspan="5" class="py-12 text-center text-[14px] text-[#94a3b8]">Belum ada data kelas.</td>
                 </tr>
             </tbody>
         </table>
+        <div class="border-t border-[#e2e8f0] px-6 py-4">
+            <nav class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                <div class="flex flex-wrap items-center gap-4 text-[13px] text-[#64748b]">
+                    <div class="flex items-center gap-2">
+                        <span>Tampilkan</span>
+                        <select x-model.number="perPage" @change="resetPage()" class="h-9 rounded-[10px] border border-[#e2e8f0] bg-white px-3 font-bold text-[#0f172a] outline-none transition focus:border-[#3b82f6]">
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                        </select>
+                        <span>data</span>
+                    </div>
+                    <span class="hidden text-[#cbd5e1] sm:inline">&bull;</span>
+                    <div>Menampilkan <span class="font-bold text-[#0f172a]" x-text="kelas.length ? (((currentPage - 1) * perPage) + 1) + '-' + (((currentPage - 1) * perPage) + paginatedKelas.length) : '0'"></span> dari <span class="font-bold text-[#0f172a]" x-text="kelas.length"></span></div>
+                </div>
+                <div class="flex items-center gap-1">
+                    <button @click="goToPage(1)" :disabled="currentPage <= 1" class="flex h-9 w-9 items-center justify-center rounded-[10px] text-[#64748b] transition hover:bg-[#f1f5f9] disabled:cursor-not-allowed disabled:text-[#cbd5e1] disabled:hover:bg-transparent"><svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="m11 17-5-5 5-5m7 10-5-5 5-5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></button>
+                    <button @click="goToPage(currentPage - 1)" :disabled="currentPage <= 1" class="flex h-9 w-9 items-center justify-center rounded-[10px] text-[#64748b] transition hover:bg-[#f1f5f9] disabled:cursor-not-allowed disabled:text-[#cbd5e1] disabled:hover:bg-transparent"><svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></button>
+                    <template x-for="p in pageNumbers" :key="p"><button @click="goToPage(p)" class="flex h-9 w-9 items-center justify-center rounded-[10px] text-[13px] font-bold transition" :class="currentPage === p ? 'bg-[#3b82f6] text-white shadow-lg shadow-blue-500/30' : 'text-[#64748b] hover:bg-[#f1f5f9]'" x-text="p"></button></template>
+                    <button @click="goToPage(currentPage + 1)" :disabled="currentPage >= totalPages" class="flex h-9 w-9 items-center justify-center rounded-[10px] text-[#64748b] transition hover:bg-[#f1f5f9] disabled:cursor-not-allowed disabled:text-[#cbd5e1] disabled:hover:bg-transparent"><svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></button>
+                    <button @click="goToPage(totalPages)" :disabled="currentPage >= totalPages" class="flex h-9 w-9 items-center justify-center rounded-[10px] text-[#64748b] transition hover:bg-[#f1f5f9] disabled:cursor-not-allowed disabled:text-[#cbd5e1] disabled:hover:bg-transparent"><svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="m13 17 5-5-5-5M6 17l5-5-5-5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></button>
+                </div>
+            </nav>
+        </div>
     </div>
 
     {{-- ═══ MODAL: Tambah Kelas ═══ --}}

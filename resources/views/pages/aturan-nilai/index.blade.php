@@ -28,6 +28,23 @@
                 { id: 2, nama: 'Seni Tari', wajib: false },
                 { id: 3, nama: 'Karate', wajib: false },
             ],
+            init() {
+                const saved = JSON.parse(localStorage.getItem('sirapi-aturan-nilai') || 'null');
+                if (saved) {
+                    this.komponen = saved.komponen || this.komponen;
+                    this.nilaiSikap = saved.nilaiSikap || this.nilaiSikap;
+                    this.eskul = saved.eskul || this.eskul;
+                    this.pembulatan = saved.pembulatan || this.pembulatan;
+                }
+            },
+            persist() {
+                localStorage.setItem('sirapi-aturan-nilai', JSON.stringify({
+                    komponen: this.komponen,
+                    nilaiSikap: this.nilaiSikap,
+                    eskul: this.eskul,
+                    pembulatan: this.pembulatan,
+                }));
+            },
 
             get totalBobot() { return this.komponen.reduce((s, k) => s + Number(k.bobot), 0); },
             get isValid() { return this.totalBobot === 100; },
@@ -39,17 +56,18 @@
                 return Math.round(raw);
             },
 
-            addKomponen() { this.komponen.push({id:Date.now(), nama:'Komponen Baru', bobot:0, kode:'KB'}); },
+            saveKonfigurasi() { this.persist(); this.$dispatch('toast',{message:'Konfigurasi bobot berhasil disimpan!',type:'success'}); },
+            addKomponen() { this.komponen.push({id:Date.now(), nama:'Komponen Baru', bobot:0, kode:'KB'}); this.persist(); },
             confirmHapus(k) { this.hapusTarget = k; this.showHapus = true; },
-            doHapus() { this.komponen = this.komponen.filter(k => k.id !== this.hapusTarget.id); this.showHapus = false; this.$dispatch('toast',{message:'Komponen berhasil dihapus',type:'error'}); },
+            doHapus() { this.komponen = this.komponen.filter(k => k.id !== this.hapusTarget.id); this.showHapus = false; this.persist(); this.$dispatch('toast',{message:'Komponen berhasil dihapus',type:'error'}); },
 
-            addNilaiSikap() { this.nilaiSikap.push({ id: Date.now(), nama: 'Nilai Sikap Baru', predikat: ['A','B','C','D'], deskripsi: '' }); },
+            addNilaiSikap() { this.nilaiSikap.push({ id: Date.now(), nama: 'Nilai Sikap Baru', predikat: ['A','B','C','D'], deskripsi: '' }); this.persist(); },
             confirmHapusSikap(a) { this.hapusSikapTarget = a; this.showHapusSikap = true; },
-            doHapusSikap() { this.nilaiSikap = this.nilaiSikap.filter(a => a.id !== this.hapusSikapTarget.id); this.showHapusSikap = false; this.$dispatch('toast',{message:'Nilai sikap dihapus',type:'error'}); },
+            doHapusSikap() { this.nilaiSikap = this.nilaiSikap.filter(a => a.id !== this.hapusSikapTarget.id); this.showHapusSikap = false; this.persist(); this.$dispatch('toast',{message:'Nilai sikap dihapus',type:'error'}); },
 
-            addEskul() { this.eskul.push({ id: Date.now(), nama: 'Kegiatan Baru', wajib: false }); },
+            addEskul() { this.eskul.push({ id: Date.now(), nama: 'Kegiatan Baru', wajib: false }); this.persist(); },
             confirmHapusEskul(e) { this.hapusEskulTarget = e; this.showHapusEskul = true; },
-            doHapusEskul() { this.eskul = this.eskul.filter(e => e.id !== this.hapusEskulTarget.id); this.showHapusEskul = false; this.$dispatch('toast',{message:'Ekstrakurikuler dihapus',type:'error'}); },
+            doHapusEskul() { this.eskul = this.eskul.filter(e => e.id !== this.hapusEskulTarget.id); this.showHapusEskul = false; this.persist(); this.$dispatch('toast',{message:'Ekstrakurikuler dihapus',type:'error'}); },
         }));
     });
 </script>
@@ -59,7 +77,7 @@
     {{-- HEADING --}}
     <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div><h1 class="text-[32px] font-black tracking-[-0.04em] text-[#0f172a]">Aturan Nilai</h1><p class="mt-2 max-w-[480px] text-[14px] leading-[1.8] text-[#475569]">Konfigurasi bobot penilaian, aturan pembulatan, dan KKM untuk setiap mata pelajaran.</p></div>
-        <button @click="$dispatch('toast',{message:'Konfigurasi bobot berhasil disimpan!',type:'success'})" :disabled="!isValid" class="flex h-[44px] items-center gap-2 rounded-[8px] px-5 text-[13px] font-bold text-white transition" :class="isValid ? 'bg-[#1d4ed8] hover:bg-[#1e40af]' : 'bg-[#94a3b8] cursor-not-allowed'">
+        <button @click="saveKonfigurasi()" :disabled="!isValid" class="flex h-[44px] items-center gap-2 rounded-[8px] px-5 text-[13px] font-bold text-white transition" :class="isValid ? 'bg-[#1d4ed8] hover:bg-[#1e40af]' : 'bg-[#94a3b8] cursor-not-allowed'">
             <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
             Simpan Konfigurasi
         </button>
@@ -80,12 +98,13 @@
                     <button @click="addKomponen()" class="flex h-[34px] items-center gap-1.5 rounded-[6px] bg-[#1d4ed8] px-3 text-[11px] font-bold text-white hover:bg-[#1e40af]"><svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4" stroke-width="2" stroke-linecap="round"></path></svg>Tambah</button>
                 </div>
                 <table class="w-full text-[13px]">
-                    <thead><tr class="bg-[#f8fafc]"><th class="px-6 py-3 text-left text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Komponen</th><th class="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b] w-[120px]">Bobot (%)</th><th class="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Bar</th><th class="px-4 py-3 w-12"></th></tr></thead>
+                    <thead><tr class="bg-[#f8fafc]"><th class="px-6 py-3 text-left text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">No</th><th class="px-6 py-3 text-left text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Komponen</th><th class="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b] w-[120px]">Bobot (%)</th><th class="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Bar</th><th class="px-4 py-3 w-12"></th></tr></thead>
                     <tbody>
-                        <template x-for="k in komponen" :key="k.id">
+                        <template x-for="(k, index) in komponen" :key="k.id">
                             <tr class="border-t border-[#f1f5f9]">
-                                <td class="px-6 py-3"><input x-model="k.nama" class="w-full bg-transparent text-[14px] font-bold text-[#0f172a] outline-none border-b border-transparent focus:border-[#3b82f6] pb-0.5"></td>
-                                <td class="px-4 py-3"><input x-model.number="k.bobot" type="number" min="0" max="100" class="h-[36px] w-[80px] rounded-[6px] border border-[#e2e8f0] bg-[#f8fafc] px-3 text-center text-[14px] font-bold outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20"></td>
+                                <td class="px-6 py-3 font-semibold text-[#64748b]" x-text="index + 1"></td>
+                                <td class="px-6 py-3"><input x-model="k.nama" @change="persist()" class="w-full bg-transparent text-[14px] font-bold text-[#0f172a] outline-none border-b border-transparent focus:border-[#3b82f6] pb-0.5"></td>
+                                <td class="px-4 py-3"><input x-model.number="k.bobot" @change="persist()" type="number" min="0" max="100" class="h-[36px] w-[80px] rounded-[6px] border border-[#e2e8f0] bg-[#f8fafc] px-3 text-center text-[14px] font-bold outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20"></td>
                                 <td class="px-4 py-3"><div class="h-[6px] w-full overflow-hidden rounded-full bg-[#e2e8f0]"><div class="h-full rounded-full transition-all duration-300" :class="totalBobot > 100 ? 'bg-[#dc2626]' : 'bg-[#1d4ed8]'" :style="'width:'+Math.min(k.bobot,100)+'%'"></div></div></td>
                                 <td class="px-4 py-3"><button @click="confirmHapus(k)" class="rounded-lg p-1.5 text-[#94a3b8] transition hover:bg-[#fef2f2] hover:text-[#dc2626]"><svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></button></td>
                             </tr>
@@ -107,7 +126,7 @@
                 <div class="mt-4 flex flex-wrap gap-3">
                     <template x-for="opt in ['Terdekat', 'Ke Atas', 'Ke Bawah']">
                         <label class="flex cursor-pointer items-center gap-2 rounded-[8px] border px-4 py-2.5 text-[13px] font-semibold transition" :class="pembulatan === opt ? 'bg-[#0f172a] text-white border-[#0f172a]' : 'border-[#e2e8f0] text-[#475569] hover:bg-[#f1f5f9]'">
-                            <input type="radio" :value="opt" x-model="pembulatan" class="hidden"><span x-text="opt"></span>
+                            <input type="radio" :value="opt" x-model="pembulatan" @change="persist()" class="hidden"><span x-text="opt"></span>
                         </label>
                     </template>
                 </div>
@@ -179,7 +198,7 @@
                 <div class="flex flex-col gap-3 px-6 py-4 transition hover:bg-[#fafbfc]">
                     <div class="flex items-center gap-4">
                         <span class="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-[#f1f5f9] text-[11px] font-black text-[#475569]" x-text="idx + 1"></span>
-                        <input x-model="a.nama" class="flex-1 rounded-[6px] border border-transparent bg-transparent px-2 py-1.5 text-[14px] font-bold text-[#0f172a] outline-none transition hover:border-[#e2e8f0] focus:border-[#3b82f6] focus:bg-[#f8fafc] focus:ring-2 focus:ring-[#3b82f6]/20" placeholder="Nama nilai sikap...">
+                        <input x-model="a.nama" @change="persist()" class="flex-1 rounded-[6px] border border-transparent bg-transparent px-2 py-1.5 text-[14px] font-bold text-[#0f172a] outline-none transition hover:border-[#e2e8f0] focus:border-[#3b82f6] focus:bg-[#f8fafc] focus:ring-2 focus:ring-[#3b82f6]/20" placeholder="Nama nilai sikap...">
                         <div class="hidden sm:flex items-center gap-1.5">
                             <template x-for="p in a.predikat" :key="p">
                                 <span class="flex h-7 w-7 items-center justify-center rounded-md border border-[#e2e8f0] bg-[#f8fafc] text-[11px] font-black text-[#475569]" x-text="p"></span>
@@ -190,7 +209,7 @@
                         </button>
                     </div>
                     <div class="ml-11">
-                        <input x-model="a.deskripsi" class="w-full rounded-[6px] border border-[#e2e8f0] bg-[#f8fafc] px-3 py-2 text-[12px] text-[#64748b] outline-none transition focus:border-[#3b82f6] focus:bg-white focus:ring-2 focus:ring-[#3b82f6]/20 focus:text-[#0f172a]" placeholder="Deskripsi nilai (contoh: Ketaatan beribadah, berperilaku syukur...)">
+                        <input x-model="a.deskripsi" @change="persist()" class="w-full rounded-[6px] border border-[#e2e8f0] bg-[#f8fafc] px-3 py-2 text-[12px] text-[#64748b] outline-none transition focus:border-[#3b82f6] focus:bg-white focus:ring-2 focus:ring-[#3b82f6]/20 focus:text-[#0f172a]" placeholder="Deskripsi nilai (contoh: Ketaatan beribadah, berperilaku syukur...)">
                         <p class="mt-1.5 text-[10px] text-[#94a3b8] italic">Wali Kelas akan mengisi predikat (A/B/C/D) + narasi deskriptif per siswa di rapor.</p>
                     </div>
                 </div>
@@ -236,9 +255,9 @@
             <template x-for="(e, idx) in eskul" :key="e.id">
                 <div class="grid grid-cols-[auto_1fr_auto_auto] items-center gap-4 px-6 py-3">
                     <span class="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-[#f1f5f9] text-[11px] font-black text-[#475569]" x-text="idx + 1"></span>
-                    <input x-model="e.nama" class="rounded-[6px] border border-transparent bg-transparent px-2 py-1.5 text-[14px] font-semibold text-[#0f172a] outline-none transition hover:border-[#e2e8f0] focus:border-[#3b82f6] focus:bg-[#f8fafc] focus:ring-2 focus:ring-[#3b82f6]/20" placeholder="Nama kegiatan eskul...">
+                    <input x-model="e.nama" @change="persist()" class="rounded-[6px] border border-transparent bg-transparent px-2 py-1.5 text-[14px] font-semibold text-[#0f172a] outline-none transition hover:border-[#e2e8f0] focus:border-[#3b82f6] focus:bg-[#f8fafc] focus:ring-2 focus:ring-[#3b82f6]/20" placeholder="Nama kegiatan eskul...">
                     <label class="flex cursor-pointer items-center gap-2">
-                        <div @click="e.wajib = !e.wajib" class="relative h-5 w-9 rounded-full transition-colors duration-200" :class="e.wajib ? 'bg-[#1d4ed8]' : 'bg-[#cbd5e1]'">
+                        <div @click="e.wajib = !e.wajib; persist()" class="relative h-5 w-9 rounded-full transition-colors duration-200" :class="e.wajib ? 'bg-[#1d4ed8]' : 'bg-[#cbd5e1]'">
                             <div class="absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform duration-200" :class="e.wajib ? 'translate-x-4' : 'translate-x-0.5'"></div>
                         </div>
                         <span class="text-[11px] font-bold" :class="e.wajib ? 'text-[#1d4ed8]' : 'text-[#94a3b8]'" x-text="e.wajib ? 'Wajib' : 'Pilihan'"></span>

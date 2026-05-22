@@ -176,9 +176,6 @@ document.addEventListener('alpine:init', () => {
             </table>
         </div>
 
-        {{-- Pagination --}}
-        <div class="border-t border-[#e2e8f0] px-6 py-4">
-            {{ $data->links() }}
-        </div>
+        <x-table-pagination :paginator="$data" />
     </div>
 </div>

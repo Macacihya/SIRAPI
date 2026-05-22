@@ -221,6 +221,7 @@
                     <table class="w-full text-[13px]">
                         <thead>
                             <tr class="border-b border-[#e2e8f0] bg-[#f8fafc]">
+                                <th class="px-5 py-3 text-left text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b]">No</th>
                                 <th class="px-5 py-3 text-left text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b]">Bulan</th>
                                 <th class="px-4 py-3 text-center text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b]">Hadir (%)</th>
                                 <th class="px-4 py-3 text-center text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b]">Izin (%)</th>
@@ -229,8 +230,9 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <template x-for="r in rekapBulan" :key="r.bulan">
+                            <template x-for="(r, index) in rekapBulan" :key="r.bulan">
                                 <tr class="border-b border-[#f1f5f9] transition hover:bg-[#f8fafc]">
+                                    <td class="px-5 py-4 font-semibold text-[#64748b]" x-text="index + 1"></td>
                                     <td class="px-5 py-4 font-bold text-[#0f172a]" x-text="r.bulan"></td>
                                     <td class="px-4 py-4 text-center font-bold text-[#16a34a]" x-text="r.hadir + '%'"></td>
                                     <td class="px-4 py-4 text-center text-[#475569]" x-text="r.izin + '%'"></td>

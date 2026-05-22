@@ -10,7 +10,16 @@
 <script>
     document.addEventListener('alpine:init', () => {
         Alpine.data('laporanAdminData', () => ({
-            expanded: null
+            expanded: null,
+            search: '',
+            kelasFilter: 'Semua Kelas',
+            mapelFilter: 'Semua Mapel',
+            matches(nama, nis, kelas) {
+                const q = this.search.toLowerCase().trim();
+                const matchSearch = !q || nama.toLowerCase().includes(q) || nis.includes(q);
+                const matchKelas = this.kelasFilter === 'Semua Kelas' || kelas === this.kelasFilter;
+                return matchSearch && matchKelas;
+            }
         }));
     });
 </script>
@@ -25,13 +34,13 @@
 
     {{-- Filter Cepat --}}
     <div class="bg-white p-4 rounded-xl border border-[#e2e8f0] shadow-sm flex flex-wrap items-center gap-4">
-        <input type="text" placeholder="Cari NIS/Nama Siswa..." class="flex-1 bg-[#f8fafc] border border-[#e2e8f0] rounded-lg px-4 py-2.5 text-[13px] font-medium outline-none focus:border-[#3b82f6]">
-        <select class="border border-[#e2e8f0] rounded-lg px-4 py-2.5 text-[13px] font-medium outline-none">
+        <input x-model="search" type="text" placeholder="Cari NIS/Nama Siswa..." class="flex-1 bg-[#f8fafc] border border-[#e2e8f0] rounded-lg px-4 py-2.5 text-[13px] font-medium outline-none focus:border-[#3b82f6]">
+        <select x-model="kelasFilter" class="border border-[#e2e8f0] rounded-lg px-4 py-2.5 text-[13px] font-medium outline-none">
             <option>Semua Kelas</option>
             <option>Kelas 4-A</option>
             <option>Kelas 4-B</option>
         </select>
-        <select class="border border-[#e2e8f0] rounded-lg px-4 py-2.5 text-[13px] font-medium outline-none">
+        <select x-model="mapelFilter" class="border border-[#e2e8f0] rounded-lg px-4 py-2.5 text-[13px] font-medium outline-none">
             <option>Semua Mapel</option>
             <option>Pendidikan Pancasila</option>
         </select>
@@ -42,6 +51,7 @@
         <table class="w-full text-left text-[13px]">
             <thead class="bg-[#f8fafc] border-b border-[#e2e8f0]">
                 <tr>
+                    <th class="px-6 py-4 font-bold text-[#64748b] uppercase text-[11px] tracking-wider w-12 text-center">No</th>
                     <th class="px-6 py-4 font-bold text-[#64748b] uppercase text-[11px] tracking-wider w-12 text-center">NIS</th>
                     <th class="px-6 py-4 font-bold text-[#64748b] uppercase text-[11px] tracking-wider">Siswa</th>
                     <th class="px-6 py-4 font-bold text-[#64748b] uppercase text-[11px] tracking-wider">Kelas</th>
@@ -52,7 +62,8 @@
             <tbody class="divide-y divide-[#f1f5f9]">
                 
                 {{-- Siswa 1 --}}
-                <tr class="hover:bg-[#f8fafc] cursor-pointer transition" @click="expanded = expanded === 1 ? null : 1">
+                <tr x-show="matches('Dika Aryanto', '1021', 'Kelas 4-A')" class="hover:bg-[#f8fafc] cursor-pointer transition" @click="expanded = expanded === 1 ? null : 1">
+                    <td class="px-6 py-4 text-center font-bold text-[#94a3b8]">1</td>
                     <td class="px-6 py-4 text-center text-[#94a3b8] font-medium">1021</td>
                     <td class="px-6 py-4">
                         <div class="flex items-center gap-3">
@@ -69,8 +80,8 @@
                     </td>
                 </tr>
                 {{-- Row Expand Siswa 1 --}}
-                <tr x-show="expanded === 1" x-transition class="bg-[#f8fafc] border-b-2 border-[#e2e8f0]" style="display:none;">
-                    <td colspan="5" class="px-6 py-5">
+                <tr x-show="expanded === 1 && matches('Dika Aryanto', '1021', 'Kelas 4-A')" x-transition class="bg-[#f8fafc] border-b-2 border-[#e2e8f0]" style="display:none;">
+                    <td colspan="6" class="px-6 py-5">
                         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
                             <div class="bg-white p-3 rounded-lg border border-[#e2e8f0]">
                                 <p class="text-[10px] font-bold uppercase text-[#64748b]">Tugas Akhir / Sumatif</p>

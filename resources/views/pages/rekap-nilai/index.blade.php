@@ -62,7 +62,8 @@
             <table class="w-full text-[12px]">
                 <thead>
                     <tr class="border-b border-[#e2e8f0]">
-                        <th class="px-4 py-3 text-left font-bold text-[#475569] uppercase sticky left-0 bg-white shadow-[1px_0_0_#e2e8f0]">Rombel</th>
+                        <th class="px-4 py-3 text-left font-bold text-[#475569] uppercase sticky left-0 bg-white shadow-[1px_0_0_#e2e8f0]">No</th>
+                        <th class="px-4 py-3 text-left font-bold text-[#475569] uppercase sticky left-[56px] bg-white shadow-[1px_0_0_#e2e8f0]">Rombel</th>
                         <th class="px-4 py-3 text-center font-bold text-[#475569] uppercase">PAI/Budi Pekerti</th>
                         <th class="px-4 py-3 text-center font-bold text-[#475569] uppercase">Pendidikan Pancasila</th>
                         <th class="px-4 py-3 text-center font-bold text-[#475569] uppercase">Bahasa Indonesia</th>
@@ -74,7 +75,8 @@
                 </thead>
                 <tbody class="divide-y divide-[#f1f5f9]">
                     <tr class="hover:bg-[#f8fafc] transition">
-                        <td class="px-4 py-3 font-bold text-[#0f172a] sticky left-0 bg-white shadow-[1px_0_0_#e2e8f0]">Kelas 4-A</td>
+                        <td class="px-4 py-3 font-semibold text-[#64748b] sticky left-0 bg-white shadow-[1px_0_0_#e2e8f0]">1</td>
+                        <td class="px-4 py-3 font-bold text-[#0f172a] sticky left-[56px] bg-white shadow-[1px_0_0_#e2e8f0]">Kelas 4-A</td>
                         <td class="px-4 py-3 text-center font-bold text-[#0f172a]">85.2</td>
                         <td class="px-4 py-3 text-center font-bold text-[#0f172a]">80.4</td>
                         <td class="px-4 py-3 text-center font-bold text-[#0f172a]">78.5</td>
@@ -84,7 +86,8 @@
                         <td class="px-4 py-3 text-center font-black text-[#1d4ed8] border-l border-[#e2e8f0]">81.2</td>
                     </tr>
                     <tr class="hover:bg-[#f8fafc] transition">
-                        <td class="px-4 py-3 font-bold text-[#0f172a] sticky left-0 bg-white shadow-[1px_0_0_#e2e8f0]">Kelas 4-B</td>
+                        <td class="px-4 py-3 font-semibold text-[#64748b] sticky left-0 bg-white shadow-[1px_0_0_#e2e8f0]">2</td>
+                        <td class="px-4 py-3 font-bold text-[#0f172a] sticky left-[56px] bg-white shadow-[1px_0_0_#e2e8f0]">Kelas 4-B</td>
                         <td class="px-4 py-3 text-center font-bold text-[#0f172a]">82.0</td>
                         <td class="px-4 py-3 text-center font-bold text-[#0f172a]">79.0</td>
                         <td class="px-4 py-3 text-center font-bold text-[#0f172a]">77.2</td>

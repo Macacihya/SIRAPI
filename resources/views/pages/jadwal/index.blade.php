@@ -309,6 +309,7 @@
                         <table class="w-full text-left text-[13px] relative border-collapse">
                             <thead class="sticky top-0 z-10 bg-[#f8fafc] shadow-sm">
                                 <tr>
+                                    <th class="px-5 py-3 text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b] border-b border-[#e2e8f0]">No</th>
                                     <th class="px-5 py-3 text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b] border-b border-[#e2e8f0]">Mata Pelajaran</th>
                                     <th class="px-5 py-3 text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b] border-b border-[#e2e8f0]">Guru Pengajar</th>
                                     <th class="px-5 py-3 text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b] border-b border-[#e2e8f0]">Kontak</th>
@@ -330,6 +331,7 @@
                                 @endphp
                                 @foreach ($gurus as $g)
                                     <tr class="border-b border-[#f1f5f9] hover:bg-[#f8fafc] transition">
+                                        <td class="px-5 py-3.5 font-semibold text-[#64748b]">{{ $loop->iteration }}</td>
                                         <td class="px-5 py-3.5 font-bold text-[#0f172a]">{{ $g['mapel'] }}</td>
                                         <td class="px-5 py-3.5 text-[#475569]">{{ $g['guru'] }}</td>
                                         <td class="px-5 py-3.5 text-[#475569]">{{ $g['kontak'] }}</td>
