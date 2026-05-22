@@ -13,10 +13,10 @@ use App\Http\Controllers\GuruPengampuController;
 use App\Http\Controllers\RaportController;
 use App\Http\Controllers\NilaiController;
 use App\Http\Controllers\CapaianKompetensiController;
-use App\Http\Controllers\RekapKehadiranController;
 use App\Http\Controllers\NilaiSikapController;
 use App\Http\Controllers\EkstrakurikulerController;
 use App\Http\Controllers\RaportEkskulController;
+use App\Http\Controllers\RekapKehadiranController;
 use Illuminate\Support\Facades\Route;
 
 // ─── Guest Routes ────────────────────────────────────────────
@@ -102,7 +102,6 @@ Route::middleware('auth')->group(function () {
 
     // ── Admin, Guru & Walikelas ──────────────────────────────
     Route::middleware('role:admin,guru,walikelas')->group(function () {
-        Route::view('/jadwal', 'pages.jadwal.index')->name('jadwal');
         Route::view('/penilaian', 'pages.penilaian.index')->name('penilaian');
 
         // Nilai
@@ -122,10 +121,6 @@ Route::middleware('auth')->group(function () {
     // ── Walikelas Only ───────────────────────────────────────
     Route::middleware('role:walikelas')->group(function () {
         Route::view('/profil-kelas', 'pages.profil-kelas.index')->name('profil-kelas');
-        Route::get('/kehadiran', [RekapKehadiranController::class, 'index'])->name('kehadiran');
-        Route::post('/kehadiran', [RekapKehadiranController::class, 'store'])->name('kehadiran.store');
-        Route::put('/kehadiran/{rekapKehadiran}', [RekapKehadiranController::class, 'update'])->name('kehadiran.update');
-        Route::delete('/kehadiran/{rekapKehadiran}', [RekapKehadiranController::class, 'destroy'])->name('kehadiran.destroy');
 
         Route::get('/rapor', [RaportController::class, 'index'])->name('rapor');
         Route::post('/rapor', [RaportController::class, 'store'])->name('rapor.store');
@@ -143,6 +138,9 @@ Route::middleware('auth')->group(function () {
         Route::post('/rapor-ekskul', [RaportEkskulController::class, 'store'])->name('rapor-ekskul.store');
         Route::put('/rapor-ekskul/{raportEkskul}', [RaportEkskulController::class, 'update'])->name('rapor-ekskul.update');
         Route::delete('/rapor-ekskul/{raportEkskul}', [RaportEkskulController::class, 'destroy'])->name('rapor-ekskul.destroy');
+
+        // Rekap Kehadiran (per entri, disimpan menggunakan mode sync)
+        Route::post('/rekap-kehadiran/sync', [RekapKehadiranController::class, 'sync'])->name('rekap-kehadiran.sync');
 
         Route::view('/rapor/lihat', 'pages.rapor.lihat')->name('rapor.lihat');
     });

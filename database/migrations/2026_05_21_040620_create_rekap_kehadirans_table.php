@@ -6,17 +6,18 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    /**
+     * Rekap kehadiran siswa — satu baris per entri ketidakhadiran.
+     * Status: sakit / izin / alpha. Keterangan bersifat opsional.
+     */
     public function up(): void
     {
         Schema::create('rekap_kehadirans', function (Blueprint $table) {
             $table->id();
             $table->foreignId('raport_id')->constrained('raports')->cascadeOnDelete();
-            $table->integer('sakit')->default(0);
-            $table->integer('izin')->default(0);
-            $table->integer('alpha')->default(0);
+            $table->enum('status', ['sakit', 'izin', 'alpha']);
+            $table->text('keterangan')->nullable(); // opsional, cth: "sakit perut"
             $table->timestamps();
-
-            $table->unique('raport_id');
         });
     }
 

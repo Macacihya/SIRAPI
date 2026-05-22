@@ -9,11 +9,11 @@ class RekapKehadiranSeeder extends Seeder
 {
     public function run(): void
     {
-        RekapKehadiran::create([
-            'raport_id' => 1,
-            'sakit' => 2,
-            'izin' => 1,
-            'alpha' => 0,
-        ]);
+        // 2 hari sakit
+        RekapKehadiran::create(['raport_id' => 1, 'status' => 'sakit', 'keterangan' => 'Demam Berdarah']);
+        RekapKehadiran::create(['raport_id' => 1, 'status' => 'sakit', 'keterangan' => 'Masih tahap pemulihan']);
+        
+        // 1 hari izin
+        RekapKehadiran::create(['raport_id' => 1, 'status' => 'izin', 'keterangan' => 'Acara keluarga']);
     }
 }

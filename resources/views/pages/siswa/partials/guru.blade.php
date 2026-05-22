@@ -68,7 +68,7 @@ document.addEventListener('alpine:init', () => {
                 <select x-model="filterKelas" class="h-12 w-full rounded-lg border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[15px] font-bold text-[#0f172a] outline-none transition focus:border-[#3b82f6] focus:bg-white focus:ring-2 focus:ring-[#3b82f6]/20">
                     <option value="">Semua Kelas</option>
                     @foreach($daftarKelas as $kls)
-                        <option value="{{ $kls }}">{{ $kls }}</option>
+                        <option value="{{ $kls->nama }}">{{ $kls->nama }}</option>
                     @endforeach
                 </select>
             </div>
