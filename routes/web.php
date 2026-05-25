@@ -153,6 +153,6 @@ Route::middleware('auth')->group(function () {
         // Rekap Kehadiran (per entri, disimpan menggunakan mode sync)
         Route::post('/rekap-kehadiran/sync', [RekapKehadiranController::class, 'sync'])->name('rekap-kehadiran.sync');
 
-        Route::get('/rapor/lihat', fn () => redirect()->route('rapor'))->name('rapor.lihat');
+        Route::view('/rapor/lihat', 'pages.rapor.lihat')->name('rapor.lihat');
     });
 });

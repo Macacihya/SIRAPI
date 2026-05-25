@@ -168,12 +168,6 @@
             this.draftModalOpen = false;
         },
 
-        saveFinal() {
-            let sType = this.selectedStudent;
-            sType.status = 'Selesai';
-            this.saveModalOpen = false;
-        },
-
         // Simulasi Validasi (Set ke false agar bisa dicoba)
         hasMissingSubjectGrades: false, 
         isFormIncomplete: false,
@@ -486,7 +480,7 @@
                             <h3 class="text-[14px] font-bold text-[#0f172a]">4. Catatan Wali Kelas</h3>
                         </div>
                         <div class="p-5">
-                            <textarea x-model="selectedStudent.form.catatan" :readonly="selectedStudent.status === 'Selesai'" rows="4" class="w-full rounded-lg border border-[#e2e8f0] p-3 text-[13px] focus:ring-2 focus:ring-[#3b82f6]/20 focus:border-[#3b82f6] outline-none resize-none readonly:bg-[#f1f5f9] readonly:text-[#94a3b8]" placeholder="Tuliskan pesan, motivasi, atau evaluasi wali kelas untuk siswa ini..."></textarea>
+                            <textarea x-model="selectedStudent.form.catatan" :readonly="selectedStudent.status === 'Selesai'" rows="4" class="w-full rounded-lg border border-[#e2e8f0] p-3 text-[13px] focus:ring-2 focus:ring-[#3b82f6]/20 focus:border-[#3b82f6] outline-none resize-none readonly:bg-[#f1f5f9] readonly:text-[#94a3b8]" placeholder="Tuliskan pesan, motivasi, or evaluasi wali kelas untuk siswa ini..."></textarea>
                             <p class="text-[11px] text-[#94a3b8] mt-2">Catatan ini akan langsung tercetak di lembar akhir Rapor Siswa.</p>
                         </div>
                     </div>

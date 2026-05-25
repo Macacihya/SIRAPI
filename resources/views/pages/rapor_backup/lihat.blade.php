@@ -182,6 +182,9 @@
         {{-- ──── HALAMAN 1 ──── --}}
         <div class="rapor-page mb-8 rounded-lg bg-white px-10 py-8 shadow-xl sm:px-14 sm:py-12 md:px-24 md:py-16">
 
+            {{-- ──── KOP SURAT (OFFICIAL SCHOOL ADMINISTRATION STANDARD) ──── --}}
+            
+
             {{-- ──── JUDUL DOKUMEN ──── --}}
             {{-- ──── IDENTITAS SISWA (DATA DINAMIS) ──── --}}
             <div class="mt-10 text-center mb-20">
@@ -381,7 +384,7 @@
                     </div>
 
                     <div>
-                        <p class="text-[#475569]">Batam, {{ now()->translatedFormat('d F Y') }}</p>
+                        <p class="text-[#475569]">Kota Digital, {{ now()->translatedFormat('d F Y') }}</p>
                         <p class="text-[#475569]">Wali Kelas,</p>
                         <div class="mt-10">
                             <p class="text-[13px] text-[#0f172a] underline underline-offset-4">{{ auth()->user()->nama ?? 'Heryanto Pratama, S.Pd.' }}</p>
