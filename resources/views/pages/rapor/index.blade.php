@@ -4,129 +4,64 @@
 @section('active', 'rapor')
 
 @section('content')
+@php
+    $raporBySiswa = $raports->keyBy('siswa_id');
+    $studentsData = $siswas->map(function ($siswa) use ($raporBySiswa) {
+        $raport = $raporBySiswa->get($siswa->id);
+        $rekap = $raport?->rekapKehadiran;
+        $nilaiSikap = $raport?->nilaiSikap ?? $raport?->nilaiSikaps?->first();
+        $initials = collect(explode(' ', trim($siswa->nama_siswa ?? 'S')))
+            ->filter()
+            ->take(2)
+            ->map(fn ($part) => strtoupper(substr($part, 0, 1)))
+            ->implode('');
+
+        return [
+            'id' => $siswa->id,
+            'raport_id' => $raport?->id,
+            'nis' => $siswa->nis ?? '-',
+            'nisn' => $siswa->nisn ?? '-',
+            'name' => $siswa->nama_siswa ?? '-',
+            'kelas' => $siswa->kelas->nama_kelas ?? '-',
+            'avatar' => $initials ?: 'S',
+            'status' => $raport ? 'Draft' : 'Belum',
+            'print_url' => $raport ? route('rapor.show', $raport) : '#',
+            'form' => [
+                'sikap_sp' => $nilaiSikap?->predikat ? $nilaiSikap->predikat . ' (Terisi)' : '',
+                'desc_sp' => $nilaiSikap?->deskripsi ?? '',
+                'sikap_so' => '',
+                'desc_so' => '',
+                'eskul' => collect($raport?->raportEkskuls ?? [])->map(fn ($item) => [
+                    'id' => $item->id,
+                    'nama' => $item->ekstrakurikuler->nama_eskul ?? '',
+                    'deskripsi' => $item->deskripsi ?? '',
+                ])->values()->all(),
+                'catatan' => '',
+                'sakit' => (int) ($rekap?->sakit ?? 0),
+                'izin' => (int) ($rekap?->izin ?? 0),
+                'alpha' => (int) ($rekap?->alpha ?? 0),
+            ],
+        ];
+    })->values();
+@endphp
 <!-- Halaman Utama Rapor -->
     <div x-data="{
-        selectedStudentId: 1,
-        students: [
-            { 
-                id: 1, nis: '12001', nisn: '0012345601', name: 'Achmad Albar', avatar: 'AA', status: 'Selesai',
-                form: {
-                    sikap_sp: 'A (Sangat Baik)', 
-                    desc_sp: 'Sangat baik dalam ketaatan beribadah dan berperilaku syukur dalam setiap kegiatan.', 
-                    sikap_so: 'A (Sangat Baik)', 
-                    desc_so: 'Sangat baik dalam sikap disiplin, jujur, dan tanggung jawab.', 
-                    eskul: [
-                        { id: 1, nama: 'Pramuka', deskripsi: 'Sangat aktif dalam kegiatan perkemahan.' },
-                        { id: 2, nama: 'Seni Tari', deskripsi: 'Mampu memperagakan gerak dasar tari daerah.' }
-                    ],
-                    catatan: 'Tingkatkan terus prestasimu, pertahankan semangat belajarnya!',
-                    sakit: 2, izin: 0, alpha: 1
-                }
-            },
-            { 
-                id: 14, nis: '12014', nisn: '0012345614', name: 'Oscar Permana', avatar: 'OP', status: 'Belum',
-                form: { sikap_sp: '', desc_sp: '', sikap_so: '', desc_so: '', eskul: [{ id: 1, nama: 'Pramuka', deskripsi: '' }, { id: 2, nama: 'Seni Tari', deskripsi: '' }], catatan: '', sakit: 0, izin: 0, alpha: 0 }
-            },
-            { 
-                id: 3, nis: '12003', nisn: '0012345603', name: 'Dandi Pratama', avatar: 'DP', status: 'Draft',
-                form: {
-                    sikap_sp: 'B (Baik)', 
-                    desc_sp: 'Sudah baik dalam ketaatan beribadah namun perlu bimbingan dalam perilaku syukur.', 
-                    sikap_so: 'B (Baik)', 
-                    desc_so: 'Cukup disiplin namun perlu ditingkatkan lagi tanggung jawabnya.', 
-                    eskul: [
-                        { id: 1, nama: 'Pramuka', deskripsi: 'Aktif mengikuti latihan rutin.' },
-                        { id: 2, nama: 'Seni Tari', deskripsi: '' }
-                    ],
-                    catatan: 'Cukup bagus, ayo semangat lagi belajarnya!'
-                }
-            },
-            // ... siswa lainnya didefinisikan dengan struktur form: { ... } yang sama
-            { 
-                id: 5, nis: '12005', nisn: '0012345605', name: 'Farhan Azis', avatar: 'FA', status: 'Belum',
-                form: { sikap_sp: '', desc_sp: '', sikap_so: '', desc_so: '', eskul: [{ id: 1, nama: 'Pramuka', deskripsi: '' }, { id: 2, nama: 'Seni Tari', deskripsi: '' }], catatan: '' }
-            },
-            { 
-                id: 7, nis: '12007', nisn: '0012345607', name: 'Hendra Yulian', avatar: 'HY', status: 'Selesai',
-                form: {
-                    sikap_sp: 'A (Sangat Baik)', 
-                    desc_sp: 'Sikap spiritual sangat menonjol terutama dalam hal toleransi antar umat beragama.', 
-                    sikap_so: 'B (Baik)', 
-                    desc_so: 'Sangat aktif dalam kegiatan sosial sekolah.', 
-                    eskul: [{ id: 1, nama: 'Pramuka', deskripsi: '' }, { id: 2, nama: 'Seni Tari', deskripsi: '' }],
-                    catatan: 'Lanjutkan progres positif ini di semester depan.'
-                }
-            },
-            { 
-                id: 8, nis: '12008', nisn: '0012345608', name: 'Intan Sari', avatar: 'IS', status: 'Belum',
-                form: { sikap_sp: '', desc_sp: '', sikap_so: '', desc_so: '', eskul: [{ id: 1, nama: 'Pramuka', deskripsi: '' }, { id: 2, nama: 'Seni Tari', deskripsi: '' }], catatan: '' }
-            },
-            { 
-                id: 9, nis: '12009', nisn: '0012345609', name: 'Joko Wibowo', avatar: 'JW', status: 'Draft',
-                form: {
-                    sikap_sp: 'B (Baik)', 
-                    desc_sp: 'Baik dalam ibadah harian.', 
-                    sikap_so: 'B (Baik)', 
-                    desc_so: 'Perlu lebih aktif berkomunikasi dengan teman.', 
-                    eskul: [{ id: 1, nama: 'Pramuka', deskripsi: '' }, { id: 2, nama: 'Seni Tari', deskripsi: '' }],
-                    catatan: 'Tingkatkan kepercayaan diri dalam bergaul.'
-                }
-            },
-            { 
-                id: 10, nis: '12010', nisn: '0012345610', name: 'Kirana Rahma', avatar: 'KR', status: 'Belum',
-                form: { sikap_sp: '', desc_sp: '', sikap_so: '', desc_so: '', eskul: [{ id: 1, nama: 'Pramuka', deskripsi: '' }, { id: 2, nama: 'Seni Tari', deskripsi: '' }], catatan: '' }
-            },
-            { 
-                id: 11, nis: '12011', nisn: '0012345611', name: 'Lukman Putra', avatar: 'LP', status: 'Selesai',
-                form: {
-                    sikap_sp: 'A (Sangat Baik)', 
-                    desc_sp: 'Sangat tekun dan rajin beribadah.', 
-                    sikap_so: 'A (Sangat Baik)', 
-                    desc_so: 'Disiplin dan sopan santun sangat baik.', 
-                    eskul: [{ id: 1, nama: 'Pramuka', deskripsi: '' }, { id: 2, nama: 'Seni Tari', deskripsi: '' }],
-                    catatan: 'Anak yang cerdas dan berbudi luhur.'
-                }
-            },
-            { 
-                id: 12, nis: '12012', nisn: '0012345612', name: 'Maya Nurhaliza', avatar: 'MN', status: 'Belum',
-                form: { sikap_sp: '', desc_sp: '', sikap_so: '', desc_so: '', eskul: [{ id: 1, nama: 'Pramuka', deskripsi: '' }, { id: 2, nama: 'Seni Tari', deskripsi: '' }], catatan: '' }
-            },
-            { 
-                id: 13, nis: '12013', nisn: '0012345613', name: 'Nanda Rizky', avatar: 'NR', status: 'Draft',
-                form: {
-                    sikap_sp: 'B (Baik)', 
-                    desc_sp: 'Ibadah teratur.', 
-                    sikap_so: 'C (Cukup)', 
-                    desc_so: 'Tingkatkan kedisiplinan mengumpulkan tugas.', 
-                    eskul: [{ id: 1, nama: 'Pramuka', deskripsi: '' }, { id: 2, nama: 'Seni Tari', deskripsi: '' }],
-                    catatan: 'Jangan malas mencatat materi pembelajaran.'
-                }
-            },
-            { 
-                id: 15, nis: '12015', nisn: '0012345615', name: 'Putri Setiawan', avatar: 'PS', status: 'Belum',
-                form: { sikap_sp: '', desc_sp: '', sikap_so: '', desc_so: '', eskul: [{ id: 1, nama: 'Pramuka', deskripsi: '' }, { id: 2, nama: 'Seni Tari', deskripsi: '' }], catatan: '' }
-            },
-            { 
-                id: 16, nis: '12016', nisn: '0012345616', name: 'Qiyamul Haq', avatar: 'QH', status: 'Selesai',
-                form: {
-                    sikap_sp: 'A (Sangat Baik)', 
-                    desc_sp: 'Nama mencerminkan sikap spiritualnya yang sangat kuat.', 
-                    sikap_so: 'A (Sangat Baik)', 
-                    desc_so: 'Kepemimpinan dan tanggung jawab luar biasa.', 
-                    eskul: [{ id: 1, nama: 'Pramuka', deskripsi: '' }, { id: 2, nama: 'Seni Tari', deskripsi: '' }],
-                    catatan: 'Calon pemimpin masa depan.'
-                }
-            },
-            { 
-                id: 18, nis: '12018', nisn: '0012345618', name: 'Surya Bagaskara', avatar: 'SB', status: 'Belum',
-                form: { sikap_sp: '', desc_sp: '', sikap_so: '', desc_so: '', eskul: [{ id: 1, nama: 'Pramuka', deskripsi: '' }, { id: 2, nama: 'Seni Tari', deskripsi: '' }], catatan: '' }
-            },
-        ],
+        selectedStudentId: @js($studentsData->first()['id'] ?? null),
+        students: @js($studentsData),
         draftModalOpen: false,
         saveModalOpen: false,
         previewModalOpen: false,
+        eskulToDelete: null,
         deleteConfirmOpen: false,
         prestasiToDelete: null,
+
+        addEskul() {
+            this.selectedStudent.form.eskul.push({ id: Date.now(), nama: '', deskripsi: '' });
+        },
+
+        removeEskul(id) {
+            this.selectedStudent.form.eskul = this.selectedStudent.form.eskul.filter(e => e.id !== id);
+        },
 
         prestasiList: [
             { id: 1, jenis: 'Akademik', keterangan: 'Juara 1 Olimpiade Matematika Tingkat Kota' }
@@ -142,7 +77,7 @@
         },
 
         get selectedStudent() {
-            return this.students.find(s => s.id === this.selectedStudentId) || this.students[0];
+            return this.students.find(s => s.id === this.selectedStudentId) || this.students[0] || { form: { eskul: [], sakit: 0, izin: 0, alpha: 0 }, name: '-', nis: '-', nisn: '-', kelas: '-', status: 'Belum', print_url: '#' };
         },
 
         addPrestasi() {
@@ -168,24 +103,32 @@
             this.draftModalOpen = false;
         },
 
-        saveFinal() {
-            let sType = this.selectedStudent;
-            sType.status = 'Selesai';
-            this.saveModalOpen = false;
-        },
-
         // Simulasi Validasi (Set ke false agar bisa dicoba)
         hasMissingSubjectGrades: false, 
         isFormIncomplete: false,
 
-        // Helper untuk kirim ke backend nantinya
-        submitToBackend() {
-            const payload = {
-                student_id: this.selectedStudent.id,
-                ...this.selectedStudent.form
-            };
-            console.log('Sending this to Laravel Controller:', payload);
-            this.saveFinal();
+        async submitToBackend() {
+            if (!this.selectedStudent.raport_id) {
+                this.saveModalOpen = false;
+                alert('Rapor belum tersedia untuk siswa ini.');
+                return;
+            }
+
+            const payload = new FormData();
+            payload.append('_token', '{{ csrf_token() }}');
+            payload.append('raport_id', this.selectedStudent.raport_id);
+            payload.append('sakit', this.selectedStudent.form.sakit || 0);
+            payload.append('izin', this.selectedStudent.form.izin || 0);
+            payload.append('alpha', this.selectedStudent.form.alpha || 0);
+
+            await fetch('{{ route('rekap-kehadiran.sync') }}', {
+                method: 'POST',
+                headers: { 'Accept': 'application/json' },
+                body: payload
+            });
+
+            this.selectedStudent.status = 'Selesai';
+            this.saveModalOpen = false;
         }
 
     }" class="flex h-[calc(100vh-140px)] gap-6">
@@ -195,7 +138,7 @@
             <!-- Header Sidebar -->
             <div class="p-4 border-b border-[#e2e8f0] bg-[#f8fafc]">
                 <h2 class="text-[15px] font-bold text-[#0f172a]">Daftar Siswa</h2>
-                <p class="text-[12px] text-[#64748b]">Kelas VI-A (Total: <span x-text="filteredStudents.length"></span> Siswa)</p>
+                <p class="text-[12px] text-[#64748b]">Total: <span x-text="filteredStudents.length"></span> Siswa</p>
                 
                 <div class="mt-3 relative">
                     <svg class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#94a3b8]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -249,7 +192,7 @@
                 <div class="flex items-start justify-between mb-8">
                     <div>
                         <h1 class="text-[24px] font-black tracking-[-0.03em] text-[#0f172a]" x-text="'Input Rapor: ' + selectedStudent.name"></h1>
-                        <p class="text-[13px] text-[#64748b] mt-1" x-text="'NIS: ' + selectedStudent.nis + ' | NISN: ' + (selectedStudent.nisn || '-') + ' | Kelas: VI-A'"></p>
+                        <p class="text-[13px] text-[#64748b] mt-1" x-text="'NIS: ' + selectedStudent.nis + ' | NISN: ' + (selectedStudent.nisn || '-') + ' | Kelas: ' + (selectedStudent.kelas || '-')"></p>
                     </div>
                     <div x-show="selectedStudent.status === 'Selesai'" class="flex items-center gap-2 px-4 py-2 bg-[#dcfce7] text-[#16a34a] rounded-lg border border-[#b9f6ca]">
                         <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
@@ -306,9 +249,12 @@
 
                     <!-- Section 2: Ekstrakurikuler -->
                     <div class="bg-white rounded-xl border border-[#e2e8f0] shadow-sm overflow-hidden">
-                        <div class="px-5 py-3 border-b border-[#e2e8f0] bg-[#f8fafc]">
+                        <div class="px-5 py-3 border-b border-[#e2e8f0] bg-[#f8fafc] flex items-center justify-between">
                             <h3 class="text-[14px] font-bold text-[#0f172a]">2. Ekstrakurikuler</h3>
-                            <p class="mt-1 text-[12px] text-[#64748b]">Kegiatan sudah ditentukan sekolah. Wali kelas hanya mengisi deskripsi capaian siswa.</p>
+                            <button @click="addEskul()" :disabled="selectedStudent.status === 'Selesai'" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#eff6ff] text-[11px] font-bold text-[#1d4ed8] hover:bg-[#dbeafe] transition disabled:opacity-50">
+                                <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+                                Tambah Eskul
+                            </button>
                         </div>
                         <div class="p-5">
                             <div class="overflow-x-auto">
@@ -317,7 +263,8 @@
                                         <tr class="text-[11px] font-bold text-[#64748b] uppercase tracking-wider">
                                             <th class="text-left pb-3 w-[40px]">No</th>
                                             <th class="text-left pb-3">Kegiatan Ekstrakurikuler</th>
-                                            <th class="text-left pb-3 pl-4">Deskripsi Capaian</th>
+                                            <th class="text-left pb-3 pl-4">Keterangan / Capaian</th>
+                                            <th class="pb-3 w-[40px]"></th>
                                         </tr>
                                     </thead>
                                     <tbody class="divide-y divide-[#f1f5f9]">
@@ -325,13 +272,21 @@
                                             <tr>
                                                 <td class="py-3 text-[13px] font-medium text-[#64748b]" x-text="index + 1"></td>
                                                 <td class="py-3">
-                                                    <div class="flex h-10 items-center rounded-lg border border-[#e2e8f0] bg-[#f8fafc] px-3 text-[13px] font-semibold text-[#0f172a]">
-                                                        <span x-text="e.nama"></span>
-                                                    </div>
+                                                    <input type="text" x-model="e.nama" :readonly="selectedStudent.status === 'Selesai'" class="w-full h-9 rounded-lg border border-[#e2e8f0] px-3 text-[13px] focus:ring-2 focus:ring-[#3b82f6]/20 focus:border-[#3b82f6] outline-none transition readonly:bg-[#f8fafc]">
                                                 </td>
                                                 <td class="py-3 pl-4">
-                                                    <textarea x-model="e.deskripsi" :readonly="selectedStudent.status === 'Selesai'" rows="2" class="w-full rounded-lg border border-[#e2e8f0] p-3 text-[13px] focus:ring-2 focus:ring-[#3b82f6]/20 focus:border-[#3b82f6] outline-none resize-none transition readonly:bg-[#f8fafc] readonly:text-[#94a3b8]" placeholder="Cth: Aktif mengikuti latihan rutin dan menunjukkan kerja sama yang baik..."></textarea>
+                                                    <input type="text" x-model="e.deskripsi" :readonly="selectedStudent.status === 'Selesai'" class="w-full h-9 rounded-lg border border-[#e2e8f0] px-3 text-[13px] focus:ring-2 focus:ring-[#3b82f6]/20 focus:border-[#3b82f6] outline-none transition readonly:bg-[#f8fafc]" placeholder="Cth: Sangat aktif dalam kegiatan perkemahan...">
                                                 </td>
+                                                <td class="py-3 text-right">
+                                                    <button @click="removeEskul(e.id)" :disabled="selectedStudent.status === 'Selesai'" class="p-1.5 text-[#94a3b8] hover:text-[#dc2626] transition disabled:hidden">
+                                                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        </template>
+                                        <template x-if="selectedStudent.form.eskul.length === 0">
+                                            <tr>
+                                                <td colspan="4" class="py-6 text-center text-[12px] text-[#94a3b8] italic">Belum ada data ekstrakurikuler yang ditambahkan.</td>
                                             </tr>
                                         </template>
                                     </tbody>
@@ -496,7 +451,7 @@
 
             <!-- Action Footer -->
             <div class="p-6 border-t border-[#e2e8f0] bg-[#f8fafc] flex justify-between items-center rounded-b-2xl flex-shrink-0">
-                <a :href="`{{ route('rapor.lihat') }}?name=${encodeURIComponent(selectedStudent.name)}&nis=${selectedStudent.nis}`" class="px-5 py-2.5 rounded-lg border border-[#e2e8f0] bg-white text-[13px] font-bold text-[#475569] hover:bg-[#f1f5f9] transition flex items-center gap-2">
+                <a :href="selectedStudent.print_url" class="px-5 py-2.5 rounded-lg border border-[#e2e8f0] bg-white text-[13px] font-bold text-[#475569] hover:bg-[#f1f5f9] transition flex items-center gap-2">
                     <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
                     Lihat Rapor
                 </a>

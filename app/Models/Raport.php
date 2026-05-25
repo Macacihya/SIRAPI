@@ -31,6 +31,11 @@ class Raport extends Model
         return $this->hasOne(RekapKehadiran::class);
     }
 
+    public function rekapKehadirans()
+    {
+        return $this->hasMany(RekapKehadiran::class);
+    }
+
     // Alias lama untuk kompatibilitas kode yang masih membaca satu nilai sikap.
     public function nilaiSikap()
     {
