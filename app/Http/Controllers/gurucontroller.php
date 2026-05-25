@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 
 class GuruController extends Controller
 {
@@ -106,7 +107,14 @@ class GuruController extends Controller
             ])
             ->values();
         $daftarUserGuru = User::whereIn('role', ['guru', 'walikelas'])
-            ->whereDoesntHave('guru')
+            ->with(['guru.guruPengampus', 'guru.kelasWali'])
+            ->where(function ($query) {
+                $query->whereDoesntHave('guru')
+                    ->orWhereHas('guru', function ($guru) {
+                        $guru->whereDoesntHave('guruPengampus')
+                            ->whereDoesntHave('kelasWali');
+                    });
+            })
             ->orderBy('nama')
             ->get(['id', 'nama', 'email', 'username', 'role'])
             ->map(fn($user) => [
@@ -114,6 +122,7 @@ class GuruController extends Controller
                 'name' => $user->nama,
                 'email' => $user->email,
                 'username' => $user->username,
+                'nip' => $user->guru->nip ?? '',
                 'roles' => [$user->role === 'walikelas' ? 'WALI KELAS' : 'GURU MAPEL'],
             ])
             ->values();
@@ -159,12 +168,15 @@ class GuruController extends Controller
     public function storeAjax(Request $request)
     {
         try {
+            $selectedUserId = $request->input('user_id');
+            $existingGuruUserId = $selectedUserId ? Guru::where('user_id', $selectedUserId)->value('user_id') : null;
+
             $validated = $request->validate([
                 'nama'                => 'required|string|max:255',
                 'user_id'             => 'nullable|exists:users,id',
                 'email'               => ['nullable', 'email', Rule::unique('users', 'email')->ignore($request->input('user_id'))],
                 'username'            => ['nullable', 'string', Rule::unique('users', 'username')->ignore($request->input('user_id'))],
-                'nip'                 => 'required|numeric|digits_between:1,18|unique:gurus,nip',
+                'nip'                 => ['required', 'numeric', 'digits_between:1,18', Rule::unique('gurus', 'nip')->ignore($existingGuruUserId, 'user_id')],
                 'peran'               => 'required|in:GURU MAPEL,WALI KELAS,GURU MAPEL & WALI KELAS',
                 'sekolah_id'          => 'nullable|exists:sekolahs,id',
                 'mapel_ids'           => 'nullable|array',
@@ -174,8 +186,8 @@ class GuruController extends Controller
                 'kelas_wali_id'       => 'nullable|exists:kelas,id',
             ]);
 
-            $this->validatePengampuSelection($validated);
-            $this->validateKelasWaliSelection($validated);
+            $this->assignmentService->validatePengampuSelection($validated);
+            $this->assignmentService->validateKelasWaliSelection($validated, $existingGuruUserId);
 
             $role     = str_contains($validated['peran'], 'WALI KELAS') ? 'walikelas' : 'guru';
             $sekolahId = $validated['sekolah_id'] ?? (Sekolah::first()->id ?? null);
@@ -188,14 +200,13 @@ class GuruController extends Controller
             DB::transaction(function () use ($validated, $role, $sekolahId, &$guruResult) {
                 if (!empty($validated['user_id'])) {
                     $user = User::whereIn('role', ['guru', 'walikelas'])
-                        ->whereDoesntHave('guru')
                         ->findOrFail($validated['user_id']);
                     $user->update(['nama' => $validated['nama'], 'role' => $role]);
                 } else {
                     $user = User::create([
                         'nama'     => $validated['nama'],
                         'email'    => $validated['email'],
-                        'username' => $validated['username'] ?? $this->uniqueUsername($validated['email']),
+                        'username' => $validated['username'] ?? $this->assignmentService->uniqueUsername($validated['email']),
                         'password' => Hash::make($validated['nip']),
                         'role'     => $role,
                     ]);
@@ -205,9 +216,9 @@ class GuruController extends Controller
                 if (Schema::hasColumn('gurus', 'jabatan')) {
                     $guruData['jabatan'] = str_contains($validated['peran'], 'WALI KELAS') ? 'Guru Mapel & Wali Kelas' : 'Guru Mapel';
                 }
-                $guru = Guru::create($guruData);
-                $this->syncGuruPengampu($guru, $validated['mapel_ids'] ?? [], $validated['kelas_pengampu_ids'] ?? []);
-                $this->syncKelasWali($guru, str_contains($validated['peran'], 'WALI KELAS') ? ($validated['kelas_wali_id'] ?? null) : null);
+                $guru = Guru::updateOrCreate(['user_id' => $user->id], $guruData);
+                $this->assignmentService->syncGuruPengampu($guru, $validated['mapel_ids'] ?? [], $validated['kelas_pengampu_ids'] ?? []);
+                $this->assignmentService->syncKelasWali($guru, str_contains($validated['peran'], 'WALI KELAS') ? ($validated['kelas_wali_id'] ?? null) : null);
 
                 // Reload relasi untuk response
                 $guru->load(['user', 'guruPengampus.mataPelajaran', 'guruPengampus.kelas', 'kelasWali']);
@@ -240,8 +251,8 @@ class GuruController extends Controller
                 'kelas_wali_id'       => 'nullable|exists:kelas,id',
             ]);
 
-            $this->validatePengampuSelection($validated);
-            $this->validateKelasWaliSelection($validated, $guru->user_id);
+            $this->assignmentService->validatePengampuSelection($validated);
+            $this->assignmentService->validateKelasWaliSelection($validated, $guru->user_id);
 
             DB::transaction(function () use ($guru, $validated) {
                 $guru->user->update([
@@ -261,8 +272,8 @@ class GuruController extends Controller
                     $guru->update($updateData);
                 }
 
-                $this->syncGuruPengampu($guru, $validated['mapel_ids'] ?? [], $validated['kelas_pengampu_ids'] ?? []);
-                $this->syncKelasWali($guru, str_contains($validated['peran'], 'WALI KELAS') ? ($validated['kelas_wali_id'] ?? null) : null);
+                $this->assignmentService->syncGuruPengampu($guru, $validated['mapel_ids'] ?? [], $validated['kelas_pengampu_ids'] ?? []);
+                $this->assignmentService->syncKelasWali($guru, str_contains($validated['peran'], 'WALI KELAS') ? ($validated['kelas_wali_id'] ?? null) : null);
             });
 
             $guru->load(['user', 'guruPengampus.mataPelajaran', 'guruPengampus.kelas', 'kelasWali']);
@@ -327,13 +338,16 @@ class GuruController extends Controller
 
     public function store(Request $request)
     {
+        $selectedUserId = $request->input('user_id');
+        $existingGuruUserId = $selectedUserId ? Guru::where('user_id', $selectedUserId)->value('user_id') : null;
+
         // Validasi input
         $validated = $request->validate([
             'nama'       => 'required|string|max:255',
             'user_id'    => 'nullable|exists:users,id',
             'email'      => ['required_without:user_id', 'email', Rule::unique('users', 'email')->ignore($request->input('user_id'))],
             'username'   => ['required_without:user_id', 'string', Rule::unique('users', 'username')->ignore($request->input('user_id'))],
-            'nip'        => 'required|numeric|digits_between:1,18|unique:gurus,nip',
+            'nip'        => ['required', 'numeric', 'digits_between:1,18', Rule::unique('gurus', 'nip')->ignore($existingGuruUserId, 'user_id')],
             'peran'      => 'required|in:GURU MAPEL,WALI KELAS,GURU MAPEL & WALI KELAS',
             'sekolah_id' => 'nullable|exists:sekolahs,id',
             'jabatan'    => 'nullable|string|max:255',
@@ -345,7 +359,7 @@ class GuruController extends Controller
         ]);
 
         $this->assignmentService->validatePengampuSelection($validated);
-        $this->assignmentService->validateKelasWaliSelection($validated);
+        $this->assignmentService->validateKelasWaliSelection($validated, $existingGuruUserId);
 
         $role = str_contains($validated['peran'], 'WALI KELAS') ? 'walikelas' : 'guru';
         
@@ -359,7 +373,6 @@ class GuruController extends Controller
         DB::transaction(function () use ($validated, $role, $sekolahId) {
             if (!empty($validated['user_id'])) {
                 $user = User::whereIn('role', ['guru', 'walikelas'])
-                    ->whereDoesntHave('guru')
                     ->findOrFail($validated['user_id']);
 
                 $user->update([
@@ -385,7 +398,7 @@ class GuruController extends Controller
                 $guruData['jabatan'] = $validated['jabatan'] ?? (str_contains($validated['peran'], 'WALI KELAS') ? 'Guru Mapel & Wali Kelas' : 'Guru Mapel');
             }
 
-            $guru = Guru::create($guruData);
+            $guru = Guru::updateOrCreate(['user_id' => $user->id], $guruData);
 
             $this->assignmentService->syncGuruPengampu($guru, $validated['mapel_ids'] ?? [], $validated['kelas_pengampu_ids'] ?? []);
             $this->assignmentService->syncKelasWali($guru, str_contains($validated['peran'], 'WALI KELAS') ? ($validated['kelas_wali_id'] ?? null) : null);

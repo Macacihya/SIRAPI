@@ -43,12 +43,10 @@ document.addEventListener('alpine:init', () => {
         },
 
         get eligibleUsers() {
-            let guruEmails = this.gurus.map(g => g.email);
-            let q = this.userSearch.toLowerCase();
+            let q = (this.userSearch || '').toLowerCase();
             return this.allUsers.filter(u =>
                 u.roles.some(r => r === 'GURU MAPEL' || r === 'WALI KELAS') &&
-                !guruEmails.includes(u.email) &&
-                (u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q))
+                (!q || u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q) || (u.nip || '').includes(q))
             );
         },
         get availableKelasWali() {
@@ -101,7 +99,7 @@ document.addEventListener('alpine:init', () => {
         get selectedCount() { return this.gurus.filter(g => g.selected).length; },
         toggleAll() { this.selectAll = !this.selectAll; this.filtered.forEach(g => g.selected = this.selectAll); },
         selectUser(u) {
-            this.form.user_id = u.id; this.form.user_name = u.name; this.form.user_email = u.email; this.form.username = u.username || '';
+            this.form.user_id = u.id; this.form.user_name = u.name; this.form.user_email = u.email; this.form.user_nip = u.nip || ''; this.form.username = u.username || '';
             this.userSearch = u.name; this.dropdownOpen = false;
         },
         clearUser() { this.form.user_id = ''; this.form.user_name = ''; this.form.user_email = ''; this.form.user_nip = ''; this.userSearch = ''; },
@@ -139,7 +137,15 @@ document.addEventListener('alpine:init', () => {
                 const result = await res.json();
                 if (!res.ok) throw new Error(result.message || 'Gagal menambah guru.');
 
-                this.gurus.unshift(result.guru);
+                const existingIndex = this.gurus.findIndex(g => String(g.id) === String(result.guru.id));
+                if (existingIndex >= 0) {
+                    this.gurus.splice(existingIndex, 1, result.guru);
+                } else {
+                    this.gurus.unshift(result.guru);
+                }
+                if (payload.user_id) {
+                    this.allUsers = this.allUsers.filter(u => String(u.id) !== String(payload.user_id));
+                }
                 this.showAdd = false;
                 this.clearUser();
                 this.manualMode = false;
@@ -471,13 +477,17 @@ document.addEventListener('alpine:init', () => {
                                 @input="form.user_name = ''; form.user_email = ''; form.user_nip = ''; dropdownOpen = true"
                                 @keydown.escape="dropdownOpen = false"
                                 @blur="setTimeout(() => { if (!justSelected) dropdownOpen = false; justSelected = false; }, 150)"
-                                class="h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] pl-10 pr-10 text-[14px] outline-none focus:border-[#3b82f6] transition"
+                                class="h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] pl-10 pr-16 text-[14px] outline-none focus:border-[#3b82f6] transition"
                                 :class="form.user_email ? 'border-[#059669] bg-[#f0fdf4]' : ''"
                                 placeholder="Ketik nama atau email guru...">
-                            <button x-show="userSearch" @mousedown.prevent @click="clearUser()" class="absolute right-3 top-1/2 -translate-y-1/2 text-[#94a3b8] hover:text-[#475569]"><svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-width="2" stroke-linecap="round"></path></svg></button>
+                            <button x-show="userSearch" @mousedown.prevent @click="clearUser(); dropdownOpen = true" class="absolute right-9 top-1/2 -translate-y-1/2 text-[#94a3b8] hover:text-[#475569]"><svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-width="2" stroke-linecap="round"></path></svg></button>
+                            <button type="button" @mousedown.prevent @click="dropdownOpen = !dropdownOpen" class="absolute right-3 top-1/2 -translate-y-1/2 text-[#94a3b8] hover:text-[#475569]">
+                                <svg class="h-4 w-4 transition" :class="dropdownOpen ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                            </button>
                         </div>
 
-                        <div x-show="dropdownOpen && eligibleUsers.length > 0" class="absolute left-0 top-full z-50 mt-1 w-full overflow-hidden rounded-[10px] border border-[#e2e8f0] bg-white shadow-lg" style="display:none">
+                        <div x-show="dropdownOpen" class="absolute left-0 top-full z-50 mt-1 w-full overflow-hidden rounded-[10px] border border-[#e2e8f0] bg-white shadow-lg" style="display:none">
+                            <div class="max-h-60 overflow-y-auto">
                             <template x-for="u in eligibleUsers" :key="u.email">
                                 <button @mousedown.prevent="justSelected = true" @click="selectUser(u); dropdownOpen = false" class="flex w-full items-center gap-3 px-4 py-3 text-left transition hover:bg-[#f8fafc]">
                                     <div class="flex h-8 w-8 flex-none items-center justify-center rounded-full bg-[#e2e8f0] text-[11px] font-bold text-[#475569]" x-text="u.name.charAt(0)"></div>
@@ -487,12 +497,12 @@ document.addEventListener('alpine:init', () => {
                                     </div>
                                 </button>
                             </template>
+                            <div x-show="eligibleUsers.length === 0" class="px-4 py-6 text-center">
+                                <p class="text-[13px] font-bold text-[#0f172a]">Akun tidak ditemukan</p>
+                                <p class="mt-1 text-[12px] text-[#64748b]">Coba kata kunci lain atau gunakan Input Manual.</p>
+                            </div>
+                            </div>
                         </div>
-                    </div>
-
-                    <div x-show="form.user_id" x-transition>
-                        <label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">NIP / NUPTK</label>
-                        <input x-model="form.user_nip" @input="form.user_nip = form.user_nip.replace(/[^0-9]/g, '').slice(0, 18)" class="mt-1 h-[42px] w-full rounded-[8px] border border-[#059669] bg-[#f0fdf4] px-4 font-mono text-[14px] text-[#065f46] outline-none focus:border-[#3b82f6]" placeholder="19XXXXXXXXXXXXXXX">
                     </div>
 
                     <div>
