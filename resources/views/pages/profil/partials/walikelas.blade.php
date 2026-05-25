@@ -162,26 +162,36 @@
                 <div class="rounded-xl bg-white p-6 ring-1 ring-[#e2e8f0]">
                     <div class="flex items-center gap-2">
                         <svg class="h-5 w-5 text-[#1d4ed8]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                        <h3 class="text-[18px] font-black text-[#0f172a]">Riwayat Peran & Penugasan</h3>
+                        <h3 class="text-[18px] font-black text-[#0f172a]">Hak Akses & Tanggung Jawab</h3>
                     </div>
-                    <div class="mt-6 space-y-6">
-                        @foreach ([
-                            ['year' => '2026 - SEKARANG', 'role' => 'Wali Kelas VI-A', 'desc' => 'Bertanggung jawab penuh atas administrasi, bimbingan akademik, dan pelaporan nilai rapor siswa kelas VI-A.', 'active' => true],
-                            ['year' => '2021 - 2023', 'role' => 'Guru Mata Pendidikan Pancasila', 'desc' => 'Pengampu utama mata pelajaran  untuk seluruh jenjang kelas V dan VI.', 'active' => false],
-                            ['year' => '2015 - 2021', 'role' => 'Staf Kurikulum Bidang Akademik', 'desc' => 'Membantu perencanaan jadwal belajar mengajar dan koordinasi sistem penilaian sekolah.', 'active' => false],
-                        ] as $r)
-                            <div class="flex gap-4">
-                                <div class="flex flex-col items-center">
-                                    <div class="h-3 w-3 rounded-full {{ $r['active'] ? 'bg-[#1d4ed8]' : 'bg-[#cbd5e1]' }}"></div>
-                                    <div class="w-px flex-1 bg-[#e2e8f0]"></div>
-                                </div>
-                                <div class="pb-6">
-                                    <p class="text-[10px] font-bold uppercase tracking-[0.15em] {{ $r['active'] ? 'text-[#1d4ed8]' : 'text-[#64748b]' }}">{{ $r['year'] }}</p>
-                                    <p class="mt-1 text-[15px] font-bold text-[#0f172a]">{{ $r['role'] }}</p>
-                                    <p class="mt-1 text-[13px] leading-relaxed text-[#475569]">{{ $r['desc'] }}</p>
-                                </div>
+                    <div class="mt-5 space-y-5">
+                        <div>
+                            <p class="text-[11px] font-bold uppercase tracking-[0.14em] text-[#1d4ed8]">Guru Wali Kelas</p>
+                            <p class="mt-2 text-[13px] leading-[1.8] text-[#475569]">Pengguna ini memiliki akses sebagai guru mata pelajaran sekaligus akses tambahan sebagai wali kelas untuk memantau dan mengelola data rapor siswa pada kelas yang menjadi tanggung jawabnya.</p>
+                        </div>
+
+                        <div>
+                            <p class="text-[12px] font-black uppercase text-[#0f172a]">Akses yang Tersedia</p>
+                            <div class="mt-3 flex flex-wrap gap-2">
+                                @foreach (['Dashboard', 'Input Nilai', 'Data Nilai', 'Rekap Nilai', 'Data Siswa Kelas', 'Laporan Rapor', 'Profil Pengguna'] as $akses)
+                                    <span class="rounded-md border border-[#dbeafe] bg-[#eff6ff] px-3 py-1 text-[12px] font-bold text-[#1d4ed8]">{{ $akses }}</span>
+                                @endforeach
                             </div>
-                        @endforeach
+                        </div>
+
+                        <div class="space-y-4 border-t border-[#e2e8f0] pt-5">
+                            @foreach ([
+                                ['title' => 'Guru Mata Pelajaran', 'desc' => 'Menginput dan mengelola nilai siswa sesuai mata pelajaran yang diampu.'],
+                                ['title' => 'Wali Kelas', 'desc' => 'Memantau data siswa pada kelas yang menjadi tanggung jawabnya.'],
+                                ['title' => 'Laporan Rapor', 'desc' => 'Melihat dan memastikan data nilai, kehadiran, sikap, dan komponen rapor siswa sudah lengkap.'],
+                                ['title' => 'Monitoring Kelas', 'desc' => 'Memantau perkembangan akademik siswa dalam kelas sebelum laporan rapor digunakan.'],
+                            ] as $item)
+                                <div class="border-l-4 border-[#1d4ed8] pl-4">
+                                    <p class="text-[13px] font-black text-[#0f172a]">{{ $item['title'] }}</p>
+                                    <p class="mt-1 text-[13px] leading-[1.7] text-[#64748b]">{{ $item['desc'] }}</p>
+                                </div>
+                            @endforeach
+                        </div>
                     </div>
                 </div>
 

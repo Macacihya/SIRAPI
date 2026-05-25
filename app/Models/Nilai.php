@@ -10,6 +10,7 @@ class Nilai extends Model
         'nilai_akhir',
         'siswa_id',
         'raport_id',
+        'mapel_id',
     ];
 
     protected $casts = [
@@ -24,6 +25,12 @@ class Nilai extends Model
     public function raport()
     {
         return $this->belongsTo(Raport::class);
+    }
+
+    public function mataPelajaran()
+    {
+        // mapel_id mengarah ke kode_mapel karena primary key mapel bukan id angka.
+        return $this->belongsTo(MataPelajaran::class, 'mapel_id', 'kode_mapel');
     }
 
     public function capaianKompetensis()

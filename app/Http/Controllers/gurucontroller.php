@@ -3,21 +3,26 @@
 namespace App\Http\Controllers;
 
 use App\Models\Guru;
-use App\Models\GuruPengampu;
 use App\Models\Kelas;
 use App\Models\User;
 use App\Models\Sekolah;
 use App\Models\MataPelajaran;
+use App\Services\GuruAssignmentService;
+use App\Services\GuruCsvService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\Rule;
-use Illuminate\Validation\ValidationException;
 
 class GuruController extends Controller
 {
+    public function __construct(
+        private GuruAssignmentService $assignmentService,
+        private GuruCsvService $csvService
+    ) {
+    }
+
     public function index(Request $request)
     {
         return $this->tampilkan($request);
@@ -129,36 +134,7 @@ class GuruController extends Controller
 
     public function export()
     {
-        $gurus = Guru::with(['user', 'guruPengampus.mataPelajaran', 'guruPengampus.kelas', 'kelasWali'])
-            ->orderBy('nip')
-            ->get();
-
-        return response()->streamDownload(function () use ($gurus) {
-            $handle = fopen('php://output', 'w');
-            fputcsv($handle, ['Nama', 'Email', 'NIP_NUPTK', 'Peran', 'Mapel_Diampu', 'Kelas_Diampu', 'Kelas_Walikelas']);
-
-            foreach ($gurus as $guru) {
-                $roles = [];
-                if ($guru->guruPengampus->isNotEmpty()) {
-                    $roles[] = 'GURU MAPEL';
-                }
-                if ($guru->kelasWali->isNotEmpty()) {
-                    $roles[] = 'WALI KELAS';
-                }
-
-                fputcsv($handle, [
-                    $guru->user->nama ?? '-',
-                    $guru->user->email ?? '-',
-                    $guru->nip,
-                    implode('|', $roles),
-                    $guru->guruPengampus->pluck('mataPelajaran.nama_mapel')->filter()->unique()->implode('|'),
-                    $guru->guruPengampus->pluck('kelas.nama_kelas')->filter()->unique()->implode('|'),
-                    $guru->kelasWali->pluck('nama_kelas')->filter()->implode('|'),
-                ]);
-            }
-
-            fclose($handle);
-        }, 'data-guru.csv', ['Content-Type' => 'text/csv']);
+        return $this->csvService->export();
     }
 
     public function import(Request $request)
@@ -167,71 +143,11 @@ class GuruController extends Controller
             'file' => 'required|file|mimes:csv,txt|max:2048',
         ]);
 
-        $sekolahId = Sekolah::first()->id ?? null;
-        if (!$sekolahId) {
+        if (!Sekolah::exists()) {
             return back()->withErrors(['file' => 'Belum ada data sekolah terdaftar.']);
         }
 
-        $handle = fopen($validated['file']->getRealPath(), 'r');
-        $header = fgetcsv($handle);
-        $imported = 0;
-
-        DB::transaction(function () use ($handle, &$imported, $sekolahId) {
-            while (($row = fgetcsv($handle)) !== false) {
-                [$nama, $email, $nip, $peran, $mapelText, $kelasText, $kelasWaliText] = array_pad($row, 7, null);
-
-                if (!$nama || !$email || !$nip) {
-                    continue;
-                }
-
-                $roles = collect(explode('|', strtoupper((string) $peran)))
-                    ->map(fn($role) => trim($role))
-                    ->filter()
-                    ->values();
-                $isWaliKelas = $roles->contains('WALI KELAS') || filled($kelasWaliText);
-                $role = $isWaliKelas ? 'walikelas' : 'guru';
-
-                $user = User::firstOrCreate(
-                    ['email' => trim($email)],
-                    [
-                        'nama' => trim($nama),
-                        'username' => $this->uniqueUsername($email),
-                        'password' => Hash::make($nip),
-                        'role' => $role,
-                    ]
-                );
-                $user->update([
-                    'nama' => trim($nama),
-                    'role' => $role,
-                ]);
-
-            $guruData = [
-                'nip' => trim($nip),
-                'sekolah_id' => $sekolahId,
-            ];
-            if (Schema::hasColumn('gurus', 'jabatan')) {
-                $guruData['jabatan'] = $isWaliKelas ? 'Wali Kelas' : 'Guru Mapel';
-            }
-
-            $guru = Guru::updateOrCreate(
-                ['user_id' => $user->id],
-                $guruData
-            );
-
-                $mapelIds = $this->resolveMapelIds($mapelText);
-                $kelasIds = $this->resolveKelasIds($kelasText);
-                if ($mapelIds && $kelasIds) {
-                    $this->syncGuruPengampu($guru, $mapelIds, $kelasIds);
-                }
-
-                $kelasWali = $this->resolveKelasIds($kelasWaliText);
-                $this->syncKelasWali($guru, $isWaliKelas ? ($kelasWali[0] ?? null) : null);
-
-                $imported++;
-            }
-        });
-
-        fclose($handle);
+        $imported = $this->csvService->import($validated['file']);
 
         return redirect()
             ->route('guru-tendik')
@@ -257,8 +173,8 @@ class GuruController extends Controller
             'kelas_wali_id' => 'nullable|exists:kelas,id',
         ]);
 
-        $this->validatePengampuSelection($validated);
-        $this->validateKelasWaliSelection($validated);
+        $this->assignmentService->validatePengampuSelection($validated);
+        $this->assignmentService->validateKelasWaliSelection($validated);
 
         $role = str_contains($validated['peran'], 'WALI KELAS') ? 'walikelas' : 'guru';
         
@@ -300,8 +216,8 @@ class GuruController extends Controller
 
             $guru = Guru::create($guruData);
 
-            $this->syncGuruPengampu($guru, $validated['mapel_ids'] ?? [], $validated['kelas_pengampu_ids'] ?? []);
-            $this->syncKelasWali($guru, str_contains($validated['peran'], 'WALI KELAS') ? ($validated['kelas_wali_id'] ?? null) : null);
+            $this->assignmentService->syncGuruPengampu($guru, $validated['mapel_ids'] ?? [], $validated['kelas_pengampu_ids'] ?? []);
+            $this->assignmentService->syncKelasWali($guru, str_contains($validated['peran'], 'WALI KELAS') ? ($validated['kelas_wali_id'] ?? null) : null);
         });
 
         return redirect()
@@ -326,8 +242,8 @@ class GuruController extends Controller
             'kelas_wali_id' => 'nullable|exists:kelas,id',
         ]);
 
-        $this->validatePengampuSelection($validated);
-        $this->validateKelasWaliSelection($validated, $guru->user_id);
+        $this->assignmentService->validatePengampuSelection($validated);
+        $this->assignmentService->validateKelasWaliSelection($validated, $guru->user_id);
 
         DB::transaction(function () use ($guru, $validated) {
             $guru->user->update([
@@ -350,8 +266,8 @@ class GuruController extends Controller
                 $guru->update($updateData);
             }
 
-            $this->syncGuruPengampu($guru, $validated['mapel_ids'] ?? [], $validated['kelas_pengampu_ids'] ?? []);
-            $this->syncKelasWali($guru, str_contains($validated['peran'], 'WALI KELAS') ? ($validated['kelas_wali_id'] ?? null) : null);
+            $this->assignmentService->syncGuruPengampu($guru, $validated['mapel_ids'] ?? [], $validated['kelas_pengampu_ids'] ?? []);
+            $this->assignmentService->syncKelasWali($guru, str_contains($validated['peran'], 'WALI KELAS') ? ($validated['kelas_wali_id'] ?? null) : null);
         });
 
         return redirect()
@@ -374,115 +290,4 @@ class GuruController extends Controller
             ->with('success', 'Data guru berhasil dihapus.');
     }
 
-    private function validatePengampuSelection(array $validated): void
-    {
-        $mapelIds = $validated['mapel_ids'] ?? [];
-        $kelasIds = $validated['kelas_pengampu_ids'] ?? [];
-
-        if (count($mapelIds) === 0 || count($kelasIds) === 0) {
-            throw ValidationException::withMessages([
-                'mapel_ids' => 'Mapel diampu dan kelas diampu wajib dipilih.',
-            ]);
-        }
-
-        if ((count($mapelIds) > 0 && count($kelasIds) === 0) || (count($mapelIds) === 0 && count($kelasIds) > 0)) {
-            throw ValidationException::withMessages([
-                'mapel_ids' => 'Mapel diampu dan kelas diampu harus dipilih bersama.',
-            ]);
-        }
-    }
-
-    private function validateKelasWaliSelection(array $validated, ?int $currentGuruId = null): void
-    {
-        if (!str_contains($validated['peran'] ?? '', 'WALI KELAS')) {
-            return;
-        }
-
-        if (empty($validated['kelas_wali_id'])) {
-            throw ValidationException::withMessages([
-                'kelas_wali_id' => 'Kelas wali kelas wajib dipilih.',
-            ]);
-        }
-
-        $query = Kelas::where('id', $validated['kelas_wali_id'])->whereNotNull('wali_guru_id');
-        if ($currentGuruId) {
-            $query->where('wali_guru_id', '!=', $currentGuruId);
-        }
-
-        if ($query->exists()) {
-            throw ValidationException::withMessages([
-                'kelas_wali_id' => 'Kelas tersebut sudah memiliki wali kelas.',
-            ]);
-        }
-    }
-
-    private function syncGuruPengampu(Guru $guru, array $mapelIds, array $kelasIds): void
-    {
-        $mapelIds = array_values(array_unique(array_filter($mapelIds)));
-        $kelasIds = array_values(array_unique(array_filter($kelasIds)));
-
-        GuruPengampu::where('guru_id', $guru->user_id)->delete();
-
-        foreach ($kelasIds as $kelasId) {
-            foreach ($mapelIds as $mapelId) {
-                GuruPengampu::create([
-                    'guru_id' => $guru->user_id,
-                    'kelas_id' => $kelasId,
-                    'mapel_id' => $mapelId,
-                ]);
-            }
-        }
-    }
-
-    private function syncKelasWali(Guru $guru, ?int $kelasWaliId): void
-    {
-        Kelas::where('wali_guru_id', $guru->user_id)->update(['wali_guru_id' => null]);
-
-        if ($kelasWaliId) {
-            Kelas::where('id', $kelasWaliId)->update(['wali_guru_id' => $guru->user_id]);
-        }
-    }
-
-    private function resolveMapelIds(?string $text): array
-    {
-        return collect(explode('|', (string) $text))
-            ->map(fn($value) => trim($value))
-            ->filter()
-            ->map(function ($value) {
-                $mapel = MataPelajaran::where('kode_mapel', $value)
-                    ->orWhere('nama_mapel', $value)
-                    ->first();
-
-                return $mapel?->kode_mapel;
-            })
-            ->filter()
-            ->unique()
-            ->values()
-            ->all();
-    }
-
-    private function resolveKelasIds(?string $text): array
-    {
-        return collect(explode('|', (string) $text))
-            ->map(fn($value) => trim($value))
-            ->filter()
-            ->map(fn($value) => Kelas::where('nama_kelas', $value)->value('id'))
-            ->filter()
-            ->unique()
-            ->values()
-            ->all();
-    }
-
-    private function uniqueUsername(string $email): string
-    {
-        $base = Str::slug(Str::before($email, '@'), '_') ?: 'guru';
-        $username = $base;
-        $counter = 1;
-
-        while (User::where('username', $username)->exists()) {
-            $username = $base . '_' . $counter++;
-        }
-
-        return $username;
-    }
 }

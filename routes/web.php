@@ -12,6 +12,7 @@ use App\Http\Controllers\AturanPenilaianController;
 use App\Http\Controllers\GuruPengampuController;
 use App\Http\Controllers\RaportController;
 use App\Http\Controllers\NilaiController;
+use App\Http\Controllers\LaporanNilaiController;
 use App\Http\Controllers\CapaianKompetensiController;
 use App\Http\Controllers\NilaiSikapController;
 use App\Http\Controllers\EkstrakurikulerController;
@@ -39,7 +40,7 @@ Route::middleware('auth')->group(function () {
     // ── Semua Role ───────────────────────────────────────────
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::view('/profil', 'pages.profil.index')->name('profil');
-    Route::view('/laporan-nilai', 'pages.laporan-nilai.index')->name('laporan-nilai');
+    Route::get('/laporan-nilai', [LaporanNilaiController::class, 'index'])->name('laporan-nilai');
     Route::get('/rekap-nilai', [NilaiController::class, 'index'])->name('rekap-nilai');
 
     // ── Admin Only ───────────────────────────────────────────
@@ -124,6 +125,8 @@ Route::middleware('auth')->group(function () {
 
         Route::get('/rapor', [RaportController::class, 'index'])->name('rapor');
         Route::post('/rapor', [RaportController::class, 'store'])->name('rapor.store');
+        Route::post('/rapor/generate', [RaportController::class, 'generate'])->name('rapor.generate');
+        Route::get('/rapor/{raport}/lihat', [RaportController::class, 'show'])->name('rapor.show');
         Route::put('/rapor/{raport}', [RaportController::class, 'update'])->name('rapor.update');
         Route::delete('/rapor/{raport}', [RaportController::class, 'destroy'])->name('rapor.destroy');
 
@@ -142,6 +145,6 @@ Route::middleware('auth')->group(function () {
         // Rekap Kehadiran (per entri, disimpan menggunakan mode sync)
         Route::post('/rekap-kehadiran/sync', [RekapKehadiranController::class, 'sync'])->name('rekap-kehadiran.sync');
 
-        Route::view('/rapor/lihat', 'pages.rapor.lihat')->name('rapor.lihat');
+        Route::get('/rapor/lihat', fn () => redirect()->route('rapor'))->name('rapor.lihat');
     });
 });

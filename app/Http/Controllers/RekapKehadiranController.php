@@ -24,10 +24,10 @@ class RekapKehadiranController extends Controller
             'ket_alpha' => 'nullable|string|max:255',
         ]);
 
-        // Hapus data absen lama untuk raport ini
+        // Hapus data absen lama agar jumlah terbaru menggantikan rekap sebelumnya.
         RekapKehadiran::where('raport_id', $validated['raport_id'])->delete();
 
-        // Insert row sesuai jumlah sakit
+        // Simpan satu baris untuk setiap hari sakit.
         for ($i = 0; $i < $validated['sakit']; $i++) {
             RekapKehadiran::create([
                 'raport_id'  => $validated['raport_id'],
@@ -36,7 +36,7 @@ class RekapKehadiranController extends Controller
             ]);
         }
 
-        // Insert row sesuai jumlah izin
+        // Simpan satu baris untuk setiap hari izin.
         for ($i = 0; $i < $validated['izin']; $i++) {
             RekapKehadiran::create([
                 'raport_id'  => $validated['raport_id'],
@@ -45,7 +45,7 @@ class RekapKehadiranController extends Controller
             ]);
         }
 
-        // Insert row sesuai jumlah alpha
+        // Simpan satu baris untuk setiap hari alpha.
         for ($i = 0; $i < $validated['alpha']; $i++) {
             RekapKehadiran::create([
                 'raport_id'  => $validated['raport_id'],
@@ -54,10 +54,13 @@ class RekapKehadiranController extends Controller
             ]);
         }
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Kehadiran berhasil disimpan.'
-        ]);
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Kehadiran berhasil disimpan.'
+            ]);
+        }
+
+        return back()->with('success', 'Kehadiran berhasil disimpan.');
     }
 }
-

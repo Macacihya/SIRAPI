@@ -76,14 +76,32 @@
             </div>
 
             <div class="rounded-[14px] border border-[#e2e8f0] bg-white p-6">
-                <h3 class="flex items-center gap-2 text-[16px] font-bold text-[#0f172a]"><svg class="h-5 w-5 text-[#1d4ed8]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-width="2"></circle><path d="M12 6v6l4 2" stroke-width="2" stroke-linecap="round"></path></svg>Riwayat Peran & Penugasan</h3>
-                <div class="mt-6 relative">
-                    <div class="absolute left-[7px] top-2 bottom-2 w-[2px] bg-[#e2e8f0]"></div>
-                    <div class="space-y-7">
-                        @foreach ([['year'=>'2026 - Sekarang','title'=>'Admin TU','desc'=>'Bertanggung jawab penuh atas administrasi, pengelolaan data, dan pelaporan nilai rapor siswa.','active'=>true],['year'=>'2021 - 2023','title'=>'Guru Mata Pelajaran Fisika','desc'=>'Pengampu utama mata pelajaran Fisika untuk seluruh jenjang kelas XI dan XII.','active'=>false],['year'=>'2015 - 2021','title'=>'Staf Kurikulum Bidang Akademik','desc'=>'Membantu perencanaan jadwal belajar mengajar dan koordinasi sistem penilaian sekolah.','active'=>false]] as $riwayat)
-                            <div class="relative flex gap-5 pl-6">
-                                <div class="absolute left-0 top-1 flex h-[16px] w-[16px] items-center justify-center rounded-full {{ $riwayat['active'] ? 'bg-[#1d4ed8]' : 'bg-[#e2e8f0]' }}">@if ($riwayat['active'])<div class="h-[6px] w-[6px] rounded-full bg-white"></div>@endif</div>
-                                <div><p class="text-[11px] font-bold uppercase tracking-[0.12em] {{ $riwayat['active'] ? 'text-[#1d4ed8]' : 'text-[#94a3b8]' }}">{{ $riwayat['year'] }}</p><p class="mt-1 text-[15px] font-black text-[#0f172a]">{{ $riwayat['title'] }}</p><p class="mt-1 text-[13px] leading-[1.7] text-[#64748b]">{{ $riwayat['desc'] }}</p></div>
+                <h3 class="flex items-center gap-2 text-[16px] font-bold text-[#0f172a]"><svg class="h-5 w-5 text-[#1d4ed8]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-width="2"></circle><path d="M12 6v6l4 2" stroke-width="2" stroke-linecap="round"></path></svg>Hak Akses & Tanggung Jawab</h3>
+                <div class="mt-5 space-y-5">
+                    <div>
+                        <p class="text-[11px] font-bold uppercase tracking-[0.14em] text-[#1d4ed8]">Administrator / Admin TU</p>
+                        <p class="mt-2 text-[13px] leading-[1.8] text-[#475569]">Pengguna ini memiliki akses utama untuk mengelola data administrasi akademik, data pengguna, data sekolah, serta laporan nilai siswa pada sistem SIRAPI.</p>
+                    </div>
+
+                    <div>
+                        <p class="text-[12px] font-black uppercase text-[#0f172a]">Akses yang Tersedia</p>
+                        <div class="mt-3 flex flex-wrap gap-2">
+                            @foreach (['Manajemen User', 'Data Sekolah', 'Data Guru', 'Data Siswa', 'Data Kelas', 'Mata Pelajaran', 'Aturan Nilai', 'Laporan Nilai', 'Rekap Nilai'] as $akses)
+                                <span class="rounded-md border border-[#dbeafe] bg-[#eff6ff] px-3 py-1 text-[12px] font-bold text-[#1d4ed8]">{{ $akses }}</span>
+                            @endforeach
+                        </div>
+                    </div>
+
+                    <div class="space-y-4 border-t border-[#e2e8f0] pt-5">
+                        @foreach ([
+                            ['title' => 'Akun Pengguna', 'desc' => 'Mengelola akun pengguna dan mengatur hak akses berdasarkan role yang tersedia dalam sistem.'],
+                            ['title' => 'Data Master Akademik', 'desc' => 'Mengelola data utama seperti data guru, siswa, kelas, mata pelajaran, dan aturan penilaian.'],
+                            ['title' => 'Monitoring Akademik', 'desc' => 'Memantau laporan nilai dan rekap akademik siswa agar data tersusun dengan baik.'],
+                            ['title' => 'Tahun Ajaran', 'desc' => 'Memastikan tahun ajaran aktif sesuai dengan periode akademik yang sedang berjalan.'],
+                        ] as $item)
+                            <div class="border-l-4 border-[#1d4ed8] pl-4">
+                                <p class="text-[13px] font-black text-[#0f172a]">{{ $item['title'] }}</p>
+                                <p class="mt-1 text-[13px] leading-[1.7] text-[#64748b]">{{ $item['desc'] }}</p>
                             </div>
                         @endforeach
                     </div>
