@@ -44,9 +44,7 @@ class UserSeeder extends Seeder
         // ISA child: admins
         Admin::updateOrCreate(
             ['user_id' => $admin->id],
-            [
-                'jabatan_admin' => 'Admin TU',
-            ]
+            []
         );
 
         // ─── GURU ──────────────────────────────────

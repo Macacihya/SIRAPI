@@ -56,7 +56,7 @@
                 <tbody class="divide-y divide-[#f1f5f9]">
                     @forelse ($raports as $raport)
                         @php
-                            $hadir = $raport->rekapKehadirans->countBy('status');
+                            $hadir = $raport->rekapKehadiran;
                         @endphp
                         <tr class="hover:bg-[#f8fafc]">
                             <td class="px-5 py-4">
@@ -67,16 +67,16 @@
                             <td class="px-5 py-4 font-semibold text-[#475569]">{{ $raport->tahunAjaran->label ?? '-' }}</td>
                             <td class="px-5 py-4 text-center font-black text-[#1d4ed8]">{{ $raport->nilais->count() }}</td>
                             <td class="px-5 py-4 text-center text-[12px] font-semibold text-[#475569]">
-                                S {{ $hadir->get('sakit', 0) }} / I {{ $hadir->get('izin', 0) }} / A {{ $hadir->get('alpha', 0) }}
+                                S {{ $hadir->sakit ?? 0 }} / I {{ $hadir->izin ?? 0 }} / A {{ $hadir->alpha ?? 0 }}
                             </td>
                             <td class="px-5 py-4">
                                 <div class="flex justify-end gap-2">
                                     <form action="{{ route('rekap-kehadiran.sync') }}" method="POST" class="flex items-center gap-1">
                                         @csrf
                                         <input type="hidden" name="raport_id" value="{{ $raport->id }}">
-                                        <input name="sakit" type="number" min="0" value="{{ $hadir->get('sakit', 0) }}" class="h-9 w-14 rounded border border-[#e2e8f0] px-2 text-center text-[12px]" title="Sakit">
-                                        <input name="izin" type="number" min="0" value="{{ $hadir->get('izin', 0) }}" class="h-9 w-14 rounded border border-[#e2e8f0] px-2 text-center text-[12px]" title="Izin">
-                                        <input name="alpha" type="number" min="0" value="{{ $hadir->get('alpha', 0) }}" class="h-9 w-14 rounded border border-[#e2e8f0] px-2 text-center text-[12px]" title="Alpha">
+                                        <input name="sakit" type="number" min="0" value="{{ $hadir->sakit ?? 0 }}" class="h-9 w-14 rounded border border-[#e2e8f0] px-2 text-center text-[12px]" title="Sakit">
+                                        <input name="izin" type="number" min="0" value="{{ $hadir->izin ?? 0 }}" class="h-9 w-14 rounded border border-[#e2e8f0] px-2 text-center text-[12px]" title="Izin">
+                                        <input name="alpha" type="number" min="0" value="{{ $hadir->alpha ?? 0 }}" class="h-9 w-14 rounded border border-[#e2e8f0] px-2 text-center text-[12px]" title="Alpha">
                                         <button class="h-9 rounded-lg border border-[#e2e8f0] px-3 text-[12px] font-bold text-[#0f172a] hover:bg-[#f1f5f9]">Simpan</button>
                                     </form>
                                     <a href="{{ route('rapor.show', $raport) }}" class="inline-flex h-9 items-center rounded-lg bg-[#0f172a] px-3 text-[12px] font-bold text-white hover:bg-[#1e293b]">Lihat/Cetak</a>

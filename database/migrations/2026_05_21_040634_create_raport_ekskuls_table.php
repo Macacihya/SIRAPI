@@ -12,8 +12,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('raport_id')->constrained('raports')->cascadeOnDelete();
             $table->foreignId('ekstrakurikuler_id')->constrained('ekstrakurikulers')->cascadeOnDelete();
-            $table->enum('predikat', ['A', 'B', 'C', 'D'])->nullable();
-            $table->text('keterangan')->nullable();
+            $table->text('deskripsi')->nullable();
             $table->timestamps();
 
             $table->unique(['raport_id', 'ekstrakurikuler_id']);

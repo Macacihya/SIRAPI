@@ -44,7 +44,7 @@ class UserController extends Controller
 
             $idLabel = '-';
             if ($user->role === 'admin') {
-                $idLabel = 'ADMIN: ' . ($user->admin->jabatan_admin ?? 'Staff');
+                $idLabel = 'ADMIN';
             } elseif ($user->guru) {
                 $idLabel = 'NIP: ' . $user->guru->nip;
             }
@@ -181,5 +181,59 @@ class UserController extends Controller
         }
 
         return $roles ?: ['GURU MAPEL'];
+    }
+
+    public function updateProfile(Request $request)
+    {
+        $user = auth()->user();
+
+        $validated = $request->validate([
+            'nama'          => 'required|string|max:255',
+            'jenis_kelamin' => 'nullable|string|in:Laki-laki,Perempuan',
+            'no_hp'         => 'nullable|string|max:20',
+            'alamat'        => 'nullable|string',
+            'email'         => 'required|email|unique:users,email,' . $user->id,
+        ]);
+
+        $user->update([
+            'nama'          => $validated['nama'],
+            'jenis_kelamin' => $validated['jenis_kelamin'],
+            'no_hp'         => $validated['no_hp'],
+            'alamat'        => $validated['alamat'],
+            'email'         => $validated['email'],
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Profil berhasil diperbarui!',
+            'user'    => $user,
+        ]);
+    }
+
+    public function changePassword(Request $request)
+    {
+        $user = auth()->user();
+
+        $validated = $request->validate([
+            'lama'       => 'required|string',
+            'baru'       => 'required|string|min:6',
+            'konfirmasi' => 'required|string|same:baru',
+        ]);
+
+        if (!Hash::check($validated['lama'], $user->password)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Kata sandi lama tidak sesuai.',
+            ], 422);
+        }
+
+        $user->update([
+            'password' => Hash::make($validated['baru']),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Kata sandi berhasil diubah!',
+        ]);
     }
 }

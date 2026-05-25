@@ -4,7 +4,7 @@
     $siswa = $raport->siswa;
     $kelas = $siswa?->kelas;
     $tahun = $raport->tahunAjaran;
-    $kehadiran = $raport->rekapKehadirans->countBy('status');
+    $kehadiran = $raport->rekapKehadiran;
     $rataRata = round((float) $raport->nilais->avg('nilai_akhir'), 2);
 @endphp
 <!DOCTYPE html>
@@ -91,17 +91,23 @@
             <div class="mt-8 grid grid-cols-2 gap-6">
                 <div>
                     <h3 class="text-[13px] font-black uppercase">B. Sikap</h3>
-                    <div class="mt-3 min-h-28 border border-[#1e293b] p-4 text-[12px] leading-6">
-                        <p class="font-bold">Predikat: {{ $raport->nilaiSikap->predikat ?? '-' }}</p>
-                        <p>{{ $raport->nilaiSikap->deskripsi ?? 'Nilai sikap belum diisi.' }}</p>
+                    <div class="mt-3 space-y-3">
+                        @forelse ($raport->nilaiSikaps as $nilaiSikap)
+                            <div class="border border-[#1e293b] p-3 text-[12px] leading-6">
+                                <p class="font-bold">{{ $nilaiSikap->sikap->nama_sikap ?? 'Sikap' }}: {{ $nilaiSikap->predikat ?? '-' }}</p>
+                                <p>{{ $nilaiSikap->deskripsi ?? 'Deskripsi sikap belum diisi.' }}</p>
+                            </div>
+                        @empty
+                            <div class="border border-[#1e293b] p-4 text-[12px] text-[#64748b]">Nilai sikap belum diisi.</div>
+                        @endforelse
                     </div>
                 </div>
                 <div>
                     <h3 class="text-[13px] font-black uppercase">C. Kehadiran</h3>
                     <table class="mt-3 w-full text-[12px]">
-                        <tr><td class="px-3 py-2 font-semibold">Sakit</td><td class="w-24 px-3 py-2 text-center font-black">{{ $kehadiran->get('sakit', 0) }} hari</td></tr>
-                        <tr><td class="px-3 py-2 font-semibold">Izin</td><td class="px-3 py-2 text-center font-black">{{ $kehadiran->get('izin', 0) }} hari</td></tr>
-                        <tr><td class="px-3 py-2 font-semibold">Alpha</td><td class="px-3 py-2 text-center font-black">{{ $kehadiran->get('alpha', 0) }} hari</td></tr>
+                        <tr><td class="px-3 py-2 font-semibold">Sakit</td><td class="w-24 px-3 py-2 text-center font-black">{{ $kehadiran->sakit ?? 0 }} hari</td></tr>
+                        <tr><td class="px-3 py-2 font-semibold">Izin</td><td class="px-3 py-2 text-center font-black">{{ $kehadiran->izin ?? 0 }} hari</td></tr>
+                        <tr><td class="px-3 py-2 font-semibold">Alpha</td><td class="px-3 py-2 text-center font-black">{{ $kehadiran->alpha ?? 0 }} hari</td></tr>
                     </table>
                 </div>
             </div>

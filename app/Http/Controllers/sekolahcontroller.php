@@ -107,6 +107,46 @@ class SekolahController extends Controller
             ->with('success', 'Informasi sekolah berhasil diperbarui.');
     }
 
+    /**
+     * Update via AJAX (fetch/FormData) — mengembalikan JSON response.
+     */
+    public function updateAjax(Request $request)
+    {
+        $sekolah = Sekolah::first();
+        if (!$sekolah) {
+            return response()->json(['message' => 'Data sekolah tidak ditemukan.'], 404);
+        }
+
+        $validated = $request->validate([
+            'npsn'                => 'required|string|max:20|unique:sekolahs,npsn,' . $sekolah->id,
+            'nama_sekolah'        => 'required|string|max:255',
+            'alamat'              => 'required|string',
+            'kode_pos'            => 'nullable|string|max:10',
+            'telepon'             => 'nullable|string|max:20',
+            'email'               => 'nullable|email|max:255',
+            'logo'                => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'nip_kepsek'          => 'nullable|string|max:50',
+            'status_sekolah'      => 'nullable|string|max:50',
+            'nama_kepala_sekolah' => 'nullable|string|max:255',
+            'bentuk_pendidikan'   => 'nullable|string|max:50',
+        ]);
+
+        if ($request->hasFile('logo')) {
+            if ($sekolah->logo) {
+                Storage::disk('public')->delete($sekolah->logo);
+            }
+            $path = $request->file('logo')->store('logos', 'public');
+            $validated['logo'] = $path;
+        }
+
+        $sekolah->update($validated);
+
+        return response()->json([
+            'message'  => 'Informasi sekolah berhasil diperbarui.',
+            'logo_url' => $sekolah->logo ? asset('storage/' . $sekolah->logo) : null,
+        ]);
+    }
+
     public function destroy($id)
     {
         $sekolah = Sekolah::findOrFail($id);

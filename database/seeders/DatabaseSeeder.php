@@ -21,6 +21,7 @@ class DatabaseSeeder extends Seeder
             AturanPenilaianSeeder::class,
             GuruPengampuSeeder::class,
             RaportSeeder::class,
+            SikapSeeder::class,
             NilaiSeeder::class,
             CapaianKompetensiSeeder::class,
             RekapKehadiranSeeder::class,

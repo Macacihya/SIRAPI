@@ -37,8 +37,9 @@ class RaportController extends Controller
             'tahunAjaran',
             'nilais.mataPelajaran',
             'nilais.capaianKompetensis',
-            'rekapKehadirans',
-            'nilaiSikap',
+            'rekapKehadiran',
+            'nilaiSikaps.sikap',
+            'sikaps',
             'raportEkskuls.ekstrakurikuler',
         ])
             ->whereIn('siswa_id', $siswas->pluck('id'))
@@ -74,8 +75,9 @@ class RaportController extends Controller
             'tahunAjaran',
             'nilais.mataPelajaran',
             'nilais.capaianKompetensis',
-            'rekapKehadirans',
-            'nilaiSikap',
+            'rekapKehadiran',
+            'nilaiSikaps.sikap',
+            'sikaps',
             'raportEkskuls.ekstrakurikuler',
         ]);
 

@@ -31,15 +31,22 @@ class Raport extends Model
         return $this->hasOne(RekapKehadiran::class);
     }
 
-    // Relasi banyak baris dipakai karena rekap disimpan per hari/status ketidakhadiran.
-    public function rekapKehadirans()
-    {
-        return $this->hasMany(RekapKehadiran::class);
-    }
-
+    // Alias lama untuk kompatibilitas kode yang masih membaca satu nilai sikap.
     public function nilaiSikap()
     {
         return $this->hasOne(NilaiSikap::class);
+    }
+
+    public function nilaiSikaps()
+    {
+        return $this->hasMany(NilaiSikap::class);
+    }
+
+    public function sikaps()
+    {
+        return $this->belongsToMany(Sikap::class, 'raport_sikaps')
+            ->withPivot(['id', 'predikat', 'deskripsi'])
+            ->withTimestamps();
     }
 
     public function raportEkskuls()

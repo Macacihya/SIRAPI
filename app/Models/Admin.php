@@ -12,7 +12,6 @@ class Admin extends Model
 
     protected $fillable = [
         'user_id',
-        'jabatan_admin',
     ];
 
     // ─── ISA Relations ───────────────────────────

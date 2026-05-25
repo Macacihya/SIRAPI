@@ -12,8 +12,7 @@ class RaportEkskulSeeder extends Seeder
         RaportEkskul::create([
             'raport_id' => 1,
             'ekstrakurikuler_id' => 1,
-            'predikat' => 'A',
-            'keterangan' => 'Aktif mengikuti kegiatan ekstrakurikuler badminton.',
+            'deskripsi' => 'Aktif mengikuti kegiatan ekstrakurikuler badminton.',
         ]);
     }
 }
