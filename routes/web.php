@@ -39,6 +39,8 @@ Route::middleware('auth')->group(function () {
     // ── Semua Role ───────────────────────────────────────────
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::view('/profil', 'pages.profil.index')->name('profil');
+    Route::post('/profil/update', [App\Http\Controllers\UserController::class, 'updateProfile'])->name('profil.update');
+    Route::post('/profil/ubah-sandi', [App\Http\Controllers\UserController::class, 'changePassword'])->name('profil.change-password');
     Route::view('/laporan-nilai', 'pages.laporan-nilai.index')->name('laporan-nilai');
     Route::get('/rekap-nilai', [NilaiController::class, 'index'])->name('rekap-nilai');
 
@@ -50,6 +52,7 @@ Route::middleware('auth')->group(function () {
         Route::delete('/manajemen-user/{id}', [App\Http\Controllers\UserController::class, 'destroy'])->name('manajemen-user.destroy');
 
         Route::get('/data-sekolah', [App\Http\Controllers\SekolahController::class, 'index'])->name('data-sekolah');
+        Route::post('/data-sekolah/update', [App\Http\Controllers\SekolahController::class, 'updateAjax'])->name('data-sekolah.update-ajax');
         Route::view('/akademik', 'pages.akademik.index')->name('akademik');
 
         // Guru & Tendik
@@ -61,6 +64,11 @@ Route::middleware('auth')->group(function () {
 
         // Sekolah
         Route::resource('sekolah', SekolahController::class);
+
+        // Guru AJAX
+        Route::post('/guru-ajax', [GuruController::class, 'storeAjax'])->name('guru.store-ajax');
+        Route::put('/guru-ajax/{id}', [GuruController::class, 'updateAjax'])->name('guru.update-ajax');
+        Route::delete('/guru-ajax/{id}', [GuruController::class, 'destroyAjax'])->name('guru.destroy-ajax');
 
         // Siswa (tampilkan harus sebelum resource)
         Route::get('/siswa/tampilkan', [SiswaController::class, 'tampilkan'])->name('siswa.tampilkan');

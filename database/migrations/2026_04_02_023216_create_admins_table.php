@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::create('admins', function (Blueprint $table) {
             $table->foreignId('user_id')->primary()->constrained('users')->onDelete('cascade');
-            $table->string('jabatan_admin')->nullable();
             $table->timestamps();
         });
     }

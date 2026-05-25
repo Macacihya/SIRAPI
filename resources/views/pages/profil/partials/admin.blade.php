@@ -11,15 +11,81 @@
     profilForm: { 
         nama: '{{ $user->nama }}', 
         username: '{{ $user->username ?? '' }}',
-        jabatan: '{{ $user->jabatan ?? '' }}',
         jenis_kelamin: '{{ $user->jenis_kelamin ?? '' }}',
         no_hp: '{{ $user->no_hp ?? '' }}',
         alamat: '{{ $user->alamat ?? '' }}',
         email: '{{ $user->email ?? '' }}'
     },
     sandiForm: { lama: '', baru: '', konfirmasi: '' },
-    submitProfil() { this.showEditProfil = false; $dispatch('toast',{message:'Profil berhasil diperbarui!',type:'success'}); },
-    submitSandi() { if (!this.sandiForm.lama || !this.sandiForm.baru) { $dispatch('toast',{message:'Semua field harus diisi!',type:'error'}); return; } if (this.sandiForm.baru !== this.sandiForm.konfirmasi) { $dispatch('toast',{message:'Konfirmasi password tidak cocok!',type:'error'}); return; } this.sandiForm = {lama:'',baru:'',konfirmasi:''}; this.showUbahSandi = false; $dispatch('toast',{message:'Kata sandi berhasil diubah!',type:'success'}); },
+    async submitProfil() {
+        try {
+            let response = await fetch('{{ route("profil.update") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({
+                    nama: this.profilForm.nama,
+                    email: this.profilForm.email,
+                    jenis_kelamin: this.profilForm.jenis_kelamin,
+                    no_hp: this.profilForm.no_hp,
+                    alamat: this.profilForm.alamat
+                })
+            });
+
+            if (!response.ok) {
+                let err = await response.json();
+                throw new Error(err.message || 'Gagal memperbarui profil.');
+            }
+
+            let result = await response.json();
+            this.showEditProfil = false;
+            $dispatch('toast', { message: result.message, type: 'success' });
+            setTimeout(() => window.location.reload(), 1000);
+        } catch (e) {
+            $dispatch('toast', { message: e.message, type: 'error' });
+        }
+    },
+    async submitSandi() {
+        if (!this.sandiForm.lama || !this.sandiForm.baru) {
+            $dispatch('toast', { message: 'Semua field harus diisi!', type: 'error' });
+            return;
+        }
+        if (this.sandiForm.baru !== this.sandiForm.konfirmasi) {
+            $dispatch('toast', { message: 'Konfirmasi password tidak cocok!', type: 'error' });
+            return;
+        }
+
+        try {
+            let response = await fetch('{{ route("profil.change-password") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({
+                    lama: this.sandiForm.lama,
+                    baru: this.sandiForm.baru,
+                    konfirmasi: this.sandiForm.konfirmasi
+                })
+            });
+
+            if (!response.ok) {
+                let err = await response.json();
+                throw new Error(err.message || 'Gagal mengubah kata sandi.');
+            }
+
+            let result = await response.json();
+            this.sandiForm = { lama: '', baru: '', konfirmasi: '' };
+            this.showUbahSandi = false;
+            $dispatch('toast', { message: result.message, type: 'success' });
+        } catch (e) {
+            $dispatch('toast', { message: e.message, type: 'error' });
+        }
+    },
 }" class="space-y-6">
 
     {{-- ─── TOP GRID: LEFT PROFILE + RIGHT BIODATA ──────── --}}
@@ -38,7 +104,6 @@
                     </button>
                 </div>
                 <h2 class="mt-4 text-[18px] font-black text-[#0f172a]" x-text="profilForm.nama">{{ $user->nama }}</h2>
-                <p class="mt-0.5 text-[13px] text-[#64748b]" x-text="profilForm.jabatan">Admin TU</p>
 
                 <button @click="showEditProfil = true" class="mt-5 flex h-[42px] w-full items-center justify-center gap-2 rounded-[8px] bg-[#1d4ed8] text-[13px] font-bold text-white transition hover:bg-[#1e40af]">
                     <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
@@ -67,7 +132,6 @@
                 <div class="mt-5 grid gap-x-8 gap-y-5 sm:grid-cols-2">
                     <div><p class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Nama</p><p class="mt-1 text-[14px] font-bold text-[#0f172a]" x-text="profilForm.nama"></p></div>
                     <div><p class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Username</p><p class="mt-1 text-[14px] font-bold text-[#0f172a]" x-text="profilForm.username"></p></div>
-                    <div><p class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Jabatan</p><p class="mt-1 text-[14px] font-bold text-[#0f172a]" x-text="profilForm.jabatan"></p></div>
                     <div><p class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Jenis Kelamin</p><p class="mt-1 text-[14px] font-bold text-[#0f172a]" x-text="profilForm.jenis_kelamin"></p></div>
                     <div><p class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">No. HP</p><p class="mt-1 text-[14px] font-bold text-[#0f172a]" x-text="profilForm.no_hp"></p></div>
                     <div><p class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Email</p><p class="mt-1 text-[14px] font-bold text-[#0f172a]" x-text="profilForm.email"></p></div>
@@ -106,7 +170,6 @@
                     <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Username Login</label><input x-model="profilForm.username" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none" readonly></div>
                 </div>
                 <div class="grid gap-4 sm:grid-cols-2">
-                    <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Jabatan</label><input x-model="profilForm.jabatan" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20"></div>
                     <div>
                         <label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Gender</label>
                         <select x-model="profilForm.jenis_kelamin" class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20">

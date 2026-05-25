@@ -238,6 +238,177 @@ class GuruController extends Controller
             ->with('success', "Import selesai. {$imported} data guru diproses.");
     }
 
+    // ─── AJAX Methods (mengembalikan JSON) ───────────────────────────────────
+
+    public function storeAjax(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'nama'                => 'required|string|max:255',
+                'user_id'             => 'nullable|exists:users,id',
+                'email'               => ['nullable', 'email', Rule::unique('users', 'email')->ignore($request->input('user_id'))],
+                'username'            => ['nullable', 'string', Rule::unique('users', 'username')->ignore($request->input('user_id'))],
+                'nip'                 => 'required|numeric|digits_between:1,18|unique:gurus,nip',
+                'peran'               => 'required|in:GURU MAPEL,WALI KELAS,GURU MAPEL & WALI KELAS',
+                'sekolah_id'          => 'nullable|exists:sekolahs,id',
+                'mapel_ids'           => 'nullable|array',
+                'mapel_ids.*'         => 'exists:mata_pelajarans,kode_mapel',
+                'kelas_pengampu_ids'  => 'nullable|array',
+                'kelas_pengampu_ids.*'=> 'exists:kelas,id',
+                'kelas_wali_id'       => 'nullable|exists:kelas,id',
+            ]);
+
+            $this->validatePengampuSelection($validated);
+            $this->validateKelasWaliSelection($validated);
+
+            $role     = str_contains($validated['peran'], 'WALI KELAS') ? 'walikelas' : 'guru';
+            $sekolahId = $validated['sekolah_id'] ?? (Sekolah::first()->id ?? null);
+
+            if (!$sekolahId) {
+                return response()->json(['message' => 'Belum ada data sekolah. Daftarkan sekolah terlebih dahulu.'], 422);
+            }
+
+            $guruResult = null;
+            DB::transaction(function () use ($validated, $role, $sekolahId, &$guruResult) {
+                if (!empty($validated['user_id'])) {
+                    $user = User::whereIn('role', ['guru', 'walikelas'])
+                        ->whereDoesntHave('guru')
+                        ->findOrFail($validated['user_id']);
+                    $user->update(['nama' => $validated['nama'], 'role' => $role]);
+                } else {
+                    $user = User::create([
+                        'nama'     => $validated['nama'],
+                        'email'    => $validated['email'],
+                        'username' => $validated['username'] ?? $this->uniqueUsername($validated['email']),
+                        'password' => Hash::make($validated['nip']),
+                        'role'     => $role,
+                    ]);
+                }
+
+                $guruData = ['user_id' => $user->id, 'nip' => $validated['nip'], 'sekolah_id' => $sekolahId];
+                if (Schema::hasColumn('gurus', 'jabatan')) {
+                    $guruData['jabatan'] = str_contains($validated['peran'], 'WALI KELAS') ? 'Guru Mapel & Wali Kelas' : 'Guru Mapel';
+                }
+                $guru = Guru::create($guruData);
+                $this->syncGuruPengampu($guru, $validated['mapel_ids'] ?? [], $validated['kelas_pengampu_ids'] ?? []);
+                $this->syncKelasWali($guru, str_contains($validated['peran'], 'WALI KELAS') ? ($validated['kelas_wali_id'] ?? null) : null);
+
+                // Reload relasi untuk response
+                $guru->load(['user', 'guruPengampus.mataPelajaran', 'guruPengampus.kelas', 'kelasWali']);
+                $guruResult = $this->buildGuruRow($guru);
+            });
+
+            return response()->json(['message' => 'Data guru berhasil ditambahkan.', 'guru' => $guruResult]);
+
+        } catch (ValidationException $e) {
+            return response()->json(['message' => 'Validasi gagal.', 'errors' => $e->errors()], 422);
+        } catch (\Exception $e) {
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
+    }
+
+    public function updateAjax(Request $request, $id)
+    {
+        try {
+            $guru = Guru::with('user')->findOrFail($id);
+
+            $validated = $request->validate([
+                'nama'                => 'required|string|max:255',
+                'email'               => 'required|email|unique:users,email,' . $guru->user_id,
+                'peran'               => 'required|in:GURU MAPEL,WALI KELAS,GURU MAPEL & WALI KELAS',
+                'sekolah_id'          => 'nullable|exists:sekolahs,id',
+                'mapel_ids'           => 'nullable|array',
+                'mapel_ids.*'         => 'exists:mata_pelajarans,kode_mapel',
+                'kelas_pengampu_ids'  => 'nullable|array',
+                'kelas_pengampu_ids.*'=> 'exists:kelas,id',
+                'kelas_wali_id'       => 'nullable|exists:kelas,id',
+            ]);
+
+            $this->validatePengampuSelection($validated);
+            $this->validateKelasWaliSelection($validated, $guru->user_id);
+
+            DB::transaction(function () use ($guru, $validated) {
+                $guru->user->update([
+                    'nama'  => $validated['nama'],
+                    'email' => $validated['email'],
+                    'role'  => str_contains($validated['peran'], 'WALI KELAS') ? 'walikelas' : 'guru',
+                ]);
+
+                $updateData = [];
+                if (isset($validated['sekolah_id'])) {
+                    $updateData['sekolah_id'] = $validated['sekolah_id'];
+                }
+                if (Schema::hasColumn('gurus', 'jabatan')) {
+                    $updateData['jabatan'] = str_contains($validated['peran'], 'WALI KELAS') ? 'Guru Mapel & Wali Kelas' : 'Guru Mapel';
+                }
+                if (!empty($updateData)) {
+                    $guru->update($updateData);
+                }
+
+                $this->syncGuruPengampu($guru, $validated['mapel_ids'] ?? [], $validated['kelas_pengampu_ids'] ?? []);
+                $this->syncKelasWali($guru, str_contains($validated['peran'], 'WALI KELAS') ? ($validated['kelas_wali_id'] ?? null) : null);
+            });
+
+            $guru->load(['user', 'guruPengampus.mataPelajaran', 'guruPengampus.kelas', 'kelasWali']);
+            $guruRow = $this->buildGuruRow($guru);
+
+            return response()->json(['message' => 'Data guru berhasil diperbarui.', 'guru' => $guruRow]);
+
+        } catch (ValidationException $e) {
+            return response()->json(['message' => 'Validasi gagal.', 'errors' => $e->errors()], 422);
+        } catch (\Exception $e) {
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
+    }
+
+    public function destroyAjax($id)
+    {
+        try {
+            $guru = Guru::findOrFail($id);
+            $user = $guru->user;
+            Kelas::where('wali_guru_id', $guru->user_id)->update(['wali_guru_id' => null]);
+            $guru->delete();
+            if ($user) {
+                $user->delete();
+            }
+            return response()->json(['message' => 'Data guru berhasil dihapus.', 'id' => (int) $id]);
+        } catch (\Exception $e) {
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Bangun array row guru untuk dikirim ke Alpine.js.
+     */
+    private function buildGuruRow(Guru $guru): array
+    {
+        $mapels = $guru->guruPengampus->map(fn($gp) => $gp->mataPelajaran->nama_mapel ?? '-')->unique()->implode(', ');
+        $kelasDiampu = $guru->guruPengampus->map(fn($gp) => $gp->kelas->nama_kelas ?? null)->filter()->unique()->implode(', ');
+        $kelasWali = $guru->kelasWali->pluck('nama_kelas')->filter()->implode(', ');
+        $roles = [];
+        if ($guru->guruPengampus->isNotEmpty()) $roles[] = 'GURU MAPEL';
+        if ($guru->kelasWali->isNotEmpty()) $roles[] = 'WALI KELAS';
+        if (empty($roles)) $roles[] = 'GURU MAPEL';
+
+        return [
+            'id'                 => $guru->user_id,
+            'name'               => $guru->user->nama ?? '-',
+            'nama'               => $guru->user->nama ?? '-',
+            'email'              => $guru->user->email ?? '-',
+            'nip'                => $guru->nip,
+            'peran'              => in_array('WALI KELAS', $roles) ? 'GURU MAPEL & WALI KELAS' : 'GURU MAPEL',
+            'roles'              => $roles,
+            'mapel'              => $mapels ?: '-',
+            'mapel_ids'          => $guru->guruPengampus->pluck('mapel_id')->unique()->values()->all(),
+            'kelas_diampu'       => $kelasDiampu ?: '-',
+            'kelas_pengampu_ids' => $guru->guruPengampus->pluck('kelas_id')->unique()->values()->all(),
+            'kelas_walikelas'    => $kelasWali ?: '-',
+            'kelas_wali_id'      => $guru->kelasWali->pluck('id')->first(),
+        ];
+    }
+
+    // ─── Standard Form Methods (tetap ada sebagai fallback) ─────────────────
+
     public function store(Request $request)
     {
         // Validasi input

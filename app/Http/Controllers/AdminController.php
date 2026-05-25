@@ -23,7 +23,6 @@ class AdminController extends Controller
             'email'         => 'required|email|unique:users,email',
             'username'      => 'required|string|unique:users,username',
             'password'      => 'required|string|min:6',
-            'jabatan_admin' => 'nullable|string|max:255',
         ]);
 
         DB::transaction(function () use ($validated) {
@@ -37,7 +36,6 @@ class AdminController extends Controller
 
             Admin::create([
                 'user_id'       => $user->id,
-                'jabatan_admin' => $validated['jabatan_admin'] ?? 'Staff',
             ]);
         });
 
@@ -54,7 +52,6 @@ class AdminController extends Controller
             'nama'          => 'required|string|max:255',
             'email'         => 'required|email|unique:users,email,' . $admin->user_id,
             'password'      => 'nullable|string|min:6',
-            'jabatan_admin' => 'nullable|string|max:255',
         ]);
 
         DB::transaction(function () use ($admin, $validated) {
@@ -68,10 +65,6 @@ class AdminController extends Controller
             }
 
             $admin->user->update($updateData);
-
-            $admin->update([
-                'jabatan_admin' => $validated['jabatan_admin'] ?? 'Staff',
-            ]);
         });
 
         return redirect()

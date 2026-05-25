@@ -117,17 +117,37 @@ document.addEventListener('alpine:init', () => {
                 container.appendChild(input);
             });
         },
-        submitAdd() {
-            document.getElementById('tambahNamaGuru').value = this.form.user_name;
-            document.getElementById('tambahUserIdGuru').value = this.form.user_id || '';
-            document.getElementById('tambahEmailGuru').value = this.form.user_email;
-            document.getElementById('tambahUsernameGuru').value = this.form.username || this.form.user_email.split('@')[0];
-            document.getElementById('tambahNipGuru').value = this.form.user_nip;
-            document.getElementById('tambahPeranGuru').value = this.form.peran;
-            document.getElementById('tambahKelasWaliGuru').value = this.form.peran.includes('WALI KELAS') ? (this.form.kelas_wali_id || '') : '';
-            this.syncArrayInputs('tambahMapelGuruInputs', 'mapel_ids[]', this.form.mapel_ids);
-            this.syncArrayInputs('tambahKelasPengampuGuruInputs', 'kelas_pengampu_ids[]', this.form.kelas_pengampu_ids);
-            document.getElementById('formTambahGuru').submit();
+        async submitAdd() {
+            const payload = {
+                nama:                this.form.user_name,
+                user_id:             this.form.user_id || null,
+                email:               this.form.user_email,
+                username:            this.form.username || (this.form.user_email ? this.form.user_email.split('@')[0] : ''),
+                nip:                 this.form.user_nip,
+                peran:               this.form.peran,
+                kelas_wali_id:       this.form.peran.includes('WALI KELAS') ? (this.form.kelas_wali_id || null) : null,
+                mapel_ids:           this.form.mapel_ids,
+                kelas_pengampu_ids:  this.form.kelas_pengampu_ids,
+            };
+
+            try {
+                const res = await fetch('{{ route("guru.store-ajax") }}', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                    body: JSON.stringify(payload)
+                });
+                const result = await res.json();
+                if (!res.ok) throw new Error(result.message || 'Gagal menambah guru.');
+
+                this.gurus.unshift(result.guru);
+                this.showAdd = false;
+                this.clearUser();
+                this.manualMode = false;
+                this.form = { user_id: '', user_name: '', user_email: '', user_nip: '', peran: 'GURU MAPEL', mapel_ids: [], kelas_pengampu_ids: [], kelas_wali_id: '', gelar: '', username: '', whatsapp: '', mapel_search: '', kelas_search: '' };
+                $dispatch('toast', { message: result.message, type: 'success' });
+            } catch (e) {
+                $dispatch('toast', { message: e.message, type: 'error' });
+            }
         },
         openEdit(g) {
             this.editData = {
@@ -145,23 +165,53 @@ document.addEventListener('alpine:init', () => {
             };
             this.showEdit = true;
         },
-        submitEdit() {
-            document.getElementById('formEditGuru').action = '/guru/' + this.editData.id;
-            document.getElementById('editNamaGuru').value = this.editData.name;
-            document.getElementById('editEmailGuru').value = this.editData.email;
-            document.getElementById('editPeranGuru').value = this.editData.peran;
-            document.getElementById('editKelasWaliGuru').value = this.editData.peran.includes('WALI KELAS') ? (this.editData.kelas_wali_id || '') : '';
-            this.syncArrayInputs('editMapelGuruInputs', 'mapel_ids[]', this.editData.mapel_ids);
-            this.syncArrayInputs('editKelasPengampuGuruInputs', 'kelas_pengampu_ids[]', this.editData.kelas_pengampu_ids);
-            document.getElementById('formEditGuru').submit();
+        async submitEdit() {
+            const payload = {
+                nama:                this.editData.name,
+                email:               this.editData.email,
+                peran:               this.editData.peran,
+                kelas_wali_id:       this.editData.peran.includes('WALI KELAS') ? (this.editData.kelas_wali_id || null) : null,
+                mapel_ids:           this.editData.mapel_ids,
+                kelas_pengampu_ids:  this.editData.kelas_pengampu_ids,
+            };
+
+            try {
+                const res = await fetch(`/guru-ajax/${this.editData.id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                    body: JSON.stringify(payload)
+                });
+                const result = await res.json();
+                if (!res.ok) throw new Error(result.message || 'Gagal memperbarui guru.');
+
+                const idx = this.gurus.findIndex(g => String(g.id) === String(this.editData.id));
+                if (idx !== -1) this.gurus.splice(idx, 1, result.guru);
+                this.showEdit = false;
+                $dispatch('toast', { message: result.message, type: 'success' });
+            } catch (e) {
+                $dispatch('toast', { message: e.message, type: 'error' });
+            }
         },
         confirmDelete(g) {
             this.deleteTarget = g;
             this.showDelete = true;
         },
-        doDelete() {
-            document.getElementById('formHapusGuru').action = '/guru/' + this.deleteTarget.id;
-            document.getElementById('formHapusGuru').submit();
+        async doDelete() {
+            try {
+                const res = await fetch(`/guru-ajax/${this.deleteTarget.id}`, {
+                    method: 'DELETE',
+                    headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
+                });
+                const result = await res.json();
+                if (!res.ok) throw new Error(result.message || 'Gagal menghapus guru.');
+
+                this.gurus = this.gurus.filter(g => String(g.id) !== String(this.deleteTarget.id));
+                this.showDelete = false;
+                this.deleteTarget = null;
+                $dispatch('toast', { message: result.message, type: 'error' });
+            } catch (e) {
+                $dispatch('toast', { message: e.message, type: 'error' });
+            }
         },
         doDeleteAll() {
             this.gurus = this.gurus.filter(g => !g.selected);
