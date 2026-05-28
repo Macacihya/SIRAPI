@@ -75,7 +75,19 @@ class GuruCsvService
                     ->filter()
                     ->values();
                 $isWaliKelas = $roles->contains('WALI KELAS') || filled($kelasWaliText);
-                $role = $isWaliKelas ? 'walikelas' : 'guru';
+                $newRoleNames = [];
+                if ($roles->contains('GURU MAPEL') || $roles->contains('GURU')) {
+                    $newRoleNames[] = 'guru';
+                }
+                if ($isWaliKelas) {
+                    $newRoleNames[] = 'guru';
+                    $newRoleNames[] = 'walikelas';
+                }
+                if (empty($newRoleNames)) {
+                    $newRoleNames[] = 'guru';
+                }
+                $newRoleNames = array_unique($newRoleNames);
+                $roleIds = \App\Models\Role::whereIn('nama_role', $newRoleNames)->pluck('id')->toArray();
 
                 $user = User::firstOrCreate(
                     ['email' => trim($email)],
@@ -83,13 +95,12 @@ class GuruCsvService
                         'nama' => trim($nama),
                         'username' => $this->assignmentService->uniqueUsername($email),
                         'password' => Hash::make($nip),
-                        'role' => $role,
                     ]
                 );
                 $user->update([
                     'nama' => trim($nama),
-                    'role' => $role,
                 ]);
+                $user->roles()->sync($roleIds);
 
                 $guruData = [
                     'nip' => trim($nip),

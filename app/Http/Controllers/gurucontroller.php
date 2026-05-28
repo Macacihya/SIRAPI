@@ -106,7 +106,7 @@ class GuruController extends Controller
                 'wali_guru_id' => $kelas->wali_guru_id,
             ])
             ->values();
-        $daftarUserGuru = User::whereIn('role', ['guru', 'walikelas'])
+        $daftarUserGuru = User::whereHas('roles', fn($q) => $q->whereIn('nama_role', ['guru', 'walikelas']))
             ->with(['guru.guruPengampus', 'guru.kelasWali'])
             ->where(function ($query) {
                 $query->whereDoesntHave('guru')
@@ -115,15 +115,18 @@ class GuruController extends Controller
                             ->whereDoesntHave('kelasWali');
                     });
             })
+            ->with('roles')
             ->orderBy('nama')
-            ->get(['id', 'nama', 'email', 'username', 'role'])
+            ->get(['id', 'nama', 'email', 'username'])
             ->map(fn($user) => [
-                'id' => $user->id,
-                'name' => $user->nama,
-                'email' => $user->email,
+                'id'       => $user->id,
+                'name'     => $user->nama,
+                'email'    => $user->email,
                 'username' => $user->username,
-                'nip' => $user->guru->nip ?? '',
-                'roles' => [$user->role === 'walikelas' ? 'WALI KELAS' : 'GURU MAPEL'],
+                'nip'      => $user->guru->nip ?? '',
+                'roles'    => $user->roles->contains('nama_role', 'walikelas')
+                              ? ['WALI KELAS']
+                              : ['GURU MAPEL'],
             ])
             ->values();
         $sekolahs = Sekolah::all();
@@ -199,17 +202,24 @@ class GuruController extends Controller
             $guruResult = null;
             DB::transaction(function () use ($validated, $role, $sekolahId, &$guruResult) {
                 if (!empty($validated['user_id'])) {
-                    $user = User::whereIn('role', ['guru', 'walikelas'])
+                    $user = User::whereHas('roles', fn($q) => $q->whereIn('nama_role', ['guru', 'walikelas']))
                         ->findOrFail($validated['user_id']);
-                    $user->update(['nama' => $validated['nama'], 'role' => $role]);
+                    $user->update(['nama' => $validated['nama']]);
+                    // Sync roles M:M
+                    $newRoleNames = ($role === 'walikelas') ? ['guru', 'walikelas'] : ['guru'];
+                    $roleIds = \App\Models\Role::whereIn('nama_role', $newRoleNames)->pluck('id')->toArray();
+                    $user->roles()->sync($roleIds);
                 } else {
                     $user = User::create([
                         'nama'     => $validated['nama'],
                         'email'    => $validated['email'],
                         'username' => $validated['username'] ?? $this->assignmentService->uniqueUsername($validated['email']),
                         'password' => Hash::make($validated['nip']),
-                        'role'     => $role,
                     ]);
+                    // Sync roles M:M
+                    $newRoleNames = ($role === 'walikelas') ? ['guru', 'walikelas'] : ['guru'];
+                    $roleIds = \App\Models\Role::whereIn('nama_role', $newRoleNames)->pluck('id')->toArray();
+                    $user->roles()->sync($roleIds);
                 }
 
                 $guruData = ['user_id' => $user->id, 'nip' => $validated['nip'], 'sekolah_id' => $sekolahId];
@@ -258,8 +268,13 @@ class GuruController extends Controller
                 $guru->user->update([
                     'nama'  => $validated['nama'],
                     'email' => $validated['email'],
-                    'role'  => str_contains($validated['peran'], 'WALI KELAS') ? 'walikelas' : 'guru',
                 ]);
+                // Update roles M:M
+                $newRoleNames = str_contains($validated['peran'], 'WALI KELAS')
+                    ? ['guru', 'walikelas']
+                    : ['guru'];
+                $roleIds = \App\Models\Role::whereIn('nama_role', $newRoleNames)->pluck('id')->toArray();
+                $guru->user->roles()->sync($roleIds);
 
                 $updateData = [];
                 if (isset($validated['sekolah_id'])) {
@@ -372,13 +387,14 @@ class GuruController extends Controller
 
         DB::transaction(function () use ($validated, $role, $sekolahId) {
             if (!empty($validated['user_id'])) {
-                $user = User::whereIn('role', ['guru', 'walikelas'])
+                $user = User::whereHas('roles', fn($q) => $q->whereIn('nama_role', ['guru', 'walikelas']))
                     ->findOrFail($validated['user_id']);
 
-                $user->update([
-                    'nama' => $validated['nama'],
-                    'role' => $role,
-                ]);
+                $user->update(['nama' => $validated['nama']]);
+                // Sync roles M:M
+                $newRoleNames = ($role === 'walikelas') ? ['guru', 'walikelas'] : ['guru'];
+                $roleIds = \App\Models\Role::whereIn('nama_role', $newRoleNames)->pluck('id')->toArray();
+                $user->roles()->sync($roleIds);
             } else {
                 $user = User::create([
                     'nama'     => $validated['nama'],
@@ -433,8 +449,13 @@ class GuruController extends Controller
             $guru->user->update([
                 'nama'  => $validated['nama'],
                 'email' => $validated['email'],
-                'role'  => str_contains($validated['peran'], 'WALI KELAS') ? 'walikelas' : 'guru',
             ]);
+            // Update roles M:M
+            $newRoleNames = str_contains($validated['peran'], 'WALI KELAS')
+                ? ['guru', 'walikelas']
+                : ['guru'];
+            $roleIds = \App\Models\Role::whereIn('nama_role', $newRoleNames)->pluck('id')->toArray();
+            $guru->user->roles()->sync($roleIds);
 
             $updateData = [];
             if (isset($validated['sekolah_id'])) {
