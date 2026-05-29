@@ -13,6 +13,8 @@
             showEdit: false,
             showImport: false,
             showDelete: false,
+            showToggleStatus: false,
+            toggleTarget: null,
             deleteTarget: null,
             selectAll: false,
             showDeleteAll: false,
@@ -94,6 +96,11 @@
                 this.showDeleteAll = false; this.selectAll = false;
                 this.$dispatch('toast', { message: 'Semua data siswa yang dipilih berhasil dihapus.', type: 'error' });
             },
+            confirmToggleStatus(s) { this.toggleTarget = s; this.showToggleStatus = true; },
+            doToggleStatus() {
+                document.getElementById('formToggleStatusSiswa').action = '/siswa/' + this.toggleTarget.id + '/toggle-status';
+                document.getElementById('formToggleStatusSiswa').submit();
+            },
             handleFileSelect(e) {
                 if (e.target.files.length > 0) { this.importFile = e.target.files[0]; }
             },
@@ -158,6 +165,9 @@
 </form>
 <form id="formHapusSiswa" method="POST" action="" class="hidden">
     @csrf @method('DELETE')
+</form>
+<form id="formToggleStatusSiswa" method="POST" action="" class="hidden">
+    @csrf @method('PATCH')
 </form>
 
 <div x-data="siswaAdmin" class="space-y-6">
@@ -233,6 +243,15 @@
                             <button @click="openedMenu = openedMenu === s.id ? null : s.id" class="rounded-lg p-1.5 text-[#64748b] transition hover:bg-[#f1f5f9]"><svg class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.5"></circle><circle cx="12" cy="12" r="1.5"></circle><circle cx="12" cy="19" r="1.5"></circle></svg></button>
                             <div x-show="openedMenu === s.id" @click.outside="openedMenu = null" class="absolute right-0 top-full mt-1 w-40 rounded-xl border border-[#e2e8f0] bg-white p-1.5 shadow-lg z-50" style="display:none" x-transition>
                                 <button @click="openedMenu = null; openEdit(s)" class="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-[12px] font-medium text-[#334155] hover:bg-[#f1f5f9]"><svg class="h-3.5 w-3.5 text-[#64748b]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" stroke-width="2"></path></svg>Edit Data</button>
+                                <button @click="openedMenu = null; confirmToggleStatus(s)" class="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-[12px] font-medium hover:bg-[#f1f5f9]" :class="s.status_aktif ? 'text-[#ea580c]' : 'text-[#059669]'">
+                                    <template x-if="s.status_aktif">
+                                        <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                                    </template>
+                                    <template x-if="!s.status_aktif">
+                                        <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                                    </template>
+                                    <span x-text="s.status_aktif ? 'Nonaktifkan' : 'Aktifkan'"></span>
+                                </button>
                                 <button @click="openedMenu = null; confirmDelete(s)" class="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-[12px] font-medium text-[#dc2626] hover:bg-[#fef2f2]"><svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>Hapus</button>
                             </div>
                         </td>
@@ -415,5 +434,45 @@
         confirmText="Ya, Hapus Semua"
         confirmAction="doDeleteAll()"
     />
+
+    {{-- ═══ MODAL: Toggle Status Siswa ═══ --}}
+    <template x-teleport="body">
+        <div
+            x-show="showToggleStatus"
+            class="fixed inset-0 z-[100] flex items-center justify-center bg-[#0f172a]/60 backdrop-blur-sm"
+            style="display:none"
+            x-transition
+            @click.self="showToggleStatus = false"
+        >
+            <div class="w-[90%] max-w-sm rounded-2xl bg-white shadow-2xl" @click.stop>
+                <div class="p-6 text-center">
+                    {{-- Icon --}}
+                    <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full ring-4"
+                        :class="toggleTarget?.status_aktif ? 'bg-[#fff7ed] text-[#ea580c] ring-[#fed7aa]' : 'bg-[#ecfdf5] text-[#059669] ring-[#a7f3d0]'">
+                        <template x-if="toggleTarget?.status_aktif">
+                            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                        </template>
+                        <template x-if="!toggleTarget?.status_aktif">
+                            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                        </template>
+                    </div>
+                    <h3 class="mt-4 text-[18px] font-black text-[#0f172a]" x-text="toggleTarget?.status_aktif ? 'Nonaktifkan Siswa?' : 'Aktifkan Siswa?'"></h3>
+                    <p class="mt-2 text-[13px] text-[#64748b]">
+                        Status siswa <strong x-text="toggleTarget?.nama"></strong> akan diubah menjadi
+                        <strong x-text="toggleTarget?.status_aktif ? 'Nonaktif' : 'Aktif'"></strong>.
+                    </p>
+                </div>
+                <div class="flex gap-3 border-t border-[#e2e8f0] bg-[#f8fafc] px-6 py-4 rounded-b-2xl">
+                    <button @click="showToggleStatus = false" class="flex-1 rounded-lg border border-[#e2e8f0] bg-white py-2.5 text-[12px] font-bold text-[#475569]">Batal</button>
+                    <button
+                        @click="doToggleStatus()"
+                        class="flex-1 rounded-lg py-2.5 text-[12px] font-bold text-white"
+                        :class="toggleTarget?.status_aktif ? 'bg-[#ea580c] hover:bg-[#c2410c]' : 'bg-[#059669] hover:bg-[#047857]'"
+                        x-text="toggleTarget?.status_aktif ? 'Ya, Nonaktifkan' : 'Ya, Aktifkan'"
+                    ></button>
+                </div>
+            </div>
+        </div>
+    </template>
 
 </div>

@@ -75,6 +75,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/siswa/tampilkan', [SiswaController::class, 'tampilkan'])->name('siswa.tampilkan');
         Route::post('/siswa', [SiswaController::class, 'store'])->name('siswa.store');
         Route::put('/siswa/{siswa}', [SiswaController::class, 'update'])->name('siswa.update');
+        Route::patch('/siswa/{siswa}/toggle-status', [SiswaController::class, 'toggleStatus'])->name('siswa.toggle-status');
         Route::delete('/siswa/{siswa}', [SiswaController::class, 'destroy'])->name('siswa.destroy');
 
         // Kelas

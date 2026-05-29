@@ -55,6 +55,7 @@ class SiswaController extends Controller
                 'tgl_lahir'      => $siswa->tgl_lahir ? $siswa->tgl_lahir->format('Y-m-d') : '',
                 'alamat'         => $siswa->alamat ?? '',
                 'status'         => strtoupper($latestStatus?->status ?? ($siswa->status_aktif ? 'AKTIF' : 'NONAKTIF')),
+                'status_aktif'   => $siswa->status_aktif,
                 'selected'       => false,
             ];
         });
@@ -137,5 +138,27 @@ class SiswaController extends Controller
         return redirect()
             ->route('siswa')
             ->with('success', 'Data siswa berhasil dihapus.');
+    }
+
+    public function toggleStatus(Siswa $siswa)
+    {
+        $newStatus = !$siswa->status_aktif;
+        $siswa->update(['status_aktif' => $newStatus]);
+
+        // Catat riwayat perubahan status
+        RiwayatStatusSiswa::create([
+            'siswa_id'          => $siswa->id,
+            'status'            => $newStatus ? 'Aktif' : 'Nonaktif',
+            'keterangan'        => $newStatus ? 'Diaktifkan kembali oleh admin' : 'Dinonaktifkan oleh admin',
+            'tanggal_perubahan' => now()->toDateString(),
+        ]);
+
+        $message = $newStatus
+            ? "Status siswa {$siswa->nama_siswa} berhasil diubah menjadi Aktif."
+            : "Status siswa {$siswa->nama_siswa} berhasil diubah menjadi Nonaktif.";
+
+        return redirect()
+            ->route('siswa')
+            ->with('success', $message);
     }
 }
