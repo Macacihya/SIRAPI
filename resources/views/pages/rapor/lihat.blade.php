@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <title>Rapor - {{ request('name', 'Siswa') }}</title>
+    <title>Rapor - {{ ($raport ?? null)?->siswa?->nama_siswa ?? request('name', 'Siswa') }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
@@ -111,32 +111,43 @@
 </head>
 
 @php
-    // 1. Ambil data dari request atau dummy
-    $studentId = request('id', 1);
-    $studentName = strtoupper(request('name', 'ACHMAD ALBAR'));
+    $raport = $raport ?? null;
+    $siswa = $raport?->siswa;
+    $kelas = $siswa?->kelas;
+    $tahunAjaran = $raport?->tahunAjaran;
+    $sekolah = $siswa?->sekolah ?? \App\Models\Sekolah::first();
+    $rekapKehadiran = $raport?->rekapKehadiran;
+    $nilaiSikaps = collect($raport?->nilaiSikaps ?? []);
+
+    $studentId = $siswa?->id ?? request('id', 1);
+    $studentName = strtoupper($siswa?->nama_siswa ?? request('name', 'Siswa'));
     $studentFirstName = explode(' ', trim($studentName))[0];
-    $studentNis = request('nis', '12001');
-    $studentNisn = request('nisn', '0012345601');
+    $studentNis = $siswa?->nis ?? '-';
+    $studentNisn = $siswa?->nisn ?? '-';
+    $kelasName = $kelas?->nama_kelas ?? '-';
+    $tahunLabel = $tahunAjaran?->label ?? '-';
+    $semester = $tahunAjaran?->semester ?? '-';
 
-    // 2. Data Nilai Dinamis
-    $mapel = [
-        ['no' => 1, 'nama' => 'Pendidikan Agama', 'nilai' => 85, 'capaian' => 'Sangat baik dalam memahami kisah keteladanan Nabi Muhammad SAW.'],
-        ['no' => 2, 'nama' => 'Pendidikan Pancasila', 'nilai' => 87, 'capaian' => 'Sangat baik dalam mengidentifikasi simbol-sila Pancasila.'],
-        ['no' => 3, 'nama' => 'Bahasa Indonesia', 'nilai' => 84, 'capaian' => 'Mampu menceritakan kembali isi teks dengan runtut dan jelas.'],
-        ['no' => 4, 'nama' => 'Matematika', 'nilai' => 80, 'capaian' => 'Sangat mahir dalam operasi perkalian, perlu bimbingan pada pembagian.'],
-        ['no' => 5, 'nama' => 'IPAS', 'nilai' => 82, 'capaian' => 'Menunjukkan rasa ingin tahu yang tinggi terhadap siklus hidup makhluk hidup.'],
-        ['no' => 6, 'nama' => 'PJOK', 'nilai'  => 88, 'capaian' => 'Memiliki koordinasi gerak yang sangat baik saat bermain bola.'],
-        ['no' => 7, 'nama' => 'Seni Budaya', 'nilai' => 86, 'capaian' => 'Sangat kreatif dalam eksplorasi warna pada karya seni rupa.'],
-    ];
+    $mapel = collect($raport?->nilais ?? [])->values()->map(function ($nilai, $index) {
+        return [
+            'no' => $index + 1,
+            'nama' => $nilai->mataPelajaran->nama_mapel ?? '-',
+            'nilai' => $nilai->nilai_akhir,
+            'capaian' => $nilai->capaianKompetensis->pluck('deskripsi')->filter()->implode(' ') ?: '-',
+        ];
+    })->all();
 
-    // 3. Data Tambahan (Eskul)
-    $eskul = [
-        ['nama' => 'Pramuka', 'ket' => 'Sangat aktif dalam kegiatan perkemahan dan memiliki kedisiplinan yang tinggi.'],
-        ['nama' => 'Seni Tari', 'ket' => 'Mampu memperagakan gerak dasar tari daerah dengan cukup luwes.'],
-        ['nama' => 'Karate', 'ket' => 'Memiliki ketangkasan gerak yang baik dan disiplin dalam berlatih.'],
-    ];
+    $eskul = collect($raport?->raportEkskuls ?? [])->map(fn ($item) => [
+        'nama' => $item->ekstrakurikuler->nama_eskul ?? '-',
+        'ket' => $item->deskripsi ?? $item->keterangan ?? '-',
+    ])->all();
 
-    $rataRata = round(array_sum(array_column($mapel, 'nilai')) / count($mapel), 2);
+    $spiritual = $nilaiSikaps->first(fn ($item) => strtolower($item->sikap->nama_sikap ?? '') === 'spiritual');
+    $sosial = $nilaiSikaps->first(fn ($item) => strtolower($item->sikap->nama_sikap ?? '') === 'sosial')
+        ?? $nilaiSikaps->first(fn ($item) => !$spiritual || $item->getKey() !== $spiritual->getKey());
+
+    $nilaiAngka = collect($mapel)->pluck('nilai')->filter(fn ($nilai) => $nilai !== null);
+    $rataRata = $nilaiAngka->isNotEmpty() ? round($nilaiAngka->avg(), 2) : null;
 @endphp
 
 <body class="min-h-screen bg-[#e2e8f0]">
@@ -191,11 +202,11 @@
                 <div class="space-y-1">
                     <div class="id-row">
                         <span class="id-label">Nama Sekolah</span>
-                        <span class="id-val">: SD NEGERI 01 INDONESIA</span>
+                        <span class="id-val">: {{ strtoupper($sekolah?->nama_sekolah ?? '-') }}</span>
                     </div>
                     <div class="id-row">
                         <span class="id-label">Alamat</span>
-                        <span class="id-val">: Jl. Imajinasi No. 42, Batam</span>
+                        <span class="id-val">: {{ $sekolah?->alamat ?? '-' }}</span>
                     </div>
                     <div class="id-row">
                         <span class="id-label">Nama Siswa</span>
@@ -209,19 +220,19 @@
                 <div class="space-y-1">
                     <div class="id-row">
                         <span class="id-label">Kelas</span>
-                        <span class="id-val">: IV / Empat</span>
+                        <span class="id-val">: {{ $kelasName }}</span>
                     </div>
                     <div class="id-row">
                         <span class="id-label">Fase</span>
-                        <span class="id-val">: Fase B</span>
+                        <span class="id-val">: -</span>
                     </div>
                     <div class="id-row">
                         <span class="id-label">Semester</span>
-                        <span class="id-val">: 1 (Ganjil)</span>
+                        <span class="id-val">: {{ $semester }}</span>
                     </div>
                     <div class="id-row">
                         <span class="id-label">Tahun Ajaran</span>
-                        <span class="id-val">: 2025/2026</span>
+                        <span class="id-val">: {{ $tahunLabel }}</span>
                     </div>
                 </div>
             </div>
@@ -240,21 +251,25 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach ($mapel as $m)
+                            @forelse ($mapel as $m)
                                 <tr>
                                     <td class="text-center">{{ $m['no'] }}</td>
                                     <td>{{ $m['nama'] }}</td>
-                                    <td class="text-center text-[14px]">{{ $m['nilai'] }}</td>
+                                    <td class="text-center text-[14px]">{{ $m['nilai'] ?? '-' }}</td>
                                     <td class="text-[11px] leading-[1.6] text-[#334155]">
                                         {{ $m['capaian'] }}
                                     </td>
                                 </tr>
-                            @endforeach
+                            @empty
+                                <tr>
+                                    <td colspan="4" class="text-center italic text-[#64748b]">Belum ada data nilai.</td>
+                                </tr>
+                            @endforelse
                         </tbody>
                         <tfoot>
                             <tr>
                                 <td colspan="2" class="text-right">Nilai Rata-rata</td>
-                                <td class="text-center text-[14px]">{{ number_format($rataRata, 2) }}</td>
+                                <td class="text-center text-[14px]">{{ $rataRata !== null ? number_format($rataRata, 2) : '-' }}</td>
                                 <td></td>
                             </tr>
                         </tfoot>
@@ -265,11 +280,11 @@
                 <div class="mt-2 flex items-center gap-6 rounded bg-[#f8fafc] px-4 py-2.5 text-[12px] ring-1 ring-[#1e293b]">
                     <div class="flex items-center gap-2">
                         <span class="text-[#475569]">Peringkat:</span>
-                        <span class="text-[#0f172a]">3</span>
+                        <span class="text-[#0f172a]">-</span>
                     </div>
                     <div class="flex items-center gap-2">
                         <span class="text-[#475569]">Jumlah Siswa:</span>
-                        <span class="text-[#0f172a]">32</span>
+                        <span class="text-[#0f172a]">-</span>
                     </div>
                 </div>
             </div>
@@ -322,18 +337,18 @@
                         <div class="sikap-box rounded">
                             <div class="flex items-center justify-between">
                                 <p class="text-[11px] text-[#475569]">1. SIKAP SPIRITUAL</p>
-                                <p class="text-[11px] text-[#0f172a]">A (SANGAT BAIK)</p>
+                                <p class="text-[11px] text-[#0f172a]">{{ $spiritual?->predikat ?? '-' }}</p>
                             </div>
-                            <p class="mt-2 text-[11px] italic leading-[1.7] text-[#334155]">"Ananda <strong>{{ $studentFirstName }}</strong> sangat baik dalam ketaatan beribadah, berperilaku syukur, dan selalu berdoa."</p>
+                            <p class="mt-2 text-[11px] italic leading-[1.7] text-[#334155]">"{{ $spiritual?->deskripsi ?? '-' }}"</p>
                         </div>
 
                         {{-- Sikap Sosial --}}
                         <div class="sikap-box rounded">
                             <div class="flex items-center justify-between">
                                 <p class="text-[11px] text-[#475569]">2. SIKAP SOSIAL</p>
-                                <p class="text-[11px] text-[#0f172a]">A (SANGAT BAIK)</p>
+                                <p class="text-[11px] text-[#0f172a]">{{ $sosial?->predikat ?? '-' }}</p>
                             </div>
-                            <p class="mt-2 text-[11px] italic leading-[1.7] text-[#334155]">"Menunjukkan sikap jujur, disiplin, dan tanggung jawab yang sangat baik dalam berinteraksi."</p>
+                            <p class="mt-2 text-[11px] italic leading-[1.7] text-[#334155]">"{{ $sosial?->deskripsi ?? '-' }}"</p>
                         </div>
                     </div>
                 </div>
@@ -346,15 +361,15 @@
                             <tbody>
                                 <tr>
                                     <td class="text-[#475569]">Sakit</td>
-                                    <td class="text-center text-[#0f172a] w-[80px]">1 Hari</td>
+                                    <td class="text-center text-[#0f172a] w-[80px]">{{ (int) ($rekapKehadiran?->sakit ?? 0) }} Hari</td>
                                 </tr>
                                 <tr>
                                     <td class="text-[#475569]">Izin</td>
-                                    <td class="text-center text-[#0f172a]">0 Hari</td>
+                                    <td class="text-center text-[#0f172a]">{{ (int) ($rekapKehadiran?->izin ?? 0) }} Hari</td>
                                 </tr>
                                 <tr>
                                     <td class="text-[#475569]">Tanpa Keterangan</td>
-                                    <td class="text-center text-[#0f172a]">0 Hari</td>
+                                    <td class="text-center text-[#0f172a]">{{ (int) ($rekapKehadiran?->alpha ?? 0) }} Hari</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -366,7 +381,7 @@
             <div class="mt-8">
                 <h3 class="text-[13px] font-bold uppercase text-[#0f172a]">E. Catatan Wali Kelas</h3>
                 <div class="catatan-box mt-3 rounded">
-                    <p class="text-[12px] italic leading-[1.8] text-[#334155]">"Selamat <strong>{{ $studentFirstName }}</strong>! Pertahankan semangat belajarmu, terutama pada mata pelajaran Matematika. Sikap kemandirianmu di kelas patut dicontoh oleh teman-teman lainnya."</p>
+                    <p class="text-[12px] italic leading-[1.8] text-[#334155]">Belum ada catatan wali kelas.</p>
                 </div>
             </div>
 
@@ -385,7 +400,7 @@
                         <p class="text-[#475569]">Wali Kelas,</p>
                         <div class="mt-10">
                             <p class="text-[13px] text-[#0f172a] underline underline-offset-4">{{ auth()->user()->nama ?? 'Heryanto Pratama, S.Pd.' }}</p>
-                            <p class="mt-0.5 text-[9px] text-[#64748b]">NIP. 198501012010012001</p>
+                            <p class="mt-0.5 text-[9px] text-[#64748b]">NIP. {{ auth()->user()?->guru?->nip ?? '-' }}</p>
                         </div>
                     </div>
                 </div>
@@ -395,8 +410,8 @@
                     <p class="text-[#475569]">Mengetahui,</p>
                     <p class="text-[#475569]">Kepala Sekolah,</p>
                     <div class="mt-12">
-                        <p class="text-[13px] text-[#0f172a] underline underline-offset-4">Dr. Ahmad Hidayat, M.Pd.</p>
-                        <p class="mt-0.5 text-[9px] text-[#64748b]">NIP. 197003121995031002</p>
+                        <p class="text-[13px] text-[#0f172a] underline underline-offset-4">{{ $sekolah?->nama_kepala_sekolah ?? '-' }}</p>
+                        <p class="mt-0.5 text-[9px] text-[#64748b]">NIP. {{ $sekolah?->nip_kepsek ?? '-' }}</p>
                     </div>
                 </div>
             </div>
