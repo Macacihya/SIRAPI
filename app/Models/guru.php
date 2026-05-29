@@ -45,15 +45,16 @@ class Guru extends Model
     {
         if (!$this->user) return [];
         
-        $roles = [];
-        if ($this->user->role === 'guru') {
-            $roles[] = 'GURU MAPEL';
-        } elseif ($this->user->role === 'walikelas') {
-            $roles[] = 'WALI KELAS';
-        } elseif ($this->user->role === 'admin') {
-            $roles[] = 'ADMIN';
-        }
-        return $roles;
+        return $this->user->roles->map(function ($role) {
+            if ($role->nama_role === 'guru') {
+                return 'GURU MAPEL';
+            } elseif ($role->nama_role === 'walikelas') {
+                return 'WALI KELAS';
+            } elseif ($role->nama_role === 'admin') {
+                return 'ADMIN';
+            }
+            return strtoupper($role->nama_role);
+        })->toArray();
     }
 
     public function getMapelAttribute()

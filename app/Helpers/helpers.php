@@ -2,32 +2,41 @@
 
 if (!function_exists('getLayout')) {
     /**
-     * Menentukan layout Blade berdasarkan role user yang login.
-     * Penggunaan di Blade: @extends(getLayout())
-     *
-     * Arsitektur siap multi-role (role switcher) di masa depan.
-     * Saat ini menggunakan single role dari database.
+     * Menentukan layout Blade berdasarkan role aktif user yang login.
      */
     function getLayout(): string
     {
-        // Semua role kini menggunakan satu master layout terpusat.
-        // Layout mendeteksi role secara otomatis via getUserRole().
         return 'layouts.app';
     }
 }
 
 if (!function_exists('getUserRole')) {
     /**
-     * Mengembalikan role user yang sudah dinormalisasi.
-     * admin_tu → admin (untuk conditional di Blade dan middleware)
+     * Mengembalikan role AKTIF user saat ini.
      *
-     * Di masa depan, bisa dikembangkan untuk mendukung
-     * multi-role dengan konsep "active role" (role switcher).
+     * Alur:
+     * 1. Baca 'active_role' dari session (dipilih saat login).
+     * 2. Pastikan user benar-benar memiliki role tsb (keamanan).
+     * 3. Fallback ke role pertama di tabel user_roles jika session kosong.
+     *
+     * Mendukung multi-role: user dengan role guru+walikelas bisa
+     * login sebagai salah satu dan mendapat tampilan yang sesuai.
      */
     function getUserRole(): string
     {
-        $role = auth()->user()?->role ?? 'admin';
+        $user = auth()->user();
+        if (!$user) {
+            return 'admin';
+        }
 
+        // Gunakan active_role yang disimpan di session saat login
+        $activeRole = session('active_role');
+        if ($activeRole && $user->hasRole($activeRole)) {
+            return in_array($activeRole, ['admin', 'admin_tu']) ? 'admin' : $activeRole;
+        }
+
+        // Fallback: ambil role pertama dari tabel user_roles
+        $role = $user->roles()->value('nama_role') ?? 'admin';
         return in_array($role, ['admin', 'admin_tu']) ? 'admin' : $role;
     }
 }

@@ -24,8 +24,8 @@ class AuthController extends Controller
         ]);
 
         $input = $request->input('username');
-        $role = $request->input('role', 'admin');
-        
+        $role  = $request->input('role', 'admin');
+
         $loginCredentials = ['password' => $request->input('password')];
 
         if (filter_var($input, FILTER_VALIDATE_EMAIL)) {
@@ -39,7 +39,6 @@ class AuthController extends Controller
                 if ($guru && $guru->user) {
                     $loginCredentials['username'] = $guru->user->username;
                 } else {
-                    // Fallback ke username jika NIP tidak ditemukan
                     $loginCredentials['username'] = $input;
                 }
             }
@@ -50,7 +49,8 @@ class AuthController extends Controller
 
             $user = Auth::user();
 
-            if ($user->role !== $role) {
+            // Cek apakah user memiliki role yang diminta
+            if (!$user->hasRole($role)) {
                 Auth::logout();
                 $request->session()->invalidate();
                 $request->session()->regenerateToken();
@@ -59,6 +59,10 @@ class AuthController extends Controller
                     'username' => 'Role tidak sesuai dengan akun Anda.',
                 ])->onlyInput('username');
             }
+
+            // Simpan role aktif ke session
+            // User dengan multi-role (guru+walikelas) mendapat tampilan sesuai role yang dipilih
+            session(['active_role' => $role]);
 
             return redirect()->intended('/dashboard');
         }

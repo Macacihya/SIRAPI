@@ -37,9 +37,9 @@ class UserSeeder extends Seeder
                 'username' => 'admin',
                 'email'    => 'admin@sekolah.sch.id',
                 'password' => Hash::make('lopolo9090'),
-                'role'     => 'admin',
             ]
         );
+        $admin->roles()->sync(\App\Models\Role::where('nama_role', 'admin')->pluck('id')->toArray());
 
         // ISA child: admins
         Admin::updateOrCreate(
@@ -55,9 +55,9 @@ class UserSeeder extends Seeder
                 'username' => 'taufik',
                 'email'    => 'taufik@sekolah.sch.id',
                 'password' => Hash::make('lopolo9090'),
-                'role'     => 'guru',
             ]
         );
+        $guru->roles()->sync(\App\Models\Role::where('nama_role', 'guru')->pluck('id')->toArray());
 
         // ISA child: gurus
         Guru::updateOrCreate(
@@ -77,9 +77,9 @@ class UserSeeder extends Seeder
                 'username' => 'heryanto',
                 'email'    => 'heryanto@sekolah.sch.id',
                 'password' => Hash::make('lopolo9090'),
-                'role'     => 'walikelas',
             ]
         );
+        $walikelas->roles()->sync(\App\Models\Role::whereIn('nama_role', ['guru', 'walikelas'])->pluck('id')->toArray());
 
         // ISA child: gurus (walikelas juga punya NIP)
         Guru::updateOrCreate(

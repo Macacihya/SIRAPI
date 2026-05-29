@@ -15,15 +15,15 @@ class UserController extends Controller
 {
     public function index()
     {
-        $users = User::with(['guru.guruPengampus', 'guru.kelasWali', 'admin'])
-            ->where('role', '!=', 'admin')
+        // Ambil user yang BUKAN admin (pakai M:M whereDoesntHave)
+        $users = User::with(['guru.guruPengampus', 'guru.kelasWali', 'admin', 'roles'])
+            ->whereDoesntHave('roles', fn($q) => $q->where('nama_role', 'admin'))
             ->get();
 
         $usersData = $users->map(function ($user) {
             $roles = [];
-            if ($user->role === 'admin') {
-                $roles[] = 'ADMIN';
-            } elseif ($user->guru) {
+
+            if ($user->guru) {
                 if ($user->guru->guruPengampus->isNotEmpty()) {
                     $roles[] = 'GURU MAPEL';
                 }
@@ -31,19 +31,19 @@ class UserController extends Controller
                     $roles[] = 'WALI KELAS';
                 }
                 if (empty($roles)) {
-                    $roles = $user->role === 'walikelas'
-                        ? ['GURU MAPEL', 'WALI KELAS']
-                        : ['GURU MAPEL'];
+                    // Fallback ke roles M:M
+                    $userRoles = $user->roles->pluck('nama_role');
+                    if ($userRoles->contains('walikelas')) {
+                        $roles[] = 'WALI KELAS';
+                    }
+                    if ($userRoles->contains('guru') || empty($roles)) {
+                        $roles[] = 'GURU MAPEL';
+                    }
                 }
-            } elseif ($user->role === 'guru') {
-                $roles[] = 'GURU MAPEL';
-            } elseif ($user->role === 'walikelas') {
-                $roles[] = 'GURU MAPEL';
-                $roles[] = 'WALI KELAS';
             }
 
             $idLabel = '-';
-            if ($user->role === 'admin') {
+            if ($user->roles->contains('nama_role', 'admin')) {
                 $idLabel = 'ADMIN';
             } elseif ($user->guru) {
                 $idLabel = 'NIP: ' . $user->guru->nip;
@@ -55,7 +55,7 @@ class UserController extends Controller
                 'email'  => $user->email,
                 'id'     => $idLabel,
                 'roles'  => $roles,
-                'status' => 'Aktif', // Default status aktif
+                'status' => 'Aktif',
             ];
         });
 
@@ -75,18 +75,27 @@ class UserController extends Controller
         ]);
 
         $validated['roles'] = $this->normalizeGuruRoles($validated['roles']);
-        $role = in_array('WALI KELAS', $validated['roles']) ? 'walikelas' : 'guru';
+        $roleName = in_array('WALI KELAS', $validated['roles']) ? 'walikelas' : 'guru';
 
-        DB::transaction(function () use ($validated, $role) {
+        DB::transaction(function () use ($validated, $roleName) {
             $user = User::create([
                 'nama'     => $validated['nama'],
                 'email'    => $validated['email'],
                 'username' => $validated['username'],
-                'password' => Hash::make($validated['nip']), // default password = NIP
-                'role'     => $role,
+                'password' => Hash::make($validated['nip']),
+                'role'     => $roleName,   // ditangani oleh mutator → user_roles
             ]);
 
-            // Ambil sekolah_id default untuk guru
+            // Jika guru adalah walikelas, tambah JUGA role 'guru'
+            if ($roleName === 'walikelas') {
+                $user->syncRoleByName('guru');   // beri dua role: guru + walikelas
+                $user->syncRoleByName('walikelas'); // hapus yang lama, isi ulang
+                // Gunakan cara yang benar: sync keduanya sekaligus
+                $roleIds = \App\Models\Role::whereIn('nama_role', ['guru', 'walikelas'])
+                    ->pluck('id')->toArray();
+                $user->roles()->sync($roleIds);
+            }
+
             $sekolahId = Sekolah::first()->id ?? 1;
 
             $guruData = [
@@ -95,7 +104,9 @@ class UserController extends Controller
                 'sekolah_id' => $sekolahId,
             ];
             if (Schema::hasColumn('gurus', 'jabatan')) {
-                $guruData['jabatan'] = $role === 'walikelas' ? 'Guru Mapel & Wali Kelas' : 'Guru Mapel';
+                $guruData['jabatan'] = $roleName === 'walikelas'
+                    ? 'Guru Mapel & Wali Kelas'
+                    : 'Guru Mapel';
             }
 
             Guru::create($guruData);
@@ -122,17 +133,17 @@ class UserController extends Controller
             'roles.*'  => 'in:GURU MAPEL,WALI KELAS',
         ]);
 
-        $role = $user->role;
-        if ($user->role !== 'admin') {
+        $isAdmin = $user->hasRole('admin');
+
+        if (!$isAdmin) {
             $validated['roles'] = $this->normalizeGuruRoles($validated['roles']);
-            $role = in_array('WALI KELAS', $validated['roles']) ? 'walikelas' : 'guru';
+            $roleName = in_array('WALI KELAS', $validated['roles']) ? 'walikelas' : 'guru';
         }
 
-        DB::transaction(function () use ($user, $validated, $role) {
+        DB::transaction(function () use ($user, $validated, $isAdmin) {
             $updateData = [
                 'nama'  => $validated['nama'],
                 'email' => $validated['email'],
-                'role'  => $role,
             ];
 
             if (!empty($validated['password'])) {
@@ -141,11 +152,24 @@ class UserController extends Controller
 
             $user->update($updateData);
 
-            // Update role/jabatan di tabel guru jika ada
-            if ($user->guru && Schema::hasColumn('gurus', 'jabatan')) {
-                $user->guru->update([
-                    'jabatan' => $role === 'walikelas' ? 'Guru Mapel & Wali Kelas' : 'Guru Mapel',
-                ]);
+            // Update roles M:M (hanya untuk non-admin)
+            if (!$isAdmin) {
+                $newRoleNames = in_array('WALI KELAS', $validated['roles'])
+                    ? ['guru', 'walikelas']
+                    : ['guru'];
+
+                $roleIds = \App\Models\Role::whereIn('nama_role', $newRoleNames)
+                    ->pluck('id')->toArray();
+                $user->roles()->sync($roleIds);
+
+                // Update jabatan di tabel guru
+                $jabatan = in_array('walikelas', $newRoleNames)
+                    ? 'Guru Mapel & Wali Kelas'
+                    : 'Guru Mapel';
+
+                if ($user->guru && Schema::hasColumn('gurus', 'jabatan')) {
+                    $user->guru->update(['jabatan' => $jabatan]);
+                }
             }
         });
 
@@ -171,7 +195,7 @@ class UserController extends Controller
     private function normalizeGuruRoles(array $roles): array
     {
         $roles = collect($roles)
-            ->filter(fn($role) => in_array($role, ['GURU MAPEL', 'WALI KELAS'], true))
+            ->filter(fn($r) => in_array($r, ['GURU MAPEL', 'WALI KELAS'], true))
             ->unique()
             ->values()
             ->all();

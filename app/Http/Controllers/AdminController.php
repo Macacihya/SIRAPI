@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Admin;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -19,23 +20,24 @@ class AdminController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'nama'          => 'required|string|max:255',
-            'email'         => 'required|email|unique:users,email',
-            'username'      => 'required|string|unique:users,username',
-            'password'      => 'required|string|min:6',
+            'nama'     => 'required|string|max:255',
+            'email'    => 'required|email|unique:users,email',
+            'username' => 'required|string|unique:users,username',
+            'password' => 'required|string|min:6',
         ]);
 
         DB::transaction(function () use ($validated) {
+            // Buat user tanpa role column (sudah dihapus)
             $user = User::create([
                 'nama'     => $validated['nama'],
                 'email'    => $validated['email'],
                 'username' => $validated['username'],
                 'password' => Hash::make($validated['password']),
-                'role'     => 'admin',
+                'role'     => 'admin',   // mutator → pending → saved event → user_roles
             ]);
 
             Admin::create([
-                'user_id'       => $user->id,
+                'user_id' => $user->id,
             ]);
         });
 
@@ -49,9 +51,9 @@ class AdminController extends Controller
         $admin = Admin::findOrFail($id);
 
         $validated = $request->validate([
-            'nama'          => 'required|string|max:255',
-            'email'         => 'required|email|unique:users,email,' . $admin->user_id,
-            'password'      => 'nullable|string|min:6',
+            'nama'     => 'required|string|max:255',
+            'email'    => 'required|email|unique:users,email,' . $admin->user_id,
+            'password' => 'nullable|string|min:6',
         ]);
 
         DB::transaction(function () use ($admin, $validated) {
@@ -65,6 +67,7 @@ class AdminController extends Controller
             }
 
             $admin->user->update($updateData);
+            // Role admin tidak berubah saat update biasa
         });
 
         return redirect()
@@ -75,8 +78,8 @@ class AdminController extends Controller
     public function destroy($id)
     {
         $admin = Admin::findOrFail($id);
-        
-        // Hapus user (akan cascade delete admin)
+
+        // Hapus user (cascade ke admins dan user_roles)
         $user = User::findOrFail($admin->user_id);
         $user->delete();
 
