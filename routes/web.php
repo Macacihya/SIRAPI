@@ -112,10 +112,11 @@ Route::middleware('auth')->group(function () {
 
     // ── Admin, Guru & Walikelas ──────────────────────────────
     Route::middleware('role:admin,guru,walikelas')->group(function () {
-        Route::view('/penilaian', 'pages.penilaian.index')->name('penilaian');
+        Route::get('/penilaian', [NilaiController::class, 'penilaian'])->name('penilaian');
 
         // Nilai
         Route::post('/nilai', [NilaiController::class, 'store'])->name('nilai.store');
+        Route::post('/nilai/batch', [NilaiController::class, 'storeBatch'])->name('nilai.store-batch');
         Route::put('/nilai/{nilai}', [NilaiController::class, 'update'])->name('nilai.update');
         Route::delete('/nilai/{nilai}', [NilaiController::class, 'destroy'])->name('nilai.destroy');
     });

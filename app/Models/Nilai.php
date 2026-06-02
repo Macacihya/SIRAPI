@@ -8,13 +8,20 @@ class Nilai extends Model
 {
     protected $fillable = [
         'nilai_akhir',
+        'nilai_uh',
+        'nilai_uts',
+        'nilai_uas',
         'siswa_id',
         'raport_id',
         'mapel_id',
+        'status',
     ];
 
     protected $casts = [
         'nilai_akhir' => 'decimal:2',
+        'nilai_uh'    => 'decimal:2',
+        'nilai_uts'   => 'decimal:2',
+        'nilai_uas'   => 'decimal:2',
     ];
 
     public function siswa()
