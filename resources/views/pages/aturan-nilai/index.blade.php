@@ -38,7 +38,6 @@
             init() {
                 const saved = JSON.parse(localStorage.getItem('sirapi-aturan-nilai') || 'null');
                 if (saved) {
-                    this.komponen = saved.komponen || this.komponen;
                     this.nilaiSikap = saved.nilaiSikap || this.nilaiSikap;
                     this.eskul = saved.eskul || this.eskul;
                     this.pembulatan = saved.pembulatan || this.pembulatan;
@@ -46,7 +45,6 @@
             },
             persist() {
                 localStorage.setItem('sirapi-aturan-nilai', JSON.stringify({
-                    komponen: this.komponen,
                     nilaiSikap: this.nilaiSikap,
                     eskul: this.eskul,
                     pembulatan: this.pembulatan,
@@ -87,7 +85,7 @@
                 this.showEdit = true;
             },
             submitEdit() {
-                document.getElementById('formEditKomponen').action = '/aturan-nilai/' + this.editData.id;
+                document.getElementById('formEditKomponen').action = "{{ url('aturan-nilai') }}/" + this.editData.id;
                 document.getElementById('editNamaKomponen').value = this.editData.nama;
                 document.getElementById('editBobot').value = this.editData.bobot;
                 document.getElementById('editMapelId').value = this.editData.mapel_id;
@@ -95,7 +93,7 @@
             },
             confirmHapus(k) { this.hapusTarget = k; this.showHapus = true; },
             doHapus() {
-                document.getElementById('formHapusKomponen').action = '/aturan-nilai/' + this.hapusTarget.id;
+                document.getElementById('formHapusKomponen').action = "{{ url('aturan-nilai') }}/" + this.hapusTarget.id;
                 document.getElementById('formHapusKomponen').submit();
             },
             doHapusSemua() {
