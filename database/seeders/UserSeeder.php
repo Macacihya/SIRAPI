@@ -7,6 +7,7 @@ use App\Models\Admin;
 use App\Models\Guru;
 use App\Models\Sekolah;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
 class UserSeeder extends Seeder
@@ -33,12 +34,19 @@ class UserSeeder extends Seeder
         $admin = User::updateOrCreate(
             ['username' => 'admin'],
             [
-                'nama'     => 'Administrator',
-                'username' => 'admin',
-                'email'    => 'admin@sekolah.sch.id',
-                'password' => Hash::make('lopolo9090'),
+                'nama'          => 'Administrator',
+                'username'      => 'admin',
+                'email'         => 'admin@sekolah.sch.id',
+                'password'      => Hash::make('lopolo9090'),
+                'jenis_kelamin' => 'L',
+                'no_hp'         => '081234560001',
+                'alamat'        => 'Jl. Teknologi Cerdas No. 45, Kebayoran Baru, Jakarta Selatan',
             ]
         );
+        DB::table('users')->where('id', $admin->id)->update([
+            'role' => 'admin',
+            'email_verified_at' => now(),
+        ]);
         $admin->roles()->sync(\App\Models\Role::where('nama_role', 'admin')->pluck('id')->toArray());
 
         // ISA child: admins
@@ -51,12 +59,19 @@ class UserSeeder extends Seeder
         $guru = User::updateOrCreate(
             ['username' => 'taufik'],
             [
-                'nama'     => 'Drs. M. Taufik',
-                'username' => 'taufik',
-                'email'    => 'taufik@sekolah.sch.id',
-                'password' => Hash::make('lopolo9090'),
+                'nama'          => 'Drs. M. Taufik',
+                'username'      => 'taufik',
+                'email'         => 'taufik@sekolah.sch.id',
+                'password'      => Hash::make('lopolo9090'),
+                'jenis_kelamin' => 'L',
+                'no_hp'         => '081234560002',
+                'alamat'        => 'Jl. Pendidikan No. 12, Jakarta Selatan',
             ]
         );
+        DB::table('users')->where('id', $guru->id)->update([
+            'role' => 'guru',
+            'email_verified_at' => now(),
+        ]);
         $guru->roles()->sync(\App\Models\Role::where('nama_role', 'guru')->pluck('id')->toArray());
 
         // ISA child: gurus
@@ -73,12 +88,19 @@ class UserSeeder extends Seeder
         $walikelas = User::updateOrCreate(
             ['username' => 'heryanto'],
             [
-                'nama'     => 'Heryanto Pratama, S.Pd.',
-                'username' => 'heryanto',
-                'email'    => 'heryanto@sekolah.sch.id',
-                'password' => Hash::make('lopolo9090'),
+                'nama'          => 'Heryanto Pratama, S.Pd.',
+                'username'      => 'heryanto',
+                'email'         => 'heryanto@sekolah.sch.id',
+                'password'      => Hash::make('lopolo9090'),
+                'jenis_kelamin' => 'L',
+                'no_hp'         => '081234560003',
+                'alamat'        => 'Jl. Guru Teladan No. 8, Jakarta Selatan',
             ]
         );
+        DB::table('users')->where('id', $walikelas->id)->update([
+            'role' => 'walikelas',
+            'email_verified_at' => now(),
+        ]);
         $walikelas->roles()->sync(\App\Models\Role::whereIn('nama_role', ['guru', 'walikelas'])->pluck('id')->toArray());
 
         // ISA child: gurus (walikelas juga punya NIP)

@@ -9,7 +9,9 @@
     $studentsData = $siswas->map(function ($siswa) use ($raporBySiswa) {
         $raport = $raporBySiswa->get($siswa->id);
         $rekap = $raport?->rekapKehadiran;
-        $nilaiSikap = $raport?->nilaiSikap ?? $raport?->nilaiSikaps?->first();
+        $nilaiSikaps = collect($raport?->nilaiSikaps ?? []);
+        $spiritual = $nilaiSikaps->first(fn ($item) => strtolower($item->sikap->nama_sikap ?? '') === 'spiritual');
+        $sosial = $nilaiSikaps->first(fn ($item) => strtolower($item->sikap->nama_sikap ?? '') === 'sosial');
         $initials = collect(explode(' ', trim($siswa->nama_siswa ?? 'S')))
             ->filter()
             ->take(2)
@@ -24,19 +26,19 @@
             'name' => $siswa->nama_siswa ?? '-',
             'kelas' => $siswa->kelas->nama_kelas ?? '-',
             'avatar' => $initials ?: 'S',
-            'status' => $raport ? 'Draft' : 'Belum',
+            'status' => $raport?->status === 'final' ? 'Selesai' : ($raport ? 'Draft' : 'Belum'),
             'print_url' => $raport ? route('rapor.show', $raport) : '#',
             'form' => [
-                'sikap_sp' => $nilaiSikap?->predikat ? $nilaiSikap->predikat . ' (Terisi)' : '',
-                'desc_sp' => $nilaiSikap?->deskripsi ?? '',
-                'sikap_so' => '',
-                'desc_so' => '',
+                'sikap_sp' => $spiritual?->predikat ?? '',
+                'desc_sp' => $spiritual?->deskripsi ?? '',
+                'sikap_so' => $sosial?->predikat ?? '',
+                'desc_so' => $sosial?->deskripsi ?? '',
                 'eskul' => collect($raport?->raportEkskuls ?? [])->map(fn ($item) => [
                     'id' => $item->id,
                     'nama' => $item->ekstrakurikuler->nama_eskul ?? '',
                     'deskripsi' => $item->deskripsi ?? '',
                 ])->values()->all(),
-                'catatan' => '',
+                'catatan' => $raport?->catatan_wali ?? '',
                 'sakit' => (int) ($rekap?->sakit ?? 0),
                 'izin' => (int) ($rekap?->izin ?? 0),
                 'alpha' => (int) ($rekap?->alpha ?? 0),
@@ -97,38 +99,57 @@
             this.deleteConfirmOpen = false;
         },
 
-        saveDraft() {
-            let sType = this.selectedStudent;
-            sType.status = 'Draft';
+        async saveRaport(action) {
+            if (!this.selectedStudent.raport_id) {
+                alert('Rapor belum tersedia untuk siswa ini.');
+                return;
+            }
+
+            // Payload ini adalah bentuk data form rapor yang akan disimpan ke Laravel.
+            const payload = {
+                action: action,
+                sikap_sp: this.selectedStudent.form.sikap_sp || null,
+                desc_sp: this.selectedStudent.form.desc_sp || null,
+                sikap_so: this.selectedStudent.form.sikap_so || null,
+                desc_so: this.selectedStudent.form.desc_so || null,
+                eskul: this.selectedStudent.form.eskul || [],
+                sakit: this.selectedStudent.form.sakit || 0,
+                izin: this.selectedStudent.form.izin || 0,
+                alpha: this.selectedStudent.form.alpha || 0,
+                catatan: this.selectedStudent.form.catatan || null,
+            };
+
+            const response = await fetch(`/rapor/${this.selectedStudent.raport_id}/save-form`, {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                },
+                body: JSON.stringify(payload),
+            });
+
+            if (!response.ok) {
+                alert('Gagal menyimpan rapor. Periksa data form atau akses wali kelas.');
+                return;
+            }
+
+            const result = await response.json();
+            this.selectedStudent.status = result.status === 'final' ? 'Selesai' : 'Draft';
             this.draftModalOpen = false;
+            this.saveModalOpen = false;
+        },
+
+        saveDraft() {
+            this.saveRaport('draft');
         },
 
         // Simulasi Validasi (Set ke false agar bisa dicoba)
         hasMissingSubjectGrades: false, 
         isFormIncomplete: false,
 
-        async submitToBackend() {
-            if (!this.selectedStudent.raport_id) {
-                this.saveModalOpen = false;
-                alert('Rapor belum tersedia untuk siswa ini.');
-                return;
-            }
-
-            const payload = new FormData();
-            payload.append('_token', '{{ csrf_token() }}');
-            payload.append('raport_id', this.selectedStudent.raport_id);
-            payload.append('sakit', this.selectedStudent.form.sakit || 0);
-            payload.append('izin', this.selectedStudent.form.izin || 0);
-            payload.append('alpha', this.selectedStudent.form.alpha || 0);
-
-            await fetch('{{ route('rekap-kehadiran.sync') }}', {
-                method: 'POST',
-                headers: { 'Accept': 'application/json' },
-                body: payload
-            });
-
-            this.selectedStudent.status = 'Selesai';
-            this.saveModalOpen = false;
+        submitToBackend() {
+            this.saveRaport('final');
         }
 
     }" class="flex h-[calc(100vh-140px)] gap-6">
@@ -215,10 +236,10 @@
                                     <label class="block text-[12px] font-bold text-[#475569] mb-1.5">Sikap Spiritual</label>
                                     <select x-model="selectedStudent.form.sikap_sp" :disabled="selectedStudent.status === 'Selesai'" class="w-full h-10 rounded-lg border border-[#e2e8f0] px-3 font-semibold text-[13px] text-[#0f172a] focus:ring-2 focus:ring-[#3b82f6]/20 focus:border-[#3b82f6] outline-none disabled:bg-[#f1f5f9] disabled:text-[#94a3b8]">
                                         <option value="">-- Pilih Nilai --</option>
-                                        <option>A (Sangat Baik)</option>
-                                        <option>B (Baik)</option>
-                                        <option>C (Cukup)</option>
-                                        <option>D (Kurang)</option>
+                                        <option value="A">A (Sangat Baik)</option>
+                                        <option value="B">B (Baik)</option>
+                                        <option value="C">C (Cukup)</option>
+                                        <option value="D">D (Kurang)</option>
                                     </select>
                                 </div>
                                 <div class="md:col-span-8">
@@ -233,10 +254,10 @@
                                     <label class="block text-[12px] font-bold text-[#475569] mb-1.5">Sikap Sosial</label>
                                     <select x-model="selectedStudent.form.sikap_so" :disabled="selectedStudent.status === 'Selesai'" class="w-full h-10 rounded-lg border border-[#e2e8f0] px-3 font-semibold text-[13px] text-[#0f172a] focus:ring-2 focus:ring-[#3b82f6]/20 focus:border-[#3b82f6] outline-none disabled:bg-[#f1f5f9] disabled:text-[#94a3b8]">
                                         <option value="">-- Pilih Nilai --</option>
-                                        <option>A (Sangat Baik)</option>
-                                        <option>B (Baik)</option>
-                                        <option>C (Cukup)</option>
-                                        <option>D (Kurang)</option>
+                                        <option value="A">A (Sangat Baik)</option>
+                                        <option value="B">B (Baik)</option>
+                                        <option value="C">C (Cukup)</option>
+                                        <option value="D">D (Kurang)</option>
                                     </select>
                                 </div>
                                 <div class="md:col-span-8">

@@ -136,6 +136,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/rapor', [RaportController::class, 'index'])->name('rapor');
         Route::post('/rapor', [RaportController::class, 'store'])->name('rapor.store');
         Route::post('/rapor/generate', [RaportController::class, 'generate'])->name('rapor.generate');
+        Route::post('/rapor/{raport}/save-form', [RaportController::class, 'saveForm'])->name('rapor.save-form');
         Route::get('/rapor/{raport}/lihat', [RaportController::class, 'show'])->name('rapor.show');
         Route::put('/rapor/{raport}', [RaportController::class, 'update'])->name('rapor.update');
         Route::delete('/rapor/{raport}', [RaportController::class, 'destroy'])->name('rapor.destroy');

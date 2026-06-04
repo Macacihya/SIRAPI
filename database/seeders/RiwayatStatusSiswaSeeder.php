@@ -15,6 +15,10 @@ class RiwayatStatusSiswaSeeder extends Seeder
         foreach ($siswas as $siswa) {
             RiwayatStatusSiswa::updateOrCreate(
                 ['siswa_id' => $siswa->id, 'status' => 'Aktif'],
+                [
+                    'keterangan' => 'Pendaftaran siswa baru',
+                    'tanggal_perubahan' => now()->toDateString(),
+                ]
             );
         }
     }

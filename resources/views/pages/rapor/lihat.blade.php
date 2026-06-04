@@ -381,7 +381,7 @@
             <div class="mt-8">
                 <h3 class="text-[13px] font-bold uppercase text-[#0f172a]">E. Catatan Wali Kelas</h3>
                 <div class="catatan-box mt-3 rounded">
-                    <p class="text-[12px] italic leading-[1.8] text-[#334155]">Belum ada catatan wali kelas.</p>
+                    <p class="text-[12px] italic leading-[1.8] text-[#334155]">{{ $raport?->catatan_wali ?: 'Belum ada catatan wali kelas.' }}</p>
                 </div>
             </div>
 

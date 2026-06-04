@@ -9,6 +9,8 @@ class Raport extends Model
     protected $fillable = [
         'siswa_id',
         'tahun_ajaran_id',
+        'status',
+        'catatan_wali',
     ];
 
     public function siswa()

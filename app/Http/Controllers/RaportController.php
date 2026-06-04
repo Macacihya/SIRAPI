@@ -3,9 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\Raport;
+use App\Models\Ekstrakurikuler;
+use App\Models\RekapKehadiran;
+use App\Models\Sikap;
 use App\Models\Siswa;
 use App\Models\TahunAjaran;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class RaportController extends Controller
 {
@@ -58,7 +62,9 @@ class RaportController extends Controller
             'tahun_ajaran_id' => 'required|exists:tahun_ajarans,id',
         ]);
 
-        Raport::create($validated);
+        abort_unless($this->siswaBinaanQuery()->whereKey($validated['siswa_id'])->exists(), 403);
+
+        Raport::firstOrCreate($validated);
 
         return redirect()
             ->route('rapor')
@@ -109,11 +115,100 @@ class RaportController extends Controller
             'tahun_ajaran_id' => 'required|exists:tahun_ajarans,id',
         ]);
 
+        abort_unless($this->canAccessRaport($raport), 403);
+        abort_unless($this->siswaBinaanQuery()->whereKey($validated['siswa_id'])->exists(), 403);
+
         $raport->update($validated);
 
         return redirect()
             ->route('rapor')
             ->with('success', 'Rapor berhasil diperbarui.');
+    }
+
+    public function saveForm(Request $request, Raport $raport)
+    {
+        abort_unless($this->canAccessRaport($raport), 403);
+
+        $validated = $request->validate([
+            'action' => 'required|in:draft,final',
+            'sikap_sp' => 'nullable|in:A,B,C,D',
+            'desc_sp' => 'nullable|string',
+            'sikap_so' => 'nullable|in:A,B,C,D',
+            'desc_so' => 'nullable|string',
+            'eskul' => 'nullable|array',
+            'eskul.*.nama' => 'nullable|string|max:100',
+            'eskul.*.deskripsi' => 'nullable|string',
+            'sakit' => 'required|integer|min:0',
+            'izin' => 'required|integer|min:0',
+            'alpha' => 'required|integer|min:0',
+            'catatan' => 'nullable|string',
+        ]);
+
+        DB::transaction(function () use ($validated, $raport) {
+            // Induk rapor menyimpan status finalisasi dan catatan wali kelas.
+            $raport->update([
+                'status' => $validated['action'],
+                'catatan_wali' => $validated['catatan'] ?? null,
+            ]);
+
+            // Rekap kehadiran satu baris per rapor, jadi updateOrCreate aman untuk draft berulang.
+            RekapKehadiran::updateOrCreate(
+                ['raport_id' => $raport->id],
+                [
+                    'sakit' => $validated['sakit'],
+                    'izin' => $validated['izin'],
+                    'alpha' => $validated['alpha'],
+                ]
+            );
+
+            // Sikap disimpan lewat pivot raport_sikaps agar Spiritual dan Sosial tidak tertukar.
+            $sikapSync = [];
+            $spiritual = Sikap::firstOrCreate(['nama_sikap' => 'Spiritual']);
+            $sosial = Sikap::firstOrCreate(['nama_sikap' => 'Sosial']);
+
+            if (!empty($validated['sikap_sp']) || !empty($validated['desc_sp'])) {
+                $sikapSync[$spiritual->id] = [
+                    'predikat' => $validated['sikap_sp'] ?? null,
+                    'deskripsi' => $validated['desc_sp'] ?? null,
+                ];
+            }
+
+            if (!empty($validated['sikap_so']) || !empty($validated['desc_so'])) {
+                $sikapSync[$sosial->id] = [
+                    'predikat' => $validated['sikap_so'] ?? null,
+                    'deskripsi' => $validated['desc_so'] ?? null,
+                ];
+            }
+
+            $raport->sikaps()->sync($sikapSync);
+
+            // Form rapor mengirim daftar ekskul utuh, jadi relasi lama diganti dengan versi terbaru.
+            $raport->raportEkskuls()->delete();
+            $eskulItems = collect($validated['eskul'] ?? [])
+                ->filter(fn ($eskulData) => !empty($eskulData['nama']))
+                ->unique(fn ($eskulData) => strtolower(trim($eskulData['nama'])));
+
+            foreach ($eskulItems as $eskulData) {
+                $eskulName = trim($eskulData['nama']);
+
+                $eskul = Ekstrakurikuler::firstOrCreate([
+                    'nama_eskul' => $eskulName,
+                ]);
+
+                $raport->raportEkskuls()->create([
+                    'ekstrakurikuler_id' => $eskul->id,
+                    'deskripsi' => $eskulData['deskripsi'] ?? null,
+                ]);
+            }
+        });
+
+        return response()->json([
+            'success' => true,
+            'message' => $validated['action'] === 'final'
+                ? 'Rapor berhasil difinalisasi.'
+                : 'Draft rapor berhasil disimpan.',
+            'status' => $validated['action'],
+        ]);
     }
 
     public function destroy(Raport $raport)
