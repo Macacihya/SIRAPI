@@ -19,8 +19,8 @@ class RaportController extends Controller
         $tahunAjaranAktif = TahunAjaran::where('is_active', true)->first()
             ?? TahunAjaran::orderByDesc('tahun_mulai')->first();
 
-        // Wali kelas hanya melihat siswa dari kelas binaannya.
-        $siswas = $this->siswaBinaanQuery()
+        // Wali kelas hanya melihat siswa dari kelas binaannya pada tahun ajaran aktif.
+        $siswas = $this->siswaBinaanQuery($tahunAjaranAktif?->id)
             ->with('kelas')
             ->orderBy('nama_siswa')
             ->get();
@@ -62,7 +62,7 @@ class RaportController extends Controller
             'tahun_ajaran_id' => 'required|exists:tahun_ajarans,id',
         ]);
 
-        abort_unless($this->siswaBinaanQuery()->whereKey($validated['siswa_id'])->exists(), 403);
+        abort_unless($this->siswaBinaanQuery($validated['tahun_ajaran_id'])->whereKey($validated['siswa_id'])->exists(), 403);
 
         Raport::firstOrCreate($validated);
 
@@ -97,8 +97,8 @@ class RaportController extends Controller
             'tahun_ajaran_id' => 'required|exists:tahun_ajarans,id',
         ]);
 
-        // Cegah wali kelas membuat rapor untuk siswa di luar kelas binaannya.
-        abort_unless($this->siswaBinaanQuery()->whereKey($validated['siswa_id'])->exists(), 403);
+        // Cegah wali kelas membuat rapor untuk siswa di luar kelas binaannya pada tahun ajaran terpilih.
+        abort_unless($this->siswaBinaanQuery($validated['tahun_ajaran_id'])->whereKey($validated['siswa_id'])->exists(), 403);
 
         // firstOrCreate menjaga agar satu siswa tidak punya rapor duplikat pada periode yang sama.
         $raport = Raport::firstOrCreate($validated);
@@ -116,7 +116,7 @@ class RaportController extends Controller
         ]);
 
         abort_unless($this->canAccessRaport($raport), 403);
-        abort_unless($this->siswaBinaanQuery()->whereKey($validated['siswa_id'])->exists(), 403);
+        abort_unless($this->siswaBinaanQuery($validated['tahun_ajaran_id'])->whereKey($validated['siswa_id'])->exists(), 403);
 
         $raport->update($validated);
 
@@ -222,14 +222,17 @@ class RaportController extends Controller
             ->with('success', 'Rapor berhasil dihapus.');
     }
 
-    private function siswaBinaanQuery()
+    private function siswaBinaanQuery($tahunAjaranId = null)
     {
         $query = Siswa::query();
 
         // Scope data berdasarkan user wali kelas yang sedang login.
         if (getUserRole() === 'walikelas') {
-            $query->whereHas('kelas', function ($kelas) {
+            $query->whereHas('kelas', function ($kelas) use ($tahunAjaranId) {
                 $kelas->where('wali_guru_id', auth()->id());
+                if ($tahunAjaranId) {
+                    $kelas->where('tahun_ajaran_id', $tahunAjaranId);
+                }
             });
         }
 
@@ -242,7 +245,7 @@ class RaportController extends Controller
             return true;
         }
 
-        // Validasi akses rapor mengikuti scope siswa binaan.
-        return $this->siswaBinaanQuery()->whereKey($raport->siswa_id)->exists();
+        // Validasi akses rapor mengikuti scope siswa binaan pada tahun ajaran rapor terkait.
+        return $this->siswaBinaanQuery($raport->tahun_ajaran_id)->whereKey($raport->siswa_id)->exists();
     }
 }

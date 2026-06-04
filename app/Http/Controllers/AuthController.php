@@ -28,19 +28,19 @@ class AuthController extends Controller
 
         $loginCredentials = ['password' => $request->input('password')];
 
-        if (filter_var($input, FILTER_VALIDATE_EMAIL)) {
-            $loginCredentials['email'] = $input;
-        } else {
-            if ($role === 'admin') {
-                $loginCredentials['username'] = $input;
+        if ($role === 'admin') {
+            if (filter_var($input, FILTER_VALIDATE_EMAIL)) {
+                $loginCredentials['email'] = $input;
             } else {
-                // Cari NIP guru di tabel gurus
-                $guru = \App\Models\Guru::with('user')->where('nip', $input)->first();
-                if ($guru && $guru->user) {
-                    $loginCredentials['username'] = $guru->user->username;
-                } else {
-                    $loginCredentials['username'] = $input;
-                }
+                $loginCredentials['username'] = $input;
+            }
+        } else {
+            // Cari NIP guru di tabel gurus
+            $guru = \App\Models\Guru::with('user')->where('nip', $input)->first();
+            if ($guru && $guru->user) {
+                $loginCredentials['username'] = $guru->user->username;
+            } else {
+                $loginCredentials['username'] = $input;
             }
         }
 

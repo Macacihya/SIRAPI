@@ -54,7 +54,13 @@ Route::middleware('auth')->group(function () {
 
         Route::get('/data-sekolah', [App\Http\Controllers\SekolahController::class, 'index'])->name('data-sekolah');
         Route::post('/data-sekolah/update', [App\Http\Controllers\SekolahController::class, 'updateAjax'])->name('data-sekolah.update-ajax');
-        Route::view('/akademik', 'pages.akademik.index')->name('akademik');
+        Route::get('/akademik', [App\Http\Controllers\AkademikController::class, 'index'])->name('akademik');
+        Route::post('/akademik/tahun-ajaran', [App\Http\Controllers\AkademikController::class, 'storeTahunAjaran'])->name('akademik.tahun-ajaran.store');
+        Route::put('/akademik/tahun-ajaran/{tahunAjaran}', [App\Http\Controllers\AkademikController::class, 'updateTahunAjaran'])->name('akademik.tahun-ajaran.update');
+        Route::delete('/akademik/tahun-ajaran/{tahunAjaran}', [App\Http\Controllers\AkademikController::class, 'destroyTahunAjaran'])->name('akademik.tahun-ajaran.destroy');
+        Route::post('/akademik/tahun-ajaran/{tahunAjaran}/set-active', [App\Http\Controllers\AkademikController::class, 'setActiveTahunAjaran'])->name('akademik.tahun-ajaran.set-active');
+        Route::post('/akademik/kelas', [App\Http\Controllers\AkademikController::class, 'storeKelas'])->name('akademik.kelas.store');
+        Route::post('/akademik/plotting-otomatis', [App\Http\Controllers\AkademikController::class, 'runPlottingOtomatis'])->name('akademik.plotting-otomatis');
 
         // Guru & Tendik
         Route::get('/guru-tendik', [GuruController::class, 'index'])->name('guru-tendik');
@@ -77,6 +83,8 @@ Route::middleware('auth')->group(function () {
         Route::put('/siswa/{siswa}', [SiswaController::class, 'update'])->name('siswa.update');
         Route::patch('/siswa/{siswa}/toggle-status', [SiswaController::class, 'toggleStatus'])->name('siswa.toggle-status');
         Route::delete('/siswa/{siswa}', [SiswaController::class, 'destroy'])->name('siswa.destroy');
+        Route::post('/siswa/penempatan', [SiswaController::class, 'penempatanStore'])->name('siswa.penempatan.store');
+        Route::post('/siswa/penempatan/remove', [SiswaController::class, 'penempatanRemove'])->name('siswa.penempatan.remove');
 
         // Kelas
         Route::get('/kelas', [KelasController::class, 'index'])->name('kelas');
@@ -100,9 +108,6 @@ Route::middleware('auth')->group(function () {
         // Guru Pengampu
         Route::post('/guru-pengampu', [GuruPengampuController::class, 'store'])->name('guru-pengampu.store');
         Route::delete('/guru-pengampu/{guruPengampu}', [GuruPengampuController::class, 'destroy'])->name('guru-pengampu.destroy');
-
-        // Tahun Ajaran (sudah ada)
-        Route::resource('tahun-ajaran', \App\Http\Controllers\TahunAjaranController::class);
     });
 
     // ── Admin & Guru ─────────────────────────────────────────

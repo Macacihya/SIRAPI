@@ -148,6 +148,32 @@
 
     $nilaiAngka = collect($mapel)->pluck('nilai')->filter(fn ($nilai) => $nilai !== null);
     $rataRata = $nilaiAngka->isNotEmpty() ? round($nilaiAngka->avg(), 2) : null;
+
+    // Hitung peringkat dan jumlah siswa secara dinamis
+    $peringkat = '-';
+    $jumlahSiswa = '-';
+    if ($siswa && $siswa->kelas_id && $tahunAjaran) {
+        $siswaIdsInKelas = \App\Models\Siswa::where('kelas_id', $siswa->kelas_id)->pluck('id');
+        $jumlahSiswa = $siswaIdsInKelas->count();
+
+        $raportsInKelas = \App\Models\Raport::whereIn('siswa_id', $siswaIdsInKelas)
+            ->where('tahun_ajaran_id', $tahunAjaran->id)
+            ->with('nilais')
+            ->get();
+
+        $averages = $raportsInKelas->map(function ($r) {
+            $avg = $r->nilais->avg('nilai_akhir');
+            return [
+                'raport_id' => $r->id,
+                'avg' => $avg ?? 0,
+            ];
+        })->sortByDesc('avg')->values();
+
+        $rankIndex = $averages->search(fn ($item) => $item['raport_id'] == $raport->id);
+        if ($rankIndex !== false) {
+            $peringkat = $rankIndex + 1;
+        }
+    }
 @endphp
 
 <body class="min-h-screen bg-[#e2e8f0]">
@@ -222,10 +248,7 @@
                         <span class="id-label">Kelas</span>
                         <span class="id-val">: {{ $kelasName }}</span>
                     </div>
-                    <div class="id-row">
-                        <span class="id-label">Fase</span>
-                        <span class="id-val">: -</span>
-                    </div>
+
                     <div class="id-row">
                         <span class="id-label">Semester</span>
                         <span class="id-val">: {{ $semester }}</span>
@@ -280,11 +303,11 @@
                 <div class="mt-2 flex items-center gap-6 rounded bg-[#f8fafc] px-4 py-2.5 text-[12px] ring-1 ring-[#1e293b]">
                     <div class="flex items-center gap-2">
                         <span class="text-[#475569]">Peringkat:</span>
-                        <span class="text-[#0f172a]">-</span>
+                        <span class="text-[#0f172a]">{{ $peringkat }}</span>
                     </div>
                     <div class="flex items-center gap-2">
                         <span class="text-[#475569]">Jumlah Siswa:</span>
-                        <span class="text-[#0f172a]">-</span>
+                        <span class="text-[#0f172a]">{{ $jumlahSiswa }}</span>
                     </div>
                 </div>
             </div>

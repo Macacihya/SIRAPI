@@ -9,32 +9,12 @@ class EkstrakurikulerSeeder extends Seeder
 {
     public function run(): void
     {
-        Ekstrakurikuler::insert([
-            [
-                'nama_eskul' => 'Badminton',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'nama_eskul' => 'Futsal',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'nama_eskul' => 'Basket',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'nama_eskul' => 'Paskibra',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'nama_eskul' => 'Pramuka',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-        ]);
+        $eskuls = ['Badminton', 'Futsal', 'Basket', 'Paskibra', 'Pramuka'];
+        foreach ($eskuls as $eskul) {
+            Ekstrakurikuler::updateOrCreate(
+                ['nama_eskul' => $eskul],
+                []
+            );
+        }
     }
 }

@@ -3,6 +3,25 @@
 
 <div x-data="{ showAllActivity: false, showSupport: false, supportForm: { nama: '', email: '', pesan: '' } }" class="space-y-6">
 
+    @if(!$tahunAktif)
+        <div class="rounded-[14px] border border-amber-200 bg-amber-50 p-6 flex items-start gap-4 shadow-sm animate-pulse">
+            <div class="flex h-12 w-12 flex-none items-center justify-center rounded-[8px] bg-amber-100 text-amber-600">
+                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                </svg>
+            </div>
+            <div class="flex-1">
+                <h3 class="text-base font-bold text-amber-800">Periode Akademik Aktif Belum Ditentukan</h3>
+                <p class="mt-1 text-[13px] leading-relaxed text-amber-700">Untuk dapat mengaktifkan sistem secara penuh, silakan tentukan dan aktifkan Tahun Ajaran terlebih dahulu. Ini adalah langkah awal sebelum website dapat digunakan oleh guru dan wali kelas.</p>
+                <div class="mt-3">
+                    <a href="{{ route('akademik') }}" class="inline-flex items-center justify-center h-[34px] rounded bg-amber-600 px-4 text-xs font-bold text-white transition hover:bg-amber-700">
+                        Atur Periode Akademik Sekarang
+                    </a>
+                </div>
+            </div>
+        </div>
+    @endif
+
     {{-- ─── TOP: Heading + Tahun Ajaran ─────────────────── --}}
     <div class="grid gap-6 xl:grid-cols-[minmax(0,1fr)_300px]">
         <div>

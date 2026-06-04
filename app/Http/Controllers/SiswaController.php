@@ -49,7 +49,7 @@ class SiswaController extends Controller
                 'nis'            => $siswa->nis,
                 'kelas'          => $siswa->kelas ? 'Kelas ' . $siswa->kelas->nama_kelas : '-',
                 'kelas_id'       => $siswa->kelas_id,
-                'jenis_kelamin'  => $siswa->jenis_kelamin === 'L' ? 'Laki-laki' : ($siswa->jenis_kelamin === 'P' ? 'Perempuan' : '-'),
+                'jenis_kelamin'  => $siswa->jenis_kelamin === 'L' ? 'Laki-laki' : ($siswa->jenis_kelamin === 'P' ? 'Perempuan' : ($siswa->jenis_kelamin === 'Pria' ? 'Laki-laki' : ($siswa->jenis_kelamin === 'Wanita' ? 'Perempuan' : '-'))),
                 'jk_raw'         => $siswa->jenis_kelamin,
                 'tempat_lahir'   => $siswa->tempat_lahir ?? '-',
                 'tgl_lahir'      => $siswa->tgl_lahir ? $siswa->tgl_lahir->format('Y-m-d') : '',
@@ -73,8 +73,67 @@ class SiswaController extends Controller
             $q->where('status', 'Cuti');
         })->count();
 
+        // Data Penempatan Siswa
+        $tahunAjarans = [];
+        $tahunAjaranId = null;
+        $kelasPenempatan = [];
+        $kelasId = null;
+        $siswaDiKelas = [];
+        $siswaBelumDitempatkan = [];
+
+        if (getUserRole() === 'admin') {
+            $tahunAjarans = \App\Models\TahunAjaran::orderByDesc('tahun_mulai')
+                ->orderByRaw("CASE WHEN semester = 'Ganjil' THEN 0 ELSE 1 END")
+                ->get();
+
+            $tahunAjaranId = $request->input('tahun_ajaran_id');
+            if (!$tahunAjaranId) {
+                $activeTahun = $tahunAjarans->where('is_active', true)->first();
+                $tahunAjaranId = $activeTahun ? $activeTahun->id : $tahunAjarans->first()?->id;
+            }
+
+            if ($tahunAjaranId) {
+                $kelasPenempatan = Kelas::where('tahun_ajaran_id', $tahunAjaranId)->orderBy('nama_kelas')->get();
+                $kelasId = $request->input('kelas_id', $request->input('kelas_id', $kelasPenempatan->first()?->id));
+
+                if ($kelasId) {
+                    $siswaDiKelas = Siswa::where('kelas_id', $kelasId)
+                        ->where('status_aktif', true)
+                        ->orderBy('nama_siswa')
+                        ->get()
+                        ->map(fn($s) => [
+                            'id' => $s->id,
+                            'nama' => $s->nama_siswa,
+                            'nisn' => $s->nisn,
+                            'jk' => $s->jenis_kelamin === 'Pria' ? 'Pria' : ($s->jenis_kelamin === 'Wanita' ? 'Wanita' : ($s->jenis_kelamin === 'L' ? 'Pria' : ($s->jenis_kelamin === 'P' ? 'Wanita' : '-'))),
+                        ])
+                        ->toArray();
+                }
+
+                $siswaBelumDitempatkan = Siswa::where('status_aktif', true)
+                    ->where(function ($query) use ($tahunAjaranId) {
+                        $query->whereNull('kelas_id')
+                            ->orWhereHas('kelas', function ($q) use ($tahunAjaranId) {
+                                $q->where('tahun_ajaran_id', '!=', $tahunAjaranId);
+                            });
+                    })
+                    ->orderBy('nama_siswa')
+                    ->get()
+                    ->map(fn($s) => [
+                        'id' => $s->id,
+                        'nama' => $s->nama_siswa,
+                        'nisn' => $s->nisn,
+                        'jk' => $s->jenis_kelamin === 'Pria' ? 'Pria' : ($s->jenis_kelamin === 'Wanita' ? 'Wanita' : ($s->jenis_kelamin === 'L' ? 'Pria' : ($s->jenis_kelamin === 'P' ? 'Wanita' : '-'))),
+                        'current_kelas' => $s->kelas?->nama_kelas,
+                    ])
+                    ->toArray();
+            }
+        }
+
         return view('pages.siswa.index', compact(
-            'data', 'daftarKelas', 'totalSiswa', 'siswaAktif', 'siswaCuti'
+            'data', 'daftarKelas', 'totalSiswa', 'siswaAktif', 'siswaCuti',
+            'tahunAjarans', 'tahunAjaranId', 'kelasPenempatan', 'kelasId',
+            'siswaDiKelas', 'siswaBelumDitempatkan'
         ));
     }
 
@@ -160,5 +219,42 @@ class SiswaController extends Controller
         return redirect()
             ->route('siswa')
             ->with('success', $message);
+    }
+
+    public function penempatanStore(Request $request)
+    {
+        $validated = $request->validate([
+            'kelas_id' => 'required|exists:kelas,id',
+            'siswa_ids' => 'required|array',
+            'siswa_ids.*' => 'exists:siswas,id',
+        ]);
+
+        Siswa::whereIn('id', $validated['siswa_ids'])
+            ->update(['kelas_id' => $validated['kelas_id']]);
+
+        return redirect()->route('siswa', [
+            'tab' => 'penempatan',
+            'tahun_ajaran_id' => Kelas::find($validated['kelas_id'])->tahun_ajaran_id,
+            'kelas_id' => $validated['kelas_id']
+        ])->with('success', count($validated['siswa_ids']) . ' siswa berhasil ditempatkan ke kelas.');
+    }
+
+    public function penempatanRemove(Request $request)
+    {
+        $validated = $request->validate([
+            'siswa_ids' => 'required|array',
+            'siswa_ids.*' => 'exists:siswas,id',
+            'kelas_id' => 'nullable|exists:kelas,id',
+            'tahun_ajaran_id' => 'nullable|exists:tahun_ajarans,id',
+        ]);
+
+        Siswa::whereIn('id', $validated['siswa_ids'])
+            ->update(['kelas_id' => null]);
+
+        return redirect()->route('siswa', [
+            'tab' => 'penempatan',
+            'tahun_ajaran_id' => $request->input('tahun_ajaran_id'),
+            'kelas_id' => $request->input('kelas_id')
+        ])->with('success', count($validated['siswa_ids']) . ' siswa berhasil dikeluarkan dari kelas.');
     }
 }
