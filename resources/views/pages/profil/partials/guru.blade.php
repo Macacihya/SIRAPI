@@ -14,7 +14,7 @@
             nip: '{{ $user->guru->nip ?? '' }}',
             nama: '{{ $user->nama ?? '' }}',
             username: '{{ $user->username ?? '' }}',
-            jabatan: '{{ $user->jabatan ?? '' }}',
+            jabatan: '{{ $user->guru->jabatan ?? '' }}',
             jenis_kelamin: '{{ $user->jenis_kelamin ?? '' }}',
             no_hp: '{{ $user->no_hp ?? '' }}',
             alamat: '{{ $user->alamat ?? '' }}',
@@ -29,20 +29,72 @@
             this.editProfileModal = true;
         },
 
-        saveProfile() {
-            this.userProfile = { ...this.formProfile };
-            this.editProfileModal = false;
-            this.showToast('Profil berhasil diperbarui!');
+        async saveProfile() {
+            try {
+                let response = await fetch('{{ route("profil.update") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({
+                        nama: this.formProfile.nama,
+                        email: this.formProfile.email,
+                        jenis_kelamin: this.formProfile.jenis_kelamin,
+                        no_hp: this.formProfile.no_hp,
+                        alamat: this.formProfile.alamat
+                    })
+                });
+
+                if (!response.ok) {
+                    let err = await response.json();
+                    throw new Error(err.message || 'Gagal memperbarui profil.');
+                }
+
+                let result = await response.json();
+                this.userProfile = { ...this.formProfile };
+                this.editProfileModal = false;
+                this.showToast(result.message || 'Profil berhasil diperbarui!');
+                setTimeout(() => window.location.reload(), 1000);
+            } catch (e) {
+                alert(e.message);
+            }
         },
 
-        savePassword() {
+        async savePassword() {
             if(this.formPassword.new !== this.formPassword.confirm) {
                 alert('Konfirmasi kata sandi baru tidak cocok!');
                 return;
             }
-            this.passwordModal = false;
-            this.formPassword = { old: '', new: '', confirm: '' };
-            this.showToast('Kata sandi berhasil diubah!');
+
+            try {
+                let response = await fetch('{{ route("profil.change-password") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({
+                        lama: this.formPassword.old,
+                        baru: this.formPassword.new,
+                        konfirmasi: this.formPassword.confirm
+                    })
+                });
+
+                if (!response.ok) {
+                    let err = await response.json();
+                    throw new Error(err.message || 'Gagal mengubah kata sandi.');
+                }
+
+                let result = await response.json();
+                this.passwordModal = false;
+                this.formPassword = { old: '', new: '', confirm: '' };
+                this.showToast(result.message || 'Kata sandi berhasil diubah!');
+            } catch (e) {
+                alert(e.message);
+            }
         },
 
         triggerUpload() {
@@ -239,7 +291,7 @@
                         </div>
                         <div>
                             <label class="block text-[11px] font-bold uppercase tracking-[0.15em] text-[#64748b] mb-1">Jabatan</label>
-                            <input type="text" x-model="formProfile.jabatan" class="w-full h-11 rounded-lg border border-[#e2e8f0] px-3 font-semibold text-[13px] text-[#0f172a] focus:ring-2 focus:ring-[#3b82f6]/20 outline-none transition">
+                            <input type="text" x-model="formProfile.jabatan" class="w-full h-11 rounded-lg border border-[#e2e8f0] bg-[#f8fafc] px-3 font-semibold text-[13px] text-[#0f172a] outline-none" readonly>
                         </div>
                     </div>
                     <div class="grid grid-cols-2 gap-4">
