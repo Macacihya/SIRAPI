@@ -164,7 +164,15 @@
         <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div>
                 <h1 class="text-[28px] font-black tracking-[-0.04em] text-[#0f172a] sm:text-[36px]">Input Nilai Siswa</h1>
-                <p class="mt-1 text-[14px] text-[#475569]">Mata Pelajaran: <strong>{{ $selectedMapel->nama_mapel ?? 'Belum dipilih' }}</strong></p>
+                <div class="mt-2 flex flex-wrap items-center gap-2">
+                    <p class="text-[14px] text-[#475569]">Mata Pelajaran: <strong>{{ $selectedMapel->nama_mapel ?? 'Belum dipilih' }}</strong></p>
+                    <span class="inline-flex items-center rounded-md border border-[#bfdbfe] bg-[#eff6ff] px-3 py-1 text-[11px] font-extrabold uppercase tracking-[0.08em] text-[#1d4ed8]">
+                        KKM Mapel:
+                        <span class="ml-1 text-[#0f172a]">
+                            {{ $selectedMapel && !is_null($selectedMapel->kkm) ? number_format((float) $selectedMapel->kkm, 2) : 'Belum diatur' }}
+                        </span>
+                    </span>
+                </div>
             </div>
         </div>
 
@@ -555,11 +563,11 @@
                                 </div>
                             </td>
                             @if($aturanBobot)
-                            <td class="px-5 py-4 text-center" :class="Number(g.uh || 0) < kkm && g.uh != null ? 'text-[#dc2626] font-bold' : 'text-[#475569]'" x-text="g.uh ?? '-'"></td>
-                            <td class="px-5 py-4 text-center" :class="Number(g.uts || 0) < kkm && g.uts != null ? 'text-[#dc2626] font-bold' : 'text-[#475569]'" x-text="g.uts ?? '-'"></td>
-                            <td class="px-5 py-4 text-center" :class="Number(g.uas || 0) < kkm && g.uas != null ? 'text-[#dc2626] font-bold' : 'text-[#475569]'" x-text="g.uas ?? '-'"></td>
+                            <td class="px-5 py-4 text-center text-[#475569]" x-text="g.uh ?? '-'"></td>
+                            <td class="px-5 py-4 text-center text-[#475569]" x-text="g.uts ?? '-'"></td>
+                            <td class="px-5 py-4 text-center text-[#475569]" x-text="g.uas ?? '-'"></td>
                             @endif
-                            <td class="px-4 py-4 text-center font-black border-l border-[#f1f5f9]" :class="Number(g.nilai_akhir || 0) < kkm ? 'text-[#dc2626]' : 'text-[#0f172a]'" x-text="g.nilai_akhir ? Number(g.nilai_akhir).toFixed(2) : '-'"></td>
+                            <td class="px-4 py-4 text-center font-black border-l border-[#f1f5f9]" :class="g.nilai_akhir !== null && g.nilai_akhir !== undefined ? (Number(g.nilai_akhir) >= kkm ? 'text-[#16a34a]' : 'text-[#dc2626]') : 'text-[#94a3b8]'" x-text="g.nilai_akhir !== null && g.nilai_akhir !== undefined ? Number(g.nilai_akhir).toFixed(2) : '-'"></td>
                             <td class="px-5 py-4 text-center">
                                 <span x-show="g.status === 'belum' || !g.status" class="rounded px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wider bg-[#f1f5f9] text-[#64748b]">Belum</span>
                                 <span x-show="g.status === 'draft'" class="rounded px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wider bg-[#fff7ed] text-[#ea580c]">Draft</span>
