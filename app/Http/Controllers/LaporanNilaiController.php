@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Kelas;
+use App\Models\GuruPengampu;
 use App\Models\MataPelajaran;
 use App\Models\Nilai;
 
@@ -25,17 +26,35 @@ class LaporanNilaiController extends Controller
             })
             // Guru mapel hanya membaca nilai dari mapel yang diampunya.
             ->when(getUserRole() === 'guru', function ($query) {
-                $mapelIds = auth()->user()?->guru?->guruPengampus?->pluck('mapel_id')->filter()->unique();
+                $pengampus = GuruPengampu::where('guru_id', auth()->id())->get(['kelas_id', 'mapel_id']);
 
-                if ($mapelIds && $mapelIds->isNotEmpty()) {
-                    $query->whereIn('mapel_id', $mapelIds);
-                }
+                $query->where(function ($scoped) use ($pengampus) {
+                    foreach ($pengampus as $pengampu) {
+                        $scoped->orWhere(function ($item) use ($pengampu) {
+                            $item->where('mapel_id', $pengampu->mapel_id)
+                                ->whereHas('siswa', fn ($siswa) => $siswa->where('kelas_id', $pengampu->kelas_id));
+                        });
+                    }
+
+                    if ($pengampus->isEmpty()) {
+                        $scoped->whereRaw('1 = 0');
+                    }
+                });
             })
             ->latest()
             ->get();
 
-        $kelas = Kelas::orderBy('nama_kelas')->get();
-        $mapels = MataPelajaran::orderBy('nama_mapel')->get();
+        if (getUserRole() === 'guru') {
+            $pengampus = GuruPengampu::where('guru_id', auth()->id())->get(['kelas_id', 'mapel_id']);
+            $kelas = Kelas::whereIn('id', $pengampus->pluck('kelas_id')->unique())->orderBy('nama_kelas')->get();
+            $mapels = MataPelajaran::whereIn('kode_mapel', $pengampus->pluck('mapel_id')->unique())->orderBy('nama_mapel')->get();
+        } elseif (getUserRole() === 'walikelas') {
+            $kelas = Kelas::where('wali_guru_id', auth()->id())->orderBy('nama_kelas')->get();
+            $mapels = MataPelajaran::orderBy('nama_mapel')->get();
+        } else {
+            $kelas = Kelas::orderBy('nama_kelas')->get();
+            $mapels = MataPelajaran::orderBy('nama_mapel')->get();
+        }
 
         // Nilai digabung per siswa agar laporan menampilkan rata-rata dan detail mapel.
         $laporanSiswa = $nilais

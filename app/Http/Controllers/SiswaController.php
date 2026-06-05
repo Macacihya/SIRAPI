@@ -26,6 +26,18 @@ class SiswaController extends Controller
     {
         // Query dasar mengambil siswa beserta relasi kelas dan riwayat statusnya
         $query = Siswa::with(['kelas', 'riwayatStatus']);
+        $role = getUserRole();
+        $guruKelasIds = collect();
+
+        if ($role === 'guru') {
+            $guruKelasIds = auth()->user()?->guru?->guruPengampus?->pluck('kelas_id')->filter()->unique()->values() ?? collect();
+
+            if ($guruKelasIds->isNotEmpty()) {
+                $query->whereIn('kelas_id', $guruKelasIds);
+            } else {
+                $query->whereRaw('1 = 0');
+            }
+        }
 
         // Filter pencarian berdasarkan kelas jika dipilih (bukan 'Semua')
         if ($request->filled('kelas') && $request->kelas !== 'Semua') {
@@ -70,15 +82,25 @@ class SiswaController extends Controller
         });
 
         // Mengambil daftar seluruh kelas untuk dropdown filter di halaman view
-        $daftarKelas = Kelas::all()->map(fn($k) => (object)[
+        $daftarKelasQuery = Kelas::query();
+        if ($role === 'guru') {
+            $daftarKelasQuery->whereIn('id', $guruKelasIds);
+        }
+
+        $daftarKelas = $daftarKelasQuery->orderBy('nama_kelas')->get()->map(fn($k) => (object)[
             'id'   => $k->id,
             'nama' => 'Kelas ' . $k->nama_kelas,
         ])->toArray();
 
         // Statistik ringkas siswa untuk ditampilkan di dashboard/kartu informasi
-        $totalSiswa = Siswa::count();
-        $siswaAktif = Siswa::where('status_aktif', true)->count();
-        $siswaCuti = Siswa::whereHas('riwayatStatus', function ($q) {
+        $statQuery = Siswa::query();
+        if ($role === 'guru') {
+            $statQuery->whereIn('kelas_id', $guruKelasIds);
+        }
+
+        $totalSiswa = (clone $statQuery)->count();
+        $siswaAktif = (clone $statQuery)->where('status_aktif', true)->count();
+        $siswaCuti = (clone $statQuery)->whereHas('riwayatStatus', function ($q) {
             $q->where('status', 'Cuti');
         })->count();
 

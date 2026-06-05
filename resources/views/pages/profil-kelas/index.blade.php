@@ -4,6 +4,26 @@
 @section('active', 'profil-kelas')
 
 @section('content')
+    @php
+        $namaKelas   = $kelas?->nama_kelas ?? '-';
+        $tingkat     = $kelas?->tingkat ?? '';
+        $tahunLabel  = $tahunAktif ? $tahunAktif->tahun_mulai . '/' . $tahunAktif->tahun_selesai . ' – ' . $tahunAktif->semester : '-';
+
+        // Siapkan array JSON aman untuk Alpine.js agar tetap berfungsi interaktif.
+        $siswaJson = $siswas->map(fn ($s) => [
+            'no'   => $s['no'],
+            'nis'  => $s['nis'],
+            'init' => $s['init'],
+            'nama' => $s['nama'],
+            'jk'   => $s['jk'],
+            'role' => $s['role'],
+        ])->values()->toJson();
+
+        $totalSiswa = $siswas->count();
+        $lakiLaki   = $siswas->where('jk', 'Laki-laki')->count();
+        $perempuan  = $siswas->where('jk', 'Perempuan')->count();
+    @endphp
+
     <style>
         @media print {
             .no-print { display: none !important; }
@@ -17,38 +37,16 @@
         editIndex: null,
         editForm: { nama: '', nis: '', jk: '', role: '', init: '', no: '' },
 
-        // ── Search & Filter ──
         searchQuery: '',
         filterJK: '',
         filterRole: '',
         filterOpen: false,
 
-        // ── Pagination ──
         currentPage: 1,
         perPage: 8,
 
-        siswa: [
-            { no: '01', nis: '12001 / 0012345601', init: 'AA', nama: 'ACHMAD ALBAR', jk: 'Laki-laki', role: 'KETUA KELAS' },
-            { no: '02', nis: '12002 / 0012345602', init: 'BM', nama: 'BELLA MONICA', jk: 'Perempuan', role: 'SEKRETARIS 1' },
-            { no: '03', nis: '12003 / 0012345603', init: 'DP', nama: 'DANDI PRATAMA', jk: 'Laki-laki', role: 'SISWA' },
-            { no: '04', nis: '12004 / 0012345604', init: 'EK', nama: 'ENDAH KARTIKA', jk: 'Perempuan', role: 'BENDAHARA 1' },
-            { no: '05', nis: '12005 / 0012345605', init: 'FA', nama: 'FARHAN AZIS', jk: 'Laki-laki', role: 'SISWA' },
-            { no: '06', nis: '12006 / 0012345606', init: 'GA', nama: 'GITA ANANDA', jk: 'Perempuan', role: 'SEKRETARIS 2' },
-            { no: '07', nis: '12007 / 0012345607', init: 'HY', nama: 'HENDRA YULIAN', jk: 'Laki-laki', role: 'SISWA' },
-            { no: '08', nis: '12008 / 0012345608', init: 'IS', nama: 'INTAN SARI', jk: 'Perempuan', role: 'SISWA' },
-            { no: '09', nis: '12009 / 0012345609', init: 'JW', nama: 'JOKO WIBOWO', jk: 'Laki-laki', role: 'SISWA' },
-            { no: '10', nis: '12010 / 0012345610', init: 'KR', nama: 'KIRANA RAHMA', jk: 'Perempuan', role: 'SISWA' },
-            { no: '11', nis: '12011 / 0012345611', init: 'LP', nama: 'LUKMAN PUTRA', jk: 'Laki-laki', role: 'SISWA' },
-            { no: '12', nis: '12012 / 0012345612', init: 'MN', nama: 'MAYA NURHALIZA', jk: 'Perempuan', role: 'SISWA' },
-            { no: '13', nis: '12013 / 0012345613', init: 'NR', nama: 'NANDA RIZKY', jk: 'Laki-laki', role: 'SISWA' },
-            { no: '14', nis: '12014 / 0012345614', init: 'OP', nama: 'OSCAR PERMANA', jk: 'Laki-laki', role: 'WAKIL KETUA' },
-            { no: '15', nis: '12015 / 0012345615', init: 'PS', nama: 'PUTRI SETIAWAN', jk: 'Perempuan', role: 'SISWA' },
-            { no: '16', nis: '12016 / 0012345616', init: 'QH', nama: 'QIYAMUL HAQ', jk: 'Laki-laki', role: 'SISWA' },
-            { no: '17', nis: '12017 / 0012345617', init: 'RA', nama: 'RINA AGUSTINA', jk: 'Perempuan', role: 'BENDAHARA 2' },
-            { no: '18', nis: '12018 / 0012345618', init: 'SB', nama: 'SURYA BAGASKARA', jk: 'Laki-laki', role: 'SISWA' },
-        ],
+        siswa: {{ Js::from($siswas->values()->toArray()) }},
 
-        // Batas maksimum tiap jabatan (masing-masing 1 orang)
         limits: {
             'KETUA KELAS': 1,
             'WAKIL KETUA': 1,
@@ -59,20 +57,16 @@
             'SISWA': 999,
         },
 
-        // Hitung berapa yang sudah mengisi jabatan tertentu (kecuali siswa yang sedang diedit)
         countRole(role) {
             return this.siswa.filter((s, i) => s.role === role && i !== this.editIndex).length;
         },
 
-        // Cek apakah jabatan masih bisa dipilih
         isRoleAvailable(role) {
             return this.countRole(role) < this.limits[role];
         },
 
-        // Sisa kuota jabatan
         remainingSlots(role) {
-            const remaining = this.limits[role] - this.countRole(role);
-            return Math.max(0, remaining);
+            return Math.max(0, this.limits[role] - this.countRole(role));
         },
 
         openEdit(index) {
@@ -94,24 +88,23 @@
 
         getRoleStyle(role) {
             const styles = {
-                'KETUA KELAS': 'bg-[#0f172a] text-white',
-                'WAKIL KETUA': 'bg-[#334155] text-white',
+                'KETUA KELAS':  'bg-[#0f172a] text-white',
+                'WAKIL KETUA':  'bg-[#334155] text-white',
                 'SEKRETARIS 1': 'bg-[#1e40af] text-white',
                 'SEKRETARIS 2': 'bg-[#3b82f6] text-white',
-                'BENDAHARA 1': 'bg-[#1d4ed8] text-white',
-                'BENDAHARA 2': 'bg-[#60a5fa] text-white',
+                'BENDAHARA 1':  'bg-[#1d4ed8] text-white',
+                'BENDAHARA 2':  'bg-[#60a5fa] text-white',
             };
             return styles[role] || 'bg-[#f1f5f9] text-[#475569]';
         },
 
-        // ── Filtering & Pagination ──
         get filteredSiswa() {
             let result = this.siswa.map((s, i) => ({...s, _idx: i}));
             if (this.searchQuery) {
                 const q = this.searchQuery.toLowerCase();
                 result = result.filter(s => s.nama.toLowerCase().includes(q) || s.nis.toLowerCase().includes(q));
             }
-            if (this.filterJK) result = result.filter(s => s.jk === this.filterJK);
+            if (this.filterJK)   result = result.filter(s => s.jk === this.filterJK);
             if (this.filterRole) result = result.filter(s => s.role === this.filterRole);
             return result;
         },
@@ -141,10 +134,10 @@
 
         resetFilters() {
             this.searchQuery = '';
-            this.filterJK = '';
+            this.filterJK   = '';
             this.filterRole = '';
             this.currentPage = 1;
-            this.filterOpen = false;
+            this.filterOpen  = false;
         },
 
         exportCSV() {
@@ -153,36 +146,51 @@
                 csv += s.no + ',' + s.nis + ',' + s.nama + ',' + s.jk + ',' + s.role + '\n';
             });
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'daftar-siswa-VI-A.csv';
+            const url  = URL.createObjectURL(blob);
+            const a    = document.createElement('a');
+            a.href     = url;
+            a.download = 'daftar-siswa-{{ $namaKelas }}.csv';
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
         }
     }">
-        {{-- Class Title --}}
+
+        {{-- ── Judul Kelas ─────────────────────────────────────────────────────── --}}
         <div>
-            <h1 class="text-[28px] font-black tracking-[-0.04em] text-[#0f172a] sm:text-[36px]">VI-A</h1>
-            <p class="mt-3 max-w-[600px] text-[14px] leading-[1.8] text-[#475569] sm:text-[16px]">
-                Profil lengkap Kelas VI-A untuk tahun ajaran 2025/2026. Informasi mencakup detail struktural, data akademik, dan daftar siswa.
-            </p>
+            @if ($kelas)
+                <h1 class="text-[28px] font-black tracking-[-0.04em] text-[#0f172a] sm:text-[36px]">
+                    Kelas {{ $namaKelas }}
+                </h1>
+                <p class="mt-3 max-w-[600px] text-[14px] leading-[1.8] text-[#475569] sm:text-[16px]">
+                    Profil lengkap Kelas {{ $namaKelas }} untuk tahun ajaran {{ $tahunLabel }}.
+                    Informasi mencakup detail struktural, data akademik, dan daftar siswa.
+                </p>
+            @else
+                <div class="rounded-xl border border-dashed border-[#cbd5e1] p-10 text-center">
+                    <p class="text-[18px] font-bold text-[#475569]">Anda belum menjadi wali kelas.</p>
+                    <p class="mt-2 text-[14px] text-[#94a3b8]">Hubungi administrator untuk penugasan kelas.</p>
+                </div>
+            @endif
         </div>
 
-        {{-- Info Cards --}}
+        @if ($kelas)
+
+        {{-- ── Info Cards ───────────────────────────────────────────────────────── --}}
         <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {{-- Wali Kelas --}}
             <div class="rounded-xl bg-white p-5 ring-1 ring-[#e2e8f0]">
                 <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-[#64748b]">Wali Kelas</p>
                 <div class="mt-4 flex items-center gap-3">
-                    <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-[#1e40af] text-[14px] font-bold text-white">
-                        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-[#1e40af]">
+                        <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
                     </div>
                     <div>
-                        <p class="text-[15px] font-bold text-[#0f172a]">Heryanto Pratama S.pd.</p>
-                        <p class="text-[12px] text-[#64748b]">Matematika</p>
+                        <p class="text-[15px] font-bold text-[#0f172a]">{{ $namaWali }}</p>
+                        <p class="text-[12px] text-[#64748b]">{{ $mapelWali }}</p>
                     </div>
                 </div>
             </div>
@@ -192,11 +200,13 @@
                 <div class="flex items-center justify-between">
                     <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-[#64748b]">Total Siswa</p>
                     <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-[#eff6ff] text-[#1d4ed8]">
-                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17 20h5v-2a4 4 0 00-5-3.87M9 20H4v-2a4 4 0 015-3.87m6-4a4 4 0 11-8 0 4 4 0 018 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path d="M17 20h5v-2a4 4 0 00-5-3.87M9 20H4v-2a4 4 0 015-3.87m6-4a4 4 0 11-8 0 4 4 0 018 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
                     </div>
                 </div>
                 <div class="mt-3 flex items-end gap-2">
-                    <span class="text-[42px] font-black leading-none tracking-[-0.06em] text-[#0f172a]" x-text="siswa.length">20</span>
+                    <span class="text-[42px] font-black leading-none tracking-[-0.06em] text-[#0f172a]" x-text="siswa.length">{{ $totalSiswa }}</span>
                     <span class="pb-1 text-[13px] font-semibold text-[#64748b]">Terdaftar</span>
                 </div>
             </div>
@@ -206,14 +216,20 @@
                 <div class="flex items-center justify-between">
                     <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-[#64748b]">Laki-laki</p>
                     <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-[#eff6ff] text-[#1d4ed8]">
-                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="7" r="4" stroke-width="2"/><path d="M5.5 21a6.5 6.5 0 0113 0" stroke-width="2" stroke-linecap="round"/></svg>
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <circle cx="12" cy="7" r="4" stroke-width="2"/><path d="M5.5 21a6.5 6.5 0 0113 0" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
                     </div>
                 </div>
                 <div class="mt-3 flex items-end justify-between">
-                    <p class="text-[42px] font-black leading-none tracking-[-0.04em] text-[#0f172a]" x-text="siswa.filter(s => s.jk === 'Laki-laki').length">10</p>
-                    <p class="pb-1 text-[13px] font-semibold text-[#64748b]" x-text="Math.round(siswa.filter(s => s.jk === 'Laki-laki').length / siswa.length * 100) + '%'">50%</p>
+                    <p class="text-[42px] font-black leading-none tracking-[-0.04em] text-[#0f172a]" x-text="siswa.filter(s => s.jk === 'Laki-laki').length">{{ $lakiLaki }}</p>
+                    <p class="pb-1 text-[13px] font-semibold text-[#64748b]" x-text="siswa.length ? Math.round(siswa.filter(s => s.jk === 'Laki-laki').length / siswa.length * 100) + '%' : '0%'">
+                        {{ $totalSiswa ? round($lakiLaki / $totalSiswa * 100) : 0 }}%
+                    </p>
                 </div>
-                <div class="mt-3 h-1.5 rounded-full bg-[#e2e8f0]"><div class="h-full rounded-full bg-[#1d4ed8]" :style="'width:' + Math.round(siswa.filter(s => s.jk === 'Laki-laki').length / siswa.length * 100) + '%'"></div></div>
+                <div class="mt-3 h-1.5 rounded-full bg-[#e2e8f0]">
+                    <div class="h-full rounded-full bg-[#1d4ed8]" :style="'width:' + (siswa.length ? Math.round(siswa.filter(s => s.jk === 'Laki-laki').length / siswa.length * 100) : 0) + '%'"></div>
+                </div>
             </div>
 
             {{-- Perempuan --}}
@@ -221,36 +237,46 @@
                 <div class="flex items-center justify-between">
                     <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-[#64748b]">Perempuan</p>
                     <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-[#eff6ff] text-[#3b82f6]">
-                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="7" r="4" stroke-width="2"/><path d="M5.5 21a6.5 6.5 0 0113 0" stroke-width="2" stroke-linecap="round"/></svg>
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <circle cx="12" cy="7" r="4" stroke-width="2"/><path d="M5.5 21a6.5 6.5 0 0113 0" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
                     </div>
                 </div>
                 <div class="mt-3 flex items-end justify-between">
-                    <p class="text-[42px] font-black leading-none tracking-[-0.04em] text-[#0f172a]" x-text="siswa.filter(s => s.jk === 'Perempuan').length">10</p>
-                    <p class="pb-1 text-[13px] font-semibold text-[#64748b]" x-text="Math.round(siswa.filter(s => s.jk === 'Perempuan').length / siswa.length * 100) + '%'">50%</p>
+                    <p class="text-[42px] font-black leading-none tracking-[-0.04em] text-[#0f172a]" x-text="siswa.filter(s => s.jk === 'Perempuan').length">{{ $perempuan }}</p>
+                    <p class="pb-1 text-[13px] font-semibold text-[#64748b]" x-text="siswa.length ? Math.round(siswa.filter(s => s.jk === 'Perempuan').length / siswa.length * 100) + '%' : '0%'">
+                        {{ $totalSiswa ? round($perempuan / $totalSiswa * 100) : 0 }}%
+                    </p>
                 </div>
-                <div class="mt-3 h-1.5 rounded-full bg-[#e2e8f0]"><div class="h-full rounded-full bg-[#3b82f6]" :style="'width:' + Math.round(siswa.filter(s => s.jk === 'Perempuan').length / siswa.length * 100) + '%'"></div></div>
+                <div class="mt-3 h-1.5 rounded-full bg-[#e2e8f0]">
+                    <div class="h-full rounded-full bg-[#3b82f6]" :style="'width:' + (siswa.length ? Math.round(siswa.filter(s => s.jk === 'Perempuan').length / siswa.length * 100) : 0) + '%'"></div>
+                </div>
             </div>
         </div>
 
-        {{-- Daftar Siswa Section --}}
+        {{-- ── Daftar Siswa ─────────────────────────────────────────────────────── --}}
         <div class="space-y-4">
             <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                 <div>
                     <h2 class="text-[22px] font-black tracking-[-0.03em] text-[#0f172a] sm:text-[28px]">Daftar Siswa</h2>
-                    <p class="mt-1 text-[13px] text-[#64748b]">Data lengkap siswa Kelas VI-A</p>
+                    <p class="mt-1 text-[13px] text-[#64748b]">Data lengkap siswa Kelas {{ $namaKelas }}</p>
                 </div>
             </div>
 
             {{-- Search + Actions --}}
             <div class="no-print flex flex-col gap-3 sm:flex-row sm:items-center">
                 <div class="relative flex-1">
-                    <svg class="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#94a3b8]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8" stroke-width="2"/><path d="m21 21-4.35-4.35" stroke-width="2" stroke-linecap="round"/></svg>
-                    <input type="text" x-model="searchQuery" @input="currentPage = 1" placeholder="Cari berdasarkan Nama atau NIS/NISN..." class="h-11 w-full rounded-lg border border-[#e2e8f0] bg-white pl-11 pr-4 text-[13px] outline-none transition focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20">
+                    <svg class="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#94a3b8]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <circle cx="11" cy="11" r="8" stroke-width="2"/><path d="m21 21-4.35-4.35" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    <input type="text" x-model="searchQuery" @input="currentPage = 1" placeholder="Cari berdasarkan Nama atau NIS/NISN..."
+                        class="h-11 w-full rounded-lg border border-[#e2e8f0] bg-white pl-11 pr-4 text-[13px] outline-none transition focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20">
                 </div>
 
-                {{-- Filter Dropdown --}}
                 <div class="relative" @click.outside="filterOpen = false">
-                    <button @click="filterOpen = !filterOpen" class="flex h-11 items-center gap-2 rounded-lg border border-[#e2e8f0] bg-white px-5 text-[11px] font-extrabold uppercase tracking-[0.12em] text-[#475569] transition hover:bg-[#f1f5f9]" :class="hasActiveFilters ? 'border-[#3b82f6] text-[#1d4ed8]' : ''">
+                    <button @click="filterOpen = !filterOpen"
+                        class="flex h-11 items-center gap-2 rounded-lg border border-[#e2e8f0] bg-white px-5 text-[11px] font-extrabold uppercase tracking-[0.12em] text-[#475569] transition hover:bg-[#f1f5f9]"
+                        :class="hasActiveFilters ? 'border-[#3b82f6] text-[#1d4ed8]' : ''">
                         <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 4h18M7 8h10M10 12h4" stroke-width="2" stroke-linecap="round"/></svg>
                         Filter
                         <span x-show="hasActiveFilters" class="flex h-5 w-5 items-center justify-center rounded-full bg-[#1d4ed8] text-[9px] font-black text-white">!</span>
@@ -260,7 +286,8 @@
                         <div class="mt-4 space-y-4">
                             <div>
                                 <label class="mb-1.5 block text-[11px] font-bold text-[#475569]">Jenis Kelamin</label>
-                                <select x-model="filterJK" @change="currentPage = 1" class="h-10 w-full rounded-lg border border-[#e2e8f0] bg-white px-3 text-[13px] font-semibold text-[#0f172a] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20">
+                                <select x-model="filterJK" @change="currentPage = 1"
+                                    class="h-10 w-full rounded-lg border border-[#e2e8f0] bg-white px-3 text-[13px] font-semibold text-[#0f172a] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20">
                                     <option value="">Semua</option>
                                     <option value="Laki-laki">Laki-laki</option>
                                     <option value="Perempuan">Perempuan</option>
@@ -268,7 +295,8 @@
                             </div>
                             <div>
                                 <label class="mb-1.5 block text-[11px] font-bold text-[#475569]">Jabatan</label>
-                                <select x-model="filterRole" @change="currentPage = 1" class="h-10 w-full rounded-lg border border-[#e2e8f0] bg-white px-3 text-[13px] font-semibold text-[#0f172a] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20">
+                                <select x-model="filterRole" @change="currentPage = 1"
+                                    class="h-10 w-full rounded-lg border border-[#e2e8f0] bg-white px-3 text-[13px] font-semibold text-[#0f172a] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20">
                                     <option value="">Semua Jabatan</option>
                                     <option value="KETUA KELAS">Ketua Kelas</option>
                                     <option value="WAKIL KETUA">Wakil Ketua</option>
@@ -287,11 +315,15 @@
                 </div>
 
                 <button @click="window.print()" class="flex h-11 items-center gap-2 rounded-lg border border-[#e2e8f0] bg-white px-5 text-[11px] font-extrabold uppercase tracking-[0.12em] text-[#475569] transition hover:bg-[#f1f5f9]">
-                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
                     Cetak
                 </button>
                 <button @click="exportCSV()" class="flex h-11 items-center gap-2 rounded-lg bg-[#0f172a] px-5 text-[11px] font-extrabold uppercase tracking-[0.12em] text-white transition hover:bg-[#1e293b]">
-                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
                     Export
                 </button>
             </div>
@@ -326,13 +358,14 @@
                                 </td>
                                 <td class="no-print px-5 py-4">
                                     <button @click="openEdit(s._idx)" class="flex items-center gap-1.5 rounded-md border border-[#e2e8f0] px-3 py-1.5 text-[11px] font-bold text-[#475569] transition hover:bg-[#f1f5f9] hover:border-[#3b82f6] hover:text-[#1d4ed8]">
-                                        <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                        <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
                                         Edit
                                     </button>
                                 </td>
                             </tr>
                         </template>
-                        {{-- Empty State --}}
                         <template x-if="paginatedSiswa.length === 0">
                             <tr>
                                 <td colspan="6" class="px-5 py-12 text-center">
@@ -350,7 +383,6 @@
             {{-- Pagination --}}
             <div class="no-print border-t border-[#e2e8f0] px-6 py-4">
                 <nav class="flex items-center justify-between">
-                    {{-- Left Side: Info --}}
                     <div class="flex items-center gap-4 text-[13px] text-[#64748b]">
                         <div class="flex items-center gap-2">
                             <span>Tampilkan</span>
@@ -363,27 +395,26 @@
                         </div>
                         <span class="text-[#cbd5e1]">•</span>
                         <div>
-                            Menampilkan 
-                            <span class="font-bold text-[#0f172a]" x-text="paginatedSiswa.length"></span> 
-                            dari 
+                            Menampilkan
+                            <span class="font-bold text-[#0f172a]" x-text="paginatedSiswa.length"></span>
+                            dari
                             <span class="font-bold text-[#0f172a]" x-text="filteredSiswa.length"></span>
                         </div>
                     </div>
 
-                    {{-- Right Side: Navigation Buttons --}}
                     <div class="flex items-center gap-1" x-show="totalPages > 1">
-                        <button @click="goToPage(currentPage - 1)" :disabled="currentPage <= 1" class="flex h-9 w-9 items-center justify-center rounded-[10px] text-[#64748b] transition hover:bg-[#f1f5f9] disabled:opacity-30 disabled:cursor-not-allowed">
+                        <button @click="goToPage(currentPage - 1)" :disabled="currentPage <= 1"
+                            class="flex h-9 w-9 items-center justify-center rounded-[10px] text-[#64748b] transition hover:bg-[#f1f5f9] disabled:opacity-30 disabled:cursor-not-allowed">
                             <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
                         </button>
-                        
                         <template x-for="p in pageNumbers" :key="p">
-                            <button @click="goToPage(p)" 
-                                :class="currentPage === p ? 'bg-[#3b82f6] text-white shadow-lg shadow-blue-500/30' : 'text-[#64748b] hover:bg-[#f1f5f9]'" 
-                                class="flex h-9 w-9 items-center justify-center rounded-[10px] text-[13px] font-black transition" 
+                            <button @click="goToPage(p)"
+                                :class="currentPage === p ? 'bg-[#3b82f6] text-white shadow-lg shadow-blue-500/30' : 'text-[#64748b] hover:bg-[#f1f5f9]'"
+                                class="flex h-9 w-9 items-center justify-center rounded-[10px] text-[13px] font-black transition"
                                 x-text="p"></button>
                         </template>
-
-                        <button @click="goToPage(currentPage + 1)" :disabled="currentPage >= totalPages" class="flex h-9 w-9 items-center justify-center rounded-[10px] text-[#64748b] transition hover:bg-[#f1f5f9] disabled:opacity-30 disabled:cursor-not-allowed">
+                        <button @click="goToPage(currentPage + 1)" :disabled="currentPage >= totalPages"
+                            class="flex h-9 w-9 items-center justify-center rounded-[10px] text-[#64748b] transition hover:bg-[#f1f5f9] disabled:opacity-30 disabled:cursor-not-allowed">
                             <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
                         </button>
                     </div>
@@ -394,7 +425,6 @@
         {{-- ═══════ MODAL EDIT SISWA ═══════ --}}
         <x-modal alpineShow="editModalOpen" title="Edit Data Siswa" subtitle="Ubah jabatan organisasi kelas siswa" maxWidth="lg">
             <div class="space-y-5">
-                {{-- Student Info Preview --}}
                 <div class="flex items-center gap-4 rounded-xl bg-[#f8fafc] p-4 ring-1 ring-[#e2e8f0]">
                     <div class="flex h-14 w-14 items-center justify-center rounded-xl bg-[#1e40af] text-[16px] font-bold text-white" x-text="editForm.init"></div>
                     <div>
@@ -404,26 +434,27 @@
                     </div>
                 </div>
 
-                {{-- Jabatan Dropdown --}}
                 <div>
                     <label class="mb-2 block text-[11px] font-bold uppercase tracking-[0.15em] text-[#64748b]">
                         Jabatan Organisasi Kelas
                     </label>
                     <select x-model="editForm.role" class="h-12 w-full rounded-lg border border-[#e2e8f0] bg-white px-4 text-[14px] font-semibold text-[#0f172a] outline-none transition focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20">
                         <template x-for="role in ['SISWA', 'KETUA KELAS', 'WAKIL KETUA', 'SEKRETARIS 1', 'SEKRETARIS 2', 'BENDAHARA 1', 'BENDAHARA 2']" :key="role">
-                            <option :value="role" :disabled="!isRoleAvailable(role) && editForm.role !== role" x-text="role + (limits[role] < 999 ? (isRoleAvailable(role) || editForm.role === role ? ' — Tersedia' : ' — Terisi') : '')"></option>
+                            <option :value="role" :disabled="!isRoleAvailable(role) && editForm.role !== role"
+                                x-text="role + (limits[role] < 999 ? (isRoleAvailable(role) || editForm.role === role ? ' — Tersedia' : ' — Terisi') : '')">
+                            </option>
                         </template>
                     </select>
                 </div>
 
-                {{-- Kuota Info --}}
                 <div class="rounded-xl bg-[#f8fafc] p-4 ring-1 ring-[#e2e8f0]">
                     <p class="mb-3 text-[10px] font-bold uppercase tracking-[0.2em] text-[#64748b]">Kuota Jabatan Saat Ini</p>
                     <div class="grid grid-cols-2 gap-2">
                         <template x-for="role in ['KETUA KELAS', 'WAKIL KETUA', 'SEKRETARIS 1', 'SEKRETARIS 2', 'BENDAHARA 1', 'BENDAHARA 2']" :key="role">
                             <div class="flex items-center justify-between rounded-lg bg-white px-3 py-2 ring-1 ring-[#e2e8f0]">
                                 <span class="text-[11px] font-semibold text-[#475569]" x-text="role"></span>
-                                <span class="text-[12px] font-black" :class="countRole(role) >= limits[role] ? 'text-[#dc2626]' : 'text-[#16a34a]'" x-text="countRole(role) + '/' + limits[role]"></span>
+                                <span class="text-[12px] font-black" :class="countRole(role) >= limits[role] ? 'text-[#dc2626]' : 'text-[#16a34a]'"
+                                    x-text="countRole(role) + '/' + limits[role]"></span>
                             </div>
                         </template>
                     </div>
@@ -444,5 +475,7 @@
             confirmText="Ya, Simpan"
             confirmAction="executeSave()"
         />
+
+        @endif {{-- end if $kelas --}}
     </div>
 @endsection

@@ -18,6 +18,7 @@ use App\Http\Controllers\NilaiSikapController;
 use App\Http\Controllers\EkstrakurikulerController;
 use App\Http\Controllers\RaportEkskulController;
 use App\Http\Controllers\RekapKehadiranController;
+use App\Http\Controllers\ProfilKelasController;
 use Illuminate\Support\Facades\Route;
 
 // ─── Guest Routes ────────────────────────────────────────────
@@ -136,7 +137,7 @@ Route::middleware('auth')->group(function () {
 
     // ── Walikelas Only ───────────────────────────────────────
     Route::middleware('role:walikelas')->group(function () {
-        Route::view('/profil-kelas', 'pages.profil-kelas.index')->name('profil-kelas');
+        Route::get('/profil-kelas', [ProfilKelasController::class, 'index'])->name('profil-kelas');
 
         Route::get('/rapor', [RaportController::class, 'index'])->name('rapor');
         Route::post('/rapor', [RaportController::class, 'store'])->name('rapor.store');

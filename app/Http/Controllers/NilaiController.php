@@ -24,10 +24,12 @@ class NilaiController extends Controller
         $role = getUserRole();
         $userId = auth()->id();
 
-        // Ambil kelas IDs yang diampu guru (untuk filtering)
+        // Ambil kelas dan mapel yang diampu guru (untuk filtering)
         $guruKelasIds = [];
+        $guruPengampus = collect();
         if ($role === 'guru') {
-            $guruKelasIds = GuruPengampu::where('guru_id', $userId)
+            $guruPengampus = GuruPengampu::where('guru_id', $userId)->get(['kelas_id', 'mapel_id']);
+            $guruKelasIds = $guruPengampus
                 ->pluck('kelas_id')
                 ->unique()
                 ->toArray();
@@ -36,28 +38,43 @@ class NilaiController extends Controller
         // Query nilai
         $nilaisQuery = Nilai::with(['siswa.kelas', 'raport.tahunAjaran', 'mataPelajaran', 'capaianKompetensis']);
 
-        if ($role === 'guru' && !empty($guruKelasIds)) {
-            $nilaisQuery->whereHas('siswa', function ($q) use ($guruKelasIds) {
-                $q->whereIn('kelas_id', $guruKelasIds);
+        if ($role === 'guru' && $guruPengampus->isNotEmpty()) {
+            $nilaisQuery->where(function ($scoped) use ($guruPengampus) {
+                foreach ($guruPengampus as $pengampu) {
+                    $scoped->orWhere(function ($item) use ($pengampu) {
+                        $item->where('mapel_id', $pengampu->mapel_id)
+                            ->whereHas('siswa', fn ($siswa) => $siswa->where('kelas_id', $pengampu->kelas_id));
+                    });
+                }
             });
-        } elseif ($role === 'guru' && empty($guruKelasIds)) {
+        } elseif ($role === 'guru' && $guruPengampus->isEmpty()) {
             // Guru tidak mengampu kelas apapun, kosongkan
             $nilaisQuery->whereRaw('1 = 0');
         }
 
         $nilais = $nilaisQuery->latest()->get();
 
-        $siswas = Siswa::with('kelas')->orderBy('nama_siswa')->get();
-        $raports = Raport::with(['siswa', 'tahunAjaran'])->latest()->get();
-        $mapels = MataPelajaran::orderBy('nama_mapel')->get();
-        $tahunAjarans = TahunAjaran::orderByDesc('tahun_mulai')->get();
-
         // Ambil kelas — filter untuk guru
         if ($role === 'guru' && !empty($guruKelasIds)) {
             $kelas = Kelas::with('siswas')->whereIn('id', $guruKelasIds)->orderBy('nama_kelas')->get();
+        } elseif ($role === 'walikelas') {
+            $kelas = Kelas::with('siswas')->where('wali_guru_id', $userId)->orderBy('nama_kelas')->get();
         } else {
             $kelas = Kelas::with('siswas')->orderBy('nama_kelas')->get();
         }
+
+        // Ambil siswa & rapor sesuai scope kelas yang sudah ditentukan
+        $kelasIdsScoped = $kelas->pluck('id');
+        $siswas = Siswa::with('kelas')
+            ->when($kelasIdsScoped->isNotEmpty(), fn ($q) => $q->whereIn('kelas_id', $kelasIdsScoped))
+            ->orderBy('nama_siswa')
+            ->get();
+        $siswaIdsScoped = $siswas->pluck('id');
+        $raports = Raport::with(['siswa', 'tahunAjaran'])
+            ->when($siswaIdsScoped->isNotEmpty(), fn ($q) => $q->whereIn('siswa_id', $siswaIdsScoped))
+            ->latest()->get();
+        $mapels = MataPelajaran::orderBy('nama_mapel')->get();
+        $tahunAjarans = TahunAjaran::orderByDesc('tahun_mulai')->get();
 
         // Rekap kelas
         $rekapKelas = $kelas->map(function ($kelasItem) use ($nilais) {
