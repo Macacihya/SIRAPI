@@ -192,9 +192,9 @@
                     <div style="display:flex;flex-direction:column;gap:18px">
                         <!-- Username -->
                         <div>
-                            <label id="usernameLabel" style="display:block;font-size:14px;font-weight:500;color:#374151;margin-bottom:6px">Email / Username</label>
+                            <label id="usernameLabel" style="display:block;font-size:14px;font-weight:500;color:#374151;margin-bottom:6px">Username / Email</label>
                             <input type="text" name="username" id="usernameField" class="input-field"
-                                placeholder="Masukkan email atau username"
+                                placeholder="Masukkan username atau email"
                                 value="{{ old('username') }}" required autocomplete="username">
                         </div>
 
@@ -245,9 +245,9 @@
 
     <script>
         const roleConfig = {
-            admin:     { label: 'Email / Username', placeholder: 'Masukkan email atau username' },
-            guru:      { label: 'Email / NIP',      placeholder: 'Masukkan email atau NIP' },
-            walikelas: { label: 'Email / NIP',      placeholder: 'Masukkan email atau NIP' },
+            admin:     { label: 'Username / Email', placeholder: 'Masukkan username atau email' },
+            guru:      { label: 'Username / NIP',   placeholder: 'Masukkan username atau NIP' },
+            walikelas: { label: 'Username / NIP',   placeholder: 'Masukkan username atau NIP' },
         };
 
         function setRole(btn, role) {

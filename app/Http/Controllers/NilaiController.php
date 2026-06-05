@@ -85,22 +85,27 @@ class NilaiController extends Controller
         $role = getUserRole();
         $userId = auth()->id();
 
-        // Data untuk guru: kelas & mapel yang diampu
-        $pengampus = GuruPengampu::with(['kelas', 'mataPelajaran'])
-            ->where('guru_id', $userId)
-            ->get();
-
-        $kelasList = $pengampus->pluck('kelas')->unique('id')->values();
-        $mapelList = $pengampus->pluck('mataPelajaran')->unique('kode_mapel')->values();
-
         // Tahun ajaran aktif
         $tahunAjarans = TahunAjaran::orderByDesc('tahun_mulai')->get();
         $tahunAjaranAktif = TahunAjaran::where('is_active', true)->first();
+        $selectedTahunAjaranId = $request->get('tahun_ajaran_id', $tahunAjaranAktif?->id ?? $tahunAjarans->first()?->id);
+
+        // Data untuk guru: kelas & mapel yang diampu pada tahun ajaran terpilih
+        $pengampus = GuruPengampu::whereHas('kelas', function ($q) use ($selectedTahunAjaranId) {
+                if ($selectedTahunAjaranId) {
+                    $q->where('tahun_ajaran_id', $selectedTahunAjaranId);
+                }
+            })
+            ->with(['kelas', 'mataPelajaran'])
+            ->where('guru_id', $userId)
+            ->get();
+
+        $kelasList = $pengampus->pluck('kelas')->filter()->unique('id')->values();
+        $mapelList = $pengampus->pluck('mataPelajaran')->filter()->unique('kode_mapel')->values();
 
         // Default filter dari request atau set default
         $selectedKelasId = $request->get('kelas_id', $kelasList->first()?->id);
         $selectedMapelId = $request->get('mapel_id', $mapelList->first()?->kode_mapel);
-        $selectedTahunAjaranId = $request->get('tahun_ajaran_id', $tahunAjaranAktif?->id);
 
         // Ambil siswa dari kelas terpilih
         $siswas = collect();

@@ -35,19 +35,36 @@ class LoginRoleTest extends TestCase
         ]);
 
         $this->assertAuthenticatedAs($admin);
+    }
+
+    public function test_admin_bisa_login_menggunakan_email(): void
+    {
+        $admin = User::factory()->create([
+            'email' => 'admin@sekolah.com',
+            'password' => bcrypt('password123'),
+            'role' => 'admin',
+        ]);
+
+        $response = $this->post('/login', [
+            'username' => 'admin@sekolah.com',
+            'password' => 'password123',
+            'role' => 'admin',
+        ]);
+
+        $this->assertAuthenticatedAs($admin);
         $response->assertRedirect('/dashboard');
     }
 
-    public function test_guru_bisa_login_menggunakan_email(): void
+    public function test_guru_bisa_login_menggunakan_username(): void
     {
         $guru = User::factory()->create([
-            'email' => 'guru@sekolah.com',
+            'username' => 'gurudemo',
             'password' => bcrypt('password123'),
             'role' => 'guru',
         ]);
 
         $response = $this->post('/login', [
-            'username' => 'guru@sekolah.com', // Login request menggunakan key 'username'
+            'username' => 'gurudemo', // Login request menggunakan key 'username'
             'password' => 'password123',
             'role' => 'guru',
         ]);

@@ -25,6 +25,9 @@
         'subtitle' => 'SIRAPI',
         'badge'    => 'Panel',
     ]);
+
+    // Ambil tahun ajaran aktif
+    $activeTahun = \App\Models\TahunAjaran::where('is_active', true)->first();
 @endphp
 
 {{-- Sidebar fixed di sisi kiri (responsive: hidden di mobile, toggle via Alpine.js) --}}
@@ -41,7 +44,11 @@
     {{-- Badge tahun ajaran (tampil untuk SEMUA role) --}}
     <div class="mx-3 mt-3 rounded-lg border border-[#e2e8f0] bg-[#f8fafc] px-3 py-2">
         <p class="text-[10px] font-semibold uppercase tracking-wider text-[#64748b]">{{ $roleLabels['badge'] }}</p>
-        <p class="mt-0.5 text-xs font-bold text-[#1e40af]">Tahun Ajaran 2025/2026</p>
+        @if($activeTahun)
+            <p class="mt-0.5 text-xs font-bold text-[#1e40af]">TA {{ $activeTahun->label }}</p>
+        @else
+            <p class="mt-0.5 text-xs font-bold text-red-500">Belum ada periode aktif</p>
+        @endif
     </div>
 
     {{-- Menu navigasi (scrollable jika banyak) --}}

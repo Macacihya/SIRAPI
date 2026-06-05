@@ -213,7 +213,7 @@ class UserController extends Controller
 
         $validated = $request->validate([
             'nama'          => 'required|string|max:255',
-            'jenis_kelamin' => 'nullable|string|in:Laki-laki,Perempuan',
+            'jenis_kelamin' => 'nullable|string|in:Pria,Wanita',
             'no_hp'         => 'nullable|string|max:20',
             'alamat'        => 'nullable|string',
             'email'         => 'required|email|unique:users,email,' . $user->id,
