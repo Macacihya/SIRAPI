@@ -170,7 +170,7 @@
                         </svg>
                     </div>
                     <p class="text-[28px] font-black tracking-[-0.04em] text-[#0f172a]" x-text="'Kelas ' + k.nama"></p>
-                    <p class="text-[11px] font-semibold text-[#64748b]" x-text="k.jurusan"></p>
+                    <p class="text-[11px] font-semibold text-[#64748b]" x-text="k.tingkat"></p>
                     <div class="mt-3 flex items-center justify-between text-[12px]">
                         <span class="font-semibold text-[#334155]">Kapasitas</span>
                         <span class="font-bold text-[#0f172a]" x-text="k.kapasitas"></span>
@@ -443,7 +443,7 @@
             <div class="grid grid-cols-2 gap-4">
                 <div>
                     <p class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Tingkat</p>
-                    <p class="mt-1 text-[14px] font-bold text-[#0f172a]" x-text="detailKelas?.jurusan"></p>
+                    <p class="mt-1 text-[14px] font-bold text-[#0f172a]" x-text="detailKelas?.tingkat"></p>
                 </div>
                 <div>
                     <p class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Kapasitas</p>

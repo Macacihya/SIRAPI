@@ -52,7 +52,7 @@ class AkademikController extends Controller
             return [
                 'id' => $k->id,
                 'nama' => $k->nama_kelas,
-                'jurusan' => $k->tingkat ? 'Tingkat ' . $k->tingkat : 'Umum',
+                'tingkat' => $k->tingkat ? 'Tingkat ' . $k->tingkat : '-',
                 'kapasitas' => "{$count} / {$max}",
                 'max' => $max,
                 'pct' => $pct,
