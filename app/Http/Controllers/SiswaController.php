@@ -11,23 +11,30 @@ use Illuminate\Http\Request;
 
 class SiswaController extends Controller
 {
+    /**
+     * Menampilkan halaman daftar siswa (menggunakan fungsi tampilkan).
+     */
     public function index(Request $request)
     {
         return $this->tampilkan($request);
     }
 
+    /**
+     * Mengambil data siswa, memfilter, mencari, dan menyiapkan data penempatan kelas.
+     */
     public function tampilkan(Request $request)
     {
+        // Query dasar mengambil siswa beserta relasi kelas dan riwayat statusnya
         $query = Siswa::with(['kelas', 'riwayatStatus']);
 
-        // Filter berdasarkan kelas
+        // Filter pencarian berdasarkan kelas jika dipilih (bukan 'Semua')
         if ($request->filled('kelas') && $request->kelas !== 'Semua') {
             $query->whereHas('kelas', function ($q) use ($request) {
                 $q->where('nama_kelas', $request->kelas);
             });
         }
 
-        // Pencarian
+        // Fitur pencarian berdasarkan nama, NISN, atau NIS
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
@@ -37,10 +44,12 @@ class SiswaController extends Controller
             });
         }
 
+        // Melakukan paginasi hasil (10 data per halaman) dan mempertahankan parameter URL pencarian/filter
         $data = $query->paginate(10)->withQueryString();
 
-        // Transform agar field sesuai dengan yg dipakai di view Alpine.js
+        // Mengubah format (transform) data agar sesuai dengan penamaan field yang dibutuhkan di view Alpine.js
         $data->getCollection()->transform(function ($siswa) {
+            // Mengambil status riwayat terakhir siswa
             $latestStatus = $siswa->riwayatStatus->sortByDesc('id')->first();
             return (object)[
                 'id'             => $siswa->id,
@@ -56,24 +65,24 @@ class SiswaController extends Controller
                 'alamat'         => $siswa->alamat ?? '',
                 'status'         => strtoupper($latestStatus?->status ?? ($siswa->status_aktif ? 'AKTIF' : 'NONAKTIF')),
                 'status_aktif'   => $siswa->status_aktif,
-                'selected'       => false,
+                'selected'       => false, // Digunakan oleh Alpine.js untuk checkbox pilihan masal
             ];
         });
 
-        // Ambil daftar kelas untuk filter dropdown dan form
+        // Mengambil daftar seluruh kelas untuk dropdown filter di halaman view
         $daftarKelas = Kelas::all()->map(fn($k) => (object)[
             'id'   => $k->id,
             'nama' => 'Kelas ' . $k->nama_kelas,
         ])->toArray();
 
-        // Statistik
+        // Statistik ringkas siswa untuk ditampilkan di dashboard/kartu informasi
         $totalSiswa = Siswa::count();
         $siswaAktif = Siswa::where('status_aktif', true)->count();
         $siswaCuti = Siswa::whereHas('riwayatStatus', function ($q) {
             $q->where('status', 'Cuti');
         })->count();
 
-        // Data Penempatan Siswa
+        // Inisialisasi variabel untuk kebutuhan penempatan kelas siswa
         $tahunAjarans = [];
         $tahunAjaranId = null;
         $kelasPenempatan = [];
@@ -81,11 +90,14 @@ class SiswaController extends Controller
         $siswaDiKelas = [];
         $siswaBelumDitempatkan = [];
 
+        // Logika khusus Admin untuk memindahkan/menata penempatan kelas siswa
         if (getUserRole() === 'admin') {
+            // Mengambil semua periode tahun ajaran
             $tahunAjarans = \App\Models\TahunAjaran::orderByDesc('tahun_mulai')
                 ->orderByRaw("CASE WHEN semester = 'Ganjil' THEN 0 ELSE 1 END")
                 ->get();
 
+            // Menentukan tahun ajaran penempatan yang dipilih (default: tahun ajaran yang sedang aktif)
             $tahunAjaranId = $request->input('tahun_ajaran_id');
             if (!$tahunAjaranId) {
                 $activeTahun = $tahunAjarans->where('is_active', true)->first();
@@ -93,10 +105,12 @@ class SiswaController extends Controller
             }
 
             if ($tahunAjaranId) {
+                // Mengambil daftar kelas yang tersedia pada tahun ajaran tersebut
                 $kelasPenempatan = Kelas::where('tahun_ajaran_id', $tahunAjaranId)->orderBy('nama_kelas')->get();
-                $kelasId = $request->input('kelas_id', $request->input('kelas_id', $kelasPenempatan->first()?->id));
+                $kelasId = $request->input('kelas_id', $kelasPenempatan->first()?->id);
 
                 if ($kelasId) {
+                    // Mengambil daftar siswa yang sudah dimasukkan ke dalam kelas terpilih
                     $siswaDiKelas = Siswa::where('kelas_id', $kelasId)
                         ->where('status_aktif', true)
                         ->orderBy('nama_siswa')
@@ -110,6 +124,7 @@ class SiswaController extends Controller
                         ->toArray();
                 }
 
+                // Mengambil siswa aktif yang BELUM ditempatkan di kelas manapun pada periode tahun ajaran ini
                 $siswaBelumDitempatkan = Siswa::where('status_aktif', true)
                     ->where(function ($query) use ($tahunAjaranId) {
                         $query->whereNull('kelas_id')
@@ -124,7 +139,7 @@ class SiswaController extends Controller
                         'nama' => $s->nama_siswa,
                         'nisn' => $s->nisn,
                         'jk' => $s->jenis_kelamin === 'Pria' ? 'Pria' : ($s->jenis_kelamin === 'Wanita' ? 'Wanita' : ($s->jenis_kelamin === 'L' ? 'Pria' : ($s->jenis_kelamin === 'P' ? 'Wanita' : '-'))),
-                        'current_kelas' => $s->kelas?->nama_kelas,
+                        'current_kelas' => $s->kelas?->nama_kelas, // Informasi kelas sebelumnya/lama
                     ])
                     ->toArray();
             }
@@ -137,8 +152,12 @@ class SiswaController extends Controller
         ));
     }
 
+    /**
+     * Mendaftarkan/menyimpan data siswa baru ke database.
+     */
     public function store(Request $request)
     {
+        // Validasi input data pendaftaran siswa
         $validated = $request->validate([
             'nama_siswa'    => 'required|string|max:255',
             'nisn'          => 'required|string|max:20|unique:siswas,nisn',
@@ -150,14 +169,15 @@ class SiswaController extends Controller
             'alamat'        => 'nullable|string',
         ]);
 
-        // Otomatis set sekolah_id ke sekolah pertama
+        // Otomatis menautkan ke ID sekolah pertama (default sistem)
         $sekolah = Sekolah::first();
         $validated['sekolah_id'] = $sekolah?->id;
         $validated['status_aktif'] = true;
 
+        // Membuat record siswa baru
         $siswa = Siswa::create($validated);
 
-        // Buat riwayat status awal
+        // Mencatat riwayat status pendaftaran awal siswa sebagai "Aktif"
         RiwayatStatusSiswa::create([
             'siswa_id'           => $siswa->id,
             'status'             => 'Aktif',
@@ -170,8 +190,12 @@ class SiswaController extends Controller
             ->with('success', 'Siswa berhasil ditambahkan.');
     }
 
+    /**
+     * Memperbarui profil data siswa yang sudah terdaftar.
+     */
     public function update(Request $request, Siswa $siswa)
     {
+        // Validasi data profil (abaikan keunikan NISN/NIS milik siswa itu sendiri)
         $validated = $request->validate([
             'nama_siswa'    => 'required|string|max:255',
             'nisn'          => 'required|string|max:20|unique:siswas,nisn,' . $siswa->id,
@@ -183,6 +207,7 @@ class SiswaController extends Controller
             'alamat'        => 'nullable|string',
         ]);
 
+        // Update profil siswa di database
         $siswa->update($validated);
 
         return redirect()
@@ -190,8 +215,12 @@ class SiswaController extends Controller
             ->with('success', 'Data siswa berhasil diperbarui.');
     }
 
+    /**
+     * Menghapus data siswa dari database.
+     */
     public function destroy(Siswa $siswa)
     {
+        // Hapus data siswa terpilih
         $siswa->delete();
 
         return redirect()
@@ -199,12 +228,16 @@ class SiswaController extends Controller
             ->with('success', 'Data siswa berhasil dihapus.');
     }
 
+    /**
+     * Mengubah status keaktifan siswa (Aktif <-> Nonaktif) secara bergantian.
+     */
     public function toggleStatus(Siswa $siswa)
     {
+        // Membalik status aktif saat ini
         $newStatus = !$siswa->status_aktif;
         $siswa->update(['status_aktif' => $newStatus]);
 
-        // Catat riwayat perubahan status
+        // Mencatat perubahan status ini ke dalam tabel riwayat_status_siswas
         RiwayatStatusSiswa::create([
             'siswa_id'          => $siswa->id,
             'status'            => $newStatus ? 'Aktif' : 'Nonaktif',
@@ -221,14 +254,19 @@ class SiswaController extends Controller
             ->with('success', $message);
     }
 
+    /**
+     * Menempatkan daftar siswa terpilih ke kelas tertentu secara masal (manual).
+     */
     public function penempatanStore(Request $request)
     {
+        // Validasi agar kelas tujuan terdaftar dan siswa yang dicentang valid
         $validated = $request->validate([
             'kelas_id' => 'required|exists:kelas,id',
             'siswa_ids' => 'required|array',
             'siswa_ids.*' => 'exists:siswas,id',
         ]);
 
+        // Mengupdate kelas_id milik semua siswa terpilih secara bersamaan
         Siswa::whereIn('id', $validated['siswa_ids'])
             ->update(['kelas_id' => $validated['kelas_id']]);
 
@@ -239,8 +277,12 @@ class SiswaController extends Controller
         ])->with('success', count($validated['siswa_ids']) . ' siswa berhasil ditempatkan ke kelas.');
     }
 
+    /**
+     * Mengeluarkan daftar siswa terpilih dari kelas secara masal (manual).
+     */
     public function penempatanRemove(Request $request)
     {
+        // Validasi input daftar siswa yang akan dikeluarkan
         $validated = $request->validate([
             'siswa_ids' => 'required|array',
             'siswa_ids.*' => 'exists:siswas,id',
@@ -248,6 +290,7 @@ class SiswaController extends Controller
             'tahun_ajaran_id' => 'nullable|exists:tahun_ajarans,id',
         ]);
 
+        // Mengubah kelas_id menjadi null agar statusnya kembali ke antrean belum ditempatkan
         Siswa::whereIn('id', $validated['siswa_ids'])
             ->update(['kelas_id' => null]);
 
