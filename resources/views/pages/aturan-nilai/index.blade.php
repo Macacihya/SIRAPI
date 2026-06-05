@@ -17,7 +17,7 @@
             hapusTarget: null,
             hapusSikapTarget: null,
             hapusEskulTarget: null,
-            pembulatan: 'Terdekat',
+            kkm: {{ $defaultKkm ?? 70 }},
 
             komponen: @json($komponen),
             mapels: @json($mapels),
@@ -40,14 +40,12 @@
                 if (saved) {
                     this.nilaiSikap = saved.nilaiSikap || this.nilaiSikap;
                     this.eskul = saved.eskul || this.eskul;
-                    this.pembulatan = saved.pembulatan || this.pembulatan;
                 }
             },
             persist() {
                 localStorage.setItem('sirapi-aturan-nilai', JSON.stringify({
                     nilaiSikap: this.nilaiSikap,
                     eskul: this.eskul,
-                    pembulatan: this.pembulatan,
                 }));
             },
 
@@ -67,14 +65,20 @@
             get previewNilai() {
                 if (this.groupedKomponen.length === 0) return 0;
                 let firstGroup = this.groupedKomponen[0];
+                if (firstGroup.totalBobot !== 100) return '-';
                 let raw = firstGroup.items.reduce((s, k) => s + 80 * (Number(k.bobot)/100), 0);
-                if (this.pembulatan === 'Ke Atas') return Math.ceil(raw);
-                if (this.pembulatan === 'Ke Bawah') return Math.floor(raw);
                 return Math.round(raw);
             },
 
             // ── Komponen CRUD (server-persisted) ──
             submitAdd() {
+                // Cek batas 3 komponen per mapel
+                const mapelCount = this.komponen.filter(k => k.mapel_id === this.formAdd.mapel_id).length;
+                if (mapelCount >= 3) {
+                    this.showTambah = false;
+                    this.$dispatch('toast', {message: 'Maksimal 3 komponen per mata pelajaran.', type: 'error'});
+                    return;
+                }
                 document.getElementById('addNamaKomponen').value = this.formAdd.nama_komponen;
                 document.getElementById('addBobot').value = this.formAdd.bobot;
                 document.getElementById('addMapelId').value = this.formAdd.mapel_id;
@@ -135,16 +139,19 @@
 
     {{-- HEADING --}}
     <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <div><h1 class="text-[32px] font-black tracking-[-0.04em] text-[#0f172a]">Aturan Nilai</h1><p class="mt-2 max-w-[480px] text-[14px] leading-[1.8] text-[#475569]">Konfigurasi bobot penilaian, aturan pembulatan, dan KKM untuk setiap mata pelajaran.</p></div>
-        <button @click="saveKonfigurasi()" :disabled="!isValid" class="flex h-[44px] items-center gap-2 rounded-[8px] px-5 text-[13px] font-bold text-white transition" :class="isValid ? 'bg-[#1d4ed8] hover:bg-[#1e40af]' : 'bg-[#94a3b8] cursor-not-allowed'">
-            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-            Simpan Konfigurasi
-        </button>
+        <div><h1 class="text-[32px] font-black tracking-[-0.04em] text-[#0f172a]">Aturan Nilai</h1><p class="mt-2 max-w-[480px] text-[14px] leading-[1.8] text-[#475569]">Konfigurasi bobot penilaian dan KKM untuk setiap mata pelajaran.</p></div>
+
     </div>
 
     @if(session('success'))
     <div class="rounded-[10px] border border-[#a7f3d0] bg-[#ecfdf5] px-4 py-3 text-[13px] font-semibold text-[#059669]">
         {{ session('success') }}
+    </div>
+    @endif
+
+    @if(session('error'))
+    <div class="rounded-[10px] border border-[#fecaca] bg-[#fef2f2] px-4 py-3 text-[13px] font-semibold text-[#dc2626]">
+        {{ session('error') }}
     </div>
     @endif
 
@@ -202,35 +209,15 @@
                 </div>
             </div>
 
-            {{-- PEMBULATAN --}}
-            <div class="rounded-[14px] border border-[#e2e8f0] bg-white p-6">
-                <h3 class="text-[16px] font-bold text-[#0f172a]">Aturan Pembulatan</h3>
-                <div class="mt-4 flex flex-wrap gap-3">
-                    <template x-for="opt in ['Terdekat', 'Ke Atas', 'Ke Bawah']">
-                        <label class="flex cursor-pointer items-center gap-2 rounded-[8px] border px-4 py-2.5 text-[13px] font-semibold transition" :class="pembulatan === opt ? 'bg-[#0f172a] text-white border-[#0f172a]' : 'border-[#e2e8f0] text-[#475569] hover:bg-[#f1f5f9]'">
-                            <input type="radio" :value="opt" x-model="pembulatan" @change="persist()" class="hidden"><span x-text="opt"></span>
-                        </label>
-                    </template>
-                </div>
-            </div>
 
-            {{-- KKM --}}
-            <div class="rounded-[14px] border border-[#e2e8f0] bg-white p-6">
-                <h3 class="text-[16px] font-bold text-[#0f172a]">Kriteria Ketuntasan Minimal (KKM)</h3>
-                <div class="mt-4 grid gap-4 sm:grid-cols-3">
-                    <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">KKM Pengetahuan</label><input class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] font-bold text-[#0f172a] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20" value="75"></div>
-                    <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">KKM Keterampilan</label><input class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] font-bold text-[#0f172a] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20" value="75"></div>
-                    <div><label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Predikat Minimum</label><input class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] font-bold text-[#0f172a] outline-none" value="C" readonly></div>
-                </div>
-            </div>
+
         </div>
 
         {{-- RIGHT: Preview + Riwayat --}}
         <div class="space-y-4">
             <div class="rounded-[14px] border border-[#e2e8f0] bg-white p-6">
                 <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-[#64748b]">Preview Nilai Akhir</p>
-                <p class="mt-3 text-center text-[64px] font-black tracking-[-0.06em]" :class="previewNilai >= 75 ? 'text-[#059669]' : 'text-[#dc2626]'" x-text="previewNilai"></p>
-                <p class="text-center text-[12px] font-semibold text-[#64748b]">Pembulatan: <span class="text-[#0f172a]" x-text="pembulatan"></span></p>
+                <p class="mt-3 text-center text-[64px] font-black tracking-[-0.06em]" :class="previewNilai === '-' ? 'text-[#94a3b8]' : (previewNilai >= kkm ? 'text-[#059669]' : 'text-[#dc2626]')" x-text="previewNilai"></p>
                 <div class="mt-4 space-y-2">
                     <template x-if="groupedKomponen.length > 0">
                         <template x-for="k in groupedKomponen[0].items" :key="k.id">
@@ -239,7 +226,7 @@
                     </template>
                 </div>
                 <div class="mt-4 flex items-center justify-center gap-2">
-                    <span class="inline-flex rounded-md border px-2.5 py-1 text-[11px] font-bold" :class="previewNilai >= 75 ? 'border-[#a7f3d0] bg-[#ecfdf5] text-[#059669]' : 'border-[#fecaca] bg-[#fef2f2] text-[#dc2626]'" x-text="previewNilai >= 75 ? 'TUNTAS' : 'BELUM TUNTAS'"></span>
+                    <span class="inline-flex rounded-md border px-2.5 py-1 text-[11px] font-bold" :class="previewNilai === '-' ? 'border-[#e2e8f0] bg-[#f8fafc] text-[#94a3b8]' : (previewNilai >= kkm ? 'border-[#a7f3d0] bg-[#ecfdf5] text-[#059669]' : 'border-[#fecaca] bg-[#fef2f2] text-[#dc2626]')" x-text="previewNilai === '-' ? 'BOBOT ≠ 100%' : (previewNilai >= kkm ? 'TUNTAS' : 'BELUM TUNTAS')"></span>
                 </div>
             </div>
             <div class="rounded-[14px] border border-[#e2e8f0] bg-white p-6">
@@ -463,7 +450,7 @@
     {{-- ═══ MODAL: Riwayat Lengkap ═══ --}}
     <x-modal alpineShow="showRiwayat" title="Riwayat Perubahan Lengkap" maxWidth="lg">
         <div class="overflow-y-auto px-6 py-4 divide-y divide-[#f1f5f9] -mx-6 -my-5">
-            @foreach ([['date'=>'12 Jan 2024','desc'=>'Bobot PAS diubah 35% → 30%','by'=>'Admin TU'],['date'=>'05 Des 2023','desc'=>'Tambah komponen Tugas Harian (20%)','by'=>'Admin TU'],['date'=>'10 Nov 2023','desc'=>'KKM diubah 70 → 75','by'=>'Kepsek'],['date'=>'01 Sep 2023','desc'=>'Pembulatan diubah ke Terdekat','by'=>'Admin TU'],['date'=>'15 Jul 2023','desc'=>'Konfigurasi awal semester ganjil','by'=>'System']] as $r)
+            @foreach ([['date'=>'12 Jan 2024','desc'=>'Bobot PAS diubah 35% → 30%','by'=>'Admin TU'],['date'=>'05 Des 2023','desc'=>'Tambah komponen Tugas Harian (20%)','by'=>'Admin TU'],['date'=>'10 Nov 2023','desc'=>'KKM diubah 70 → 75','by'=>'Kepsek'],['date'=>'15 Jul 2023','desc'=>'Konfigurasi awal semester ganjil','by'=>'System']] as $r)
                 <div class="py-3 first:pt-0 last:pb-0"><p class="text-[13px] font-bold text-[#0f172a]">{{ $r['desc'] }}</p><p class="mt-0.5 text-[11px] text-[#94a3b8]">{{ $r['date'] }} · {{ $r['by'] }}</p></div>
             @endforeach
         </div>

@@ -19,7 +19,10 @@ class AturanPenilaianController extends Controller
         ])->values();
         $mapels = MataPelajaran::orderBy('kode_mapel')->get();
 
-        return view('pages.aturan-nilai.index', compact('komponen', 'mapels'));
+        // KKM default dari mapel pertama (untuk preview)
+        $defaultKkm = $mapels->first()->kkm ?? 70;
+
+        return view('pages.aturan-nilai.index', compact('komponen', 'mapels', 'defaultKkm'));
     }
 
     public function store(Request $request)
@@ -29,6 +32,14 @@ class AturanPenilaianController extends Controller
             'bobot'         => 'required|numeric|min:0|max:100',
             'mapel_id'      => 'required|exists:mata_pelajarans,kode_mapel',
         ]);
+
+        // Batasi maksimal 3 komponen per mata pelajaran
+        $count = AturanPenilaian::where('mapel_id', $validated['mapel_id'])->count();
+        if ($count >= 3) {
+            return redirect()
+                ->route('aturan-nilai')
+                ->with('error', 'Maksimal 3 komponen penilaian per mata pelajaran.');
+        }
 
         AturanPenilaian::create($validated);
 

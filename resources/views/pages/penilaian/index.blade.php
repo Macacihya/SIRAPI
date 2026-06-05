@@ -35,8 +35,13 @@
             mapelList: @json($mapelList),
             tahunAjarans: @json($tahunAjarans),
 
-            // Automatically calculate NA (Nilai Akhir)
-            // Weight: UH 50%, UTS 25%, UAS 25%
+            // Bobot dari aturan penilaian (database)
+            aturanBobot: @json($aturanBobot),
+
+            // KKM dari mata pelajaran
+            kkm: {{ $kkm ?? 70 }},
+
+            // Hitung NA berdasarkan bobot dari aturan penilaian
             calculateNA(g) {
                 const uh = Number(g.uh) || 0;
                 const uts = Number(g.uts) || 0;
@@ -44,7 +49,8 @@
 
                 if (uh === 0 && uts === 0 && uas === 0) return '-';
 
-                return ((uh * 0.5) + (uts * 0.25) + (uas * 0.25)).toFixed(1);
+                const raw = (uh * this.aturanBobot.uh.bobot / 100) + (uts * this.aturanBobot.uts.bobot / 100) + (uas * this.aturanBobot.uas.bobot / 100);
+                return raw.toFixed(1);
             },
 
             get filteredGrades() {
@@ -225,7 +231,7 @@
                     </div>
                 </div>
                 <div class="mt-2 flex items-end gap-2">
-                    <span class="text-[36px] font-black leading-none" :class="Number(classAverage) >= 75 ? 'text-[#0f172a]' : 'text-[#dc2626]'" x-text="classAverage"></span>
+                    <span class="text-[36px] font-black leading-none" :class="Number(classAverage) >= kkm ? 'text-[#0f172a]' : 'text-[#dc2626]'" x-text="classAverage"></span>
                     <span class="pb-1 text-[13px] text-[#64748b]">Poin</span>
                 </div>
             </div>
@@ -237,6 +243,12 @@
             <svg class="mx-auto h-12 w-12 text-[#cbd5e1]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
             <p class="mt-4 text-[16px] font-bold text-[#475569]">Belum ada data pengampu</p>
             <p class="mt-1 text-[13px] text-[#94a3b8]">Anda belum ditugaskan mengampu mata pelajaran di kelas manapun. Hubungi Admin TU untuk konfigurasi guru pengampu.</p>
+        </div>
+        @elseif(is_null($aturanBobot))
+        <div class="rounded-xl bg-white p-12 ring-1 ring-[#e2e8f0] text-center">
+            <svg class="mx-auto h-12 w-12 text-[#f59e0b]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <p class="mt-4 text-[16px] font-bold text-[#0f172a]">Aturan Penilaian Belum Lengkap</p>
+            <p class="mt-1 text-[13px] text-[#64748b]">Anda tidak dapat menginput nilai karena Admin belum mengatur 3 komponen nilai dengan total bobot 100% untuk mata pelajaran ini.</p>
         </div>
         @else
 
@@ -253,9 +265,9 @@
                     <tr class="border-b border-[#e2e8f0] bg-[#f8fafc]">
                         <th class="sticky left-0 z-20 bg-[#f8fafc] border-r border-[#e2e8f0] px-5 py-4 text-left text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b]">No</th>
                         <th class="sticky left-[72px] z-10 bg-[#f8fafc] border-r border-[#e2e8f0] px-5 py-4 text-left text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b]">Siswa (NIS)</th>
-                        <th class="px-5 py-4 text-center text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b]">Nilai UH (50%)</th>
-                        <th class="px-5 py-4 text-center text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b]">Nilai UTS (25%)</th>
-                        <th class="px-5 py-4 text-center text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b]">Nilai UAS (25%)</th>
+                        <th class="px-5 py-4 text-center text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b]">{{ $aturanBobot['uh']['nama'] }} ({{ $aturanBobot['uh']['bobot'] }}%)</th>
+                        <th class="px-5 py-4 text-center text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b]">{{ $aturanBobot['uts']['nama'] }} ({{ $aturanBobot['uts']['bobot'] }}%)</th>
+                        <th class="px-5 py-4 text-center text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b]">{{ $aturanBobot['uas']['nama'] }} ({{ $aturanBobot['uas']['bobot'] }}%)</th>
                         <th class="px-5 py-4 text-center text-[10px] font-bold uppercase tracking-[0.15em] text-[#0f172a] border-l border-[#e2e8f0]">Nilai Akhir</th>
                         <th class="px-5 py-4 text-center text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b]">Status Data</th>
                     </tr>
@@ -286,7 +298,7 @@
                                 <input type="number" min="0" max="100" x-model="g.uas" :disabled="g.status === 'final'" class="h-10 w-full rounded-md border border-[#e2e8f0] bg-white px-2 py-1 text-center font-semibold text-[#0f172a] outline-none transition focus:border-[#3b82f6] disabled:bg-[#f8fafc] disabled:text-[#94a3b8]" placeholder="0-100">
                             </td>
 
-                            <td class="px-5 py-3 text-center font-black text-[15px] border-l border-[#f1f5f9]" :class="calculateNA(g) >= 75 ? 'text-[#16a34a]' : (calculateNA(g) === '-' ? 'text-[#94a3b8]' : 'text-[#dc2626]')" x-text="calculateNA(g)"></td>
+                            <td class="px-5 py-3 text-center font-black text-[15px] border-l border-[#f1f5f9]" :class="calculateNA(g) >= kkm ? 'text-[#16a34a]' : (calculateNA(g) === '-' ? 'text-[#94a3b8]' : 'text-[#dc2626]')" x-text="calculateNA(g)"></td>
 
                             <td class="px-5 py-3 text-center">
                                 <span x-show="g.status === 'belum'" class="rounded px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-wider bg-[#f1f5f9] text-[#64748b]">Belum Diisi</span>
@@ -371,6 +383,8 @@
             grades: @json($grades),
             mapelList: @json($mapelList ?? []),
             kelasList: @json($kelasList ?? []),
+            aturanBobot: @json($aturanBobot ?? null),
+            kkm: {{ $kkm ?? 70 }},
 
             // Map mapel codes ke field names for display
             mapelFields: {},
@@ -406,7 +420,7 @@
             },
 
             get tuntasCount() {
-                return this.grades.filter(g => Number(g.nilai_akhir || 0) >= 75).length;
+                return this.grades.filter(g => Number(g.nilai_akhir || 0) >= this.kkm).length;
             },
 
             get tuntasPercent() {
@@ -506,9 +520,11 @@
                     <tr class="border-b border-[#e2e8f0] bg-[#f8fafc]">
                         <th class="sticky left-0 z-20 bg-[#f8fafc] border-r border-[#e2e8f0] px-5 py-4 text-left text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b] min-w-[72px]">No</th>
                         <th class="sticky left-[72px] z-10 bg-[#f8fafc] border-r border-[#e2e8f0] px-5 py-4 text-left text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b] min-w-[200px]">Nama Siswa</th>
-                        <th class="px-5 py-4 text-center text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b]">UH (50%)</th>
-                        <th class="px-5 py-4 text-center text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b]">UTS (25%)</th>
-                        <th class="px-5 py-4 text-center text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b]">UAS (25%)</th>
+                        @if($aturanBobot)
+                        <th class="px-5 py-4 text-center text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b]">{{ $aturanBobot['uh']['nama'] }} ({{ $aturanBobot['uh']['bobot'] }}%)</th>
+                        <th class="px-5 py-4 text-center text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b]">{{ $aturanBobot['uts']['nama'] }} ({{ $aturanBobot['uts']['bobot'] }}%)</th>
+                        <th class="px-5 py-4 text-center text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b]">{{ $aturanBobot['uas']['nama'] }} ({{ $aturanBobot['uas']['bobot'] }}%)</th>
+                        @endif
                         <th class="px-5 py-4 text-center text-[10px] font-bold uppercase tracking-[0.15em] text-[#0f172a] border-l border-[#e2e8f0] min-w-[100px]">Nilai Akhir</th>
                         <th class="px-5 py-4 text-center text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748b] min-w-[120px]">Status</th>
                     </tr>
@@ -526,10 +542,12 @@
                                     </div>
                                 </div>
                             </td>
-                            <td class="px-5 py-4 text-center" :class="Number(g.uh || 0) < 75 && g.uh != null ? 'text-[#dc2626] font-bold' : 'text-[#475569]'" x-text="g.uh ?? '-'"></td>
-                            <td class="px-5 py-4 text-center" :class="Number(g.uts || 0) < 75 && g.uts != null ? 'text-[#dc2626] font-bold' : 'text-[#475569]'" x-text="g.uts ?? '-'"></td>
-                            <td class="px-5 py-4 text-center" :class="Number(g.uas || 0) < 75 && g.uas != null ? 'text-[#dc2626] font-bold' : 'text-[#475569]'" x-text="g.uas ?? '-'"></td>
-                            <td class="px-4 py-4 text-center font-black border-l border-[#f1f5f9]" :class="Number(g.nilai_akhir || 0) < 75 ? 'text-[#dc2626]' : 'text-[#0f172a]'" x-text="g.nilai_akhir ? Number(g.nilai_akhir).toFixed(1) : '-'"></td>
+                            @if($aturanBobot)
+                            <td class="px-5 py-4 text-center" :class="Number(g.uh || 0) < kkm && g.uh != null ? 'text-[#dc2626] font-bold' : 'text-[#475569]'" x-text="g.uh ?? '-'"></td>
+                            <td class="px-5 py-4 text-center" :class="Number(g.uts || 0) < kkm && g.uts != null ? 'text-[#dc2626] font-bold' : 'text-[#475569]'" x-text="g.uts ?? '-'"></td>
+                            <td class="px-5 py-4 text-center" :class="Number(g.uas || 0) < kkm && g.uas != null ? 'text-[#dc2626] font-bold' : 'text-[#475569]'" x-text="g.uas ?? '-'"></td>
+                            @endif
+                            <td class="px-4 py-4 text-center font-black border-l border-[#f1f5f9]" :class="Number(g.nilai_akhir || 0) < kkm ? 'text-[#dc2626]' : 'text-[#0f172a]'" x-text="g.nilai_akhir ? Number(g.nilai_akhir).toFixed(1) : '-'"></td>
                             <td class="px-5 py-4 text-center">
                                 <span x-show="g.status === 'belum' || !g.status" class="rounded px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wider bg-[#f1f5f9] text-[#64748b]">Belum</span>
                                 <span x-show="g.status === 'draft'" class="rounded px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wider bg-[#fff7ed] text-[#ea580c]">Draft</span>

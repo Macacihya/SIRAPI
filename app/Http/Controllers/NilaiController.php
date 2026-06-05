@@ -140,23 +140,43 @@ class NilaiController extends Controller
                     ->implode('');
 
                 $grades[] = [
-                    'siswa_id'   => $siswa->id,
-                    'raport_id'  => $raport?->id,
-                    'nilai_id'   => $nilai?->id,
-                    'nis'        => $siswa->nis ?? $siswa->nisn ?? '-',
-                    'init'       => $initials,
-                    'nama'       => $siswa->nama_siswa,
-                    'uh'         => $nilai?->nilai_uh,
-                    'uts'        => $nilai?->nilai_uts,
-                    'uas'        => $nilai?->nilai_uas,
+                    'siswa_id' => $siswa->id,
+                    'raport_id' => $raport?->id,
+                    'nilai_id' => $nilai?->id,
+                    'nis' => $siswa->nis ?? $siswa->nisn ?? '-',
+                    'init' => $initials,
+                    'nama' => $siswa->nama_siswa,
+                    'uh' => $nilai?->nilai_uh,
+                    'uts' => $nilai?->nilai_uts,
+                    'uas' => $nilai?->nilai_uas,
                     'nilai_akhir' => $nilai?->nilai_akhir,
-                    'status'     => $nilai?->status ?? 'belum',
+                    'status' => $nilai?->status ?? 'belum',
                 ];
             }
         }
 
         // Ambil nama mapel terpilih
         $selectedMapel = MataPelajaran::where('kode_mapel', $selectedMapelId)->first();
+
+        // KKM dari mata pelajaran (default 70 jika belum diatur)
+        $kkm = $selectedMapel->kkm ?? 70;
+
+        // Ambil bobot dari aturan penilaian. Wajib 3 komponen dan total 100%.
+        $aturanBobot = null;
+        if ($selectedMapelId) {
+            $aturans = AturanPenilaian::where('mapel_id', $selectedMapelId)
+                ->orderBy('id')
+                ->get();
+            $totalBobot = $aturans->sum('bobot');
+
+            if ($aturans->count() === 3 && $totalBobot == 100) {
+                $aturanBobot = [
+                    'uh' => ['nama' => $aturans[0]->nama_komponen, 'bobot' => (float) $aturans[0]->bobot],
+                    'uts' => ['nama' => $aturans[1]->nama_komponen, 'bobot' => (float) $aturans[1]->bobot],
+                    'uas' => ['nama' => $aturans[2]->nama_komponen, 'bobot' => (float) $aturans[2]->bobot],
+                ];
+            }
+        }
 
         return view('pages.penilaian.index', compact(
             'kelasList',
@@ -168,6 +188,8 @@ class NilaiController extends Controller
             'selectedMapelId',
             'selectedTahunAjaranId',
             'selectedMapel',
+            'aturanBobot',
+            'kkm',
             'role'
         ));
     }
@@ -179,30 +201,44 @@ class NilaiController extends Controller
     public function storeBatch(Request $request)
     {
         $request->validate([
-            'grades'           => 'required|array',
+            'grades' => 'required|array',
             'grades.*.siswa_id' => 'required|exists:siswas,id',
-            'grades.*.uh'      => 'nullable|numeric|min:0|max:100',
-            'grades.*.uts'     => 'nullable|numeric|min:0|max:100',
-            'grades.*.uas'     => 'nullable|numeric|min:0|max:100',
-            'mapel_id'         => 'required|exists:mata_pelajarans,kode_mapel',
-            'tahun_ajaran_id'  => 'required|exists:tahun_ajarans,id',
-            'action'           => 'required|in:draft,final',
+            'grades.*.uh' => 'nullable|numeric|min:0|max:100',
+            'grades.*.uts' => 'nullable|numeric|min:0|max:100',
+            'grades.*.uas' => 'nullable|numeric|min:0|max:100',
+            'mapel_id' => 'required|exists:mata_pelajarans,kode_mapel',
+            'tahun_ajaran_id' => 'required|exists:tahun_ajarans,id',
+            'action' => 'required|in:draft,final',
         ]);
 
         $mapelId = $request->mapel_id;
         $tahunAjaranId = $request->tahun_ajaran_id;
         $action = $request->action;
 
+        // Ambil bobot dari aturan penilaian
+        $aturans = AturanPenilaian::where('mapel_id', $mapelId)
+            ->orderBy('id')
+            ->get();
+        $totalBobot = $aturans->sum('bobot');
+
+        if ($aturans->count() !== 3 || $totalBobot != 100) {
+            return redirect()->back()->with('error', 'Gagal menyimpan nilai. Aturan penilaian untuk mapel ini belum lengkap atau total bobot tidak 100%.');
+        }
+
+        $bobotUh = (float) $aturans[0]->bobot / 100;
+        $bobotUts = (float) $aturans[1]->bobot / 100;
+        $bobotUas = (float) $aturans[2]->bobot / 100;
+
         foreach ($request->grades as $gradeData) {
             $siswaId = $gradeData['siswa_id'];
-            $uh  = isset($gradeData['uh']) && $gradeData['uh'] !== '' ? (float) $gradeData['uh'] : null;
+            $uh = isset($gradeData['uh']) && $gradeData['uh'] !== '' ? (float) $gradeData['uh'] : null;
             $uts = isset($gradeData['uts']) && $gradeData['uts'] !== '' ? (float) $gradeData['uts'] : null;
             $uas = isset($gradeData['uas']) && $gradeData['uas'] !== '' ? (float) $gradeData['uas'] : null;
 
-            // Hitung nilai akhir: UH 50% + UTS 25% + UAS 25%
+            // Hitung nilai akhir berdasarkan bobot dari aturan penilaian
             $nilaiAkhir = null;
             if ($uh !== null || $uts !== null || $uas !== null) {
-                $nilaiAkhir = (($uh ?? 0) * 0.5) + (($uts ?? 0) * 0.25) + (($uas ?? 0) * 0.25);
+                $nilaiAkhir = (($uh ?? 0) * $bobotUh) + (($uts ?? 0) * $bobotUts) + (($uas ?? 0) * $bobotUas);
                 $nilaiAkhir = round($nilaiAkhir, 2);
             }
 
@@ -214,16 +250,16 @@ class NilaiController extends Controller
             // Upsert nilai
             Nilai::updateOrCreate(
                 [
-                    'siswa_id'  => $siswaId,
+                    'siswa_id' => $siswaId,
                     'raport_id' => $raport->id,
-                    'mapel_id'  => $mapelId,
+                    'mapel_id' => $mapelId,
                 ],
                 [
-                    'nilai_uh'    => $uh,
-                    'nilai_uts'   => $uts,
-                    'nilai_uas'   => $uas,
+                    'nilai_uh' => $uh,
+                    'nilai_uts' => $uts,
+                    'nilai_uas' => $uas,
                     'nilai_akhir' => $nilaiAkhir,
-                    'status'      => $action,
+                    'status' => $action,
                 ]
             );
         }
@@ -232,8 +268,8 @@ class NilaiController extends Controller
 
         return redirect()
             ->route('penilaian', [
-                'kelas_id'        => $request->kelas_id,
-                'mapel_id'        => $mapelId,
+                'kelas_id' => $request->kelas_id,
+                'mapel_id' => $mapelId,
                 'tahun_ajaran_id' => $tahunAjaranId,
             ])
             ->with('success', "Nilai berhasil {$statusLabel}.");
