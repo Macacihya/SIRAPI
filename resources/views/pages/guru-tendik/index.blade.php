@@ -4,8 +4,6 @@
 @section('active', 'guru')
 
 @section('content')
-<link rel="stylesheet" href="https://fonts.fontaine.fyi/css?family=Inter&token=weHNunUCikrC3YnBmvrf">
-
 <script>
 document.addEventListener('alpine:init', () => {
     Alpine.data('guruTendik', () => ({
@@ -277,7 +275,7 @@ document.addEventListener('alpine:init', () => {
     @csrf
 </form>
 
-    <div x-data="guruTendik" class="space-y-6" style="font-family: 'Inter', sans-serif;">
+    <div x-data="guruTendik" class="space-y-6">
 
         {{-- ─── HEADING ─── --}}
         <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">

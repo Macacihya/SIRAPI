@@ -19,8 +19,8 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Login') - SIRAPI</title>
 
-    {{-- Google Fonts: Inter --}}
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+    {{-- Google Fonts: Poppins --}}
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     {{-- Material Icons --}}
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
     {{-- Tailwind CSS --}}
@@ -42,7 +42,7 @@
             --brand-3: #0f2347;
         }
 
-        body { font-family: 'Inter', sans-serif; }
+        body { font-family: 'Poppins', sans-serif; }
         .material-symbols-outlined {
             font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
         }

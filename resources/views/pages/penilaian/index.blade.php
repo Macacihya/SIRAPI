@@ -50,7 +50,19 @@
                 if (uh === 0 && uts === 0 && uas === 0) return '-';
 
                 const raw = (uh * this.aturanBobot.uh.bobot / 100) + (uts * this.aturanBobot.uts.bobot / 100) + (uas * this.aturanBobot.uas.bobot / 100);
-                return raw.toFixed(1);
+                return raw.toFixed(2);
+            },
+
+            normalizeScore(g, field) {
+                if (g[field] === null || g[field] === undefined || g[field] === '') return;
+
+                const value = Number(g[field]);
+                if (Number.isNaN(value)) {
+                    g[field] = '';
+                    return;
+                }
+
+                g[field] = Math.min(100, Math.max(0, value)).toFixed(2);
             },
 
             get filteredGrades() {
@@ -65,10 +77,10 @@
 
             get classAverage() {
                 const gradesWithNA = this.filteredGrades.filter(g => this.calculateNA(g) !== '-');
-                if (gradesWithNA.length === 0) return '0.0';
+                if (gradesWithNA.length === 0) return '0.00';
 
                 const sum = gradesWithNA.reduce((acc, g) => acc + Number(this.calculateNA(g)), 0);
-                return (sum / gradesWithNA.length).toFixed(1);
+                return (sum / gradesWithNA.length).toFixed(2);
             },
 
             get draftCount() {
@@ -287,15 +299,15 @@
                             </td>
 
                             <td class="px-3 py-3 text-center min-w-[100px]">
-                                <input type="number" min="0" max="100" x-model="g.uh" :disabled="g.status === 'final'" class="h-10 w-full rounded-md border border-[#e2e8f0] bg-white px-2 py-1 text-center font-semibold text-[#0f172a] outline-none transition focus:border-[#3b82f6] disabled:bg-[#f8fafc] disabled:text-[#94a3b8]" placeholder="0-100">
+                                <input type="number" min="0" max="100" step="0.01" x-model="g.uh" @blur="normalizeScore(g, 'uh')" :disabled="g.status === 'final'" class="h-10 w-full rounded-md border border-[#e2e8f0] bg-white px-2 py-1 text-center font-semibold text-[#0f172a] outline-none transition focus:border-[#3b82f6] disabled:bg-[#f8fafc] disabled:text-[#94a3b8]" placeholder="0-100">
                             </td>
 
                             <td class="px-3 py-3 text-center min-w-[100px]">
-                                <input type="number" min="0" max="100" x-model="g.uts" :disabled="g.status === 'final'" class="h-10 w-full rounded-md border border-[#e2e8f0] bg-white px-2 py-1 text-center font-semibold text-[#0f172a] outline-none transition focus:border-[#3b82f6] disabled:bg-[#f8fafc] disabled:text-[#94a3b8]" placeholder="0-100">
+                                <input type="number" min="0" max="100" step="0.01" x-model="g.uts" @blur="normalizeScore(g, 'uts')" :disabled="g.status === 'final'" class="h-10 w-full rounded-md border border-[#e2e8f0] bg-white px-2 py-1 text-center font-semibold text-[#0f172a] outline-none transition focus:border-[#3b82f6] disabled:bg-[#f8fafc] disabled:text-[#94a3b8]" placeholder="0-100">
                             </td>
 
                             <td class="px-3 py-3 text-center min-w-[100px]">
-                                <input type="number" min="0" max="100" x-model="g.uas" :disabled="g.status === 'final'" class="h-10 w-full rounded-md border border-[#e2e8f0] bg-white px-2 py-1 text-center font-semibold text-[#0f172a] outline-none transition focus:border-[#3b82f6] disabled:bg-[#f8fafc] disabled:text-[#94a3b8]" placeholder="0-100">
+                                <input type="number" min="0" max="100" step="0.01" x-model="g.uas" @blur="normalizeScore(g, 'uas')" :disabled="g.status === 'final'" class="h-10 w-full rounded-md border border-[#e2e8f0] bg-white px-2 py-1 text-center font-semibold text-[#0f172a] outline-none transition focus:border-[#3b82f6] disabled:bg-[#f8fafc] disabled:text-[#94a3b8]" placeholder="0-100">
                             </td>
 
                             <td class="px-5 py-3 text-center font-black text-[15px] border-l border-[#f1f5f9]" :class="calculateNA(g) >= kkm ? 'text-[#16a34a]' : (calculateNA(g) === '-' ? 'text-[#94a3b8]' : 'text-[#dc2626]')" x-text="calculateNA(g)"></td>
@@ -430,9 +442,9 @@
 
             get classAverage() {
                 const validGrades = this.grades.filter(g => g.nilai_akhir != null);
-                if (validGrades.length === 0) return '0.0';
+                if (validGrades.length === 0) return '0.00';
                 const sum = validGrades.reduce((acc, g) => acc + Number(g.nilai_akhir), 0);
-                return (sum / validGrades.length).toFixed(1);
+                return (sum / validGrades.length).toFixed(2);
             },
 
             goToPage(p) {
@@ -547,7 +559,7 @@
                             <td class="px-5 py-4 text-center" :class="Number(g.uts || 0) < kkm && g.uts != null ? 'text-[#dc2626] font-bold' : 'text-[#475569]'" x-text="g.uts ?? '-'"></td>
                             <td class="px-5 py-4 text-center" :class="Number(g.uas || 0) < kkm && g.uas != null ? 'text-[#dc2626] font-bold' : 'text-[#475569]'" x-text="g.uas ?? '-'"></td>
                             @endif
-                            <td class="px-4 py-4 text-center font-black border-l border-[#f1f5f9]" :class="Number(g.nilai_akhir || 0) < kkm ? 'text-[#dc2626]' : 'text-[#0f172a]'" x-text="g.nilai_akhir ? Number(g.nilai_akhir).toFixed(1) : '-'"></td>
+                            <td class="px-4 py-4 text-center font-black border-l border-[#f1f5f9]" :class="Number(g.nilai_akhir || 0) < kkm ? 'text-[#dc2626]' : 'text-[#0f172a]'" x-text="g.nilai_akhir ? Number(g.nilai_akhir).toFixed(2) : '-'"></td>
                             <td class="px-5 py-4 text-center">
                                 <span x-show="g.status === 'belum' || !g.status" class="rounded px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wider bg-[#f1f5f9] text-[#64748b]">Belum</span>
                                 <span x-show="g.status === 'draft'" class="rounded px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wider bg-[#fff7ed] text-[#ea580c]">Draft</span>
