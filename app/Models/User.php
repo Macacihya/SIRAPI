@@ -6,30 +6,32 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-
 use App\Traits\LogsActivity;
 
+// Model User - Representasi data Pengguna untuk Autentikasi & Otorisasi
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable, LogsActivity;
 
+    // Atribut yang dapat diisi secara massal
     protected $fillable = [
         'nama',     
         'username',
         'email',
         'password',
-        'role',
+        'role', // Diisi via mutator setRoleAttribute
         'jenis_kelamin',
         'no_hp',
         'alamat',
     ];
 
+    // Atribut yang disembunyikan saat serialisasi JSON/Array
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
+    // Casting tipe data kolom database
     protected function casts(): array
     {
         return [
@@ -38,14 +40,10 @@ class User extends Authenticatable
         ];
     }
 
-    /**
-     * Penyimpanan sementara role yang akan disinkronkan ke user_roles
-     * setelah model disimpan ke database.
-     */
-        public ?string $pendingRole = null;
+    // Variabel penampung sementara role untuk disinkronkan setelah model di-save
+    public ?string $pendingRole = null;
 
-    // ─── Boot: Sync role ke user_roles setelah save ───────────
-
+    // Boot method: Sinkronisasi role otomatis setelah model disimpan
     protected static function boot(): void
     {
         parent::boot();
@@ -61,21 +59,13 @@ class User extends Authenticatable
         });
     }
 
-    // ─── Role Accessor & Mutator (M:M) ───────────────────────
-
-    /**
-     * Mutator: Menangkap nilai 'role' saat create/update.
-     * Tidak menulis ke $attributes karena kolom tidak ada di DB.
-     */
+    // Mutator: Menyimpan input role ke pendingRole (karena kolom role tidak ada di tabel users)
     public function setRoleAttribute(mixed $value): void
     {
-        // Simpan ke pendingRole, bukan ke attributes
         $this->pendingRole = $value;
     }
 
-    /**
-     * Accessor: Mengembalikan nama role pertama dari relasi M:M.
-     */
+    // Accessor: Mengambil nama role pertama dari relasi M:M
     public function getRoleAttribute(): ?string
     {
         if ($this->relationLoaded('roles')) {
@@ -84,16 +74,13 @@ class User extends Authenticatable
         return $this->roles()->value('nama_role');
     }
 
-    // ─── Relasi M:M ke Role ───────────────────────────────────
-
+    // Relasi Many-to-Many ke model Role melalui tabel pivot user_roles
     public function roles(): BelongsToMany
     {
         return $this->belongsToMany(Role::class, 'user_roles', 'user_id', 'role_id');
     }
 
-    /**
-     * Sinkronisasi role berdasarkan nama role (ganti role lama).
-     */
+    // Mengganti/singkronisasi role berdasarkan nama role
     public function syncRoleByName(string $roleName): void
     {
         $role = Role::where('nama_role', $roleName)->first();
@@ -102,9 +89,7 @@ class User extends Authenticatable
         }
     }
 
-    /**
-     * Cek apakah user memiliki role tertentu.
-     */
+    // Cek apakah user memiliki role tertentu
     public function hasRole(string $roleName): bool
     {
         if ($this->relationLoaded('roles')) {
@@ -113,30 +98,31 @@ class User extends Authenticatable
         return $this->roles()->where('nama_role', $roleName)->exists();
     }
 
-    // ─── ISA Relations ───────────────────────────────────────
-
+    // Accessor: Mengambil kolom nama menggunakan properti alias name
     public function getNameAttribute(): ?string
     {
         return $this->attributes['nama'] ?? null;
     }
 
+    // Mutator: Menyimpan nilai properti alias name ke kolom nama
     public function setNameAttribute(?string $value): void
     {
         $this->attributes['nama'] = $value;
     }
 
+    // Relasi One-to-One ke model Admin
     public function admin()
     {
         return $this->hasOne(Admin::class, 'user_id');
     }
 
+    // Relasi One-to-One ke model Guru
     public function guru()
     {
         return $this->hasOne(Guru::class, 'user_id');
     }
 
-    // ─── Log Aktivitas ───────────────────────────────────────
-
+    // Relasi One-to-Many ke Log Aktivitas
     public function logAktivitas()
     {
         return $this->hasMany(LogAktivitas::class, 'user_id');

@@ -13,10 +13,9 @@ use Illuminate\Support\Facades\Schema;
 
 class UserController extends Controller
 {
-    // CRUD: READ - Menampilkan data user
+    // Menampilkan halaman daftar user non-admin
     public function index()
     {
-        // Ambil user yang BUKAN admin (pakai M:M whereDoesntHave)
         $users = User::with(['guru.guruPengampus', 'guru.kelasWali', 'admin', 'roles'])
             ->whereDoesntHave('roles', fn($q) => $q->where('nama_role', 'admin'))
             ->get();
@@ -32,7 +31,6 @@ class UserController extends Controller
                     $roles[] = 'WALI KELAS';
                 }
                 if (empty($roles)) {
-                    // Fallback ke roles M:M
                     $userRoles = $user->roles->pluck('nama_role');
                     if ($userRoles->contains('walikelas')) {
                         $roles[] = 'WALI KELAS';
@@ -63,7 +61,7 @@ class UserController extends Controller
         return view('pages.manajemen-user.index', compact('usersData'));
     }
 
-    // CRUD: CREATE - Menyimpan data user baru
+    // Menyimpan data user baru ke database
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -85,14 +83,11 @@ class UserController extends Controller
                 'email'    => $validated['email'],
                 'username' => $validated['username'],
                 'password' => Hash::make($validated['nip']),
-                'role'     => $roleName,   // ditangani oleh mutator → user_roles
+                'role'     => $roleName, // Disinkronkan ke pivot table user_roles via mutator
             ]);
 
-            // Jika guru adalah walikelas, tambah JUGA role 'guru'
+            // Sinkronisasi peran guru & wali kelas jika peran yang dipilih adalah wali kelas
             if ($roleName === 'walikelas') {
-                $user->syncRoleByName('guru');   // beri dua role: guru + walikelas
-                $user->syncRoleByName('walikelas'); // hapus yang lama, isi ulang
-                // Gunakan cara yang benar: sync keduanya sekaligus
                 $roleIds = \App\Models\Role::whereIn('nama_role', ['guru', 'walikelas'])
                     ->pluck('id')->toArray();
                 $user->roles()->sync($roleIds);
@@ -106,9 +101,7 @@ class UserController extends Controller
                 'sekolah_id' => $sekolahId,
             ];
             if (Schema::hasColumn('gurus', 'jabatan')) {
-                $guruData['jabatan'] = $roleName === 'walikelas'
-                    ? 'Guru Mapel & Wali Kelas'
-                    : 'Guru Mapel';
+                $guruData['jabatan'] = $roleName === 'walikelas' ? 'Guru Mapel & Wali Kelas' : 'Guru Mapel';
             }
 
             Guru::create($guruData);
@@ -123,7 +116,7 @@ class UserController extends Controller
             ->with('success', 'User berhasil ditambahkan.');
     }
 
-    // CRUD: UPDATE - Mengubah/memperbarui data user
+    // Memperbarui data user di database
     public function update(Request $request, $id)
     {
         $user = User::findOrFail($id);
@@ -155,21 +148,14 @@ class UserController extends Controller
 
             $user->update($updateData);
 
-            // Update roles M:M (hanya untuk non-admin)
+            // Perbarui peran user (hanya untuk non-admin)
             if (!$isAdmin) {
-                $newRoleNames = in_array('WALI KELAS', $validated['roles'])
-                    ? ['guru', 'walikelas']
-                    : ['guru'];
-
-                $roleIds = \App\Models\Role::whereIn('nama_role', $newRoleNames)
-                    ->pluck('id')->toArray();
+                $newRoleNames = in_array('WALI KELAS', $validated['roles']) ? ['guru', 'walikelas'] : ['guru'];
+                $roleIds = \App\Models\Role::whereIn('nama_role', $newRoleNames)->pluck('id')->toArray();
                 $user->roles()->sync($roleIds);
 
-                // Update jabatan di tabel guru
-                $jabatan = in_array('walikelas', $newRoleNames)
-                    ? 'Guru Mapel & Wali Kelas'
-                    : 'Guru Mapel';
-
+                // Perbarui kolom jabatan di tabel guru
+                $jabatan = in_array('walikelas', $newRoleNames) ? 'Guru Mapel & Wali Kelas' : 'Guru Mapel';
                 if ($user->guru && Schema::hasColumn('gurus', 'jabatan')) {
                     $user->guru->update(['jabatan' => $jabatan]);
                 }
@@ -185,7 +171,7 @@ class UserController extends Controller
             ->with('success', 'User berhasil diperbarui.');
     }
 
-    // CRUD: DELETE - Menghapus data user
+    // Menghapus data user dari database
     public function destroy($id)
     {
         $user = User::findOrFail($id);
@@ -196,6 +182,7 @@ class UserController extends Controller
             ->with('success', 'User berhasil dihapus.');
     }
 
+    // Normalisasi peran guru agar wali kelas selalu mendapatkan peran guru mapel juga
     private function normalizeGuruRoles(array $roles): array
     {
         $roles = collect($roles)
@@ -211,6 +198,7 @@ class UserController extends Controller
         return $roles ?: ['GURU MAPEL'];
     }
 
+    // Memperbarui data profil user yang sedang login
     public function updateProfile(Request $request)
     {
         $user = auth()->user();
@@ -238,6 +226,7 @@ class UserController extends Controller
         ]);
     }
 
+    // Mengubah password user yang sedang login
     public function changePassword(Request $request)
     {
         $user = auth()->user();

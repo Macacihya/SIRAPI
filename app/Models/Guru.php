@@ -6,14 +6,19 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Traits\LogsActivity;
 
+// Model Guru - Representasi data Guru (Relasi ISA ke model User)
 class Guru extends Model
 {
     use HasFactory, LogsActivity;
 
     protected $primaryKey = 'user_id';
-    public $incrementing  = false;
-    protected $keyType    = 'int';
 
+    // Menonaktifkan auto-increment karena sinkron dengan id users
+    public $incrementing = false;
+
+    protected $keyType = 'int';
+
+    // Atribut yang dapat diisi secara massal
     protected $fillable = [
         'user_id',
         'nip',
@@ -22,6 +27,7 @@ class Guru extends Model
         'mata_pelajaran',
     ];
 
+    // Atribut virtual tambahan untuk response JSON/Array
     protected $appends = [
         'name',
         'email',
@@ -29,18 +35,19 @@ class Guru extends Model
         'mapel',
     ];
 
-    // ─── Accessors untuk Frontend Alpine.js ────────
-
+    // Mengambil nama dari model User
     public function getNameAttribute()
     {
         return $this->user ? $this->user->nama : '';
     }
 
+    // Mengambil email dari model User
     public function getEmailAttribute()
     {
         return $this->user ? $this->user->email : '';
     }
 
+    // Mengubah format nama role agar lebih rapi untuk frontend
     public function getRolesAttribute()
     {
         if (!$this->user) return [];
@@ -57,6 +64,7 @@ class Guru extends Model
         })->toArray();
     }
 
+    // Menggabungkan semua nama mapel yang diampu oleh guru
     public function getMapelAttribute()
     {
         if ($this->guruPengampus->isEmpty()) {
@@ -67,34 +75,31 @@ class Guru extends Model
         })->filter()->implode(', ') ?: '-';
     }
 
-    // ─── ISA Relations ───────────────────────────
-
+    // Relasi ke data User dasar
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    // ─── Relasi ke Sekolah ───────────────────────
-
+    // Relasi ke data Sekolah
     public function sekolah()
     {
         return $this->belongsTo(Sekolah::class, 'sekolah_id');
     }
 
-    // ─── Relasi ke Pengajaran ────────────────────
-
+    // Relasi ke tabel GuruPengampu (mata pelajaran yang diampu)
     public function guruPengampus()
     {
         return $this->hasMany(GuruPengampu::class, 'guru_id', 'user_id');
     }
 
+    // Relasi ke tabel Kelas (jika sebagai Wali Kelas)
     public function kelasWali()
     {
         return $this->hasMany(Kelas::class, 'wali_guru_id', 'user_id');
     }
 
-    // ─── Relasi ke Riwayat Status ────────────────
-
+    // Relasi ke Riwayat Status Guru
     public function riwayatStatus()
     {
         return $this->hasMany(RiwayatStatusGuru::class, 'guru_id', 'user_id');

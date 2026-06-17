@@ -4,18 +4,23 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+// Model Admin - Representasi data Administrator (Relasi ISA ke model User)
 class Admin extends Model
 {
     protected $primaryKey = 'user_id';
-    public $incrementing  = false;
-    protected $keyType    = 'int';
 
+    // Menonaktifkan auto-increment karena sinkron dengan id users
+    public $incrementing = false;
+
+    // Tipe data primary key adalah integer
+    protected $keyType = 'int';
+
+    // Atribut yang dapat diisi secara massal
     protected $fillable = [
         'user_id',
     ];
 
-    // ─── ISA Relations ───────────────────────────
-
+    // Relasi ke data User dasar
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');

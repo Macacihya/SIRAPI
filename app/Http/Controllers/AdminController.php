@@ -11,12 +11,14 @@ use Illuminate\Support\Facades\DB;
 
 class AdminController extends Controller
 {
+    // Menampilkan halaman daftar admin
     public function index()
     {
         $admins = Admin::with('user')->get();
         return view('pages.admin.index', compact('admins'));
     }
 
+    // Menyimpan data admin baru ke database
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -27,13 +29,12 @@ class AdminController extends Controller
         ]);
 
         DB::transaction(function () use ($validated) {
-            // Buat user tanpa role column (sudah dihapus)
             $user = User::create([
                 'nama'     => $validated['nama'],
                 'email'    => $validated['email'],
                 'username' => $validated['username'],
                 'password' => Hash::make($validated['password']),
-                'role'     => 'admin',   // mutator → pending → saved event → user_roles
+                'role'     => 'admin', // Disinkronkan ke pivot table user_roles via mutator
             ]);
 
             Admin::create([
@@ -46,6 +47,7 @@ class AdminController extends Controller
             ->with('success', 'Admin berhasil ditambahkan.');
     }
 
+    // Memperbarui data admin di database
     public function update(Request $request, $id)
     {
         $admin = Admin::findOrFail($id);
@@ -67,7 +69,6 @@ class AdminController extends Controller
             }
 
             $admin->user->update($updateData);
-            // Role admin tidak berubah saat update biasa
         });
 
         return redirect()
@@ -75,11 +76,12 @@ class AdminController extends Controller
             ->with('success', 'Data admin berhasil diperbarui.');
     }
 
+    // Menghapus data admin beserta user terkait
     public function destroy($id)
     {
         $admin = Admin::findOrFail($id);
 
-        // Hapus user (cascade ke admins dan user_roles)
+        // Menghapus data user (akan menghapus data admin di tabel pivot juga karena cascade)
         $user = User::findOrFail($admin->user_id);
         $user->delete();
 
