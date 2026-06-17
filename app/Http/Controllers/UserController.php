@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Schema;
 
 class UserController extends Controller
 {
+    // CRUD: READ - Menampilkan data user
     public function index()
     {
         // Ambil user yang BUKAN admin (pakai M:M whereDoesntHave)
@@ -62,6 +63,7 @@ class UserController extends Controller
         return view('pages.manajemen-user.index', compact('usersData'));
     }
 
+    // CRUD: CREATE - Menyimpan data user baru
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -121,6 +123,7 @@ class UserController extends Controller
             ->with('success', 'User berhasil ditambahkan.');
     }
 
+    // CRUD: UPDATE - Mengubah/memperbarui data user
     public function update(Request $request, $id)
     {
         $user = User::findOrFail($id);
@@ -182,6 +185,7 @@ class UserController extends Controller
             ->with('success', 'User berhasil diperbarui.');
     }
 
+    // CRUD: DELETE - Menghapus data user
     public function destroy($id)
     {
         $user = User::findOrFail($id);

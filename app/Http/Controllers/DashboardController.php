@@ -19,7 +19,7 @@ class DashboardController extends Controller
     {
         $user = request()->user();
 
-        // Statistik untuk dashboard
+        // [ROLE: ADMIN / UMUM] - Menentukan data statistik umum dashboard
         $totalSiswa   = Siswa::count();
         $totalGuru    = Guru::count();
         $totalKelas   = Kelas::count();
@@ -27,7 +27,11 @@ class DashboardController extends Controller
         $tahunAktif   = TahunAjaran::where('is_active', true)->first();
         $logAktivitas = \App\Models\LogAktivitas::with('user')->orderBy('waktu', 'desc')->take(20)->get();
         $role         = getUserRole();
+
+        // [ROLE: GURU] - Dashboard khusus Guru pengajar
         $dashboardGuru = $role === 'guru' ? $this->buildGuruDashboard($user->id, $tahunAktif) : [];
+
+        // [ROLE: WALI KELAS] - Dashboard khusus Wali Kelas
         $dashboardWalikelas = $role === 'walikelas' ? $this->buildWalikelasDashboard($user->id, $tahunAktif) : [];
 
         return view('pages.dashboard.index', compact(
@@ -43,6 +47,7 @@ class DashboardController extends Controller
         ));
     }
 
+    // [ROLE: GURU] - Mengolah data progres nilai khusus untuk Guru
     private function buildGuruDashboard(int $userId, ?TahunAjaran $tahunAktif): array
     {
         $pengampus = GuruPengampu::with(['kelas.siswas', 'mataPelajaran'])
@@ -96,6 +101,7 @@ class DashboardController extends Controller
         ];
     }
 
+    // [ROLE: WALI KELAS] - Mengolah statistik kelas, kehadiran (alpha), dan nilai di bawah KKM
     private function buildWalikelasDashboard(int $userId, ?TahunAjaran $tahunAktif): array
     {
         $kelasList = Kelas::with('siswas')
@@ -138,6 +144,7 @@ class DashboardController extends Controller
             })
             ->sum('alpha');
 
+        // PERLU PERHATIAN: Siswa dengan absen Alpha > 0
         $attentionFromAbsensi = RekapKehadiran::with('raport.siswa')
             ->where('alpha', '>', 0)
             ->whereHas('raport', function ($raport) use ($siswaIds, $tahunAktif) {
@@ -159,6 +166,7 @@ class DashboardController extends Controller
                 ];
             });
 
+        // PERLU PERHATIAN: Siswa dengan nilai akhir di bawah KKM
         $attentionFromNilai = (clone $nilaiQuery)
             ->with(['siswa', 'mataPelajaran'])
             ->whereNotNull('nilai_akhir')
@@ -188,6 +196,7 @@ class DashboardController extends Controller
             'rapor_final' => $raporFinal,
             'rapor_pending' => $raporPending,
             'rapor_progress' => $raporProgress,
+            // Gabungkan absensi & nilai di bawah KKM, ambil 3 item teratas
             'attention_items' => $attentionFromAbsensi->merge($attentionFromNilai)->take(3)->values(),
         ];
     }

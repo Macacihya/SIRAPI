@@ -15,11 +15,11 @@ class User extends Authenticatable
     use HasFactory, Notifiable, LogsActivity;
 
     protected $fillable = [
-        'nama',
+        'nama',     
         'username',
         'email',
         'password',
-        'role',          // ditangani oleh mutator — tidak ada kolom di DB
+        'role',
         'jenis_kelamin',
         'no_hp',
         'alamat',
@@ -42,7 +42,7 @@ class User extends Authenticatable
      * Penyimpanan sementara role yang akan disinkronkan ke user_roles
      * setelah model disimpan ke database.
      */
-    public ?string $pendingRole = null;
+        public ?string $pendingRole = null;
 
     // ─── Boot: Sync role ke user_roles setelah save ───────────
 
