@@ -217,10 +217,30 @@ document.addEventListener('alpine:init', () => {
                 $dispatch('toast', { message: e.message, type: 'error' });
             }
         },
-        doDeleteAll() {
-            this.gurus = this.gurus.filter(g => !g.selected);
-            this.showDeleteAll = false; this.selectAll = false;
-            this.$dispatch('toast', { message: 'Semua guru yang dipilih berhasil dihapus.', type: 'error' });
+        async doDeleteAll() {
+            const selectedIds = this.gurus.filter(g => g.selected).map(g => g.id);
+            if (selectedIds.length === 0) return;
+
+            try {
+                const res = await fetch('{{ route("guru.bulk-destroy-ajax") }}', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json', 
+                        'Accept': 'application/json', 
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}' 
+                    },
+                    body: JSON.stringify({ ids: selectedIds })
+                });
+                const result = await res.json();
+                if (!res.ok) throw new Error(result.message || 'Gagal menghapus data guru.');
+
+                this.gurus = this.gurus.filter(g => !selectedIds.includes(g.id));
+                this.showDeleteAll = false; 
+                this.selectAll = false;
+                this.$dispatch('toast', { message: result.message, type: 'success' });
+            } catch (e) {
+                this.$dispatch('toast', { message: e.message, type: 'error' });
+            }
         },
         downloadTemplate() {
             let csv = 'Nama,Email,NIP_NUPTK,Peran,Mapel_Diampu,Kelas_Diampu,Kelas_Walikelas\n';
@@ -506,6 +526,10 @@ document.addEventListener('alpine:init', () => {
                     <div>
                         <label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Email</label>
                         <input :value="form.user_email" readonly class="mt-1 h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f1f5f9] px-4 text-[14px] text-[#64748b] outline-none cursor-not-allowed transition" :class="form.user_email ? 'border-[#059669] text-[#065f46]' : ''" placeholder="Otomatis terisi setelah pilih user">
+                    </div>
+                    <div x-show="form.user_email">
+                        <label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">NIP / NUPTK</label>
+                        <input x-model="form.user_nip" @input="form.user_nip = form.user_nip.replace(/[^0-9]/g, '').slice(0, 18)" class="mt-1 h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] outline-none focus:border-[#3b82f6]" placeholder="19XXXXXXXXXXXXXXX">
                     </div>
                 </div>
 

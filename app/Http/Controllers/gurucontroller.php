@@ -220,6 +220,28 @@ class GuruController extends Controller
         }
     }
 
+    // Menghapus banyak data guru sekaligus via request AJAX
+    public function bulkDestroyAjax(Request $request)
+    {
+        try {
+            $ids = $request->input('ids', []);
+            if (empty($ids)) {
+                return response()->json(['message' => 'Tidak ada data guru yang dipilih.'], 400);
+            }
+
+            foreach ($ids as $id) {
+                $guru = Guru::find($id);
+                if ($guru) {
+                    $this->assignmentService->prosesHapus($guru);
+                }
+            }
+
+            return response()->json(['message' => 'Semua data guru terpilih berhasil dihapus.', 'ids' => $ids]);
+        } catch (\Exception $e) {
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
+    }
+
     // Standard Form Methods (Fallback Form Submit)
 
     // Menyimpan data guru baru via form submit biasa

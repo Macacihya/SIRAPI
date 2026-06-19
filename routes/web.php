@@ -75,6 +75,7 @@ Route::middleware('auth')->group(function () {
 
         // Guru AJAX
         Route::post('/guru-ajax', [GuruController::class, 'storeAjax'])->name('guru.store-ajax');
+        Route::post('/guru-ajax/bulk-delete', [GuruController::class, 'bulkDestroyAjax'])->name('guru.bulk-destroy-ajax');
         Route::put('/guru-ajax/{id}', [GuruController::class, 'updateAjax'])->name('guru.update-ajax');
         Route::delete('/guru-ajax/{id}', [GuruController::class, 'destroyAjax'])->name('guru.destroy-ajax');
 
