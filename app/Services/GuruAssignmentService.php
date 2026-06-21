@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Contracts\GuruServiceInterface;
 use App\Models\Guru;
 use App\Models\GuruPengampu;
 use App\Models\Kelas;
@@ -15,7 +16,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\ValidationException;
 
 // Service untuk mengelola penugasan, registrasi, pembaruan, dan penghapusan data Guru
-class GuruAssignmentService
+class GuruAssignmentService implements GuruServiceInterface
 {
     // Validasi pemilihan mapel & kelas pengampu
     public function validatePengampuSelection(array $validated): void

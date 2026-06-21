@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Contracts\GuruServiceInterface;
 use App\Models\Guru;
 use App\Models\Kelas;
 use App\Models\User;
 use App\Models\Sekolah;
 use App\Models\MataPelajaran;
-use App\Services\GuruAssignmentService;
 use App\Services\GuruCsvService;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -17,7 +17,7 @@ class GuruController extends Controller
 {
     // Konstruktor dengan dependency injection untuk service pengajaran & CSV
     public function __construct(
-        private GuruAssignmentService $assignmentService,
+        private GuruServiceInterface $assignmentService,
         private GuruCsvService $csvService
     ) {
     }

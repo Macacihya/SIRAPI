@@ -75,31 +75,31 @@ class Guru extends Model
         })->filter()->implode(', ') ?: '-';
     }
 
-    // Relasi ke data User dasar
+    // Relasi 1:1 (Inverse/ISA) ke data User dasar
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    // Relasi ke data Sekolah
+    // Relasi M:1 (Inverse) ke data Sekolah
     public function sekolah()
     {
         return $this->belongsTo(Sekolah::class, 'sekolah_id');
     }
 
-    // Relasi ke tabel GuruPengampu (mata pelajaran yang diampu)
+    // Relasi 1:M ke tabel GuruPengampu (mata pelajaran yang diampu)
     public function guruPengampus()
     {
         return $this->hasMany(GuruPengampu::class, 'guru_id', 'user_id');
     }
 
-    // Relasi ke tabel Kelas (jika sebagai Wali Kelas)
+    // Relasi 1:M ke tabel Kelas (jika sebagai Wali Kelas)
     public function kelasWali()
     {
         return $this->hasMany(Kelas::class, 'wali_guru_id', 'user_id');
     }
 
-    // Relasi ke Riwayat Status Guru
+    // Relasi 1:M ke Riwayat Status Guru
     public function riwayatStatus()
     {
         return $this->hasMany(RiwayatStatusGuru::class, 'guru_id', 'user_id');

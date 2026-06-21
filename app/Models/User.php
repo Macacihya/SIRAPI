@@ -74,7 +74,7 @@ class User extends Authenticatable
         return $this->roles()->value('nama_role');
     }
 
-    // Relasi Many-to-Many ke model Role melalui tabel pivot user_roles
+    // Relasi M:M (Many-to-Many) ke model Role melalui tabel pivot user_roles
     public function roles(): BelongsToMany
     {
         return $this->belongsToMany(Role::class, 'user_roles', 'user_id', 'role_id');
@@ -110,19 +110,19 @@ class User extends Authenticatable
         $this->attributes['nama'] = $value;
     }
 
-    // Relasi One-to-One ke model Admin
+    // Relasi 1:1 ke model Admin
     public function admin()
     {
         return $this->hasOne(Admin::class, 'user_id');
     }
 
-    // Relasi One-to-One ke model Guru
+    // Relasi 1:1 ke model Guru
     public function guru()
     {
         return $this->hasOne(Guru::class, 'user_id');
     }
 
-    // Relasi One-to-Many ke Log Aktivitas
+    // Relasi 1:M ke Log Aktivitas
     public function logAktivitas()
     {
         return $this->hasMany(LogAktivitas::class, 'user_id');
