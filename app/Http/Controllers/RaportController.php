@@ -15,7 +15,7 @@ class RaportController extends Controller
 {
     public function index()
     {
-        // Ambil tahun ajaran aktif sebagai periode default pembuatan rapor.
+        // ini memakai tahun ajaran dan harus diaktifkan untuk di akses
         $tahunAjaranAktif = TahunAjaran::where('is_active', true)->first()
             ?? TahunAjaran::orderByDesc('tahun_mulai')->first();
 

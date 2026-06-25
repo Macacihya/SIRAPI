@@ -24,6 +24,7 @@ class DashboardController extends Controller
         $totalGuru    = Guru::count();
         $totalKelas   = Kelas::count();
         $totalMapel   = MataPelajaran::count();
+        // ini memakai tahun ajaran dan harus diaktifkan untuk di akses
         $tahunAktif   = TahunAjaran::where('is_active', true)->first();
         $logAktivitas = \App\Models\LogAktivitas::with('user')->orderBy('waktu', 'desc')->take(20)->get();
         $role         = getUserRole();

@@ -104,6 +104,7 @@ class NilaiController extends Controller
 
         // Tahun ajaran aktif
         $tahunAjarans = TahunAjaran::orderByDesc('tahun_mulai')->get();
+        // ini memakai tahun ajaran dan harus diaktifkan untuk di akses
         $tahunAjaranAktif = TahunAjaran::where('is_active', true)->first();
         $selectedTahunAjaranId = $request->get('tahun_ajaran_id', $tahunAjaranAktif?->id ?? $tahunAjarans->first()?->id);
 

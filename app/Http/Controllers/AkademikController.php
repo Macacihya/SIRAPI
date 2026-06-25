@@ -22,7 +22,7 @@ class AkademikController extends Controller
             ->orderByRaw("CASE WHEN semester = 'Ganjil' THEN 0 ELSE 1 END")
             ->get();
 
-        // Mencari tahun ajaran yang saat ini aktif
+        // ini memakai tahun ajaran dan harus diaktifkan untuk di akses
         $activeTahun = $tahunAjarans->where('is_active', true)->first();
         // Menentukan ID tahun ajaran yang sedang dipilih di filter halaman (default: tahun ajaran aktif)
         $tahunAjaranId = $request->input('tahun_ajaran_id', $activeTahun?->id ?? $tahunAjarans->first()?->id);

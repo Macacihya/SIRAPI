@@ -122,6 +122,7 @@ class SiswaController extends Controller
             // Menentukan tahun ajaran penempatan yang dipilih (default: tahun ajaran yang sedang aktif)
             $tahunAjaranId = $request->input('tahun_ajaran_id');
             if (!$tahunAjaranId) {
+                // ini memakai tahun ajaran dan harus diaktifkan untuk di akses
                 $activeTahun = $tahunAjarans->where('is_active', true)->first();
                 $tahunAjaranId = $activeTahun ? $activeTahun->id : $tahunAjarans->first()?->id;
             }
