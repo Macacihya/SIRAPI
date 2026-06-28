@@ -23,6 +23,8 @@ class Sekolah extends Model
         'status_sekolah',
         'nama_kepala_sekolah',
         'bentuk_pendidikan',
+        'latitude',
+        'longitude',
     ];
 
     // ─── Relasi ──────────────────────────────────

@@ -5,6 +5,10 @@
 
 @section('content')
 <script>
+    window.initGoogleMap = function() {
+        window.dispatchEvent(new CustomEvent('google-maps-loaded'));
+    };
+
     document.addEventListener('alpine:init', () => {
         Alpine.data('dataSekolahData', () => ({
             showBatalkan: false,
@@ -12,6 +16,89 @@
             logoPreviewUrl: '{{ $sekolah->logo ? asset("storage/" . $sekolah->logo) : "" }}',
             isSaving: false,
             errors: {},
+
+            // Koordinat peta
+            latitude: '{{ old("latitude", $sekolah->latitude) }}' || -6.2088,
+            longitude: '{{ old("longitude", $sekolah->longitude) }}' || 106.8456,
+            map: null,
+            marker: null,
+
+            init() {
+                if (window.google && window.google.maps) {
+                    this.initMap();
+                } else {
+                    window.addEventListener('google-maps-loaded', () => {
+                        this.initMap();
+                    });
+                }
+            },
+
+            initMap() {
+                const myLatLng = { lat: parseFloat(this.latitude), lng: parseFloat(this.longitude) };
+
+                this.map = new google.maps.Map(document.getElementById("google-map"), {
+                    center: myLatLng,
+                    zoom: 15,
+                    mapTypeControl: false,
+                    streetViewControl: false,
+                    fullscreenControl: true,
+                });
+
+                this.marker = new google.maps.Marker({
+                    position: myLatLng,
+                    map: this.map,
+                    draggable: true,
+                    title: "{{ $sekolah->nama_sekolah }}"
+                });
+
+                // Event ketika marker selesai digeser (drag)
+                google.maps.event.addListener(this.marker, 'dragend', () => {
+                    const position = this.marker.getPosition();
+                    this.latitude = position.lat().toFixed(8);
+                    this.longitude = position.lng().toFixed(8);
+                });
+
+                // Event ketika peta diklik untuk pindah marker
+                google.maps.event.addListener(this.map, 'click', (event) => {
+                    const clickedLocation = event.latLng;
+                    this.marker.setPosition(clickedLocation);
+                    this.latitude = clickedLocation.lat().toFixed(8);
+                    this.longitude = clickedLocation.lng().toFixed(8);
+                });
+
+                // Konfigurasi Autocomplete pencarian
+                const input = document.getElementById("pac-input");
+                const autocomplete = new google.maps.places.Autocomplete(input);
+                autocomplete.bindTo("bounds", this.map);
+
+                autocomplete.addListener("place_changed", () => {
+                    const place = autocomplete.getPlace();
+                    if (!place.geometry || !place.geometry.location) {
+                        return;
+                    }
+
+                    if (place.geometry.viewport) {
+                        this.map.fitBounds(place.geometry.viewport);
+                    } else {
+                        this.map.setCenter(place.geometry.location);
+                        this.map.setZoom(17);
+                    }
+
+                    this.marker.setPosition(place.geometry.location);
+                    this.latitude = place.geometry.location.lat().toFixed(8);
+                    this.longitude = place.geometry.location.lng().toFixed(8);
+                });
+            },
+
+            updateMarkerFromInputs() {
+                const lat = parseFloat(this.latitude);
+                const lng = parseFloat(this.longitude);
+                if (!isNaN(lat) && !isNaN(lng) && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
+                    const latLng = new google.maps.LatLng(lat, lng);
+                    if (this.marker) this.marker.setPosition(latLng);
+                    if (this.map) this.map.setCenter(latLng);
+                }
+            },
 
             async submitSekolah() {
                 this.isSaving = true;
@@ -245,13 +332,38 @@
                     value="{{ old('telepon', $sekolah->telepon) }}">
             </div>
         </div>
-        <div class="mt-5 flex h-[200px] items-center justify-center rounded-[10px] bg-[#f1f5f9] border border-[#e2e8f0]">
-            <div class="text-center">
-                <svg class="mx-auto h-8 w-8 text-[#94a3b8]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
-                    <path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
-                </svg>
-                <p class="mt-2 text-[12px] font-semibold text-[#94a3b8]">Lokasi Terpeta Otomatis</p>
+        <div class="mt-5 space-y-4">
+            <div>
+                <label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Cari Lokasi / Alamat</label>
+                <div class="relative mt-1">
+                    <input id="pac-input" type="text" placeholder="Masukkan nama tempat, gedung, atau jalan..." 
+                        class="flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-white px-4 pr-10 text-[14px] font-medium text-[#0f172a] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20 shadow-sm"
+                        @keydown.enter.prevent>
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                        <svg class="h-5 w-5 text-[#94a3b8]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <div id="google-map" class="h-[350px] w-full rounded-[10px] border border-[#e2e8f0] bg-[#f8fafc] shadow-inner overflow-hidden"></div>
+
+            <div class="grid gap-4 sm:grid-cols-2">
+                <div>
+                    <label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Latitude (Lintang)</label>
+                    <input name="latitude" type="text" x-model="latitude" @input="updateMarkerFromInputs"
+                        class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] font-medium text-[#0f172a] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20"
+                        :class="errors.latitude ? 'border-rose-400' : ''">
+                    <p x-show="errors.latitude" x-text="errors.latitude ? errors.latitude[0] : ''" class="mt-1 text-[11px] text-rose-500 font-semibold"></p>
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Longitude (Bujur)</label>
+                    <input name="longitude" type="text" x-model="longitude" @input="updateMarkerFromInputs"
+                        class="mt-1 flex h-[42px] w-full rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[14px] font-medium text-[#0f172a] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20"
+                        :class="errors.longitude ? 'border-rose-400' : ''">
+                    <p x-show="errors.longitude" x-text="errors.longitude ? errors.longitude[0] : ''" class="mt-1 text-[11px] text-rose-500 font-semibold"></p>
+                </div>
             </div>
         </div>
     </div>
@@ -278,4 +390,12 @@
         </div>
     </div>
 </form>
+
+@if (config('services.google.maps_api_key'))
+    <script src="https://maps.googleapis.com/maps/api/js?key={{ config('services.google.maps_api_key') }}&libraries=places&callback=initGoogleMap" async defer></script>
+@else
+    <script>
+        console.warn("Google Maps API Key belum terkonfigurasi di file .env");
+    </script>
+@endif
 @endsection

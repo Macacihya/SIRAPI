@@ -28,6 +28,8 @@ class SekolahController extends Controller
                 'status_sekolah'      => 'Negeri',
                 'nama_kepala_sekolah' => '-',
                 'bentuk_pendidikan'   => 'SD',
+                'latitude'            => -6.2088,
+                'longitude'           => 106.8456,
             ]);
         }
 
@@ -53,6 +55,8 @@ class SekolahController extends Controller
             'status_sekolah'      => 'nullable|string|max:50',
             'nama_kepala_sekolah' => 'nullable|string|max:255',
             'bentuk_pendidikan'   => 'nullable|string|max:50',
+            'latitude'            => 'nullable|numeric|between:-90,90',
+            'longitude'           => 'nullable|numeric|between:-180,180',
         ]);
 
         if ($request->hasFile('logo')) {
@@ -89,6 +93,8 @@ class SekolahController extends Controller
             'status_sekolah'      => 'nullable|string|max:50',
             'nama_kepala_sekolah' => 'nullable|string|max:255',
             'bentuk_pendidikan'   => 'nullable|string|max:50',
+            'latitude'            => 'nullable|numeric|between:-90,90',
+            'longitude'           => 'nullable|numeric|between:-180,180',
         ]);
 
         if ($request->hasFile('logo')) {
@@ -129,6 +135,8 @@ class SekolahController extends Controller
             'status_sekolah'      => 'nullable|string|max:50',
             'nama_kepala_sekolah' => 'nullable|string|max:255',
             'bentuk_pendidikan'   => 'nullable|string|max:50',
+            'latitude'            => 'nullable|numeric|between:-90,90',
+            'longitude'           => 'nullable|numeric|between:-180,180',
         ]);
 
         if ($request->hasFile('logo')) {

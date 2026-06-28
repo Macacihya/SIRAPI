@@ -114,6 +114,7 @@ class AkademikController extends Controller
         ]);
     }
 
+    // TAHUN AJARAN START
     /**
      * Menyimpan data Tahun Ajaran & Semester baru ke database.
      */
@@ -150,11 +151,12 @@ class AkademikController extends Controller
         $validated['is_active'] = $request->boolean('is_active');
 
         // Jika tahun ajaran baru ini diset aktif, matikan status aktif tahun ajaran yang lain terlebih dahulu
+        // (Semua tahun ajaran lain diset ke tidak aktif, lalu tahun ajaran baru ini diset ke aktif)
         if ($validated['is_active']) {
             TahunAjaran::query()->update(['is_active' => false]);
         }
 
-        // Menyimpan data tahun ajaran baru ke database
+        // Menyimpan data tahun ajaran baru ke database (menyimpan status is_active = true/false)
         $ta = TahunAjaran::create($validated);
 
         return redirect()
@@ -185,7 +187,7 @@ class AkademikController extends Controller
                     ->where(fn ($query) => $query
                         ->where('tahun_mulai', $request->tahun_mulai)
                         ->where('semester', $request->semester))
-                    ->ignore($id),
+                        ->ignore($id),
             ],
         ], [
             'tahun_selesai.required' => 'Tahun selesai wajib diisi.',
@@ -197,28 +199,29 @@ class AkademikController extends Controller
             return back()
                 ->withErrors(['tahun_selesai' => 'Tahun selesai harus satu tahun setelah tahun mulai.'])
                 ->withInput();
-        }
+            }
 
         $validated['is_active'] = $request->boolean('is_active');
 
         // Jika diset sebagai periode aktif, nonaktifkan periode akademik yang lain
+        // (Semua tahun ajaran lain diset ke tidak aktif, lalu tahun ajaran ini diperbarui menjadi aktif)
         if ($validated['is_active']) {
             TahunAjaran::query()
                 ->whereKeyNot($tahunAjaran->id)
                 ->update(['is_active' => false]);
-        }
+            }
 
-        // Update data di database
-        $tahunAjaran->update($validated);
-
-        return redirect()
+            // Update data di database (menyimpan perubahan status is_active = true/false)
+            $tahunAjaran->update($validated);
+            
+            return redirect()
             ->route('akademik', ['tahun_ajaran_id' => $tahunAjaran->id])
             ->with('success', 'Tahun ajaran berhasil diperbarui.');
-    }
-
-    /**
-     * Menghapus data Tahun Ajaran & Semester dari database.
-     */
+        }
+        
+        /**
+         * Menghapus data Tahun Ajaran & Semester dari database.
+        */
     public function destroyTahunAjaran($id)
     {
         // Cari data berdasarkan ID, lalu hapus
@@ -228,25 +231,27 @@ class AkademikController extends Controller
         return redirect()
             ->route('akademik')
             ->with('success', 'Tahun ajaran berhasil dihapus.');
-    }
-
-    /**
-     * Mengatur status periode akademik aktif yang baru.
-     */
-    public function setActiveTahunAjaran($id)
-    {
-        // 1. Matikan semua periode akademik yang tadinya berstatus aktif (set is_active = false)
-        TahunAjaran::query()->update(['is_active' => false]);
+        }
         
-        // 2. Cari data terpilih berdasarkan ID, kemudian ubah statusnya menjadi aktif (set is_active = true)
-        $ta = TahunAjaran::findOrFail($id);
-        $ta->update(['is_active' => true]);
-
-        return redirect()
+        /**
+         * Mengatur status periode akademik aktif yang baru.
+        */
+        public function setActiveTahunAjaran($id)
+        {
+            // 1. Matikan semua periode akademik yang tadinya berstatus aktif (set is_active = false)
+            TahunAjaran::query()->update(['is_active' => false]);
+            
+            // 2. Cari data terpilih berdasarkan ID, kemudian ubah statusnya menjadi aktif (set is_active = true)
+            // (Ini memproses penonaktifan tahun ajaran lain dan mengaktifkan tahun ajaran terpilih)
+            $ta = TahunAjaran::findOrFail($id);
+            $ta->update(['is_active' => true]);
+            
+            return redirect()
             ->route('akademik', ['tahun_ajaran_id' => $id])
             ->with('success', 'Periode akademik aktif berhasil diubah.');
-    }
-
+        }
+        // TAHUN AJARAN END
+        
     /**
      * Membuat kelas baru pada periode akademik tertentu.
      */
