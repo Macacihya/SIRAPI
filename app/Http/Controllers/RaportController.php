@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Raport;
 use App\Models\Ekstrakurikuler;
 use App\Models\RekapKehadiran;
+use App\Models\Sekolah;
 use App\Models\Sikap;
 use App\Models\Siswa;
 use App\Models\TahunAjaran;
@@ -38,6 +39,7 @@ class RaportController extends Controller
         // Data rapor dimuat lengkap untuk kebutuhan kelola, lihat, dan cetak.
         $raports = Raport::with([
             'siswa.kelas',
+            'siswa.sekolah',
             'tahunAjaran',
             'nilais.mataPelajaran',
             'nilais.capaianKompetensis',
@@ -51,8 +53,16 @@ class RaportController extends Controller
             ->get();
 
         $tahunAjarans = TahunAjaran::orderByDesc('tahun_mulai')->get();
+        $sikapMasters = Sikap::orderBy('nama_sikap')->get();
+        $ekskulMasters = Ekstrakurikuler::orderBy('nama_eskul')->get();
 
-        return view('pages.rapor.index', compact('raports', 'siswas', 'tahunAjarans'));
+        return view('pages.rapor.index', compact(
+            'raports',
+            'siswas',
+            'tahunAjarans',
+            'sikapMasters',
+            'ekskulMasters'
+        ));
     }
 
     public function store(Request $request)
@@ -78,6 +88,7 @@ class RaportController extends Controller
         // Detail rapor dipakai langsung oleh halaman cetak.
         $raport->load([
             'siswa.kelas',
+            'siswa.sekolah',
             'tahunAjaran',
             'nilais.mataPelajaran',
             'nilais.capaianKompetensis',
@@ -87,7 +98,11 @@ class RaportController extends Controller
             'raportEkskuls.ekstrakurikuler',
         ]);
 
-        return view('pages.rapor.lihat', compact('raport'));
+        // Sekolah siswa menjadi sumber identitas, alamat, dan kepala sekolah pada cetak rapor.
+        // first() menjadi cadangan untuk instalasi single-school jika siswa lama belum punya sekolah_id.
+        $sekolah = $raport->siswa?->sekolah ?? Sekolah::first();
+
+        return view('pages.rapor.lihat', compact('raport', 'sekolah'));
     }
 
     public function generate(Request $request)
@@ -131,12 +146,13 @@ class RaportController extends Controller
 
         $validated = $request->validate([
             'action' => 'required|in:draft,final',
-            'sikap_sp' => 'nullable|in:A,B,C,D',
-            'desc_sp' => 'nullable|string',
-            'sikap_so' => 'nullable|in:A,B,C,D',
-            'desc_so' => 'nullable|string',
+            'sikaps' => 'present|array',
+            'sikaps.*.id' => 'required|integer|exists:sikaps,id|distinct',
+            'sikaps.*.predikat' => 'nullable|in:A,B,C,D',
+            'sikaps.*.deskripsi' => 'nullable|string',
             'eskul' => 'nullable|array',
-            'eskul.*.nama' => 'nullable|string|max:100',
+            'eskul.*.id' => 'required|integer|exists:ekstrakurikulers,id|distinct',
+            'eskul.*.predikat' => 'nullable|in:A,B,C,D',
             'eskul.*.deskripsi' => 'nullable|string',
             'sakit' => 'required|integer|min:0',
             'izin' => 'required|integer|min:0',
@@ -161,42 +177,24 @@ class RaportController extends Controller
                 ]
             );
 
-            // Sikap disimpan lewat pivot raport_sikaps agar Spiritual dan Sosial tidak tertukar.
-            $sikapSync = [];
-            $spiritual = Sikap::firstOrCreate(['nama_sikap' => 'Spiritual']);
-            $sosial = Sikap::firstOrCreate(['nama_sikap' => 'Sosial']);
-
-            if (!empty($validated['sikap_sp']) || !empty($validated['desc_sp'])) {
-                $sikapSync[$spiritual->id] = [
-                    'predikat' => $validated['sikap_sp'] ?? null,
-                    'deskripsi' => $validated['desc_sp'] ?? null,
-                ];
-            }
-
-            if (!empty($validated['sikap_so']) || !empty($validated['desc_so'])) {
-                $sikapSync[$sosial->id] = [
-                    'predikat' => $validated['sikap_so'] ?? null,
-                    'deskripsi' => $validated['desc_so'] ?? null,
-                ];
-            }
+            // Setiap ID master sikap dari admin dipasangkan dengan penilaian siswa ini.
+            $sikapSync = collect($validated['sikaps'])
+                ->mapWithKeys(fn ($item) => [
+                    $item['id'] => [
+                        'predikat' => $item['predikat'] ?? null,
+                        'deskripsi' => $item['deskripsi'] ?? null,
+                    ],
+                ])
+                ->all();
 
             $raport->sikaps()->sync($sikapSync);
 
-            // Form rapor mengirim daftar ekskul utuh, jadi relasi lama diganti dengan versi terbaru.
+            // Form mengirim seluruh master ekskul; detail predikat dan catatan tetap per siswa.
             $raport->raportEkskuls()->delete();
-            $eskulItems = collect($validated['eskul'] ?? [])
-                ->filter(fn ($eskulData) => !empty($eskulData['nama']))
-                ->unique(fn ($eskulData) => strtolower(trim($eskulData['nama'])));
-
-            foreach ($eskulItems as $eskulData) {
-                $eskulName = trim($eskulData['nama']);
-
-                $eskul = Ekstrakurikuler::firstOrCreate([
-                    'nama_eskul' => $eskulName,
-                ]);
-
+            foreach ($validated['eskul'] ?? [] as $eskulData) {
                 $raport->raportEkskuls()->create([
-                    'ekstrakurikuler_id' => $eskul->id,
+                    'ekstrakurikuler_id' => $eskulData['id'],
+                    'predikat' => $eskulData['predikat'] ?? null,
                     'deskripsi' => $eskulData['deskripsi'] ?? null,
                 ]);
             }

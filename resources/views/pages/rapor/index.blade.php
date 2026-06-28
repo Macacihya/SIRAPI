@@ -6,12 +6,11 @@
 @section('content')
 @php
     $raporBySiswa = $raports->keyBy('siswa_id');
-    $studentsData = $siswas->map(function ($siswa) use ($raporBySiswa) {
+    $studentsData = $siswas->map(function ($siswa) use ($raporBySiswa, $sikapMasters, $ekskulMasters) {
         $raport = $raporBySiswa->get($siswa->id);
         $rekap = $raport?->rekapKehadiran;
-        $nilaiSikaps = collect($raport?->nilaiSikaps ?? []);
-        $spiritual = $nilaiSikaps->first(fn ($item) => strtolower($item->sikap->nama_sikap ?? '') === 'spiritual');
-        $sosial = $nilaiSikaps->first(fn ($item) => strtolower($item->sikap->nama_sikap ?? '') === 'sosial');
+        $nilaiSikaps = collect($raport?->nilaiSikaps ?? [])->keyBy('sikap_id');
+        $nilaiEkskuls = collect($raport?->raportEkskuls ?? [])->keyBy('ekstrakurikuler_id');
         $initials = collect(explode(' ', trim($siswa->nama_siswa ?? 'S')))
             ->filter()
             ->take(2)
@@ -29,15 +28,25 @@
             'status' => $raport?->status === 'final' ? 'Selesai' : ($raport ? 'Draft' : 'Belum'),
             'print_url' => $raport ? route('rapor.show', $raport) : '#',
             'form' => [
-                'sikap_sp' => $spiritual?->predikat ?? '',
-                'desc_sp' => $spiritual?->deskripsi ?? '',
-                'sikap_so' => $sosial?->predikat ?? '',
-                'desc_so' => $sosial?->deskripsi ?? '',
-                'eskul' => collect($raport?->raportEkskuls ?? [])->map(fn ($item) => [
-                    'id' => $item->id,
-                    'nama' => $item->ekstrakurikuler->nama_eskul ?? '',
-                    'deskripsi' => $item->deskripsi ?? '',
-                ])->values()->all(),
+                // Jumlah field mengikuti seluruh master yang dibuat oleh admin.
+                'sikaps' => $sikapMasters->map(function ($master) use ($nilaiSikaps) {
+                    $nilai = $nilaiSikaps->get($master->id);
+                    return [
+                        'id' => $master->id,
+                        'nama' => $master->nama_sikap,
+                        'predikat' => $nilai?->predikat ?? '',
+                        'deskripsi' => $nilai?->deskripsi ?? '',
+                    ];
+                })->values()->all(),
+                'eskul' => $ekskulMasters->map(function ($master) use ($nilaiEkskuls) {
+                    $nilai = $nilaiEkskuls->get($master->id);
+                    return [
+                        'id' => $master->id,
+                        'nama' => $master->nama_eskul,
+                        'predikat' => $nilai?->predikat ?? '',
+                        'deskripsi' => $nilai?->deskripsi ?? '',
+                    ];
+                })->values()->all(),
                 'catatan' => $raport?->catatan_wali ?? '',
                 'sakit' => (int) ($rekap?->sakit ?? 0),
                 'izin' => (int) ($rekap?->izin ?? 0),
@@ -53,17 +62,8 @@
         draftModalOpen: false,
         saveModalOpen: false,
         previewModalOpen: false,
-        eskulToDelete: null,
         deleteConfirmOpen: false,
         prestasiToDelete: null,
-
-        addEskul() {
-            this.selectedStudent.form.eskul.push({ id: Date.now(), nama: '', deskripsi: '' });
-        },
-
-        removeEskul(id) {
-            this.selectedStudent.form.eskul = this.selectedStudent.form.eskul.filter(e => e.id !== id);
-        },
 
         prestasiList: [
             { id: 1, jenis: 'Akademik', keterangan: 'Juara 1 Olimpiade Matematika Tingkat Kota' }
@@ -79,7 +79,7 @@
         },
 
         get selectedStudent() {
-            return this.students.find(s => s.id === this.selectedStudentId) || this.students[0] || { form: { eskul: [], sakit: 0, izin: 0, alpha: 0 }, name: '-', nis: '-', nisn: '-', kelas: '-', status: 'Belum', print_url: '#' };
+            return this.students.find(s => s.id === this.selectedStudentId) || this.students[0] || { form: { sikaps: [], eskul: [], sakit: 0, izin: 0, alpha: 0 }, name: '-', nis: '-', nisn: '-', kelas: '-', status: 'Belum', print_url: '#' };
         },
 
         addPrestasi() {
@@ -108,10 +108,7 @@
             // Payload ini adalah bentuk data form rapor yang akan disimpan ke Laravel.
             const payload = {
                 action: action,
-                sikap_sp: this.selectedStudent.form.sikap_sp || null,
-                desc_sp: this.selectedStudent.form.desc_sp || null,
-                sikap_so: this.selectedStudent.form.sikap_so || null,
-                desc_so: this.selectedStudent.form.desc_so || null,
+                sikaps: this.selectedStudent.form.sikaps || [],
                 eskul: this.selectedStudent.form.eskul || [],
                 sakit: this.selectedStudent.form.sakit || 0,
                 izin: this.selectedStudent.form.izin || 0,
@@ -230,52 +227,33 @@
                             <h3 class="text-[14px] font-bold text-[#0f172a]">1. Sikap Siswa</h3>
                         </div>
                         <div class="p-5 space-y-6">
-                            <!-- Sikap Spiritual -->
-                            <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
-                                <div class="md:col-span-4">
-                                    <label class="block text-[12px] font-bold text-[#475569] mb-1.5">Sikap Spiritual</label>
-                                    <select x-model="selectedStudent.form.sikap_sp" :disabled="selectedStudent.status === 'Selesai'" class="w-full h-10 rounded-lg border border-[#e2e8f0] px-3 font-semibold text-[13px] text-[#0f172a] focus:ring-2 focus:ring-[#3b82f6]/20 focus:border-[#3b82f6] outline-none disabled:bg-[#f1f5f9] disabled:text-[#94a3b8]">
-                                        <option value="">-- Pilih Nilai --</option>
-                                        <option value="A">A (Sangat Baik)</option>
-                                        <option value="B">B (Baik)</option>
-                                        <option value="C">C (Cukup)</option>
-                                        <option value="D">D (Kurang)</option>
-                                    </select>
+                            {{-- Satu blok form dibuat untuk setiap master sikap dari admin. --}}
+                            <template x-for="sikap in selectedStudent.form.sikaps" :key="sikap.id">
+                                <div class="grid grid-cols-1 gap-4 md:grid-cols-12">
+                                    <div class="md:col-span-4">
+                                        <label class="mb-1.5 block text-[12px] font-bold text-[#475569]" x-text="sikap.nama"></label>
+                                        <select x-model="sikap.predikat" :disabled="selectedStudent.status === 'Selesai'" class="h-10 w-full rounded-lg border border-[#e2e8f0] px-3 text-[13px] font-semibold text-[#0f172a] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20 disabled:bg-[#f1f5f9] disabled:text-[#94a3b8]">
+                                            <option value="">-- Pilih Nilai --</option>
+                                            <option value="A">A (Sangat Baik)</option>
+                                            <option value="B">B (Baik)</option>
+                                            <option value="C">C (Cukup)</option>
+                                            <option value="D">D (Kurang)</option>
+                                        </select>
+                                    </div>
+                                    <div class="md:col-span-8">
+                                        <label class="mb-1.5 block text-[12px] font-bold text-[#475569]">Catatan Penilaian</label>
+                                        <textarea x-model="sikap.deskripsi" :readonly="selectedStudent.status === 'Selesai'" rows="2" class="w-full resize-none rounded-lg border border-[#e2e8f0] p-3 text-[13px] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20 readonly:bg-[#f1f5f9] readonly:text-[#94a3b8]" :placeholder="'Catatan untuk ' + sikap.nama + '...'"></textarea>
+                                    </div>
                                 </div>
-                                <div class="md:col-span-8">
-                                    <label class="block text-[12px] font-bold text-[#475569] mb-1.5">Deskripsi Capaian Spiritual</label>
-                                    <textarea x-model="selectedStudent.form.desc_sp" :readonly="selectedStudent.status === 'Selesai'" rows="2" class="w-full rounded-lg border border-[#e2e8f0] p-3 text-[13px] focus:ring-2 focus:ring-[#3b82f6]/20 focus:border-[#3b82f6] outline-none resize-none readonly:bg-[#f1f5f9] readonly:text-[#94a3b8]" placeholder="Cth: Sangat baik dalam ketaatan beribadah dan berperilaku syukur..."></textarea>
-                                </div>
-                            </div>
-                            
-                            <!-- Sikap Sosial -->
-                            <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
-                                <div class="md:col-span-4">
-                                    <label class="block text-[12px] font-bold text-[#475569] mb-1.5">Sikap Sosial</label>
-                                    <select x-model="selectedStudent.form.sikap_so" :disabled="selectedStudent.status === 'Selesai'" class="w-full h-10 rounded-lg border border-[#e2e8f0] px-3 font-semibold text-[13px] text-[#0f172a] focus:ring-2 focus:ring-[#3b82f6]/20 focus:border-[#3b82f6] outline-none disabled:bg-[#f1f5f9] disabled:text-[#94a3b8]">
-                                        <option value="">-- Pilih Nilai --</option>
-                                        <option value="A">A (Sangat Baik)</option>
-                                        <option value="B">B (Baik)</option>
-                                        <option value="C">C (Cukup)</option>
-                                        <option value="D">D (Kurang)</option>
-                                    </select>
-                                </div>
-                                <div class="md:col-span-8">
-                                    <label class="block text-[12px] font-bold text-[#475569] mb-1.5">Deskripsi Capaian Sosial</label>
-                                    <textarea x-model="selectedStudent.form.desc_so" :readonly="selectedStudent.status === 'Selesai'" rows="2" class="w-full rounded-lg border border-[#e2e8f0] p-3 text-[13px] focus:ring-2 focus:ring-[#3b82f6]/20 focus:border-[#3b82f6] outline-none resize-none readonly:bg-[#f1f5f9] readonly:text-[#94a3b8]" placeholder="Cth: Sangat baik dalam sikap disiplin, jujur, and tanggung jawab..."></textarea>
-                                </div>
-                            </div>
+                            </template>
+                            <p x-show="selectedStudent.form.sikaps.length === 0" class="py-4 text-center text-[12px] italic text-[#94a3b8]">Admin belum menambahkan jenis sikap.</p>
                         </div>
                     </div>
 
                     <!-- Section 2: Ekstrakurikuler -->
                     <div class="bg-white rounded-xl border border-[#e2e8f0] shadow-sm overflow-hidden">
-                        <div class="px-5 py-3 border-b border-[#e2e8f0] bg-[#f8fafc] flex items-center justify-between">
+                        <div class="px-5 py-3 border-b border-[#e2e8f0] bg-[#f8fafc]">
                             <h3 class="text-[14px] font-bold text-[#0f172a]">2. Ekstrakurikuler</h3>
-                            <button @click="addEskul()" :disabled="selectedStudent.status === 'Selesai'" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#eff6ff] text-[11px] font-bold text-[#1d4ed8] hover:bg-[#dbeafe] transition disabled:opacity-50">
-                                <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
-                                Tambah Eskul
-                            </button>
                         </div>
                         <div class="p-5">
                             <div class="overflow-x-auto">
@@ -284,8 +262,8 @@
                                         <tr class="text-[11px] font-bold text-[#64748b] uppercase tracking-wider">
                                             <th class="text-left pb-3 w-[40px]">No</th>
                                             <th class="text-left pb-3">Kegiatan Ekstrakurikuler</th>
-                                            <th class="text-left pb-3 pl-4">Keterangan / Capaian</th>
-                                            <th class="pb-3 w-[40px]"></th>
+                                            <th class="text-left pb-3 pl-4 w-[180px]">Penilaian</th>
+                                            <th class="text-left pb-3 pl-4">Catatan</th>
                                         </tr>
                                     </thead>
                                     <tbody class="divide-y divide-[#f1f5f9]">
@@ -293,21 +271,25 @@
                                             <tr>
                                                 <td class="py-3 text-[13px] font-medium text-[#64748b]" x-text="index + 1"></td>
                                                 <td class="py-3">
-                                                    <input type="text" x-model="e.nama" :readonly="selectedStudent.status === 'Selesai'" class="w-full h-9 rounded-lg border border-[#e2e8f0] px-3 text-[13px] focus:ring-2 focus:ring-[#3b82f6]/20 focus:border-[#3b82f6] outline-none transition readonly:bg-[#f8fafc]">
+                                                    <span class="text-[13px] font-semibold text-[#0f172a]" x-text="e.nama"></span>
                                                 </td>
                                                 <td class="py-3 pl-4">
-                                                    <input type="text" x-model="e.deskripsi" :readonly="selectedStudent.status === 'Selesai'" class="w-full h-9 rounded-lg border border-[#e2e8f0] px-3 text-[13px] focus:ring-2 focus:ring-[#3b82f6]/20 focus:border-[#3b82f6] outline-none transition readonly:bg-[#f8fafc]" placeholder="Cth: Sangat aktif dalam kegiatan perkemahan...">
+                                                    <select x-model="e.predikat" :disabled="selectedStudent.status === 'Selesai'" class="h-9 w-full rounded-lg border border-[#e2e8f0] px-3 text-[13px] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20 disabled:bg-[#f1f5f9]">
+                                                        <option value="">-- Pilih --</option>
+                                                        <option value="A">A (Sangat Baik)</option>
+                                                        <option value="B">B (Baik)</option>
+                                                        <option value="C">C (Cukup)</option>
+                                                        <option value="D">D (Kurang)</option>
+                                                    </select>
                                                 </td>
-                                                <td class="py-3 text-right">
-                                                    <button @click="removeEskul(e.id)" :disabled="selectedStudent.status === 'Selesai'" class="p-1.5 text-[#94a3b8] hover:text-[#dc2626] transition disabled:hidden">
-                                                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                                                    </button>
+                                                <td class="py-3 pl-4">
+                                                    <input type="text" x-model="e.deskripsi" :readonly="selectedStudent.status === 'Selesai'" class="h-9 w-full rounded-lg border border-[#e2e8f0] px-3 text-[13px] outline-none transition focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20 readonly:bg-[#f8fafc]" placeholder="Catatan capaian siswa...">
                                                 </td>
                                             </tr>
                                         </template>
                                         <template x-if="selectedStudent.form.eskul.length === 0">
                                             <tr>
-                                                <td colspan="4" class="py-6 text-center text-[12px] text-[#94a3b8] italic">Belum ada data ekstrakurikuler yang ditambahkan.</td>
+                                                <td colspan="4" class="py-6 text-center text-[12px] text-[#94a3b8] italic">Admin belum menambahkan ekstrakurikuler.</td>
                                             </tr>
                                         </template>
                                     </tbody>

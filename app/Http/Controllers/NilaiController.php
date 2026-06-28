@@ -19,7 +19,7 @@ class NilaiController extends Controller
      * Guru hanya melihat kelas yang diajarnya (GuruPengampu).
      * Admin melihat semua kelas.
      */
-    public function index()
+    public function index(Request $request)
     {
         $role = getUserRole();
         $userId = auth()->id();
@@ -52,8 +52,6 @@ class NilaiController extends Controller
             $nilaisQuery->whereRaw('1 = 0');
         }
 
-        $nilais = $nilaisQuery->latest()->get();
-
         // Ambil kelas — filter untuk guru
         if ($role === 'guru' && !empty($guruKelasIds)) {
             $kelas = Kelas::with('siswas')->whereIn('id', $guruKelasIds)->orderBy('nama_kelas')->get();
@@ -63,21 +61,44 @@ class NilaiController extends Controller
             $kelas = Kelas::with('siswas')->orderBy('nama_kelas')->get();
         }
 
-        // Ambil siswa & rapor sesuai scope kelas yang sudah ditentukan
+        // Nilai kelas dari URL hanya boleh dipakai jika kelas tersebut ada dalam scope role.
+        $selectedKelasId = $request->integer('kelas_id') ?: null;
+        if ($selectedKelasId && !$kelas->contains('id', $selectedKelasId)) {
+            abort(403, 'Kelas tidak termasuk dalam akses Anda.');
+        }
+
         $kelasIdsScoped = $kelas->pluck('id');
+
+        // Wali kelas hanya boleh membaca nilai dari kelas binaannya.
+        if ($role === 'walikelas') {
+            $nilaisQuery->whereHas('siswa', fn ($siswa) => $siswa->whereIn('kelas_id', $kelasIdsScoped));
+        }
+
+        // Filter kelas ini dipakai bersama oleh Admin TU, Guru, dan Wali Kelas.
+        if ($selectedKelasId) {
+            $nilaisQuery->whereHas('siswa', fn ($siswa) => $siswa->where('kelas_id', $selectedKelasId));
+        }
+
+        $nilais = $nilaisQuery->latest()->get();
+        $kelasTerfilter = $selectedKelasId
+            ? $kelas->where('id', $selectedKelasId)->values()
+            : $kelas;
+
+        // Ambil siswa & rapor sesuai scope kelas yang sudah ditentukan
+        $kelasIdsTerfilter = $kelasTerfilter->pluck('id');
         $siswas = Siswa::with('kelas')
-            ->when($kelasIdsScoped->isNotEmpty(), fn ($q) => $q->whereIn('kelas_id', $kelasIdsScoped))
+            ->whereIn('kelas_id', $kelasIdsTerfilter)
             ->orderBy('nama_siswa')
             ->get();
         $siswaIdsScoped = $siswas->pluck('id');
         $raports = Raport::with(['siswa', 'tahunAjaran'])
-            ->when($siswaIdsScoped->isNotEmpty(), fn ($q) => $q->whereIn('siswa_id', $siswaIdsScoped))
+            ->whereIn('siswa_id', $siswaIdsScoped)
             ->latest()->get();
         $mapels = MataPelajaran::orderBy('nama_mapel')->get();
         $tahunAjarans = TahunAjaran::orderByDesc('tahun_mulai')->get();
 
         // Rekap kelas
-        $rekapKelas = $kelas->map(function ($kelasItem) use ($nilais) {
+        $rekapKelas = $kelasTerfilter->map(function ($kelasItem) use ($nilais) {
             $kelasNilais = $nilais->where('siswa.kelas_id', $kelasItem->id);
 
             return [
@@ -90,7 +111,16 @@ class NilaiController extends Controller
             ];
         });
 
-        return view('pages.rekap-nilai.index', compact('nilais', 'siswas', 'raports', 'mapels', 'tahunAjarans', 'rekapKelas'));
+        return view('pages.rekap-nilai.index', compact(
+            'nilais',
+            'siswas',
+            'raports',
+            'mapels',
+            'tahunAjarans',
+            'rekapKelas',
+            'kelas',
+            'selectedKelasId'
+        ));
     }
 
     /**

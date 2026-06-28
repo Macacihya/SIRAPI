@@ -115,7 +115,8 @@
     $siswa = $raport?->siswa;
     $kelas = $siswa?->kelas;
     $tahunAjaran = $raport?->tahunAjaran;
-    $sekolah = $siswa?->sekolah ?? \App\Models\Sekolah::first();
+    // Data sekolah sudah disiapkan oleh RaportController::show().
+    $sekolah = $sekolah ?? null;
     $rekapKehadiran = $raport?->rekapKehadiran;
     $nilaiSikaps = collect($raport?->nilaiSikaps ?? []);
 
@@ -139,12 +140,9 @@
 
     $eskul = collect($raport?->raportEkskuls ?? [])->map(fn ($item) => [
         'nama' => $item->ekstrakurikuler->nama_eskul ?? '-',
+        'predikat' => $item->predikat ?? '-',
         'ket' => $item->deskripsi ?? $item->keterangan ?? '-',
     ])->all();
-
-    $spiritual = $nilaiSikaps->first(fn ($item) => strtolower($item->sikap->nama_sikap ?? '') === 'spiritual');
-    $sosial = $nilaiSikaps->first(fn ($item) => strtolower($item->sikap->nama_sikap ?? '') === 'sosial')
-        ?? $nilaiSikaps->first(fn ($item) => !$spiritual || $item->getKey() !== $spiritual->getKey());
 
     $nilaiAngka = collect($mapel)->pluck('nilai')->filter(fn ($nilai) => $nilai !== null);
     $rataRata = $nilaiAngka->isNotEmpty() ? round($nilaiAngka->avg(), 2) : null;
@@ -331,6 +329,7 @@
                             <tr>
                                 <th class="w-[40px]">No</th>
                                 <th class="w-[200px]">Kegiatan Ekstrakurikuler</th>
+                                <th class="w-[90px]">Predikat</th>
                                 <th>Keterangan</th>
                             </tr>
                         </thead>
@@ -339,11 +338,12 @@
                                 <tr>
                                     <td class="text-center">{{ $index + 1 }}</td>
                                     <td>{{ $e['nama'] }}</td>
+                                    <td class="text-center">{{ $e['predikat'] }}</td>
                                     <td class="text-[11px]">{{ $e['ket'] ?: '-' }}</td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="3" class="text-center italic text-[#64748b]">Tidak Mengikuti</td>
+                                    <td colspan="4" class="text-center italic text-[#64748b]">Tidak Mengikuti</td>
                                 </tr>
                             @endforelse
                         </tbody>
@@ -356,23 +356,18 @@
                 <div>
                     <h3 class="text-[13px] font-bold uppercase text-[#0f172a]">C. Sikap</h3>
                     <div class="mt-3 space-y-3">
-                        {{-- Sikap Spiritual --}}
-                        <div class="sikap-box rounded">
-                            <div class="flex items-center justify-between">
-                                <p class="text-[11px] text-[#475569]">1. SIKAP SPIRITUAL</p>
-                                <p class="text-[11px] text-[#0f172a]">{{ $spiritual?->predikat ?? '-' }}</p>
+                        {{-- Semua sikap yang dinilai ditampilkan sesuai master admin. --}}
+                        @forelse ($nilaiSikaps as $index => $nilaiSikap)
+                            <div class="sikap-box rounded">
+                                <div class="flex items-center justify-between">
+                                    <p class="text-[11px] text-[#475569]">{{ $index + 1 }}. {{ strtoupper($nilaiSikap->sikap->nama_sikap ?? 'SIKAP') }}</p>
+                                    <p class="text-[11px] text-[#0f172a]">{{ $nilaiSikap->predikat ?? '-' }}</p>
+                                </div>
+                                <p class="mt-2 text-[11px] italic leading-[1.7] text-[#334155]">"{{ $nilaiSikap->deskripsi ?? '-' }}"</p>
                             </div>
-                            <p class="mt-2 text-[11px] italic leading-[1.7] text-[#334155]">"{{ $spiritual?->deskripsi ?? '-' }}"</p>
-                        </div>
-
-                        {{-- Sikap Sosial --}}
-                        <div class="sikap-box rounded">
-                            <div class="flex items-center justify-between">
-                                <p class="text-[11px] text-[#475569]">2. SIKAP SOSIAL</p>
-                                <p class="text-[11px] text-[#0f172a]">{{ $sosial?->predikat ?? '-' }}</p>
-                            </div>
-                            <p class="mt-2 text-[11px] italic leading-[1.7] text-[#334155]">"{{ $sosial?->deskripsi ?? '-' }}"</p>
-                        </div>
+                        @empty
+                            <div class="sikap-box rounded text-[11px] italic text-[#64748b]">Belum ada penilaian sikap.</div>
+                        @endforelse
                     </div>
                 </div>
 

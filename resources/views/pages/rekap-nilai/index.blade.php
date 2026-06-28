@@ -10,6 +10,17 @@
             <h1 class="text-[24px] font-black tracking-tight text-[#0f172a]">Rekap Nilai Kelas</h1>
             <p class="mt-1 text-[13px] text-[#64748b]">Ringkasan rata-rata, nilai tertinggi, dan nilai terendah per kelas.</p>
         </div>
+        <form method="GET" action="{{ route('rekap-nilai') }}" class="w-full sm:w-[280px]">
+            <label for="kelas_id" class="mb-1.5 block text-[11px] font-bold uppercase text-[#64748b]">Filter Kelas</label>
+            <select id="kelas_id" name="kelas_id" onchange="this.form.submit()" class="h-10 w-full rounded-lg border border-[#e2e8f0] bg-white px-3 text-[13px] font-semibold text-[#0f172a] outline-none focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20">
+                <option value="">Semua Kelas</option>
+                @foreach ($kelas as $kelasItem)
+                    <option value="{{ $kelasItem->id }}" @selected($selectedKelasId === $kelasItem->id)>
+                        {{ $kelasItem->nama_kelas }}
+                    </option>
+                @endforeach
+            </select>
+        </form>
     </div>
 
     @if (session('success'))

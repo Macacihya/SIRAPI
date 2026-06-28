@@ -25,28 +25,30 @@
             formAdd: { nama_komponen: '', bobot: 0, mapel_id: '' },
             editData: { id: '', nama: '', bobot: 0, mapel_id: '' },
 
-            nilaiSikap: [
-                { id: 1, nama: 'Sikap Spiritual', predikat: ['A','B','C','D'], deskripsi: 'Ketaatan beribadah, berperilaku syukur, dan berdoa' },
-                { id: 2, nama: 'Sikap Sosial', predikat: ['A','B','C','D'], deskripsi: 'Jujur, disiplin, tanggung jawab, dan kerja sama' },
-            ],
+            nilaiSikap: @json($sikaps->map(fn ($item) => ['id' => $item->id, 'nama' => $item->nama_sikap])),
+            eskul: @json($ekstrakurikulers->map(fn ($item) => ['id' => $item->id, 'nama' => $item->nama_eskul])),
 
-            eskul: [
-                { id: 1, nama: 'Pramuka', wajib: true },
-                { id: 2, nama: 'Seni Tari', wajib: false },
-                { id: 3, nama: 'Karate', wajib: false },
-            ],
-            init() {
-                const saved = JSON.parse(localStorage.getItem('sirapi-aturan-nilai') || 'null');
-                if (saved) {
-                    this.nilaiSikap = saved.nilaiSikap || this.nilaiSikap;
-                    this.eskul = saved.eskul || this.eskul;
+            async persist() {
+                // Master disimpan ke database agar langsung dipakai oleh seluruh wali kelas.
+                const response = await fetch(@js(route('aturan-nilai.master-rapor')), {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': @js(csrf_token()),
+                    },
+                    body: JSON.stringify({ sikaps: this.nilaiSikap, ekskuls: this.eskul }),
+                });
+
+                if (!response.ok) {
+                    this.$dispatch('toast', { message: 'Nama harus diisi dan tidak boleh sama.', type: 'error' });
+                    return;
                 }
-            },
-            persist() {
-                localStorage.setItem('sirapi-aturan-nilai', JSON.stringify({
-                    nilaiSikap: this.nilaiSikap,
-                    eskul: this.eskul,
-                }));
+
+                const result = await response.json();
+                this.nilaiSikap = result.sikaps;
+                this.eskul = result.ekskuls;
+                this.$dispatch('toast', { message: result.message, type: 'success' });
             },
 
             get groupedKomponen() {
@@ -104,11 +106,11 @@
                 document.getElementById('formHapusSemua').submit();
             },
 
-            addNilaiSikap() { this.nilaiSikap.push({ id: Date.now(), nama: 'Nilai Sikap Baru', predikat: ['A','B','C','D'], deskripsi: '' }); this.persist(); },
+            addNilaiSikap() { this.nilaiSikap.push({ id: null, nama: 'Nilai Sikap Baru' }); this.persist(); },
             confirmHapusSikap(a) { this.hapusSikapTarget = a; this.showHapusSikap = true; },
             doHapusSikap() { this.nilaiSikap = this.nilaiSikap.filter(a => a.id !== this.hapusSikapTarget.id); this.showHapusSikap = false; this.persist(); this.$dispatch('toast',{message:'Nilai sikap dihapus',type:'error'}); },
 
-            addEskul() { this.eskul.push({ id: Date.now(), nama: 'Kegiatan Baru', wajib: false }); this.persist(); },
+            addEskul() { this.eskul.push({ id: null, nama: 'Kegiatan Baru' }); this.persist(); },
             confirmHapusEskul(e) { this.hapusEskulTarget = e; this.showHapusEskul = true; },
             doHapusEskul() { this.eskul = this.eskul.filter(e => e.id !== this.hapusEskulTarget.id); this.showHapusEskul = false; this.persist(); this.$dispatch('toast',{message:'Ekstrakurikuler dihapus',type:'error'}); },
         }));
@@ -244,6 +246,8 @@
     {{-- ═══════════════════════════════════════════════════════════ --}}
     {{-- SECTION: Nilai Sikap                                      --}}
     {{-- ═══════════════════════════════════════════════════════════ --}}
+    {{-- Master sikap dan ekskul ditampilkan berdampingan pada layar lebar. --}}
+    <div class="grid grid-cols-1 items-start gap-6 xl:grid-cols-2">
     <div class="rounded-[14px] border border-[#e2e8f0] bg-white overflow-hidden">
         <div class="flex items-center justify-between border-b border-[#e2e8f0] px-6 py-4">
             <div>
@@ -270,18 +274,9 @@
                     <div class="flex items-center gap-4">
                         <span class="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-[#f1f5f9] text-[11px] font-black text-[#475569]" x-text="idx + 1"></span>
                         <input x-model="a.nama" @change="persist()" class="flex-1 rounded-[6px] border border-transparent bg-transparent px-2 py-1.5 text-[14px] font-bold text-[#0f172a] outline-none transition hover:border-[#e2e8f0] focus:border-[#3b82f6] focus:bg-[#f8fafc] focus:ring-2 focus:ring-[#3b82f6]/20" placeholder="Nama nilai sikap...">
-                        <div class="hidden sm:flex items-center gap-1.5">
-                            <template x-for="p in a.predikat" :key="p">
-                                <span class="flex h-7 w-7 items-center justify-center rounded-md border border-[#e2e8f0] bg-[#f8fafc] text-[11px] font-black text-[#475569]" x-text="p"></span>
-                            </template>
-                        </div>
                         <button @click="confirmHapusSikap(a)" class="rounded-lg p-1.5 text-[#94a3b8] transition hover:bg-[#fef2f2] hover:text-[#dc2626]">
                             <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
                         </button>
-                    </div>
-                    <div class="ml-11">
-                        <input x-model="a.deskripsi" @change="persist()" class="w-full rounded-[6px] border border-[#e2e8f0] bg-[#f8fafc] px-3 py-2 text-[12px] text-[#64748b] outline-none transition focus:border-[#3b82f6] focus:bg-white focus:ring-2 focus:ring-[#3b82f6]/20 focus:text-[#0f172a]" placeholder="Deskripsi nilai (contoh: Ketaatan beribadah, berperilaku syukur...)">
-                        <p class="mt-1.5 text-[10px] text-[#94a3b8] italic">Wali Kelas akan mengisi predikat (A/B/C/D) + narasi deskriptif per siswa di rapor.</p>
                     </div>
                 </div>
             </template>
@@ -308,10 +303,9 @@
             </button>
         </div>
 
-        <div class="grid grid-cols-[auto_1fr_auto_auto] items-center gap-4 border-b border-[#f1f5f9] bg-[#f8fafc] px-6 py-2.5">
+        <div class="grid grid-cols-[auto_1fr_auto] items-center gap-4 border-b border-[#f1f5f9] bg-[#f8fafc] px-6 py-2.5">
             <span class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">#</span>
             <span class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Nama Kegiatan</span>
-            <span class="text-[10px] font-bold uppercase tracking-[0.12em] text-[#64748b]">Jenis</span>
             <span></span>
         </div>
 
@@ -324,15 +318,9 @@
 
         <div class="divide-y divide-[#f1f5f9]">
             <template x-for="(e, idx) in eskul" :key="e.id">
-                <div class="grid grid-cols-[auto_1fr_auto_auto] items-center gap-4 px-6 py-3">
+                <div class="grid grid-cols-[auto_1fr_auto] items-center gap-4 px-6 py-3">
                     <span class="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-[#f1f5f9] text-[11px] font-black text-[#475569]" x-text="idx + 1"></span>
                     <input x-model="e.nama" @change="persist()" class="rounded-[6px] border border-transparent bg-transparent px-2 py-1.5 text-[14px] font-semibold text-[#0f172a] outline-none transition hover:border-[#e2e8f0] focus:border-[#3b82f6] focus:bg-[#f8fafc] focus:ring-2 focus:ring-[#3b82f6]/20" placeholder="Nama kegiatan eskul...">
-                    <label class="flex cursor-pointer items-center gap-2">
-                        <div @click="e.wajib = !e.wajib; persist()" class="relative h-5 w-9 rounded-full transition-colors duration-200" :class="e.wajib ? 'bg-[#1d4ed8]' : 'bg-[#cbd5e1]'">
-                            <div class="absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform duration-200" :class="e.wajib ? 'translate-x-4' : 'translate-x-0.5'"></div>
-                        </div>
-                        <span class="text-[11px] font-bold" :class="e.wajib ? 'text-[#1d4ed8]' : 'text-[#94a3b8]'" x-text="e.wajib ? 'Wajib' : 'Pilihan'"></span>
-                    </label>
                     <button @click="confirmHapusEskul(e)" class="rounded-lg p-1.5 text-[#94a3b8] transition hover:bg-[#fef2f2] hover:text-[#dc2626]">
                         <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
                     </button>
@@ -346,15 +334,15 @@
                 <span class="ml-2 text-[10px] text-[#94a3b8] italic">Wali Kelas mengisi kolom "Keterangan" per siswa di rapor</span>
             </div>
             <div class="flex items-center gap-3">
-                <span class="text-[11px] font-semibold text-[#64748b]" x-text="eskul.filter(e => e.wajib).length + ' Wajib'"></span>
                 <span class="text-[#e2e8f0]">·</span>
-                <span class="text-[11px] font-semibold text-[#64748b]" x-text="eskul.filter(e => !e.wajib).length + ' Pilihan'"></span>
                 <span class="text-[18px] font-black text-[#0f172a]" x-text="eskul.length + ' Total'"></span>
             </div>
         </div>
     </div>
 
     {{-- ═══ MODAL: Tambah Komponen ═══ --}}
+    </div>
+
     <x-modal alpineShow="showTambah" title="Tambah Komponen Penilaian" maxWidth="md">
         <div class="space-y-4">
             <div>

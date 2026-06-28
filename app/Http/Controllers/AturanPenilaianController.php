@@ -3,8 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\AturanPenilaian;
+use App\Models\Ekstrakurikuler;
 use App\Models\MataPelajaran;
+use App\Models\Sikap;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class AturanPenilaianController extends Controller
 {
@@ -22,7 +25,64 @@ class AturanPenilaianController extends Controller
         // KKM default dari mapel pertama (untuk preview)
         $defaultKkm = $mapels->first()->kkm ?? 70;
 
-        return view('pages.aturan-nilai.index', compact('komponen', 'mapels', 'defaultKkm'));
+        // Master ini menjadi sumber field dinamis pada form rapor wali kelas.
+        $sikaps = Sikap::orderBy('nama_sikap')->get(['id', 'nama_sikap']);
+        $ekstrakurikulers = Ekstrakurikuler::orderBy('nama_eskul')->get(['id', 'nama_eskul']);
+
+        return view('pages.aturan-nilai.index', compact(
+            'komponen',
+            'mapels',
+            'defaultKkm',
+            'sikaps',
+            'ekstrakurikulers'
+        ));
+    }
+
+    public function syncRaporMasters(Request $request)
+    {
+        $validated = $request->validate([
+            'sikaps' => 'present|array',
+            'sikaps.*.id' => 'nullable|integer',
+            'sikaps.*.nama' => 'required|string|max:100|distinct:ignore_case',
+            'ekskuls' => 'present|array',
+            'ekskuls.*.id' => 'nullable|integer',
+            'ekskuls.*.nama' => 'required|string|max:100|distinct:ignore_case',
+        ]);
+
+        DB::transaction(function () use ($validated) {
+            $sikapIds = collect($validated['sikaps'])->map(function ($item) {
+                $sikap = !empty($item['id']) ? Sikap::find($item['id']) : null;
+                $sikap ??= new Sikap();
+                $sikap->nama_sikap = trim($item['nama']);
+                $sikap->save();
+
+                return $sikap->id;
+            });
+
+            $ekskulIds = collect($validated['ekskuls'])->map(function ($item) {
+                $ekskul = !empty($item['id']) ? Ekstrakurikuler::find($item['id']) : null;
+                $ekskul ??= new Ekstrakurikuler();
+                $ekskul->nama_eskul = trim($item['nama']);
+                $ekskul->save();
+
+                return $ekskul->id;
+            });
+
+            Sikap::whereNotIn('id', $sikapIds)->delete();
+            Ekstrakurikuler::whereNotIn('id', $ekskulIds)->delete();
+        });
+
+        return response()->json([
+            'message' => 'Daftar sikap dan ekstrakurikuler berhasil disimpan.',
+            'sikaps' => Sikap::orderBy('nama_sikap')->get()->map(fn ($item) => [
+                'id' => $item->id,
+                'nama' => $item->nama_sikap,
+            ]),
+            'ekskuls' => Ekstrakurikuler::orderBy('nama_eskul')->get()->map(fn ($item) => [
+                'id' => $item->id,
+                'nama' => $item->nama_eskul,
+            ]),
+        ]);
     }
 
     public function store(Request $request)

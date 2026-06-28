@@ -103,6 +103,7 @@ Route::middleware('auth')->group(function () {
         // Aturan Penilaian
         Route::get('/aturan-nilai', [AturanPenilaianController::class, 'index'])->name('aturan-nilai');
         Route::post('/aturan-nilai', [AturanPenilaianController::class, 'store'])->name('aturan-nilai.store');
+        Route::post('/aturan-nilai/master-rapor', [AturanPenilaianController::class, 'syncRaporMasters'])->name('aturan-nilai.master-rapor');
         Route::put('/aturan-nilai/{aturanPenilaian}', [AturanPenilaianController::class, 'update'])->name('aturan-nilai.update');
         Route::delete('/aturan-nilai-destroy-all', [AturanPenilaianController::class, 'destroyAll'])->name('aturan-nilai.destroy-all');
         Route::delete('/aturan-nilai/{aturanPenilaian}', [AturanPenilaianController::class, 'destroy'])->name('aturan-nilai.destroy');
