@@ -32,11 +32,11 @@
     <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
         <div class="rounded-xl border border-[#e2e8f0] bg-white p-5 shadow-sm">
             <p class="text-[11px] font-bold uppercase text-[#64748b]">Total Entri Nilai</p>
-            <p class="mt-2 text-[32px] font-black text-[#0f172a]">{{ $nilais->count() }}</p>
+            <p class="mt-2 text-[32px] font-black text-[#0f172a]">{{ $allNilais->count() }}</p>
         </div>
         <div class="rounded-xl border border-[#e2e8f0] bg-white p-5 shadow-sm">
             <p class="text-[11px] font-bold uppercase text-[#64748b]">Rata-rata Global</p>
-            <p class="mt-2 text-[32px] font-black text-[#1d4ed8]">{{ number_format((float) $nilais->avg('nilai_akhir'), 2) }}</p>
+            <p class="mt-2 text-[32px] font-black text-[#1d4ed8]">{{ number_format((float) $allNilais->avg('nilai_akhir'), 2) }}</p>
         </div>
         <div class="rounded-xl border border-[#e2e8f0] bg-white p-5 shadow-sm">
             <p class="text-[11px] font-bold uppercase text-[#64748b]">Jumlah Kelas</p>
@@ -108,6 +108,7 @@
                 </tbody>
             </table>
         </div>
+        <x-table-pagination :paginator="$nilais" />
     </div>
 </div>
 @endsection

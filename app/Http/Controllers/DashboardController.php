@@ -198,7 +198,7 @@ class DashboardController extends Controller
             'rapor_pending' => $raporPending,
             'rapor_progress' => $raporProgress,
             // Gabungkan absensi & nilai di bawah KKM, ambil 3 item teratas
-            'attention_items' => $attentionFromAbsensi->merge($attentionFromNilai)->take(3)->values(),
+            'attention_items' => $attentionFromAbsensi->concat($attentionFromNilai)->take(3)->values(),
         ];
     }
 

@@ -182,6 +182,12 @@
         </div>
         @endif
 
+        @if(session('error'))
+        <div class="rounded-[10px] border border-[#fecaca] bg-[#fef2f2] px-4 py-3 text-[13px] font-semibold text-[#dc2626]">
+            {{ session('error') }}
+        </div>
+        @endif
+
         @if($errors->any())
         <div class="rounded-[10px] border border-[#fecaca] bg-[#fef2f2] px-4 py-3 text-[13px] font-semibold text-[#dc2626]">
             @foreach ($errors->all() as $error)

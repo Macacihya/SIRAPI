@@ -132,9 +132,7 @@ Route::middleware('auth')->group(function () {
     // ── Guru Only ────────────────────────────────────────────
     Route::middleware('role:guru')->group(function () {
         Route::get('/capaian-kompetensi', [CapaianKompetensiController::class, 'index'])->name('capaian-kompetensi');
-        Route::post('/capaian-kompetensi', [CapaianKompetensiController::class, 'store'])->name('capaian-kompetensi.store');
-        Route::put('/capaian-kompetensi/{capaianKompetensi}', [CapaianKompetensiController::class, 'update'])->name('capaian-kompetensi.update');
-        Route::delete('/capaian-kompetensi/{capaianKompetensi}', [CapaianKompetensiController::class, 'destroy'])->name('capaian-kompetensi.destroy');
+        Route::post('/capaian-kompetensi/batch', [CapaianKompetensiController::class, 'storeBatch'])->name('capaian-kompetensi.store-batch');
     });
 
     // ── Walikelas Only ───────────────────────────────────────

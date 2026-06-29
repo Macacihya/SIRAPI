@@ -9,8 +9,11 @@ use App\Models\Nilai;
 
 class LaporanNilaiController extends Controller
 {
-    public function index()
+    public function index(\Illuminate\Http\Request $request)
     {
+        $search = $request->query('search');
+        $kelasFilter = $request->query('kelas', 'all');
+
         // Query utama laporan nilai, lengkap dengan relasi siswa, kelas, mapel, dan tahun ajaran.
         $nilais = Nilai::with([
             'siswa.kelas',
@@ -39,6 +42,17 @@ class LaporanNilaiController extends Controller
                     if ($pengampus->isEmpty()) {
                         $scoped->whereRaw('1 = 0');
                     }
+                });
+            })
+            ->when($kelasFilter !== 'all', function ($query) use ($kelasFilter) {
+                $query->whereHas('siswa.kelas', function ($k) use ($kelasFilter) {
+                    $k->where('nama_kelas', $kelasFilter);
+                });
+            })
+            ->when($search, function ($query) use ($search) {
+                $query->whereHas('siswa', function ($s) use ($search) {
+                    $s->where('nama_siswa', 'like', "%{$search}%")
+                      ->orWhere('nis', 'like', "%{$search}%");
                 });
             })
             ->latest()
@@ -72,7 +86,21 @@ class LaporanNilaiController extends Controller
             ->sortBy(fn ($item) => $item['siswa']->nama_siswa ?? '')
             ->values();
 
-        return view('pages.laporan-nilai.index', compact('laporanSiswa', 'kelas', 'mapels'));
+        $currentPage = \Illuminate\Pagination\LengthAwarePaginator::resolveCurrentPage();
+        $perPage = 10;
+        $currentItems = $laporanSiswa->slice(($currentPage - 1) * $perPage, $perPage)->all();
+        $paginatedLaporan = new \Illuminate\Pagination\LengthAwarePaginator($currentItems, $laporanSiswa->count(), $perPage, $currentPage, [
+            'path' => \Illuminate\Pagination\LengthAwarePaginator::resolveCurrentPath(),
+            'query' => request()->query(),
+        ]);
+
+        return view('pages.laporan-nilai.index', [
+            'laporanSiswa' => $paginatedLaporan, 
+            'kelas' => $kelas, 
+            'mapels' => $mapels,
+            'search' => $search,
+            'kelasFilter' => $kelasFilter,
+        ]);
     }
 
     private function predikat(float $nilai): string

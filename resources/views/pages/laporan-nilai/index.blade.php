@@ -4,21 +4,22 @@
 @section('active', 'laporan-nilai')
 
 @section('content')
-<div class="space-y-6" x-data="{ search: '', kelas: 'all' }">
+<div class="space-y-6">
     <div>
         <h1 class="text-[24px] font-black tracking-tight text-[#0f172a]">Laporan Nilai</h1>
         <p class="mt-1 text-[13px] text-[#64748b]">Admin TU dan Guru dapat melihat laporan nilai sesuai hak aksesnya.</p>
     </div>
 
-    <div class="flex flex-wrap gap-3 rounded-xl border border-[#e2e8f0] bg-white p-4 shadow-sm">
-        <input x-model="search" type="text" placeholder="Cari nama atau NIS..." class="min-w-[220px] flex-1 rounded-lg border border-[#e2e8f0] px-4 py-2 text-[13px] outline-none focus:border-[#3b82f6]">
-        <select x-model="kelas" class="rounded-lg border border-[#e2e8f0] px-4 py-2 text-[13px] font-semibold outline-none">
+    <form method="GET" action="{{ route('laporan-nilai') }}" class="flex flex-wrap gap-3 rounded-xl border border-[#e2e8f0] bg-white p-4 shadow-sm">
+        <input name="search" value="{{ $search ?? '' }}" type="text" placeholder="Cari nama atau NIS..." class="min-w-[220px] flex-1 rounded-lg border border-[#e2e8f0] px-4 py-2 text-[13px] outline-none focus:border-[#3b82f6]">
+        <select name="kelas" onchange="this.form.submit()" class="rounded-lg border border-[#e2e8f0] px-4 py-2 text-[13px] font-semibold outline-none">
             <option value="all">Semua kelas</option>
             @foreach ($kelas as $item)
-                <option value="{{ $item->nama_kelas }}">{{ $item->nama_kelas }}</option>
+                <option value="{{ $item->nama_kelas }}" @selected(($kelasFilter ?? 'all') === $item->nama_kelas)>{{ $item->nama_kelas }}</option>
             @endforeach
         </select>
-    </div>
+        <noscript><button type="submit">Filter</button></noscript>
+    </form>
 
     <div class="overflow-hidden rounded-xl border border-[#e2e8f0] bg-white shadow-sm">
         <div class="overflow-x-auto">
@@ -40,7 +41,7 @@
                             $nis = $laporan['siswa']->nis ?? '';
                             $namaKelas = $laporan['siswa']->kelas->nama_kelas ?? '-';
                         @endphp
-                        <tr x-show="@js(strtolower($nama . ' ' . $nis)).includes(search.toLowerCase()) && (kelas === 'all' || kelas === @js($namaKelas))" class="hover:bg-[#f8fafc]">
+                        <tr class="hover:bg-[#f8fafc]">
                             <td class="px-5 py-4">
                                 <p class="font-black text-[#0f172a]">{{ $nama }}</p>
                                 <p class="text-[12px] text-[#64748b]">NIS: {{ $nis ?: '-' }}</p>
@@ -69,6 +70,7 @@
                 </tbody>
             </table>
         </div>
+        <x-table-pagination :paginator="$laporanSiswa" />
     </div>
 </div>
 @endsection

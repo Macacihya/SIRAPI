@@ -79,7 +79,9 @@ class NilaiController extends Controller
             $nilaisQuery->whereHas('siswa', fn ($siswa) => $siswa->where('kelas_id', $selectedKelasId));
         }
 
-        $nilais = $nilaisQuery->latest()->get();
+        $allNilais = (clone $nilaisQuery)->latest()->get();
+        $nilais = $nilaisQuery->latest()->paginate(10)->withQueryString();
+
         $kelasTerfilter = $selectedKelasId
             ? $kelas->where('id', $selectedKelasId)->values()
             : $kelas;
@@ -98,8 +100,8 @@ class NilaiController extends Controller
         $tahunAjarans = TahunAjaran::orderByDesc('tahun_mulai')->get();
 
         // Rekap kelas
-        $rekapKelas = $kelasTerfilter->map(function ($kelasItem) use ($nilais) {
-            $kelasNilais = $nilais->where('siswa.kelas_id', $kelasItem->id);
+        $rekapKelas = $kelasTerfilter->map(function ($kelasItem) use ($allNilais) {
+            $kelasNilais = $allNilais->where('siswa.kelas_id', $kelasItem->id);
 
             return [
                 'kelas' => $kelasItem,
@@ -113,6 +115,7 @@ class NilaiController extends Controller
 
         return view('pages.rekap-nilai.index', compact(
             'nilais',
+            'allNilais',
             'siswas',
             'raports',
             'mapels',
@@ -262,6 +265,17 @@ class NilaiController extends Controller
         $mapelId = $request->mapel_id;
         $tahunAjaranId = $request->tahun_ajaran_id;
         $action = $request->action;
+
+        // Validasi kelengkapan nilai jika finalisasi
+        if ($action === 'final') {
+            foreach ($request->grades as $gradeData) {
+                if (!isset($gradeData['uh']) || $gradeData['uh'] === '' ||
+                    !isset($gradeData['uts']) || $gradeData['uts'] === '' ||
+                    !isset($gradeData['uas']) || $gradeData['uas'] === '') {
+                    return redirect()->back()->with('error', 'Gagal finalisasi. Semua siswa harus dinilai, dan memiliki nilai UH, UTS, dan UAS yang lengkap.');
+                }
+            }
+        }
 
         // Ambil bobot dari aturan penilaian
         $aturans = AturanPenilaian::where('mapel_id', $mapelId)
