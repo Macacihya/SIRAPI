@@ -10,9 +10,7 @@
                 search: '',
                 showAdd: false,
                 showEdit: false,
-                filterOpen: false,
                 sortOpen: false,
-                activeFilter: 'Semua',
                 currentPage: 1,
                 perPage: 10,
                 editData: {},
@@ -32,10 +30,6 @@
                             (u.email && u.email.toLowerCase().includes(s)) ||
                             (u.id && u.id.toLowerCase().includes(s))
                         );
-                    }
-                    if (this.activeFilter !== 'Semua') {
-                        if (this.activeFilter === 'Guru Mapel') r = r.filter(u => u.roles.includes('GURU MAPEL'));
-                        if (this.activeFilter === 'Wali Kelas') r = r.filter(u => u.roles.includes('WALI KELAS'));
                     }
                     return r;
                 },
@@ -229,32 +223,7 @@
         {{-- ─── TOOLBAR ─── --}}
         <div class="flex flex-wrap items-center gap-3">
             <div class="relative">
-                <button @click="filterOpen = !filterOpen; sortOpen = false"
-                    class="flex h-[38px] items-center gap-2 rounded-[8px] border border-[#e2e8f0] bg-white px-4 text-[13px] font-semibold text-[#334155] transition hover:bg-[#f1f5f9]">
-                    <svg class="h-4 w-4 text-[#64748b]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path d="M3 4h18M7 8h10M11 12h4" stroke-width="2" stroke-linecap="round"></path>
-                    </svg>
-                    Filter Peran
-                    <span x-show="activeFilter !== 'Semua'"
-                        class="flex h-4 w-4 items-center justify-center rounded-full bg-[#1d4ed8] text-[9px] font-bold text-white"
-                        x-text="activeFilter === 'Guru Mapel' ? 'GM' : 'WK'"></span>
-                </button>
-                <div x-show="filterOpen" @click.outside="filterOpen = false" x-transition
-                    class="absolute left-0 top-full mt-1 w-48 rounded-xl border border-[#e2e8f0] bg-white p-2 shadow-lg z-50"
-                    style="display:none">
-                    <template x-for="f in ['Semua', 'Guru Mapel', 'Wali Kelas']">
-                        <button @click="activeFilter = f; resetPage(); filterOpen = false"
-                            class="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-[13px] font-medium transition hover:bg-[#f1f5f9]"
-                            :class="activeFilter === f ? 'bg-[#eff6ff] text-[#1d4ed8] font-bold' : 'text-[#334155]'">
-                            <span class="h-2 w-2 rounded-full"
-                                :class="activeFilter === f ? 'bg-[#1d4ed8]' : 'bg-[#e2e8f0]'"></span>
-                            <span x-text="f"></span>
-                        </button>
-                    </template>
-                </div>
-            </div>
-            <div class="relative">
-                <button @click="sortOpen = !sortOpen; filterOpen = false"
+                <button @click="sortOpen = !sortOpen"
                     class="flex h-[38px] items-center gap-2 rounded-[8px] border border-[#e2e8f0] bg-white px-4 text-[13px] font-semibold text-[#334155] transition hover:bg-[#f1f5f9]">
                     <svg class="h-4 w-4 text-[#64748b]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" stroke-width="2" stroke-linecap="round"
@@ -286,7 +255,7 @@
         </div>
 
         {{-- ─── TABLE ─── --}}
-        <x-data-table :headers="['No', 'User', 'Identitas', 'Role Sistem', 'Status']">
+        <x-data-table :headers="['No', 'User', 'Identitas', 'Status']">
             <template x-for="(u, index) in paginated" :key="u.id">
                 <tr class="border-b border-[#f1f5f9] transition hover:bg-[#f8fafc]">
                     <td class="px-6 py-4 text-[13px] font-bold text-[#64748b]"
@@ -302,17 +271,6 @@
                         </div>
                     </td>
                     <td class="px-4 py-4 font-mono text-[12px] text-[#64748b]" x-text="u.id"></td>
-                    <td class="px-4 py-4">
-                        <div class="flex flex-wrap gap-1">
-                            <template x-for="role in u.roles">
-                                <span class="rounded px-2 py-0.5 text-[10px] font-bold" :class="{
-                                                    'bg-[#1d4ed8] text-white':   role === 'GURU MAPEL',
-                                                    'bg-[#7c3aed] text-white':   role === 'WALI KELAS',
-                                                    'bg-[#e2e8f0] text-[#475569]': role !== 'GURU MAPEL' &&role !== 'WALI KELAS'
-                                                }" x-text="role"></span>
-                            </template>
-                        </div>
-                    </td>
                     <td class="px-4 py-4">
                         <div class="flex items-center gap-1.5">
                             <span class="h-2 w-2 rounded-full"
@@ -335,7 +293,7 @@
                 </tr>
             </template>
             <tr x-show="filtered.length === 0">
-                <td colspan="6" class="py-12 text-center text-[14px] text-[#94a3b8]">Tidak ada user ditemukan.</td>
+                <td colspan="5" class="py-12 text-center text-[14px] text-[#94a3b8]">Tidak ada user ditemukan.</td>
             </tr>
         </x-data-table>
         <div class="border-t border-[#e2e8f0] px-6 py-4">
