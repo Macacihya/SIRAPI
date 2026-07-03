@@ -267,10 +267,9 @@
         </div>
 
         {{-- STAT --}}
-        <div class="grid grid-cols-2 gap-4 lg:grid-cols-3">
+        <div class="grid grid-cols-2 gap-4">
             <x-card-stat title="Total Siswa" :value="$totalSiswa" />
             <x-card-stat title="Siswa Aktif" :value="$siswaAktif" />
-            <x-card-stat title="Status Cuti" :value="$siswaCuti" />
         </div>
 
         {{-- FILTERS --}}
