@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 trait LogsActivity
 {
-    // Memicu pencatatan log otomatis saat data dibuat, diubah, atau dihapus
+    // Log otomatis saat data dibuat, diubah, atau dihapus
     protected static function bootLogsActivity()
     {
         static::created(function (Model $model) {
@@ -23,10 +23,9 @@ trait LogsActivity
         });
     }
 
-    // Simpan log. [Polimorfisme OOP]: Parameter $model bertipe 'Model' agar dinamis menerima model apa saja.
+    // Simpan log, $model bertipe 'Model' agar dinamis menerima model apa saja.
     protected static function recordActivity(Model $model, $action)
     {
-        // Lewati pencatatan jika dijalankan via console/seeder tanpa user yang login
         if (!auth()->check()) {
             return;
         }
@@ -34,7 +33,13 @@ trait LogsActivity
         $modelName = class_basename($model);
         
         // Mencari nilai pengenal unik secara dinamis dari model yang bersangkutan
-        $identifier = $model->nama ?? $model->name ?? $model->judul ?? $model->nama_kelas ?? $model->nama_mapel ?? $model->nama_komponen ?? $model->id;
+        $identifier = $model->nama ??
+                      $model->name ??
+                      $model->judul ??
+                      $model->nama_kelas ??
+                      $model->nama_mapel ??
+                      $model->nama_komponen ??
+                      $model->id;
 
         LogAktivitas::create([
             'user_id' => auth()->id(),
