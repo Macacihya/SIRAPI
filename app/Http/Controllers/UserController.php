@@ -54,7 +54,7 @@ class UserController extends Controller
                 'email'  => $user->email,
                 'id'     => $idLabel,
                 'roles'  => $roles,
-                'status' => 'Aktif',
+                'status' => $user->status,
             ];
         });
 
@@ -72,6 +72,7 @@ class UserController extends Controller
             'roles'    => 'required|array',
             'roles.*'  => 'in:GURU MAPEL,WALI KELAS',
             'whatsapp' => 'nullable|string',
+            'status'   => 'required|in:Aktif,Nonaktif',
         ]);
 
         $validated['roles'] = $this->normalizeGuruRoles($validated['roles']);
@@ -84,6 +85,7 @@ class UserController extends Controller
                 'username' => $validated['username'],
                 'password' => Hash::make($validated['nip']),
                 'role'     => $roleName, // Disinkronkan ke pivot table user_roles via mutator
+                'status'   => $validated['status'],
             ]);
 
             // Sinkronisasi peran guru & wali kelas jika peran yang dipilih adalah wali kelas
@@ -127,6 +129,7 @@ class UserController extends Controller
             'password' => 'nullable|string|min:6',
             'roles'    => 'required|array',
             'roles.*'  => 'in:GURU MAPEL,WALI KELAS',
+            'status'   => 'required|in:Aktif,Nonaktif',
         ]);
 
         $isAdmin = $user->hasRole('admin');
@@ -138,8 +141,9 @@ class UserController extends Controller
 
         DB::transaction(function () use ($user, $validated, $isAdmin) {
             $updateData = [
-                'nama'  => $validated['nama'],
-                'email' => $validated['email'],
+                'nama'   => $validated['nama'],
+                'email'  => $validated['email'],
+                'status' => $validated['status'],
             ];
 
             if (!empty($validated['password'])) {
@@ -171,11 +175,29 @@ class UserController extends Controller
             ->with('success', 'User berhasil diperbarui.');
     }
 
-    // Menghapus data user dari database
+    // Menghapus data user dari database (hanya jika status Nonaktif)
     public function destroy($id)
     {
         $user = User::findOrFail($id);
+
+        // Hanya user dengan status Nonaktif yang boleh dihapus
+        if ($user->status !== 'Nonaktif') {
+            if (request()->wantsJson() || request()->ajax()) {
+                return response()->json([
+                    'message' => 'User harus dinonaktifkan terlebih dahulu sebelum dihapus.'
+                ], 422);
+            }
+
+            return redirect()
+                ->route('manajemen-user')
+                ->with('error', 'User harus dinonaktifkan terlebih dahulu sebelum dihapus.');
+        }
+
         $user->delete();
+
+        if (request()->wantsJson() || request()->ajax()) {
+            return response()->json(['message' => 'User berhasil dihapus.']);
+        }
 
         return redirect()
             ->route('manajemen-user')

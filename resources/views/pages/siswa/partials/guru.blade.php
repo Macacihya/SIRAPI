@@ -15,7 +15,7 @@
 document.addEventListener('alpine:init', () => {
     Alpine.data('siswaGuru', () => ({
         searchQuery: '',
-        filterKelas: '',
+        filterKelas: '{{ request('kelas', '') }}',
         filterJK: '',
         filterOpen: false,
         siswa: @json($data->items()),
@@ -65,7 +65,9 @@ document.addEventListener('alpine:init', () => {
         <div class="rounded-xl bg-white p-5 ring-1 ring-[#e2e8f0]">
             <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-[#64748b]">Kelas Aktif</p>
             <div class="mt-4">
-                <select x-model="filterKelas" class="h-12 w-full rounded-lg border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[15px] font-bold text-[#0f172a] outline-none transition focus:border-[#3b82f6] focus:bg-white focus:ring-2 focus:ring-[#3b82f6]/20">
+                <select x-model="filterKelas"
+                    @change="window.location.href = '{{ route('siswa') }}' + (filterKelas ? '?kelas=' + encodeURIComponent(filterKelas) : '')"
+                    class="h-12 w-full rounded-lg border border-[#e2e8f0] bg-[#f8fafc] px-4 text-[15px] font-bold text-[#0f172a] outline-none transition focus:border-[#3b82f6] focus:bg-white focus:ring-2 focus:ring-[#3b82f6]/20">
                     <option value="">Semua Kelas</option>
                     @foreach($daftarKelas as $kls)
                         <option value="{{ $kls->nama }}">{{ $kls->nama }}</option>

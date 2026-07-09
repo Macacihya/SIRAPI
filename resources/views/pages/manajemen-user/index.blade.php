@@ -14,6 +14,8 @@
                 currentPage: 1,
                 perPage: 10,
                 editData: {},
+                showDelete: false,
+                deleteTarget: null,
                 fonnte_token: 'weHNunUCikrC3YnBmvrf',
 
                 form: { nama: '', email: '', username: '', nip: '', roles: ['GURU MAPEL'], status: 'Aktif', whatsapp: '' },
@@ -82,6 +84,36 @@
                     this.showEdit = true;
                 },
 
+                openDelete(u) {
+                    this.deleteTarget = u;
+                    this.showDelete = true;
+                },
+
+                async confirmDelete() {
+                    if (!this.deleteTarget) return;
+                    try {
+                        let response = await fetch(`/manajemen-user/${this.deleteTarget.id_db}`, {
+                            method: 'DELETE',
+                            headers: {
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            }
+                        });
+
+                        if (!response.ok) {
+                            let err = await response.json();
+                            throw new Error(err.message || 'Gagal menghapus user.');
+                        }
+
+                        this.showDelete = false;
+                        this.deleteTarget = null;
+                        window.location.reload();
+                    } catch (e) {
+                        this.showDelete = false;
+                        this.$dispatch('toast', { message: e.message, type: 'error' });
+                    }
+                },
+
                 async submitAdd() {
                     try {
                         let response = await fetch('{{ route("manajemen-user.store") }}', {
@@ -97,7 +129,8 @@
                                 username: this.form.username,
                                 nip: this.form.nip,
                                 roles: ['GURU MAPEL'],
-                                whatsapp: this.form.whatsapp
+                                whatsapp: this.form.whatsapp,
+                                status: this.form.status
                             })
                         });
 
@@ -159,7 +192,8 @@
                                 nama: this.editData.name,
                                 email: this.editData.email,
                                 password: this.editData.password,
-                                roles: this.editData.roles && this.editData.roles.includes('WALI KELAS') ? ['GURU MAPEL', 'WALI KELAS'] : ['GURU MAPEL']
+                                roles: this.editData.roles && this.editData.roles.includes('WALI KELAS') ? ['GURU MAPEL', 'WALI KELAS'] : ['GURU MAPEL'],
+                                status: this.editData.status
                             })
                         });
 
@@ -281,14 +315,25 @@
                         </div>
                     </td>
                     <td class="px-4 py-4">
-                        <button @click="openEdit(u)"
-                            class="rounded-lg p-1.5 text-[#64748b] transition hover:bg-[#f1f5f9] hover:text-[#1d4ed8]">
-                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path
-                                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                                    stroke-width="2"></path>
-                            </svg>
-                        </button>
+                        <div class="flex items-center gap-1">
+                            <button @click="openEdit(u)"
+                                class="rounded-lg p-1.5 text-[#64748b] transition hover:bg-[#f1f5f9] hover:text-[#1d4ed8]">
+                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path
+                                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                                        stroke-width="2"></path>
+                                </svg>
+                            </button>
+                            <button @click="openDelete(u)"
+                                :disabled="u.status === 'Aktif'"
+                                :title="u.status === 'Aktif' ? 'Nonaktifkan user terlebih dahulu' : 'Hapus user'"
+                                class="rounded-lg p-1.5 transition"
+                                :class="u.status === 'Aktif' ? 'text-[#cbd5e1] cursor-not-allowed' : 'text-[#64748b] hover:bg-[#fef2f2] hover:text-[#dc2626]'">
+                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                                </svg>
+                            </button>
+                        </div>
                     </td>
                 </tr>
             </template>
@@ -558,6 +603,16 @@
                 </div>
             </div>
         </template>
+
+        {{-- ═══ CONFIRM DIALOG: Hapus User ═══ --}}
+        <x-confirm-dialog
+            alpine-show="showDelete"
+            type="danger"
+            title="Hapus User?"
+            message="Data user <strong x-text='deleteTarget?.name'></strong> akan dihapus secara permanen. Tindakan ini tidak dapat dibatalkan."
+            confirm-text="Ya, Hapus"
+            confirm-action="confirmDelete()"
+        />
 
     </div>
 @endsection

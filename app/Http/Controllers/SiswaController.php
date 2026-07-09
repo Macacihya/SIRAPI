@@ -41,8 +41,9 @@ class SiswaController extends Controller
 
         // Filter pencarian berdasarkan kelas jika dipilih (bukan 'Semua')
         if ($request->filled('kelas') && $request->kelas !== 'Semua') {
-            $query->whereHas('kelas', function ($q) use ($request) {
-                $q->where('nama_kelas', $request->kelas);
+            $kelasFilter = str_replace('Kelas ', '', $request->kelas);
+            $query->whereHas('kelas', function ($q) use ($kelasFilter) {
+                $q->where('nama_kelas', $kelasFilter);
             });
         }
 

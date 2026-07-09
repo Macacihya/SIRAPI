@@ -23,6 +23,7 @@ class User extends Authenticatable
         'jenis_kelamin',
         'no_hp',
         'alamat',
+        'status',
     ];
 
     // Atribut yang disembunyikan saat serialisasi JSON/Array
