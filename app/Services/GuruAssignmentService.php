@@ -37,7 +37,7 @@ class GuruAssignmentService implements GuruServiceInterface
         }
     }
 
-    // Validasi pemilihan kelas wali (memastikan kelas belum memiliki wali)
+    // Validasi pemilihan kelas wali (memastikan kelas belum memiliki wali DAN guru belum jadi wali di kelas lain)
     public function validateKelasWaliSelection(array $validated, ?int $currentGuruId = null): void
     {
         if (!str_contains($validated['peran'] ?? '', 'WALI KELAS')) {
@@ -50,6 +50,7 @@ class GuruAssignmentService implements GuruServiceInterface
             ]);
         }
 
+        // Cek apakah kelas target sudah memiliki wali kelas lain
         $query = Kelas::where('id', $validated['kelas_wali_id'])->whereNotNull('wali_guru_id');
         if ($currentGuruId) {
             $query->where('wali_guru_id', '!=', $currentGuruId);
@@ -59,6 +60,19 @@ class GuruAssignmentService implements GuruServiceInterface
             throw ValidationException::withMessages([
                 'kelas_wali_id' => 'Kelas tersebut sudah memiliki wali kelas.',
             ]);
+        }
+
+        // Cek apakah guru ini sudah menjadi wali kelas di kelas lain
+        if ($currentGuruId) {
+            $sudahJadiWali = Kelas::where('wali_guru_id', $currentGuruId)
+                ->where('id', '!=', $validated['kelas_wali_id'])
+                ->first();
+
+            if ($sudahJadiWali) {
+                throw ValidationException::withMessages([
+                    'kelas_wali_id' => 'Guru ini sudah menjadi wali kelas di kelas ' . $sudahJadiWali->nama_kelas . '. Satu guru hanya boleh menjadi wali satu kelas.',
+                ]);
+            }
         }
     }
 
