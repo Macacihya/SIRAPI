@@ -14,38 +14,66 @@
         @media print {
             @page { 
                 size: A4; 
-                margin: 0; 
+                margin: 15mm 20mm; 
+            }
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
             }
             body { 
                 background: white !important; 
                 margin: 0 !important;
                 padding: 0 !important;
+                width: 100% !important;
             }
             .no-print { display: none !important; }
+            .print-container,
+            div.print-container {
+                padding: 0 !important;
+                margin: 0 !important;
+                width: 100% !important;
+                max-width: none !important;
+            }
+            /* Nuclear override: target by ID + class for max specificity */
+            #rapor-halaman-1,
+            #rapor-halaman-2,
             .rapor-page {
                 box-shadow: none !important;
                 margin: 0 !important;
+                margin-bottom: 0 !important;
                 border-radius: 0 !important;
-                width: 210mm !important;
-                min-height: 297mm !important;
-                padding: 16mm 24mm !important;
-                page-break-after: always;
-                display: flex;
-                flex-direction: column;
-            }
-            .print-container {
+                width: 100% !important;
+                min-height: 0 !important;
+                max-height: none !important;
+                height: auto !important;
                 padding: 0 !important;
-                margin: 0 !important;
-                width: 210mm !important;
-                max-width: none !important;
+                padding-top: 0 !important;
+                padding-bottom: 0 !important;
+                padding-left: 0 !important;
+                padding-right: 0 !important;
+                display: block !important;
+                overflow: visible !important;
+                flex: none !important;
+                flex-direction: unset !important;
             }
-            .page-break {
-                clear: both;
-                break-before: page;
+            /* Halaman 2: selalu mulai di halaman baru */
+            #rapor-halaman-2 {
+                page-break-before: always !important;
+                break-before: page !important;
+                padding-top: 0 !important;
             }
+            /* Footer halaman 1: override mt-auto */
+            #footer-halaman-1,
+            .page1-footer {
+                margin-top: 20px !important;
+            }
+            /* Tabel rapor bisa pecah antar halaman */
+            .rapor-table { page-break-inside: auto !important; }
+            .rapor-table tr { page-break-inside: avoid !important; break-inside: avoid !important; }
+            .rapor-table thead { display: table-header-group; }
         }
 
-        /* Screen only adjustments for A4 preview */
+        /* Screen only: A4 preview cards */
         @media screen {
             .rapor-page {
                 width: 210mm;
@@ -215,7 +243,7 @@
     <div class="print-container mx-auto py-8">
         
         {{-- ──── HALAMAN 1 ──── --}}
-        <div class="rapor-page mb-8 rounded-lg bg-white px-10 py-8 shadow-xl sm:px-14 sm:py-12 md:px-24 md:py-16">
+        <div id="rapor-halaman-1" class="rapor-page rapor-page-1 mb-8 rounded-lg bg-white px-10 py-8 shadow-xl sm:px-14 sm:py-12 md:px-24 md:py-16">
 
             {{-- ──── JUDUL DOKUMEN ──── --}}
             {{-- ──── IDENTITAS SISWA (DATA DINAMIS) ──── --}}
@@ -311,13 +339,13 @@
             </div>
 
             {{-- ──── FOOTER HALAMAN 1 ──── --}}
-            <div class="mt-auto border-t border-[#e2e8f0] pt-4 text-center">
+            <div id="footer-halaman-1" class="no-print mt-auto page1-footer border-t border-[#e2e8f0] pt-4 text-center">
                 <p class="text-[10px] text-[#94a3b8]">Halaman 1 dari 2</p>
             </div>
         </div>
 
         {{-- ──── HALAMAN 2 ──── --}}
-        <div class="rapor-page page-break rounded-lg bg-white px-10 py-8 shadow-xl sm:px-14 sm:py-12 md:px-24 md:py-16">
+        <div id="rapor-halaman-2" class="rapor-page rapor-page-2 rounded-lg bg-white px-10 py-8 shadow-xl sm:px-14 sm:py-12 md:px-24 md:py-16">
 
 
             {{-- ──── C. SIKAP & D. KEHADIRAN ──── --}}
@@ -435,7 +463,7 @@
             </div>
 
             {{-- ──── FOOTER HALAMAN 2 ──── --}}
-            <div class="mt-auto border-t border-[#e2e8f0] pt-4 text-center">
+            <div class="no-print mt-auto border-t border-[#e2e8f0] pt-4 text-center">
                 <p class="text-[10px] text-[#94a3b8]">Halaman 2 dari 2</p>
             </div>
         </div>
