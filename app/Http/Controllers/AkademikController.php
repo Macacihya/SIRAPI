@@ -261,8 +261,10 @@ class AkademikController extends Controller
         $validated = $request->validate([
             'nama_kelas' => 'required|string|max:50',
             'tingkat' => 'required|string|max:10',
-            'wali_guru_id' => 'required|exists:gurus,user_id',
+            'wali_guru_id' => 'required|exists:gurus,user_id|unique:kelas,wali_guru_id',
             'tahun_ajaran_id' => 'required|exists:tahun_ajarans,id',
+        ], [
+            'wali_guru_id.unique' => 'Guru ini sudah menjadi wali kelas di kelas lain. Silakan pilih guru yang berbeda.',
         ]);
 
         // Menyimpan kelas baru ke database
