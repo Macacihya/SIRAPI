@@ -633,12 +633,12 @@
                     <div class="mt-4 border border-[#e2e8f0] rounded-[8px] overflow-hidden">
                         <div class="max-h-[400px] overflow-y-auto divide-y divide-[#e2e8f0]">
                             <div class="flex items-center gap-3 bg-[#f8fafc] px-4 py-2.5 text-[11px] font-bold text-[#64748b]">
-                                <x-checkbox @change="toggleAllLeft()" :checked="leftSelected.length > 0 && leftSelected.length === filteredLeft.length" />
+                                <x-checkbox @change="toggleAllLeft()" x-bind:checked="leftSelected.length > 0 && leftSelected.length === filteredLeft.length" />
                                 <span class="uppercase tracking-wider">Pilih Semua (<span x-text="filteredLeft.length"></span>)</span>
                             </div>
                             <template x-for="s in filteredLeft" :key="s.id">
                                 <label class="flex items-center gap-3 px-4 py-3 hover:bg-[#f8fafc] transition cursor-pointer select-none">
-                                    <x-checkbox :value="s.id" x-model="leftSelected" />
+                                    <x-checkbox x-bind:value="s.id" x-model="leftSelected" />
                                     <div class="flex-1 min-w-0">
                                         <p class="text-[13px] font-bold text-[#0f172a] truncate" x-text="s.nama"></p>
                                         <p class="text-[11px] font-medium text-[#64748b] mt-0.5">
@@ -691,12 +691,12 @@
                     <div class="mt-4 border border-[#e2e8f0] rounded-[8px] overflow-hidden">
                         <div class="max-h-[400px] overflow-y-auto divide-y divide-[#e2e8f0]">
                             <div class="flex items-center gap-3 bg-[#f8fafc] px-4 py-2.5 text-[11px] font-bold text-[#64748b]">
-                                <x-checkbox @change="toggleAllRight()" :checked="rightSelected.length > 0 && rightSelected.length === filteredRight.length" />
+                                <x-checkbox @change="toggleAllRight()" x-bind:checked="rightSelected.length > 0 && rightSelected.length === filteredRight.length" />
                                 <span class="uppercase tracking-wider">Pilih Semua (<span x-text="filteredRight.length"></span>)</span>
                             </div>
                             <template x-for="s in filteredRight" :key="s.id">
                                 <label class="flex items-center gap-3 px-4 py-3 hover:bg-[#f8fafc] transition cursor-pointer select-none">
-                                    <x-checkbox :value="s.id" x-model="rightSelected" />
+                                    <x-checkbox x-bind:value="s.id" x-model="rightSelected" />
                                     <div class="flex-1 min-w-0">
                                         <p class="text-[13px] font-bold text-[#0f172a] truncate" x-text="s.nama"></p>
                                         <p class="text-[11px] font-medium text-[#64748b] mt-0.5">
